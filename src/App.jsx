@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.4.4";
+const SURUM = "2.4.6";
 
 const KATALOG = [
 
@@ -910,6 +910,55 @@ const KATALOG = [
       { ad: "Soru", dk: 3, metin: "Oki: Yıldız mı, gezegen mi? Lili: Yıldız kendi ışığını verir. Toto: Gezegen ışığı yansıtır. Anlatıcı: Kulüp bir soruyla başladı, küçük bir cevapla büyüdü." },
     ],
   },
+  {
+    id: "english-hello-card",
+    baslik: "English Words: Hello",
+    yazar: "Okurio English Team",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "English Card",
+    yas: "5-8 yaş",
+    renk: ["#28425F", "#6FA7D9"],
+    puan: 4.8,
+    sureDk: 3,
+    ozet: "Pre-A1 seviyesinde ilk İngilizce selamlaşma kelimeleri: hello, bye, please, thank you.",
+    bolumler: [
+      { ad: "Hello", dk: 1, metin: "Hello, Oki. Hello, Lili. Bye, Mino. Thank you, Nana." },
+      { ad: "Please", dk: 1, metin: "Please, Oki. Thank you, Lili. Hello, Mino. Bye, Toto." },
+    ],
+  },
+  {
+    id: "english-sky-words-card",
+    baslik: "English Words: Sky",
+    yazar: "Okurio English Team",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "English Card",
+    yas: "6-8 yaş",
+    renk: ["#1F3A5C", "#7DA7D9"],
+    puan: 4.8,
+    sureDk: 3,
+    ozet: "Gökyüzü subject’i ile uyumlu Pre-A1 kelime kartı: sun, moon, star, sky.",
+    bolumler: [
+      { ad: "Sky Words", dk: 1, metin: "Sun. Moon. Star. Sky. Oki sees the moon. Lili sees a star." },
+      { ad: "Look Up", dk: 1, metin: "Look up. The sky is blue. The sun is bright. The moon is quiet." },
+    ],
+  },
+  {
+    id: "english-colors-card",
+    baslik: "English Words: Colors",
+    yazar: "Okurio English Team",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "English Card",
+    yas: "6-8 yaş",
+    renk: ["#4A315F", "#A786D9"],
+    puan: 4.8,
+    sureDk: 3,
+    ozet: "İlk renk kelimeleriyle çok kısa cümleler: red, blue, yellow, green.",
+    bolumler: [
+      { ad: "Colors", dk: 1, metin: "Red ball. Blue sky. Yellow sun. Green leaf. Oki sees a red ball." },
+      { ad: "I See", dk: 1, metin: "I see blue. I see green. Lili sees yellow. Mino sees red." },
+    ],
+  },
+
 ];
 
 const RAFLAR = [
@@ -920,6 +969,7 @@ const RAFLAR = [
   { ad: "Editörün Seçtikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
   { ad: "Masal Saati", mod: "cocuk", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
   { ad: "English Corner", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10"], ids: ["fox-and-grapes-en", "lion-and-mouse-graded-en", "aesop-fables-en", "ugly-duckling-en"] },
+  { ad: "English Word Cards", mod: "cocuk", yolIds: ["okumaya_hazirlik_5_6", "ilk_harfler_6_7", "ilk_cumleler_7_8"], ids: ["english-hello-card", "english-sky-words-card", "english-colors-card"] },
   { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en", "fox-and-grapes-en", "lion-and-mouse-graded-en", "ugly-duckling-en"] },
   { ad: "Young English Readers", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en"] },
   { ad: "English Classics Bridge", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en"] },
@@ -951,14 +1001,14 @@ const YOL_SEGMENT_GRUPLARI = {
 
 const YOL_ICERIK_TURLERI = {
   okul_oncesi_3_4: ["dinleme_hikayesi", "mini_hikaye", "masal", "fabl", "dunya_masali", "mitoloji_hikayesi"],
-  okumaya_hazirlik_5_6: ["dinleme_hikayesi", "harf_karti", "hece_karti", "masal", "fabl", "mitoloji_hikayesi"],
-  ilk_harfler_6_7: ["harf_karti", "hece_karti", "kelime_karti", "mini_hikaye"],
-  ilk_cumleler_7_8: ["mini_hikaye", "masal", "fabl", "english_easy", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
+  okumaya_hazirlik_5_6: ["dinleme_hikayesi", "harf_karti", "hece_karti", "english_word_card", "masal", "fabl", "mitoloji_hikayesi"],
+  ilk_harfler_6_7: ["harf_karti", "hece_karti", "kelime_karti", "mini_hikaye", "english_word_card"],
+  ilk_cumleler_7_8: ["mini_hikaye", "masal", "fabl", "english_word_card", "english_easy", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
   okuma_guveni_8_10: ["masal", "fabl", "dunya_masali", "english_easy", "mini_hikaye", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
-  akici_okuma_10_12: ["masal", "fabl", "dunya_masali", "english_easy", "kisa_hikaye", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
-  genc_okurlar_12_14: ["english_easy", "dunya_masali", "kisa_hikaye", "klasik_roman", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
-  klasiklere_hazirlik_14_16: ["kisa_hikaye", "klasik_roman", "english_easy", "mitoloji_hikayesi"],
-  lise_okuma_16_18: ["kisa_hikaye", "klasik_roman", "mitoloji_hikayesi"],
+  akici_okuma_10_12: ["masal", "fabl", "dunya_masali", "english_easy", "english_reading", "english_science", "kisa_hikaye", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
+  genc_okurlar_12_14: ["english_easy", "english_reading", "english_science", "english_classic_bridge", "dunya_masali", "kisa_hikaye", "klasik_roman", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
+  klasiklere_hazirlik_14_16: ["kisa_hikaye", "klasik_roman", "english_easy", "english_reading", "english_classic_bridge", "mitoloji_hikayesi"],
+  lise_okuma_16_18: ["kisa_hikaye", "klasik_roman", "english_classic_bridge", "mitoloji_hikayesi"],
   yetiskin_odak_18: ["kisa_hikaye", "klasik_roman", "mitoloji_hikayesi"],
 };
 
@@ -989,6 +1039,10 @@ const ICERIK_METADATA = {
   "grimm-masallari": { yasMin: 5, yasMax: 10, segmentler: ["okumaya_hazirlik", "ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["dinleme", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "masal" },
   "japon-masallari": { yasMin: 5, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "dunya_masali" },
   "cin-masallari": { yasMin: 5, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "dunya_masali" },
+
+  "english-hello-card": { yasMin: 5, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_word_card", subject: "english", oql: 1, cefr: "Pre-A1", targetWords: ["hello", "bye", "please", "thank you"] },
+  "english-sky-words-card": { yasMin: 6, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_word_card", subject: "english", oql: 1, cefr: "Pre-A1", targetWords: ["sun", "moon", "star", "sky"] },
+  "english-colors-card": { yasMin: 6, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_word_card", subject: "english", oql: 1, cefr: "Pre-A1", targetWords: ["red", "blue", "yellow", "green"] },
   "aesop-fables-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
   "peter-rabbit-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
   "ugly-duckling-en": { yasMin: 8, yasMax: 13, segmentler: ["okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
@@ -1044,6 +1098,10 @@ const SORU_BANKASI = {
   "nana-anlatiyor": [{ soru: "Kim anlattı?", secenekler: ["Nana", "Toto", "Mino"], cevap: "Nana", destek: "Hikâyede Nana anlattı." }],
 
 
+
+  "english-hello-card": [{ soru: "What does Oki say?", secenekler: ["Hello", "Moon", "Red"], cevap: "Hello", destek: "Oki says hello." }],
+  "english-sky-words-card": [{ soru: "Which word means Ay?", secenekler: ["Moon", "Book", "Door"], cevap: "Moon", destek: "Moon means Ay." }],
+  "english-colors-card": [{ soru: "Which word is a color?", secenekler: ["Blue", "Rabbit", "Watch"], cevap: "Blue", destek: "Blue is a color word." }],
   "fox-and-grapes-en": [{ soru: "What did the fox see?", secenekler: ["Grapes", "A moon", "A book"], cevap: "Grapes", destek: "The fox saw purple grapes high on a tree." }],
   "lion-and-mouse-graded-en": [{ soru: "Who helped the lion?", secenekler: ["The mouse", "The rabbit", "The giant"], cevap: "The mouse", destek: "The little mouse bit the rope and helped the lion." }],
   "alice-rabbit-hole-en": [{ soru: "Who did Alice follow?", secenekler: ["A white rabbit", "A bird", "A teacher"], cevap: "A white rabbit", destek: "Alice followed a white rabbit with a watch." }],
@@ -1633,7 +1691,16 @@ export default function DinletiApp() {
   const uyumluRaflar = useMemo(() => RAFLAR
     .filter((raf) => !raf.yolIds || raf.yolIds.includes(okumaYolu.yolId))
     .map((raf) => ({ ...raf, ids: raf.ids.filter((id) => kitapUyum(kitapBul(id))) }))
-    .filter((raf) => raf.ids.length > 0), [kitapUyum, okumaYolu.yolId]);
+    .filter((raf) => raf.ids.length > 0 || Boolean(raf.yolIds)), [kitapUyum, okumaYolu.yolId]);
+
+  const icerikAuditOzeti = useMemo(() => {
+    const rafSayilari = uyumluRaflar.map((raf) => `${raf.ad}: ${raf.ids.length}`);
+    const bosRaflar = uyumluRaflar.filter((raf) => raf.ids.length === 0).map((raf) => raf.ad);
+    const eksikOql = uyumluKatalog.filter((k) => icerikKalitesi(k).toplamKelime === 0).length;
+    const eksikSoru = uyumluKatalog.filter((k) => !SORU_BANKASI[k.id]).length;
+    const englishSayisi = uyumluKatalog.filter((k) => k.dil === "en").length;
+    return { rafSayilari, bosRaflar, eksikOql, eksikSoru, englishSayisi, toplam: uyumluKatalog.length };
+  }, [uyumluRaflar, uyumluKatalog]);
 
   const okumaYolunuKaydet = (yeni) => {
     const temiz = { ...VARSAYILAN_OKUMA_YOLU, ...yeni, secildi: true };
@@ -1816,16 +1883,22 @@ export default function DinletiApp() {
 
   /* ------------------------- Alt bileşenler ------------------------- */
 
-  const KitapKart = ({ kitap, genis }) => (
-    <div onClick={() => setDetayId(kitap.id)} style={{ cursor: "pointer", width: genis ? "100%" : 128 }}>
-      <Kapak kitap={kitap} boyut={genis ? 96 : 128} />
-      <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{kitap.baslik}</div>
-      <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{kitap.yazar}</div>
-      {kitap.yas && <div data-yas style={{ fontSize: 11, color: S.vurgu, marginTop: 3 }}>{kitap.yas}{kitap.dil === "en" ? " · English" : ""}{kitapMeta(kitap).harfGrubu ? ` · ${kitapMeta(kitap).harfGrubu}. harf grubu` : ""}</div>}
-      <div data-icerik-yolu style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{kitapMeta(kitap).icerikTuru.replace(/_/g, " ")}</div>
-      <div data-oql style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>OQL-{icerikKalitesi(kitap).oql} · {icerikKalitesi(kitap).toplamKelime} kelime</div>
-    </div>
-  );
+  const KitapKart = ({ kitap, genis }) => {
+    const meta = kitapMeta(kitap);
+    const kalite = icerikKalitesi(kitap);
+    return (
+      <div onClick={() => setDetayId(kitap.id)} style={{ cursor: "pointer", width: genis ? "100%" : 128 }}>
+        <Kapak kitap={kitap} boyut={genis ? 96 : 128} />
+        <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{kitap.baslik}</div>
+        <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{kitap.yazar}</div>
+        <div data-yas style={{ fontSize: 11, color: S.vurgu, marginTop: 3 }}>
+          {kitap.yas || `${meta.yasMin || ""}${meta.yasMax ? `–${meta.yasMax}` : "+"} yaş`}{kitap.dil === "en" ? ` · CEFR ${meta.cefr || "A1"}` : ""}{meta.harfGrubu ? ` · ${meta.harfGrubu}. harf grubu` : ""}
+        </div>
+        <div data-icerik-yolu style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{meta.icerikTuru.replace(/_/g, " ")}</div>
+        <div data-oql style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>OQL-{kalite.oql} · {kalite.toplamKelime} kelime · ort. {kalite.ortCumle.toFixed(1)}</div>
+      </div>
+    );
+  };
 
   const DevamKart = () => {
     const devamlar = Object.entries(ilerlemeler)
@@ -1932,12 +2005,24 @@ export default function DinletiApp() {
       )}
       <DevamKart />
       {uyumluRaflar.length === 0 && <div style={{ color: S.soluk, fontSize: 14, marginTop: 18 }}>Bu okuma yolu için içerik hazırlığı sürüyor. Okuma yolunu değiştirerek mevcut seçkilere bakabilirsin.</div>}
+      <div data-audit-ozet style={{ background: S.kart, border: `1px solid ${S.kart2}`, borderRadius: 14, padding: 12, marginTop: 18 }}>
+        <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700 }}>İçerik durumu</div>
+        <div style={{ fontSize: 11, color: S.soluk, marginTop: 4 }}>
+          Bu yolda {icerikAuditOzeti.toplam} uygun içerik · {icerikAuditOzeti.englishSayisi} İngilizce içerik · {icerikAuditOzeti.bosRaflar.length} hazırlık rafı
+        </div>
+      </div>
       {uyumluRaflar.map((raf) => (
         <div key={raf.ad} style={{ marginTop: 28 }}>
-          <div style={{ ...baslikStil, fontSize: 19, marginBottom: 14 }}>{raf.ad}</div>
-          <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 6 }}>
-            {raf.ids.map((id) => <KitapKart key={id} kitap={kitapBul(id)} />)}
-          </div>
+          <div style={{ ...baslikStil, fontSize: 19, marginBottom: 14 }}>{raf.ad} <span style={{ fontFamily: "Inter, system-ui, sans-serif", color: S.soluk, fontSize: 12, fontWeight: 500 }}>· {raf.ids.length > 0 ? `${raf.ids.length} içerik` : "hazırlanıyor"}</span></div>
+          {raf.ids.length === 0 ? (
+            <div data-bos-raf style={{ background: S.kart, color: S.soluk, borderRadius: 14, padding: 14, fontSize: 13 }}>
+              Bu başlık için içerik hazırlanıyor. İçerik ekibi bu okuma yoluna uygun metinleri OQL ve yaş seviyesine göre genişletiyor.
+            </div>
+          ) : (
+            <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 6 }}>
+              {raf.ids.map((id) => <KitapKart key={id} kitap={kitapBul(id)} />)}
+            </div>
+          )}
         </div>
       ))}
     </div>
