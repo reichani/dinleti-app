@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.3.1";
+const SURUM = "2.4.0";
 
 const KATALOG = [
 
@@ -102,6 +102,166 @@ const KATALOG = [
     bolumler: [
       { ad: "Mini Hikâye", dk: 3, metin: "Ela el ele yürüdü. Ali atı anlattı. Oki ana dedi. Lili el salladı. Herkes tane tane okudu." },
       { ad: "Birlikte Tekrar", dk: 1, metin: "Ela el ele. Ali ata baktı. Oki el salladı. Yavaşça takip edelim." },
+    ],
+  },
+  {
+    id: "oki-ses-e",
+    baslik: "E Sesi",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#735C2E", "#D8B45C"],
+    puan: 4.9,
+    sureDk: 2,
+    ozet: "1. harf grubu içinde E sesini duymaya, görmeye ve el/en heceleriyle takip etmeye hazırlayan mikro çalışma.",
+    bolumler: [
+      { ad: "Sesi Dinle", dk: 1, metin: "Bugünün sesi e. E sesi kısa ve açık çıkar. E. E. E. Lili e sesini duydu." },
+      { ad: "Harf ve Hece", dk: 1, metin: "e. en. el. et. Ela e sesini buldu. Oki el hecesini takip etti." },
+    ],
+  },
+  {
+    id: "oki-ses-t",
+    baslik: "T Sesi",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#5D3F32", "#C58A68"],
+    puan: 4.9,
+    sureDk: 2,
+    ozet: "T sesini kısa heceler içinde tanıtan ve at/et gibi ilk hecelere bağlayan çalışma.",
+    bolumler: [
+      { ad: "Sesi Dinle", dk: 1, metin: "Bugünün sesi t. T sesi kısa çıkar. T. T. T. Toto t sesini duydu." },
+      { ad: "Heceye Geç", dk: 1, metin: "a ve t yan yana geldi. at. e ve t yan yana geldi. et. Oki at hecesini takip etti." },
+    ],
+  },
+  {
+    id: "oki-ses-i",
+    baslik: "İ Sesi",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#33485C", "#7FA6C7"],
+    puan: 4.9,
+    sureDk: 2,
+    ozet: "İ sesini il/in gibi kısa hecelerle birleştiren, yavaş ve takipli mikro çalışma.",
+    bolumler: [
+      { ad: "Sesi Dinle", dk: 1, metin: "Bugünün sesi i. İ sesi ince çıkar. İ. İ. İ. Mino i sesini duydu." },
+      { ad: "Harf ve Hece", dk: 1, metin: "i. il. in. it. Lili il hecesini buldu. Oki tane tane takip etti." },
+    ],
+  },
+  {
+    id: "oki-ses-l",
+    baslik: "L Sesi",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#3D5A3A", "#8EB77C"],
+    puan: 4.9,
+    sureDk: 2,
+    ozet: "L sesini el, al ve il heceleriyle tanıtan sakin ilk okuma çalışması.",
+    bolumler: [
+      { ad: "Sesi Dinle", dk: 1, metin: "Bugünün sesi l. L sesi dilimizle çıkar. L. L. L. Lili l sesini söyledi." },
+      { ad: "Heceye Geç", dk: 1, metin: "e ve l yan yana geldi. el. a ve l yan yana geldi. al. i ve l yan yana geldi. il." },
+    ],
+  },
+  {
+    id: "oki-heceler-2",
+    baslik: "al el il in it",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#4A3F6B", "#9483CF"],
+    puan: 4.9,
+    sureDk: 3,
+    ozet: "1. harf grubu içinde ikinci hece seti: al, el, il, in, it. Heceyi gör, duy ve takip et.",
+    bolumler: [
+      { ad: "Hece Kartları", dk: 2, metin: "al. el. il. in. it. Oki heceleri dinledi. Lili il hecesini gösterdi." },
+      { ad: "Tekrar", dk: 1, metin: "al. el. il. in. it. Her hece bir küçük adımdır. Yavaşça takip edelim." },
+    ],
+  },
+  {
+    id: "ali-ile-ela",
+    baslik: "Ali ile Ela",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#5A2E42", "#B96F8D"],
+    puan: 4.9,
+    sureDk: 4,
+    ozet: "Ali ve Ela karakterleriyle, 1. grup harflerden kurulan ilk cümlelere geçiş hikâyesi.",
+    bolumler: [
+      { ad: "Mini Hikâye", dk: 3, metin: "Ali el salladı. Ela onu gördü. Oki ata baktı. Lili sakin sakin anlattı." },
+      { ad: "Birlikte Tekrar", dk: 1, metin: "Ali el salladı. Ela gördü. Oki baktı. Şimdi birlikte okuyalım." },
+    ],
+  },
+  {
+    id: "lili-ile-at",
+    baslik: "Lili ile At",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#2F4F47", "#73A995"],
+    puan: 4.9,
+    sureDk: 4,
+    ozet: "Lili'nin atla karşılaşmasını çok kısa cümlelerle anlatan, güven veren ilk okuma hikâyesi.",
+    bolumler: [
+      { ad: "Mini Hikâye", dk: 3, metin: "Lili atı gördü. At ona baktı. Lili el salladı. Oki gülümsedi. Nana anlattı." },
+      { ad: "Birlikte Tekrar", dk: 1, metin: "Lili atı gördü. At baktı. Oki el salladı. Tane tane takip edelim." },
+    ],
+  },
+  {
+    id: "oki-el-ele",
+    baslik: "Oki El Ele",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#3A4E71", "#789BDB"],
+    puan: 4.9,
+    sureDk: 4,
+    ozet: "Oki ve Lili'nin birlikte okuma deneyimini, el ele ve sakin tekrarlarla anlatan mini hikâye.",
+    bolumler: [
+      { ad: "Mini Hikâye", dk: 3, metin: "Oki el ele yürüdü. Lili el tuttu. Mino onlara baktı. Nana yavaşça okudu." },
+      { ad: "Birlikte Tekrar", dk: 1, metin: "Oki el ele. Lili el tuttu. Mino baktı. Ben de takip ediyorum." },
+    ],
+  },
+  {
+    id: "mino-nerede",
+    baslik: "Mino Nerede?",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#4E4A2D", "#C0B15A"],
+    puan: 4.9,
+    sureDk: 4,
+    ozet: "Mino'yu arayan Oki'nin kısa ve eğlenceli hikâyesi; ilk okuma için sınırlı kelime ve sakin tekrar.",
+    bolumler: [
+      { ad: "Mini Hikâye", dk: 3, metin: "Mino el altında. Oki onu aradı. Lili eliyle gösterdi. Mino çıktı. Oki güldü." },
+      { ad: "Birlikte Tekrar", dk: 1, metin: "Mino çıktı. Oki güldü. Lili gösterdi. Şimdi yavaşça okuyorum." },
+    ],
+  },
+  {
+    id: "nana-anlatiyor",
+    baslik: "Nana Anlatıyor",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#5B3A2E", "#C28C70"],
+    puan: 4.9,
+    sureDk: 4,
+    ozet: "Nana'nın yavaş ve güvenli anlatımıyla 1. grup harfleri tekrar eden kapanış hikâyesi.",
+    bolumler: [
+      { ad: "Mini Hikâye", dk: 3, metin: "Nana anlattı. Oki dinledi. Lili el salladı. Ali atı tanıdı. Ela güldü." },
+      { ad: "Birlikte Tekrar", dk: 1, metin: "Nana anlattı. Oki dinledi. Ali atı tanıdı. Bir adım daha tamamlandı." },
     ],
   },
   {
@@ -392,8 +552,9 @@ const KATALOG = [
 ];
 
 const RAFLAR = [
-  { ad: "Oki İlk Harfler", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-heceler-1", "oki-kelimeler-1", "oki-ati-taniyor", "ela-el-ele"] },
-  { ad: "1. Grup: a n e t i l", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-heceler-1", "oki-kelimeler-1"] },
+  { ad: "Oki İlk Harfler", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1", "oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
+  { ad: "1. Grup: a n e t i l", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1"] },
+  { ad: "Oki Mini Hikâyeler", mod: "cocuk", ids: ["oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
   { ad: "Editörün Seçtikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
   { ad: "Masal Saati", mod: "cocuk", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
   { ad: "English Corner", mod: "cocuk", ids: ["peter-rabbit-en", "aesop-fables-en", "ugly-duckling-en"] },
@@ -436,6 +597,16 @@ const ICERIK_METADATA = {
   "oki-kelimeler-1": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "kelime_karti", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"], kelimeler: ["ana", "anne", "Ali", "Ela", "at", "el", "tel"] },
   "oki-ati-taniyor": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
   "ela-el-ele": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
+  "oki-ses-e": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["e"], heceler: ["en", "el", "et"] },
+  "oki-ses-t": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["t"], heceler: ["at", "et", "it"] },
+  "oki-ses-i": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["i"], heceler: ["il", "in", "it"] },
+  "oki-ses-l": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["l"], heceler: ["al", "el", "il"] },
+  "oki-heceler-2": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler"], okumaEvreleri: ["hece_kelime", "ses_harf", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "hece_karti", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"], heceler: ["al", "el", "il", "in", "it"] },
+  "ali-ile-ela": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
+  "lili-ile-at": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
+  "oki-el-ele": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
+  "mino-nerede": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
+  "nana-anlatiyor": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
   "keloglan-masallari": { yasMin: 4, yasMax: 8, segmentler: ["okul_oncesi", "okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "masal" },
   "la-fontaine-fugue": { yasMin: 4, yasMax: 9, segmentler: ["okul_oncesi", "okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "fabl" },
   "andersen-masallari": { yasMin: 5, yasMax: 10, segmentler: ["okumaya_hazirlik", "ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["dinleme", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "masal" },
@@ -453,6 +624,31 @@ const ICERIK_METADATA = {
   "kurk-mantolu-madonna": { yasMin: 13, yasMax: 99, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
   "mai-ve-siyah": { yasMin: 13, yasMax: 99, segmentler: ["klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
 };
+
+
+const SORU_BANKASI = {
+  "oki-ses-a": [{ soru: "Oki hangi sesi duydu?", secenekler: ["a", "m", "o"], cevap: "a", destek: "Oki bugün a sesini duydu." }],
+  "oki-ses-n": [{ soru: "Nana hangi sesi söyledi?", secenekler: ["n", "a", "l"], cevap: "n", destek: "Nana n sesini söyledi." }],
+  "oki-ses-e": [{ soru: "Ela hangi sesi buldu?", secenekler: ["e", "t", "i"], cevap: "e", destek: "Ela e sesini buldu." }],
+  "oki-ses-t": [{ soru: "Toto hangi sesi duydu?", secenekler: ["t", "n", "e"], cevap: "t", destek: "Toto t sesini duydu." }],
+  "oki-ses-i": [{ soru: "Mino hangi sesi duydu?", secenekler: ["i", "a", "t"], cevap: "i", destek: "Mino i sesini duydu." }],
+  "oki-ses-l": [{ soru: "Lili hangi sesi söyledi?", secenekler: ["l", "n", "a"], cevap: "l", destek: "Lili l sesini söyledi." }],
+  "oki-heceler-1": [{ soru: "Lili hangi heceyi buldu?", secenekler: ["el", "mor", "su"], cevap: "el", destek: "Lili el hecesini buldu." }],
+  "oki-heceler-2": [{ soru: "Bu kartta hangi hece vardı?", secenekler: ["il", "ku", "ra"], cevap: "il", destek: "Bu kartta il hecesi vardı." }],
+  "oki-kelimeler-1": [{ soru: "Oki hangi kelimeleri duydu?", secenekler: ["ana ve anne", "deniz ve ay", "kuş ve kar"], cevap: "ana ve anne", destek: "Oki ana, anne, Ali ve Ela kelimelerini duydu." }],
+  "oki-ati-taniyor": [{ soru: "Oki ne gördü?", secenekler: ["Atı", "Topu", "Kalemi"], cevap: "Atı", destek: "Hikâyede Oki atı gördü." }],
+  "ela-el-ele": [{ soru: "Ela nasıl yürüdü?", secenekler: ["El ele", "Tek başına", "Koşarak"], cevap: "El ele", destek: "Ela el ele yürüdü." }],
+  "ali-ile-ela": [{ soru: "Ali ne yaptı?", secenekler: ["El salladı", "Uyudu", "Saklandı"], cevap: "El salladı", destek: "Ali el salladı." }],
+  "lili-ile-at": [{ soru: "Lili ne gördü?", secenekler: ["Atı", "Evi", "Kutu"], cevap: "Atı", destek: "Lili atı gördü." }],
+  "oki-el-ele": [{ soru: "Oki kiminle el ele yürüdü?", secenekler: ["Lili", "Robot", "Karga"], cevap: "Lili", destek: "Oki ve Lili el ele yürüdü." }],
+  "mino-nerede": [{ soru: "Mino nereden çıktı?", secenekler: ["El altından", "Denizden", "Aydan"], cevap: "El altından", destek: "Mino el altından çıktı." }],
+  "nana-anlatiyor": [{ soru: "Kim anlattı?", secenekler: ["Nana", "Toto", "Mino"], cevap: "Nana", destek: "Hikâyede Nana anlattı." }],
+};
+
+function kitapSorusu(kitap) {
+  if (!kitap) return null;
+  return SORU_BANKASI[kitap.id]?.[0] || null;
+}
 
 const OKUMA_YOLLARI = [
   { id: "okul_oncesi_3_4", baslik: "Minik Dinleyiciler", yas: "3–4", mod: "cocuk", evre: "dinleme", hedef: "Dinleme alışkanlığı, kelime duyarlılığı ve kısa hikâye ritmi", slogan: "Dinle, hayal et, anlat.", rozetAdi: "Hikâye Tohumu" },
@@ -664,6 +860,7 @@ export default function DinletiApp() {
   const [uyku, setUyku] = useState(0);                // kalan sn, 0 = kapalı
   const [seslendirme, setSeslendirme] = useState(true);
   const [okumaModu, setOkumaModu] = useState("dinliyorum");
+  const [soruCevabi, setSoruCevabi] = useState(null);
   const [sesTonu, setSesTonu] = useState("oki");
   const [favoriler, setFavoriler] = useState([]);
   const [ilerlemeler, setIlerlemeler] = useState({}); // {id:{pos,ts}}
@@ -931,7 +1128,7 @@ export default function DinletiApp() {
   useEffect(() => { if (!caliyor) konusmayiDurdur(); }, [caliyor]);
 
   /* Kelime vurgusu: bölüm/kitap değişince başa dön */
-  useEffect(() => { setKelimeIx(0); }, [aktifId, aktifBolumIx]);
+  useEffect(() => { setKelimeIx(0); setSoruCevabi(null); }, [aktifId, aktifBolumIx]);
 
   /* Kelime vurgusu: uyarlanabilir tahmin motoru.
      onboundary olayları geliyorsa gerçek senkron onları kullanır; gelmiyorsa
@@ -1539,6 +1736,35 @@ export default function DinletiApp() {
               );
             })()}
           </div>
+
+
+          {(() => {
+            const soru = kitapSorusu(aktif);
+            if (!soru) return null;
+            return (
+              <div data-birlikte-dusunelim style={{ flexShrink: 0, marginTop: 10, background: "rgba(232,163,61,0.10)", border: "1px solid rgba(232,163,61,0.22)", borderRadius: 14, padding: "10px 12px" }}>
+                <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>Birlikte Düşünelim</div>
+                <div style={{ fontSize: 14, color: S.metin, fontWeight: 600, marginBottom: 8 }}>{soru.soru}</div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {soru.secenekler.map((secenek) => {
+                    const secildi = soruCevabi === secenek;
+                    const dogru = secenek === soru.cevap;
+                    return (
+                      <button key={secenek} onClick={() => setSoruCevabi(secenek)}
+                        style={{ background: secildi ? (dogru ? "rgba(120,168,120,0.25)" : "rgba(232,163,61,0.16)") : "rgba(255,255,255,0.08)", border: secildi ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "8px 10px", color: S.metin, cursor: "pointer", fontFamily: "inherit", fontSize: 12 }}>
+                        {secenek}
+                      </button>
+                    );
+                  })}
+                </div>
+                {soruCevabi && (
+                  <div data-soru-geri-bildirim style={{ marginTop: 8, fontSize: 12, color: soruCevabi === soru.cevap ? "#BFE3B8" : "rgba(242,236,223,0.78)", lineHeight: 1.45 }}>
+                    {soruCevabi === soru.cevap ? `Evet. ${soru.destek} Bir küçük adım daha tamamlandı.` : `Bir daha birlikte bakalım. ${soru.destek}`}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* ALT KONTROL BLOĞU: sabit */}
           <div data-alt-kontrol style={{ flexShrink: 0, paddingTop: 10 }}>
