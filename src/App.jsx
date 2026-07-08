@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.1.1";
+const SURUM = "2.1.3";
 
 const KATALOG = [
   {
@@ -303,6 +303,39 @@ const RAFLAR = [
   { ad: "Klasik Romanlar", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "calikusu", "mai-ve-siyah"] },
 ];
 
+
+const YOL_SEGMENT_GRUPLARI = {
+  okul_oncesi_3_4: ["okul_oncesi", "dinleme"],
+  okumaya_hazirlik_5_6: ["okumaya_hazirlik", "dinleme", "ses_farkindaligi"],
+  ilk_harfler_6_7: ["ilk_harfler_heceler", "okumaya_hazirlik", "dinleme"],
+  ilk_cumleler_7_8: ["ilk_cumleler", "okuma_guveni", "dinleme"],
+  okuma_guveni_8_10: ["okuma_guveni", "ilk_cumleler", "akici_okuma", "dinleme"],
+  akici_okuma_10_12: ["akici_okuma", "okuma_guveni", "genc_okurlar"],
+  genc_okurlar_12_14: ["genc_okurlar", "klasiklere_hazirlik", "akici_okuma"],
+  klasiklere_hazirlik_14_16: ["klasiklere_hazirlik", "lise_okuma", "genc_okurlar"],
+  lise_okuma_16_18: ["lise_okuma", "klasiklere_hazirlik", "yetiskin_odak"],
+  yetiskin_odak_18: ["yetiskin_odak", "lise_okuma"],
+};
+
+const ICERIK_METADATA = {
+  "keloglan-masallari": { yasMin: 4, yasMax: 8, segmentler: ["okul_oncesi", "okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "masal" },
+  "la-fontaine-fugue": { yasMin: 4, yasMax: 9, segmentler: ["okul_oncesi", "okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "fabl" },
+  "andersen-masallari": { yasMin: 5, yasMax: 10, segmentler: ["okumaya_hazirlik", "ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["dinleme", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "masal" },
+  "ezop-masallari": { yasMin: 4, yasMax: 9, segmentler: ["okul_oncesi", "okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["dinleme", "hece_kelime", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "fabl" },
+  "grimm-masallari": { yasMin: 5, yasMax: 10, segmentler: ["okumaya_hazirlik", "ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["dinleme", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "masal" },
+  "japon-masallari": { yasMin: 5, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "dunya_masali" },
+  "cin-masallari": { yasMin: 5, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "dunya_masali" },
+  "aesop-fables-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy" },
+  "peter-rabbit-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy" },
+  "ugly-duckling-en": { yasMin: 8, yasMax: 13, segmentler: ["okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy" },
+  "yuksek-okceler": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
+  "pembe-incili-kaftan": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
+  "diyet": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
+  "calikusu": { yasMin: 12, yasMax: 99, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
+  "kurk-mantolu-madonna": { yasMin: 13, yasMax: 99, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
+  "mai-ve-siyah": { yasMin: 13, yasMax: 99, segmentler: ["klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
+};
+
 const OKUMA_YOLLARI = [
   { id: "okul_oncesi_3_4", baslik: "Minik Dinleyiciler", yas: "3–4", mod: "cocuk", evre: "dinleme", hedef: "Dinleme alışkanlığı, kelime duyarlılığı ve kısa hikâye ritmi", slogan: "Dinle, hayal et, anlat.", rozetAdi: "Hikâye Tohumu" },
   { id: "okumaya_hazirlik_5_6", baslik: "Okumaya Hazırlık", yas: "5–6", mod: "cocuk", evre: "ses_farkindaligi", hedef: "Ses farkındalığı, ritim, dikkat ve okuma öncesi hazırlık", slogan: "Sesleri duy, hikâyeyi takip et.", rozetAdi: "Ses Kaşifi" },
@@ -355,6 +388,26 @@ const VARSAYILAN_OKUMA_YOLU = {
 
 const yolBul = (id) => OKUMA_YOLLARI.find((y) => y.id === id) || OKUMA_YOLLARI[4];
 const evreBul = (id) => EVRE_SECENEKLERI.find((e) => e.id === id) || EVRE_SECENEKLERI[4];
+
+const kitapMeta = (kitap) => ICERIK_METADATA[kitap.id] || {
+  yasMin: kitap.kategori === "Masal" ? 5 : 14,
+  yasMax: kitap.kategori === "Masal" ? 10 : 99,
+  segmentler: kitap.kategori === "Masal" ? ["okuma_guveni"] : ["yetiskin_odak"],
+  okumaEvreleri: kitap.kategori === "Masal" ? ["dinleme", "kisa_cumle", "paragraf"] : ["uzun_metin", "okumaya_donus"],
+  destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"],
+  icerikTuru: kitap.kategori.toLowerCase(),
+};
+const yolSegmentleri = (yolId) => YOL_SEGMENT_GRUPLARI[yolId] || [yolBul(yolId).evre];
+const kitapOkumaYolunaUygunMu = (kitap, yol = VARSAYILAN_OKUMA_YOLU) => {
+  if (!kitap) return false;
+  const yolDetay = yolBul(yol.yolId);
+  const meta = kitapMeta(kitap);
+  const hedefSegmentler = yolSegmentleri(yol.yolId);
+  const segmentUyumu = meta.segmentler.some((s) => hedefSegmentler.includes(s));
+  const modUyumu = yolDetay.mod === "yetiskin" ? meta.segmentler.includes("yetiskin_odak") : !meta.segmentler.every((s) => s === "yetiskin_odak");
+  const evreUyumu = !yol.evreId || meta.okumaEvreleri.includes(yol.evreId) || hedefSegmentler.includes("dinleme") || yolDetay.mod === "yetiskin";
+  return segmentUyumu && modUyumu && evreUyumu;
+};
 
 /* ------------------------------------------------------------------ */
 /* Yardımcılar                                                         */
@@ -794,9 +847,25 @@ export default function DinletiApp() {
   const okumaEvreDetay = evreBul(okumaYolu.evreId);
   const aktifMod = okumaYoluDetay.mod || mod;
 
+  const kitapUyum = useCallback((k, yol = okumaYolu) => kitapOkumaYolunaUygunMu(k, yol), [okumaYolu]);
+  const uyumluKatalog = useMemo(() => KATALOG.filter((k) => kitapUyum(k)), [kitapUyum]);
+  const uyumluRaflar = useMemo(() => RAFLAR
+    .map((raf) => ({ ...raf, ids: raf.ids.filter((id) => kitapUyum(kitapBul(id))) }))
+    .filter((raf) => raf.ids.length > 0), [kitapUyum]);
+
   const okumaYolunuKaydet = (yeni) => {
     const temiz = { ...VARSAYILAN_OKUMA_YOLU, ...yeni, secildi: true };
     const yol = yolBul(temiz.yolId);
+    const aktifKitap = kitapBul(aktifId);
+    const aktifUyumlu = !aktifKitap || kitapOkumaYolunaUygunMu(aktifKitap, temiz);
+    if (!aktifUyumlu) {
+      konusmayiDurdur();
+      setCaliyor(false);
+      setOynaticiAcik(false);
+      setDetayId(null);
+      setAktifId(null);
+      setPozisyon(0);
+    }
     setOkumaYolu(temiz);
     setMod(yol.mod);
     setOnboardingAcik(false);
@@ -812,7 +881,6 @@ export default function DinletiApp() {
     const aday = OKUMA_YOLLARI.find((y) => y.mod === m) || yolBul(okumaYolu.yolId);
     okumaYolunuKaydet({ ...okumaYolu, yolId: aday.id });
   };
-  const modUyum = (k) => (aktifMod === "cocuk" ? k.kategori === "Masal" : k.kategori !== "Masal");
 
   const seriGuncelle = () => {
     setSeri((e) => {
@@ -880,11 +948,21 @@ export default function DinletiApp() {
     setPozisyon(yeni);
     vurguHizala(yeni, true);
   };
+  const oynatKitapBolum = (kitapId, ix) => {
+    const k = kitapBul(kitapId);
+    if (!k) return;
+    konusmayiDurdur();
+    setAktifId(kitapId);
+    setPozisyon(bolumBasiSn(k, ix));
+    setKelimeIx(0);
+    setCaliyor(true);
+    seriGuncelle();
+    konusmayiBaslat(k, ix, 0);
+  };
+
   const bolumeGit = (ix) => {
     if (!aktif) return;
-    setPozisyon(bolumBasiSn(aktif, ix));
-    setCaliyor(true);
-    konusmayiBaslat(aktif, ix, 0);
+    oynatKitapBolum(aktif.id, ix);
   };
 
   const favoriDegistir = (id) => {
@@ -939,12 +1017,13 @@ export default function DinletiApp() {
       <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{kitap.baslik}</div>
       <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{kitap.yazar}</div>
       {kitap.yas && <div data-yas style={{ fontSize: 11, color: S.vurgu, marginTop: 3 }}>{kitap.yas}{kitap.dil === "en" ? " · English" : ""}</div>}
+      <div data-icerik-yolu style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{kitapMeta(kitap).icerikTuru.replace(/_/g, " ")}</div>
     </div>
   );
 
   const DevamKart = () => {
     const devamlar = Object.entries(ilerlemeler)
-      .filter(([id, v]) => v.pos > 10 && kitapBul(id))
+      .filter(([id, v]) => v.pos > 10 && kitapUyum(kitapBul(id)))
       .sort((a, b) => b[1].ts - a[1].ts);
     if (devamlar.length === 0) return null;
     const [id, v] = devamlar[0];
@@ -1039,7 +1118,8 @@ export default function DinletiApp() {
         </div>
       )}
       <DevamKart />
-      {RAFLAR.filter((raf) => !raf.mod || raf.mod === aktifMod).map((raf) => (
+      {uyumluRaflar.length === 0 && <div style={{ color: S.soluk, fontSize: 14, marginTop: 18 }}>Bu okuma yolu için içerik hazırlığı sürüyor. Okuma yolunu değiştirerek mevcut seçkilere bakabilirsin.</div>}
+      {uyumluRaflar.map((raf) => (
         <div key={raf.ad} style={{ marginTop: 28 }}>
           <div style={{ ...baslikStil, fontSize: 19, marginBottom: 14 }}>{raf.ad}</div>
           <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 6 }}>
@@ -1052,7 +1132,7 @@ export default function DinletiApp() {
 
   const AramaSayfa = () => {
     const q = arama.trim().toLowerCase();
-    const evren = KATALOG.filter(modUyum);
+    const evren = uyumluKatalog;
     const sonuc = q ? evren.filter((k) => (k.baslik + " " + k.yazar + " " + k.kategori).toLowerCase().includes(q)) : evren;
     return (
       <div style={{ padding: "24px 20px" }}>
@@ -1077,8 +1157,8 @@ export default function DinletiApp() {
   };
 
   const KitaplikSayfa = () => {
-    const favKitaplar = favoriler.map(kitapBul).filter(Boolean);
-    const devamlar = Object.entries(ilerlemeler).filter(([id, v]) => v.pos > 10 && kitapBul(id)).sort((a, b) => b[1].ts - a[1].ts);
+    const favKitaplar = favoriler.map(kitapBul).filter((k) => k && kitapUyum(k));
+    const devamlar = Object.entries(ilerlemeler).filter(([id, v]) => v.pos > 10 && kitapUyum(kitapBul(id))).sort((a, b) => b[1].ts - a[1].ts);
     return (
       <div style={{ padding: "24px 20px" }}>
         <div style={{ ...baslikStil, fontSize: 26, marginBottom: 20 }}>Kitaplığım</div>
@@ -1111,6 +1191,7 @@ export default function DinletiApp() {
   const DetaySayfa = () => {
     const k = kitapBul(detayId);
     if (!k) return null;
+    const profilUyumlu = kitapUyum(k);
     const p = ilerlemeler[k.id]?.pos || 0;
     const fav = favoriler.includes(k.id);
     return (
@@ -1131,8 +1212,13 @@ export default function DinletiApp() {
           {k.yas && <span style={{ background: "rgba(232,163,61,0.15)", color: S.vurgu, borderRadius: 6, padding: "1px 7px" }}>{k.yas}</span>}
           {k.dil === "en" && <span style={{ background: "rgba(90,140,160,0.25)", color: "#9CCDE0", borderRadius: 6, padding: "1px 7px" }}>English</span>}
         </div>
-        <button onClick={() => { oynatDegistir(k.id); setOynaticiAcik(true); }}
-          style={{ width: "100%", marginTop: 18, background: S.vurgu, color: "#14181F", border: "none", borderRadius: 14, padding: "14px 0", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+        {!profilUyumlu && (
+          <div data-profil-uyumsuz style={{ marginTop: 14, fontSize: 12, color: S.vurgu, background: "rgba(232,163,61,0.10)", borderRadius: 10, padding: "8px 12px" }}>
+            Bu içerik mevcut okuma yoluna tam uymuyor. Dinlemek için okuma yolunu değiştirmen önerilir.
+          </div>
+        )}
+        <button disabled={!profilUyumlu} onClick={() => { oynatDegistir(k.id); setOynaticiAcik(true); }}
+          style={{ width: "100%", marginTop: 18, background: profilUyumlu ? S.vurgu : "rgba(255,255,255,0.12)", color: profilUyumlu ? "#14181F" : S.soluk, border: "none", borderRadius: 14, padding: "14px 0", fontSize: 15, fontWeight: 600, cursor: profilUyumlu ? "pointer" : "not-allowed", fontFamily: "inherit" }}>
           {p > 10 ? `Devam et · ${sureYaz(p)}` : "Dinlemeye başla"}
         </button>
         {k.kategori !== "Masal" && (
@@ -1145,7 +1231,7 @@ export default function DinletiApp() {
         {k.bolumler.map((b, i) => {
           const aktifMi = aktifId === k.id && aktifBolumIx === i;
           return (
-            <div key={i} onClick={() => { if (aktifId !== k.id) { oynatDegistir(k.id); } bolumeGit(i); setOynaticiAcik(true); }}
+            <div key={i} onClick={() => { if (!profilUyumlu) return; oynatKitapBolum(k.id, i); setOynaticiAcik(true); }}
               style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ width: 26, textAlign: "center", color: aktifMi ? S.vurgu : S.soluk, fontSize: 13 }}>{aktifMi ? <Volume2 size={15} /> : i + 1}</div>
