@@ -4,10 +4,59 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.4.1";
+const SURUM = "2.4.3";
 
 const KATALOG = [
 
+
+  {
+    id: "oki-sesleri-dinliyor",
+    baslik: "Oki Sesleri Dinliyor",
+    yazar: "Okurio Minik Dinleyiciler",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Minik Dinleme",
+    yas: "3-4 yaş",
+    renk: ["#5A4B28", "#D7B45E"],
+    puan: 4.9,
+    sureDk: 2,
+    ozet: "Minik dinleyiciler için ses farkındalığı, kısa dikkat ve güvenli tekrar hikâyesi.",
+    bolumler: [
+      { ad: "Sesleri Dinle", dk: 1, metin: "Oki durdu. Bir ses duydu. Pıt pıt. Mino baktı. Oki güldü." },
+      { ad: "Tekrar Dinle", dk: 1, metin: "Pıt pıt. Tıp tıp. Oki dinledi. Mino miyav dedi. Nana yavaşça anlattı." },
+    ],
+  },
+  {
+    id: "mino-miyav-dedi",
+    baslik: "Mino Miyav Dedi",
+    yazar: "Okurio Minik Dinleyiciler",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Minik Dinleme",
+    yas: "3-4 yaş",
+    renk: ["#3F5A45", "#8EBD7C"],
+    puan: 4.9,
+    sureDk: 2,
+    ozet: "Okul öncesi için hayvan sesi, tekrar ve kısa hikâye sırası çalışması.",
+    bolumler: [
+      { ad: "Miyav", dk: 1, metin: "Mino miyav dedi. Oki baktı. Lili güldü. Toto zıpladı." },
+      { ad: "Kim Seslendi?", dk: 1, metin: "Miyav. Mino seslendi. Oki el salladı. Nana, dinledin, dedi." },
+    ],
+  },
+  {
+    id: "lili-yildiz-sayiyor",
+    baslik: "Lili Yıldız Sayıyor",
+    yazar: "Okurio Minik Dinleyiciler",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Minik Dinleme",
+    yas: "3-4 yaş",
+    renk: ["#283F63", "#7CA0D8"],
+    puan: 4.9,
+    sureDk: 2,
+    ozet: "Gökyüzü temasına yumuşak bir giriş; minik dinleyiciler için sakin gece hikâyesi.",
+    bolumler: [
+      { ad: "Yıldız", dk: 1, metin: "Lili göğe baktı. Bir yıldız gördü. Oki de baktı. Mino sessizce oturdu." },
+      { ad: "Gece", dk: 1, metin: "Yıldız parladı. Lili saydı. Bir, iki. Nana, gece sakin, dedi." },
+    ],
+  },
   {
     id: "oki-ses-a",
     baslik: "A Sesi",
@@ -597,9 +646,172 @@ const KATALOG = [
       { ad: "Maymun Kral'ın Doğuşu", dk: 16, metin: "Çiçekler ve Meyveler Dağı'nın tepesinde sihirli bir taş varmış. Bir gün taş çatlamış ve içinden taştan bir maymun doğmuş. Gözlerinden iki altın ışık fışkırmış. Bu, maceraları dillere destan olacak Maymun Kral'mış." },
     ],
   },
+
+
+  {
+    id: "oki-gunesin-hikayesi",
+    baslik: "Oki ve Güneşin Hikâyesi",
+    yazar: "Oki Mitoloji Yolu",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Eski Masallar",
+    yas: "3-6 yaş",
+    renk: ["#6A4A1F", "#F0B44C"],
+    puan: 4.9,
+    sureDk: 3,
+    ozet: "Minik dinleyiciler için güneş, sabah ve eski masal ritmiyle güvenli mitoloji başlangıcı.",
+    bolumler: [
+      { ad: "Sabah", dk: 1, metin: "Oki sabah uyandı. Güneş çıktı. Oda aydınlandı. Nana, çok eski zamanlarda insanlar güneşe bakıp hikâye anlatırdı, dedi." },
+      { ad: "Işık", dk: 2, metin: "Oki ışığı gördü. Mino ısındı. Lili gülümsedi. Güneş yavaşça yükseldi. Herkes güne merhaba dedi." },
+    ],
+  },
+  {
+    id: "lili-ay-isigi",
+    baslik: "Lili Ay Işığını Takip Ediyor",
+    yazar: "Oki Mitoloji Yolu",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Eski Masallar",
+    yas: "5-8 yaş",
+    renk: ["#263B63", "#88A8E8"],
+    puan: 4.9,
+    sureDk: 4,
+    ozet: "Ay, gece ve sakin takip üzerine kısa eski masal anlatısı.",
+    bolumler: [
+      { ad: "Ay Işığı", dk: 2, metin: "Lili gece pencereden baktı. Ay ışığı yere düştü. Oki ışığın yolunu takip etti. Nana, eski masallarda Ay yol gösterir, dedi." },
+      { ad: "Yol", dk: 2, metin: "Mino sessiz yürüdü. Toto acele etmek istedi. Lili, yavaş gidelim, dedi. Ay ışığı onlara küçük bir yol çizdi." },
+    ],
+  },
+  {
+    id: "oki-pegasus",
+    baslik: "Oki ve Pegasus",
+    yazar: "Oki Mitoloji Yolu",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Mitoloji",
+    yas: "8-10 yaş",
+    renk: ["#3D3263", "#9B86D8"],
+    puan: 4.9,
+    sureDk: 6,
+    ozet: "Oki kanatlı at Pegasus ile mitolojiye yumuşak ve macera dolu bir giriş yapar.",
+    bolumler: [
+      { ad: "Kanatlı At", dk: 3, metin: "Oki eski bir kitapta kanatlı bir at resmi gördü. Nana, bu Pegasus, dedi. Çok eski hikâyelerde Pegasus gökyüzüne yükselen güçlü bir attı. Oki resme uzun uzun baktı." },
+      { ad: "Cesaret", dk: 3, metin: "Lili, kanatlar ne anlatır, diye sordu. Nana, bazen cesareti, bazen de hayal kurmayı anlatır, dedi. Oki o gün bir hikâyenin sadece olay değil, anlam da taşıdığını öğrendi." },
+    ],
+  },
+  {
+    id: "oki-labirentin-izi",
+    baslik: "Oki ve Labirentin İzi",
+    yazar: "Oki Mitoloji Yolu",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Mitoloji",
+    yas: "10-12 yaş",
+    renk: ["#4B3B2B", "#B78652"],
+    puan: 4.9,
+    sureDk: 7,
+    ozet: "Labirent, ipucu ve yol bulma temasıyla Ariadne anlatısına giriş.",
+    bolumler: [
+      { ad: "Harita", dk: 3, metin: "Oki kütüphanede kıvrımlı bir yol çizimi buldu. Çizim bir labirente benziyordu. Lili, insan böyle bir yerde yolunu nasıl bulur, diye sordu. Nana, bazı eski hikâyelerde küçük bir ip bile yol gösterebilir, dedi." },
+      { ad: "İp", dk: 4, metin: "Oki çizimin başından sonuna parmağıyla gitti. Bir noktada kayboldu. Lili ince bir ip hayal etti. Oki anladı: bazen zor metinlerde de bir ip gerekir. Bu ip, ana fikir olabilir." },
+    ],
+  },
+  {
+    id: "prometheusun-secimi",
+    baslik: "Prometheus’un Seçimi",
+    yazar: "Oki Mitoloji Yolu",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Mitoloji",
+    yas: "12-14 yaş",
+    renk: ["#5A2E22", "#D2734A"],
+    puan: 4.9,
+    sureDk: 8,
+    ozet: "Prometheus anlatısında seçim, sorumluluk ve bilgi temasına genç okur seviyesinde giriş.",
+    bolumler: [
+      { ad: "Ateş", dk: 4, metin: "Oki eski bir anlatıda ateşi insanlara veren Prometheus’u okudu. Bu sadece ateşle ilgili değildi. Hikâye bilgi, paylaşmak ve sonuçları göze almak üzerineydi. Lili, iyi bir seçim bazen zor olabilir, dedi." },
+      { ad: "Bedel", dk: 4, metin: "Toto, neden risk aldı, diye sordu. Nana, bazı hikâyeler bize kolay cevap vermez, dedi. Oki metni bir daha okudu. Bu kez olaydan çok karakterin kararını düşünmeye başladı." },
+    ],
+  },
+  {
+    id: "ikarus-bugun-ne-anlatir",
+    baslik: "Ikarus Bugün Ne Anlatır?",
+    yazar: "Oki Mitoloji Yolu",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Mitolojiden Klasiklere",
+    yas: "14-18 yaş",
+    renk: ["#26334F", "#D9A24A"],
+    puan: 4.8,
+    sureDk: 9,
+    ozet: "Ikarus anlatısını sınır, istek, uyarı ve sembol okuma üzerinden klasiklere hazırlık seviyesinde ele alır.",
+    bolumler: [
+      { ad: "Yükselmek", dk: 4, metin: "Ikarus’un hikâyesi ilk bakışta fazla yükseğe uçan bir gencin anlatısıdır. Fakat bu hikâye yalnızca uçmakla ilgili değildir. Sınırları bilmek, uyarıları duymak ve isteğin gücünü anlamakla ilgilidir." },
+      { ad: "Sembol", dk: 5, metin: "Oki bu metinde kanatların sadece kanat olmadığını fark etti. Kanatlar istek, özgürlük ve risk anlamına gelebilirdi. Bir mitolojik hikâye, bazen tek bir olayla birçok düşünceyi aynı anda taşır." },
+    ],
+  },
+  {
+    id: "ariadnenin-ipi-yetiskin",
+    baslik: "Ariadne’nin İpi: Yol Bulmak",
+    yazar: "Oki Mitoloji Yolu",
+    seslendiren: "Sakin Rehber",
+    kategori: "Mitolojiyle Okumaya Dönüş",
+    yas: "18+ yaş",
+    renk: ["#2C3A3B", "#7AA6A1"],
+    puan: 4.8,
+    sureDk: 8,
+    ozet: "Yetişkin odak için kısa mitoloji okuması: labirent, yön bulma ve düşünce takibi.",
+    bolumler: [
+      { ad: "Labirent", dk: 4, metin: "Ariadne’nin ipi, eski bir hikâyede çıkış yolunu bulmaya yardım eder. Bugün bu imgeyi karmaşık metinleri okurken de düşünebiliriz. Bir metinde ana fikir, bazen labirentin içindeki ip gibidir." },
+      { ad: "Yol", dk: 4, metin: "Okumaya dönmek de bazen bir labirente girmek gibidir. Her şeyi bir anda anlamak gerekmez. Bir cümle, bir paragraf, bir fikir. Küçük ipuçları yolu açar." },
+    ],
+  },
+  {
+    id: "oki-lili-sahnesi",
+    baslik: "Oki ve Lili Sahnesi",
+    yazar: "Oki Rol Seçerek Oku",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Piyes",
+    yas: "6-8 yaş",
+    renk: ["#3D4D32", "#93B66A"],
+    puan: 4.9,
+    sureDk: 4,
+    ozet: "İki karakterli kısa piyes; çocuk rol seçerek kısa repliklerle okuma güveni kazanır.",
+    bolumler: [
+      { ad: "Sahne 1", dk: 2, metin: "Anlatıcı: Oki bahçeye çıktı. Oki: Lili, el ele yürüyelim mi? Lili: Evet, yavaş yürüyelim. Oki: Mino nerede? Lili: Mino ağacın altında." },
+      { ad: "Sahne 2", dk: 2, metin: "Mino: Miyav. Oki: Mino çıktı. Lili: Onu bulduk. Anlatıcı: Üç arkadaş birlikte güldü." },
+    ],
+  },
+  {
+    id: "toto-acele-etme-piyesi",
+    baslik: "Toto Acele Etme Piyesi",
+    yazar: "Oki Rol Seçerek Oku",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Piyes",
+    yas: "8-10 yaş",
+    renk: ["#5A3A24", "#D08A4A"],
+    puan: 4.8,
+    sureDk: 5,
+    ozet: "DEHB dostu kısa piyes; acele etmek, durmak ve yeniden denemek üzerine rol okuma.",
+    bolumler: [
+      { ad: "Çok Hızlı Plan", dk: 3, metin: "Anlatıcı: Toto çok hızlı koştu. Toto: Planım hazır! Oki: Önce dinleyelim. Lili: Bir adım duralım. Toto: Tamam, derin nefes alıyorum." },
+      { ad: "Yavaş Adım", dk: 2, metin: "Mino: Miyav. Toto: Şimdi daha iyi düşündüm. Oki: Güzel. Lili: Yavaş adım da bir adımdır." },
+    ],
+  },
+  {
+    id: "uzay-kulubu-piyesi",
+    baslik: "Uzay Kulübü Piyesi",
+    yazar: "Oki Rol Seçerek Oku",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Piyes",
+    yas: "10-12 yaş",
+    renk: ["#253A5F", "#6FA7D9"],
+    puan: 4.8,
+    sureDk: 6,
+    ozet: "Gökyüzü subject’i ile rol okuma birleşir; çocuk kısa bilim replikleriyle aktif okuma yapar.",
+    bolumler: [
+      { ad: "Kulüp Toplandı", dk: 3, metin: "Anlatıcı: Uzay Kulübü masanın etrafında toplandı. Oki: Ay haritasını getirdim. Lili: Kraterleri işaretledim. Toto: Ben de roket çizdim. Mino: Miyav, yıldızları saydım." },
+      { ad: "Soru", dk: 3, metin: "Oki: Yıldız mı, gezegen mi? Lili: Yıldız kendi ışığını verir. Toto: Gezegen ışığı yansıtır. Anlatıcı: Kulüp bir soruyla başladı, küçük bir cevapla büyüdü." },
+    ],
+  },
 ];
 
 const RAFLAR = [
+  { ad: "Oki Minik Dinleyiciler", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-sesleri-dinliyor", "mino-miyav-dedi", "lili-yildiz-sayiyor"] },
   { ad: "Oki İlk Harfler", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1", "oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
   { ad: "1. Grup: a n e t i l", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1"] },
   { ad: "Oki Mini Hikâyeler", mod: "cocuk", ids: ["oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
@@ -608,6 +820,12 @@ const RAFLAR = [
   { ad: "English Corner", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10"], ids: ["peter-rabbit-en", "aesop-fables-en", "ugly-duckling-en"] },
   { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["peter-rabbit-en", "aesop-fables-en", "ugly-duckling-en"] },
   { ad: "Gökyüzü ve Yıldızlar", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-ayi-gordu", "yildiz-mi-gezegen-mi", "oki-ay-haritasi"] },
+  { ad: "Eski Zaman Masalları", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-gunesin-hikayesi", "lili-ay-isigi"] },
+  { ad: "Oki Mitolojiye Başlıyor", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["oki-pegasus", "oki-labirentin-izi"] },
+  { ad: "Mitoloji ve Kahramanlar", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["prometheusun-secimi", "oki-labirentin-izi", "oki-pegasus"] },
+  { ad: "Mitolojiden Klasiklere", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["ikarus-bugun-ne-anlatir", "prometheusun-secimi", "ariadnenin-ipi-yetiskin"] },
+  { ad: "Mitolojiyle Okumaya Dönüş", mod: "yetiskin", yolIds: ["yetiskin_odak_18"], ids: ["ariadnenin-ipi-yetiskin", "ikarus-bugun-ne-anlatir"] },
+  { ad: "Rol Seçerek Oku", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-lili-sahnesi", "toto-acele-etme-piyesi", "uzay-kulubu-piyesi"] },
   { ad: "Dünya Masalları", mod: "cocuk", ids: ["japon-masallari", "cin-masallari", "grimm-masallari", "andersen-masallari", "ezop-masallari"] },
   { ad: "Kısa Dinletiler", mod: "yetiskin", ids: ["yuksek-okceler", "pembe-incili-kaftan", "diyet"] },
   { ad: "Klasik Romanlar", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "calikusu", "mai-ve-siyah"] },
@@ -628,19 +846,22 @@ const YOL_SEGMENT_GRUPLARI = {
 };
 
 const YOL_ICERIK_TURLERI = {
-  okul_oncesi_3_4: ["masal", "fabl", "dunya_masali"],
-  okumaya_hazirlik_5_6: ["harf_karti", "hece_karti", "masal", "fabl"],
+  okul_oncesi_3_4: ["dinleme_hikayesi", "mini_hikaye", "masal", "fabl", "dunya_masali", "mitoloji_hikayesi"],
+  okumaya_hazirlik_5_6: ["dinleme_hikayesi", "harf_karti", "hece_karti", "masal", "fabl", "mitoloji_hikayesi"],
   ilk_harfler_6_7: ["harf_karti", "hece_karti", "kelime_karti", "mini_hikaye"],
-  ilk_cumleler_7_8: ["mini_hikaye", "masal", "fabl", "english_easy", "bilim_hikayesi"],
-  okuma_guveni_8_10: ["masal", "fabl", "dunya_masali", "english_easy", "mini_hikaye", "bilim_hikayesi"],
-  akici_okuma_10_12: ["masal", "fabl", "dunya_masali", "english_easy", "kisa_hikaye", "bilim_hikayesi"],
-  genc_okurlar_12_14: ["english_easy", "dunya_masali", "kisa_hikaye", "klasik_roman", "bilim_hikayesi"],
-  klasiklere_hazirlik_14_16: ["kisa_hikaye", "klasik_roman", "english_easy"],
-  lise_okuma_16_18: ["kisa_hikaye", "klasik_roman"],
-  yetiskin_odak_18: ["kisa_hikaye", "klasik_roman"],
+  ilk_cumleler_7_8: ["mini_hikaye", "masal", "fabl", "english_easy", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
+  okuma_guveni_8_10: ["masal", "fabl", "dunya_masali", "english_easy", "mini_hikaye", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
+  akici_okuma_10_12: ["masal", "fabl", "dunya_masali", "english_easy", "kisa_hikaye", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
+  genc_okurlar_12_14: ["english_easy", "dunya_masali", "kisa_hikaye", "klasik_roman", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
+  klasiklere_hazirlik_14_16: ["kisa_hikaye", "klasik_roman", "english_easy", "mitoloji_hikayesi"],
+  lise_okuma_16_18: ["kisa_hikaye", "klasik_roman", "mitoloji_hikayesi"],
+  yetiskin_odak_18: ["kisa_hikaye", "klasik_roman", "mitoloji_hikayesi"],
 };
 
 const ICERIK_METADATA = {
+  "oki-sesleri-dinliyor": { yasMin: 3, yasMax: 4, segmentler: ["okul_oncesi", "dinleme"], okumaEvreleri: ["dinleme"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "dinleme_hikayesi", subject: "oki_minik", oql: 0 },
+  "mino-miyav-dedi": { yasMin: 3, yasMax: 4, segmentler: ["okul_oncesi", "dinleme"], okumaEvreleri: ["dinleme"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "dinleme_hikayesi", subject: "oki_minik", oql: 0 },
+  "lili-yildiz-sayiyor": { yasMin: 3, yasMax: 4, segmentler: ["okul_oncesi", "dinleme"], okumaEvreleri: ["dinleme"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "dinleme_hikayesi", subject: "gokyuzu", oql: 0 },
   "oki-ses-a": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["a"], heceler: ["an", "al", "at"] },
   "oki-ses-n": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["n"], heceler: ["an", "en"] },
   "oki-heceler-1": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler"], okumaEvreleri: ["hece_kelime", "ses_harf", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "hece_karti", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"], heceler: ["an", "en", "al", "el", "at", "et"] },
@@ -670,6 +891,17 @@ const ICERIK_METADATA = {
   "oki-ayi-gordu": { yasMin: 6, yasMax: 8, segmentler: ["ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 2 },
   "yildiz-mi-gezegen-mi": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 3 },
   "oki-ay-haritasi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 4 },
+
+  "oki-gunesin-hikayesi": { yasMin: 3, yasMax: 6, segmentler: ["okul_oncesi", "okumaya_hazirlik", "dinleme"], okumaEvreleri: ["dinleme", "ses_farkindaligi"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 0 },
+  "lili-ay-isigi": { yasMin: 5, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_cumleler", "dinleme"], okumaEvreleri: ["dinleme", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 1 },
+  "oki-pegasus": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 3 },
+  "oki-labirentin-izi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 4 },
+  "prometheusun-secimi": { yasMin: 12, yasMax: 14, segmentler: ["genc_okurlar", "klasiklere_hazirlik"], okumaEvreleri: ["uzun_metin", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 5 },
+  "ikarus-bugun-ne-anlatir": { yasMin: 14, yasMax: 18, segmentler: ["klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 6 },
+  "ariadnenin-ipi-yetiskin": { yasMin: 18, yasMax: 99, segmentler: ["yetiskin_odak"], okumaEvreleri: ["okumaya_donus", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 8 },
+  "oki-lili-sahnesi": { yasMin: 6, yasMax: 8, segmentler: ["ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "piyes", subject: "rol_okuma", oql: 2 },
+  "toto-acele-etme-piyesi": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "piyes", subject: "rol_okuma", oql: 3 },
+  "uzay-kulubu-piyesi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "piyes", subject: "rol_okuma", oql: 4 },
   "yuksek-okceler": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
   "pembe-incili-kaftan": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
   "diyet": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
@@ -680,6 +912,9 @@ const ICERIK_METADATA = {
 
 
 const SORU_BANKASI = {
+  "oki-sesleri-dinliyor": [{ soru: "Oki ne duydu?", secenekler: ["Pıt pıt", "Gök gürültüsü", "Zil"], cevap: "Pıt pıt", destek: "Oki pıt pıt sesini duydu." }],
+  "mino-miyav-dedi": [{ soru: "Kim miyav dedi?", secenekler: ["Mino", "Toto", "Nana"], cevap: "Mino", destek: "Mino miyav dedi." }],
+  "lili-yildiz-sayiyor": [{ soru: "Lili ne gördü?", secenekler: ["Yıldız", "Top", "Kalem"], cevap: "Yıldız", destek: "Lili gökyüzünde bir yıldız gördü." }],
   "oki-ses-a": [{ soru: "Oki hangi sesi duydu?", secenekler: ["a", "m", "o"], cevap: "a", destek: "Oki bugün a sesini duydu." }],
   "oki-ses-n": [{ soru: "Nana hangi sesi söyledi?", secenekler: ["n", "a", "l"], cevap: "n", destek: "Nana n sesini söyledi." }],
   "oki-ses-e": [{ soru: "Ela hangi sesi buldu?", secenekler: ["e", "t", "i"], cevap: "e", destek: "Ela e sesini buldu." }],
@@ -696,6 +931,17 @@ const SORU_BANKASI = {
   "oki-el-ele": [{ soru: "Oki kiminle el ele yürüdü?", secenekler: ["Lili", "Robot", "Karga"], cevap: "Lili", destek: "Oki ve Lili el ele yürüdü." }],
   "mino-nerede": [{ soru: "Mino nereden çıktı?", secenekler: ["El altından", "Denizden", "Aydan"], cevap: "El altından", destek: "Mino el altından çıktı." }],
   "nana-anlatiyor": [{ soru: "Kim anlattı?", secenekler: ["Nana", "Toto", "Mino"], cevap: "Nana", destek: "Hikâyede Nana anlattı." }],
+
+  "oki-gunesin-hikayesi": [{ soru: "Oki sabah ne gördü?", secenekler: ["Güneşi", "Denizi", "Kalemi"], cevap: "Güneşi", destek: "Oki sabah güneşi gördü." }],
+  "lili-ay-isigi": [{ soru: "Lili neyi takip etti?", secenekler: ["Ay ışığını", "Topu", "Suyu"], cevap: "Ay ışığını", destek: "Lili ay ışığını takip etti." }],
+  "oki-pegasus": [{ soru: "Pegasus nasıl bir attı?", secenekler: ["Kanatlı", "Küçük bir kedi", "Tahta bir oyuncak"], cevap: "Kanatlı", destek: "Pegasus eski hikâyelerde kanatlı bir attı." }],
+  "oki-labirentin-izi": [{ soru: "Labirentte yol bulmaya ne yardım edebilir?", secenekler: ["İp", "Bulut", "Ayna"], cevap: "İp", destek: "Hikâyede ip, yol bulmaya yardım eden bir işaret gibiydi." }],
+  "prometheusun-secimi": [{ soru: "Bu hikâye hangi konu üzerine düşündürüyor?", secenekler: ["Seçim ve sorumluluk", "Ayakkabı rengi", "Kayıp kalem"], cevap: "Seçim ve sorumluluk", destek: "Prometheus hikâyesi seçim, bilgi ve sonuçları düşünmeye çağırır." }],
+  "ikarus-bugun-ne-anlatir": [{ soru: "Ikarus hikâyesinde kanatlar neyi anlatabilir?", secenekler: ["İstek ve risk", "Sadece oyuncak", "Bir masa"], cevap: "İstek ve risk", destek: "Kanatlar bu anlatıda istek, özgürlük ve risk anlamı taşıyabilir." }],
+  "ariadnenin-ipi-yetiskin": [{ soru: "Ariadne’nin ipi metinde neye benzetildi?", secenekler: ["Ana fikre", "Kalabalık bir pazara", "Bir kapıya"], cevap: "Ana fikre", destek: "Metinde ana fikir, labirentin içindeki ip gibi düşünülür." }],
+  "oki-lili-sahnesi": [{ soru: "Oki kiminle yürümek istedi?", secenekler: ["Lili ile", "Robot ile", "Deniz ile"], cevap: "Lili ile", destek: "Oki, Lili ile el ele yürümek istedi." }],
+  "toto-acele-etme-piyesi": [{ soru: "Toto ne yapınca daha iyi düşündü?", secenekler: ["Durup nefes alınca", "Koşunca", "Saklanınca"], cevap: "Durup nefes alınca", destek: "Toto durup derin nefes alınca daha iyi düşündü." }],
+  "uzay-kulubu-piyesi": [{ soru: "Yıldız ne yapar?", secenekler: ["Kendi ışığını verir", "Kalem saklar", "Kapı açar"], cevap: "Kendi ışığını verir", destek: "Piyeste yıldızın kendi ışığını verdiği söylendi." }],
   "oki-ayi-gordu": [{ soru: "Oki gökyüzünde ne gördü?", secenekler: ["Ay'ı", "Denizi", "Kalemi"], cevap: "Ay'ı", destek: "Oki gece gökyüzünde Ay'ı gördü." }],
   "yildiz-mi-gezegen-mi": [{ soru: "Yıldızlar ne yapar?", secenekler: ["Kendi ışığını verir", "Kalem tutar", "Kitap saklar"], cevap: "Kendi ışığını verir", destek: "Hikâyede yıldızların kendi ışığını verdiği anlatıldı." }],
   "oki-ay-haritasi": [{ soru: "Ay yüzeyindeki yuvarlak izlere ne denir?", secenekler: ["Krater", "Köprü", "Deniz"], cevap: "Krater", destek: "Nana, Ay yüzeyindeki yuvarlak izlere krater denir, dedi." }],
@@ -704,6 +950,12 @@ const SORU_BANKASI = {
 function kitapSorusu(kitap) {
   if (!kitap) return null;
   return SORU_BANKASI[kitap.id]?.[0] || null;
+}
+
+function anaSayfayaDon(setOynaticiAcik, setSekme, setDetayId) {
+  setOynaticiAcik(false);
+  setSekme("ana");
+  setDetayId(null);
 }
 
 const OQL_SEVIYELERI = {
@@ -1838,7 +2090,7 @@ export default function DinletiApp() {
                     const secildi = soruCevabi === secenek;
                     const dogru = secenek === soru.cevap;
                     return (
-                      <button key={secenek} onClick={() => setSoruCevabi(secenek)}
+                      <button key={secenek} onClick={() => { setSoruCevabi(secenek); window.setTimeout(() => anaSayfayaDon(setOynaticiAcik, setSekme, setDetayId), 950); }}
                         style={{ background: secildi ? (dogru ? "rgba(120,168,120,0.25)" : "rgba(232,163,61,0.16)") : "rgba(255,255,255,0.08)", border: secildi ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "8px 10px", color: S.metin, cursor: "pointer", fontFamily: "inherit", fontSize: 12 }}>
                         {secenek}
                       </button>
@@ -1847,7 +2099,7 @@ export default function DinletiApp() {
                 </div>
                 {soruCevabi && (
                   <div data-soru-geri-bildirim style={{ marginTop: 8, fontSize: 12, color: soruCevabi === soru.cevap ? "#BFE3B8" : "rgba(242,236,223,0.78)", lineHeight: 1.45 }}>
-                    {soruCevabi === soru.cevap ? `Evet. ${soru.destek} Bir küçük adım daha tamamlandı.` : `Bir daha birlikte bakalım. ${soru.destek}`}
+                    {soruCevabi === soru.cevap ? `Evet. ${soru.destek} Bir küçük adım daha tamamlandı. Ana sayfaya dönüyorum.` : `Bir daha birlikte bakalım. ${soru.destek} Ana sayfaya dönüyorum.`}
                   </div>
                 )}
               </div>
