@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.4.3";
+const SURUM = "2.4.4";
 
 const KATALOG = [
 
@@ -565,6 +565,108 @@ const KATALOG = [
     ],
   },
   {
+    id: "fox-and-grapes-en",
+    baslik: "The Fox and the Grapes",
+    yazar: "Aesop · Okurio graded retelling",
+    seslendiren: "Oki Reader",
+    kategori: "English Easy",
+    dil: "en",
+    yas: "8-10 yaş",
+    renk: ["#4A3B2A", "#B07A3A"],
+    puan: 4.8,
+    sureDk: 6,
+    ozet: "A very short A1 fable retold with simple sentences and a gentle question card.",
+    bolumler: [
+      { ad: "The Grapes", dk: 3, metin: "A fox saw some purple grapes. The grapes were high on a tree. The fox jumped once. He jumped twice. He could not reach them." },
+      { ad: "The Choice", dk: 3, metin: "The fox walked away. These grapes are not sweet, he said. But he still looked back. Sometimes we say no when something feels hard." },
+    ],
+  },
+  {
+    id: "lion-and-mouse-graded-en",
+    baslik: "The Lion and the Mouse",
+    yazar: "Aesop · Okurio graded retelling",
+    seslendiren: "Oki Reader",
+    kategori: "English Easy",
+    dil: "en",
+    yas: "8-10 yaş",
+    renk: ["#4C3A1F", "#D59A3C"],
+    puan: 4.8,
+    sureDk: 7,
+    ozet: "A short A1 fable about help, kindness and a small friend who can do something big.",
+    bolumler: [
+      { ad: "The Little Mouse", dk: 3, metin: "A little mouse ran over a sleeping lion. The lion opened one eye. He caught the mouse with his big paw." },
+      { ad: "The Net", dk: 4, metin: "Later, the lion was caught in a net. The little mouse came back. She bit the rope again and again. The lion was free." },
+    ],
+  },
+  {
+    id: "alice-rabbit-hole-en",
+    baslik: "Alice Finds the Rabbit Hole",
+    yazar: "Lewis Carroll · Okurio graded retelling",
+    seslendiren: "Oki Reader",
+    kategori: "English Reading",
+    dil: "en",
+    yas: "10-12 yaş",
+    renk: ["#2E4A5A", "#6FA3B8"],
+    puan: 4.7,
+    sureDk: 10,
+    ozet: "A1-A2 level retelling inspired by Alice's Adventures in Wonderland, focused on curiosity and sequence.",
+    bolumler: [
+      { ad: "A White Rabbit", dk: 5, metin: "Alice sat by her sister. The day was warm and quiet. Then she saw a white rabbit. The rabbit had a watch. I am late, said the rabbit." },
+      { ad: "Down the Hole", dk: 5, metin: "Alice followed the rabbit. She saw a dark hole under the hedge. She stopped for a moment, then went down. The strange adventure began." },
+    ],
+  },
+  {
+    id: "selfish-giant-graded-en",
+    baslik: "The Selfish Giant",
+    yazar: "Oscar Wilde · Okurio graded retelling",
+    seslendiren: "Oki Reader",
+    kategori: "English Reading",
+    dil: "en",
+    yas: "10-12 yaş",
+    renk: ["#2D4A36", "#74A06A"],
+    puan: 4.8,
+    sureDk: 12,
+    ozet: "A gentle A2 retelling about sharing, seasons and change.",
+    bolumler: [
+      { ad: "The Garden", dk: 6, metin: "The children loved the giant's garden. The grass was soft, and the trees were full of flowers. One day the giant came home. This is my garden, he said." },
+      { ad: "Spring Returns", dk: 6, metin: "The garden became cold and quiet. No birds sang in the trees. Then the giant heard a small voice. He opened the gate, and spring came back." },
+    ],
+  },
+  {
+    id: "happy-prince-swallow-en",
+    baslik: "The Happy Prince and the Swallow",
+    yazar: "Oscar Wilde · Okurio graded retelling",
+    seslendiren: "Oki Reader",
+    kategori: "English Reading",
+    dil: "en",
+    yas: "12-14 yaş",
+    renk: ["#3F3A5A", "#8A7CC3"],
+    puan: 4.7,
+    sureDk: 14,
+    ozet: "An A2-B1 bridge retelling about empathy, choice and staying to help.",
+    bolumler: [
+      { ad: "The Statue", dk: 7, metin: "High above the city stood the statue of the Happy Prince. His eyes looked over the streets. At night, a little swallow rested at his feet." },
+      { ad: "The Choice", dk: 7, metin: "The swallow wanted to fly to a warm country. But the Prince asked for help. The swallow looked at the cold city and chose to stay one more night." },
+    ],
+  },
+  {
+    id: "moon-not-star-en",
+    baslik: "The Moon Is Not a Star",
+    yazar: "Okurio English Science",
+    seslendiren: "Oki Reader",
+    kategori: "English Science",
+    dil: "en",
+    yas: "10-12 yaş",
+    renk: ["#263B5E", "#6A8CC7"],
+    puan: 4.8,
+    sureDk: 8,
+    ozet: "A short A1-A2 science reading that explains the moon, stars and reflected light.",
+    bolumler: [
+      { ad: "Looking Up", dk: 4, metin: "Oki looked at the night sky. The moon was bright, but it was not a star. It did not make its own light." },
+      { ad: "Light", dk: 4, metin: "A star makes light. The moon reflects light from the sun. Lili wrote two words in her notebook: star and moon." },
+    ],
+  },
+  {
     id: "oki-ayi-gordu",
     baslik: "Oki Ay'ı Gördü",
     yazar: "Okurio Özgün İçerik",
@@ -817,8 +919,10 @@ const RAFLAR = [
   { ad: "Oki Mini Hikâyeler", mod: "cocuk", ids: ["oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
   { ad: "Editörün Seçtikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
   { ad: "Masal Saati", mod: "cocuk", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
-  { ad: "English Corner", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10"], ids: ["peter-rabbit-en", "aesop-fables-en", "ugly-duckling-en"] },
-  { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["peter-rabbit-en", "aesop-fables-en", "ugly-duckling-en"] },
+  { ad: "English Corner", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10"], ids: ["fox-and-grapes-en", "lion-and-mouse-graded-en", "aesop-fables-en", "ugly-duckling-en"] },
+  { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en", "fox-and-grapes-en", "lion-and-mouse-graded-en", "ugly-duckling-en"] },
+  { ad: "Young English Readers", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en"] },
+  { ad: "English Classics Bridge", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en"] },
   { ad: "Gökyüzü ve Yıldızlar", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-ayi-gordu", "yildiz-mi-gezegen-mi", "oki-ay-haritasi"] },
   { ad: "Eski Zaman Masalları", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-gunesin-hikayesi", "lili-ay-isigi"] },
   { ad: "Oki Mitolojiye Başlıyor", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["oki-pegasus", "oki-labirentin-izi"] },
@@ -888,6 +992,13 @@ const ICERIK_METADATA = {
   "aesop-fables-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
   "peter-rabbit-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
   "ugly-duckling-en": { yasMin: 8, yasMax: 13, segmentler: ["okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
+
+  "fox-and-grapes-en": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_easy", subject: "english", oql: 3, cefr: "A1", targetWords: ["fox", "grapes", "jump", "hard"] },
+  "lion-and-mouse-graded-en": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_easy", subject: "english", oql: 3, cefr: "A1", targetWords: ["lion", "mouse", "net", "help"] },
+  "alice-rabbit-hole-en": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_reading", subject: "english", oql: 4, cefr: "A1-A2", targetWords: ["rabbit", "watch", "follow", "adventure"] },
+  "selfish-giant-graded-en": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_reading", subject: "english", oql: 4, cefr: "A2", targetWords: ["garden", "giant", "spring", "share"] },
+  "happy-prince-swallow-en": { yasMin: 12, yasMax: 16, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma"], okumaEvreleri: ["uzun_metin", "akademik_klasik"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_classic_bridge", subject: "english", oql: 5, cefr: "A2-B1", targetWords: ["statue", "swallow", "city", "choice"] },
+  "moon-not-star-en": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_science", subject: "english", oql: 4, cefr: "A1-A2", targetWords: ["moon", "star", "light", "reflect"] },
   "oki-ayi-gordu": { yasMin: 6, yasMax: 8, segmentler: ["ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 2 },
   "yildiz-mi-gezegen-mi": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 3 },
   "oki-ay-haritasi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 4 },
@@ -931,6 +1042,14 @@ const SORU_BANKASI = {
   "oki-el-ele": [{ soru: "Oki kiminle el ele yürüdü?", secenekler: ["Lili", "Robot", "Karga"], cevap: "Lili", destek: "Oki ve Lili el ele yürüdü." }],
   "mino-nerede": [{ soru: "Mino nereden çıktı?", secenekler: ["El altından", "Denizden", "Aydan"], cevap: "El altından", destek: "Mino el altından çıktı." }],
   "nana-anlatiyor": [{ soru: "Kim anlattı?", secenekler: ["Nana", "Toto", "Mino"], cevap: "Nana", destek: "Hikâyede Nana anlattı." }],
+
+
+  "fox-and-grapes-en": [{ soru: "What did the fox see?", secenekler: ["Grapes", "A moon", "A book"], cevap: "Grapes", destek: "The fox saw purple grapes high on a tree." }],
+  "lion-and-mouse-graded-en": [{ soru: "Who helped the lion?", secenekler: ["The mouse", "The rabbit", "The giant"], cevap: "The mouse", destek: "The little mouse bit the rope and helped the lion." }],
+  "alice-rabbit-hole-en": [{ soru: "Who did Alice follow?", secenekler: ["A white rabbit", "A bird", "A teacher"], cevap: "A white rabbit", destek: "Alice followed a white rabbit with a watch." }],
+  "selfish-giant-graded-en": [{ soru: "What came back to the garden?", secenekler: ["Spring", "Snow", "A train"], cevap: "Spring", destek: "When the gate opened, spring came back to the garden." }],
+  "happy-prince-swallow-en": [{ soru: "What choice did the swallow make?", secenekler: ["To stay and help", "To hide a book", "To build a boat"], cevap: "To stay and help", destek: "The swallow chose to stay one more night and help." }],
+  "moon-not-star-en": [{ soru: "Does the moon make its own light?", secenekler: ["No, it reflects light", "Yes, like a star", "It is a lamp"], cevap: "No, it reflects light", destek: "The moon reflects light from the sun." }],
 
   "oki-gunesin-hikayesi": [{ soru: "Oki sabah ne gördü?", secenekler: ["Güneşi", "Denizi", "Kalemi"], cevap: "Güneşi", destek: "Oki sabah güneşi gördü." }],
   "lili-ay-isigi": [{ soru: "Lili neyi takip etti?", secenekler: ["Ay ışığını", "Topu", "Suyu"], cevap: "Ay ışığını", destek: "Lili ay ışığını takip etti." }],
@@ -1921,7 +2040,7 @@ export default function DinletiApp() {
           </div>
         )}
         <div data-kalite-karti style={{ marginTop: 14, fontSize: 12, color: S.soluk, background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "8px 12px" }}>
-          Okuma seviyesi: OQL-{icerikKalitesi(k).oql} · {icerikKalitesi(k).ad} · {icerikKalitesi(k).toplamKelime} kelime · ort. cümle {icerikKalitesi(k).ortCumle.toFixed(1)} kelime
+          Okuma seviyesi: OQL-{icerikKalitesi(k).oql} · {icerikKalitesi(k).ad}{kitapMeta(k).cefr ? ` · CEFR ${kitapMeta(k).cefr}` : ""} · {icerikKalitesi(k).toplamKelime} kelime · ort. cümle {icerikKalitesi(k).ortCumle.toFixed(1)} kelime
         </div>
         <div style={{ marginTop: 14, fontSize: 14, lineHeight: 1.6, color: "rgba(242,236,223,0.85)" }}>{k.ozet}</div>
         <div style={{ ...baslikStil, fontSize: 17, margin: "24px 0 10px" }}>Bölümler</div>
