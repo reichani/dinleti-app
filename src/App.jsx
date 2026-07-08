@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.0.0";
+const SURUM = "2.1.0";
 
 const KATALOG = [
   {
@@ -303,6 +303,49 @@ const RAFLAR = [
   { ad: "Klasik Romanlar", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "calikusu", "mai-ve-siyah"] },
 ];
 
+const OKUMA_YOLLARI = [
+  { id: "okul_oncesi_3_4", baslik: "Minik Dinleyiciler", yas: "3–4", mod: "cocuk", evre: "dinleme", hedef: "Dinleme alışkanlığı, kelime duyarlılığı ve kısa hikâye ritmi", slogan: "Dinle, hayal et, anlat.", rozetAdi: "Hikâye Tohumu" },
+  { id: "okumaya_hazirlik_5_6", baslik: "Okumaya Hazırlık", yas: "5–6", mod: "cocuk", evre: "ses_farkindaligi", hedef: "Ses farkındalığı, ritim, dikkat ve okuma öncesi hazırlık", slogan: "Sesleri duy, hikâyeyi takip et.", rozetAdi: "Ses Kaşifi" },
+  { id: "ilk_harfler_6_7", baslik: "İlk Harfler ve Heceler", yas: "6–7", mod: "cocuk", evre: "harf_hece", hedef: "MEB harf gruplarına uygun ses–harf–hece–kelime yolu", slogan: "Sesleri duy, harfleri gör, heceleri birleştir.", rozetAdi: "Hece Ustası" },
+  { id: "ilk_cumleler_7_8", baslik: "İlk Cümleler", yas: "7–8", mod: "cocuk", evre: "kisa_cumle", hedef: "Kısa cümle, tekrar, güven ve anlamlı okuma", slogan: "Kısa cümlelerle kendi hızında ilerle.", rozetAdi: "Cümle Yolcusu" },
+  { id: "okuma_guveni_8_10", baslik: "Okuma Güveni", yas: "8–10", mod: "cocuk", evre: "akicilik_baslangic", hedef: "Okuma pratiği, satır takibi, dikkat ve güven", slogan: "Zorlanmadan oku, kaldığın yerden devam et.", rozetAdi: "Sakin Okur" },
+  { id: "akici_okuma_10_12", baslik: "Akıcı Okuma", yas: "10–12", mod: "cocuk", evre: "paragraf", hedef: "Paragraf takibi, kısa özet ve daha uzun hikâyeler", slogan: "Paragrafı takip et, hikâyeyi yakala.", rozetAdi: "Paragraf Gezgini" },
+  { id: "genc_okurlar_12_14", baslik: "Genç Okurlar", yas: "12–14", mod: "cocuk", evre: "uzun_metne_gecis", hedef: "Bilim, mitoloji, macera ve uzun metne geçiş", slogan: "Uzun metinlere küçük adımlarla gir.", rozetAdi: "Metin Kaşifi" },
+  { id: "klasiklere_hazirlik_14_16", baslik: "Klasiklere Hazırlık", yas: "14–16", mod: "cocuk", evre: "edebi_okuma", hedef: "Klasiklere giriş, ana fikir ve odaklı okuma", slogan: "Klasiklere hazır bir okuma ritmi kur.", rozetAdi: "Klasik Yolcusu" },
+  { id: "lise_okuma_16_18", baslik: "Lise Okuma", yas: "16–18", mod: "cocuk", evre: "akademik_klasik", hedef: "Klasik, akademik, sınav ve uzun metin dayanıklılığı", slogan: "Okuma yükünü azalt, metinden kopma.", rozetAdi: "Derin Okur" },
+  { id: "yetiskin_odak_18", baslik: "Yetişkin Odak", yas: "18+", mod: "yetiskin", evre: "okumaya_donus", hedef: "Okumaya dönüş, dikkat modu ve görsel konfor", slogan: "Dinle, takip et, okumaya dön.", rozetAdi: "Kitap Kurdu" },
+];
+
+const EVRE_SECENEKLERI = [
+  { id: "dinleme", ad: "Henüz okumuyor, dinliyor" },
+  { id: "ses_harf", ad: "Sesleri ve harfleri tanıyor" },
+  { id: "hece_kelime", ad: "Hece ve kelime okuyor" },
+  { id: "kisa_cumle", ad: "Kısa cümle okuyor" },
+  { id: "paragraf", ad: "Paragraf okuyor" },
+  { id: "uzun_metin", ad: "Uzun metinde zorlanıyor" },
+  { id: "okumaya_donus", ad: "Okumaya geri dönmek istiyor" },
+];
+
+const DESTEK_SECENEKLERI = [
+  { id: "kelime_takibi", ad: "Kelime takibi" },
+  { id: "hece_takibi", ad: "Hece takibi" },
+  { id: "odak", ad: "Sadece aktif cümle" },
+  { id: "buyuk_yazi", ad: "Büyük yazı" },
+  { id: "genis_aralik", ad: "Geniş aralık" },
+  { id: "yumusak_zemin", ad: "Yumuşak zemin" },
+  { id: "kisa_hedef", ad: "Kısa günlük hedef" },
+];
+
+const VARSAYILAN_OKUMA_YOLU = {
+  secildi: false,
+  yolId: "okuma_guveni_8_10",
+  evreId: "paragraf",
+  destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin", "kisa_hedef"],
+};
+
+const yolBul = (id) => OKUMA_YOLLARI.find((y) => y.id === id) || OKUMA_YOLLARI[4];
+const evreBul = (id) => EVRE_SECENEKLERI.find((e) => e.id === id) || EVRE_SECENEKLERI[4];
+
 /* ------------------------------------------------------------------ */
 /* Yardımcılar                                                         */
 /* ------------------------------------------------------------------ */
@@ -342,9 +385,20 @@ function dalgaUret(id, n = 56) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Kalıcı durum (window.storage)                                       */
+/* Kalıcı durum (window.storage + localStorage fallback)               */
 /* ------------------------------------------------------------------ */
+if (typeof window !== "undefined" && !window.storage) {
+  window.storage = {
+    get: async (key) => {
+      const value = window.localStorage.getItem(key);
+      return value == null ? null : { value };
+    },
+    set: async (key, value) => { window.localStorage.setItem(key, value); },
+  };
+}
 const ANAHTAR = "dinleti-durum-v1";
+const OKUMA_YOLU_ANAHTAR = "okurio-okuma-yolu-v1";
+const ROZET_ANAHTAR = "okurio-rozet-v1";
 async function durumOku() {
   try {
     const r = await window.storage.get(ANAHTAR);
@@ -447,7 +501,9 @@ export default function DinletiApp() {
     setAyar(a);
   };
   const [seri, setSeri] = useState({ sayi: 0, sonGun: "" });
-  const [mod, setMod] = useState("cocuk"); // cocuk | yetiskin
+  const [mod, setMod] = useState("cocuk"); // geriye dönük uyumluluk: cocuk | yetiskin
+  const [okumaYolu, setOkumaYolu] = useState(VARSAYILAN_OKUMA_YOLU);
+  const [onboardingAcik, setOnboardingAcik] = useState(false);
   const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend" });
   const [kelimeIx, setKelimeIx] = useState(0);
 
@@ -496,6 +552,18 @@ export default function DinletiApp() {
         const r = await window.storage.get("dinleti-mod-v1");
         if (r && (r.value === "cocuk" || r.value === "yetiskin")) setMod(r.value);
       } catch {}
+    })();
+    (async () => {
+      try {
+        const r = await window.storage.get(OKUMA_YOLU_ANAHTAR);
+        if (r) {
+          const y = { ...VARSAYILAN_OKUMA_YOLU, ...JSON.parse(r.value), secildi: true };
+          setOkumaYolu(y);
+          setMod(yolBul(y.yolId).mod);
+        } else {
+          setOnboardingAcik(true);
+        }
+      } catch { setOnboardingAcik(true); }
     })();
     (async () => {
       try {
@@ -695,11 +763,29 @@ export default function DinletiApp() {
   }, [pozisyon, aktifId]); // eslint-disable-line
 
   /* Oynat / duraklat */
-  const modDegistir = (m) => {
-    setMod(m);
-    (async () => { try { await window.storage.set("dinleti-mod-v1", m); } catch {} })();
+  const okumaYoluDetay = yolBul(okumaYolu.yolId);
+  const okumaEvreDetay = evreBul(okumaYolu.evreId);
+  const aktifMod = okumaYoluDetay.mod || mod;
+
+  const okumaYolunuKaydet = (yeni) => {
+    const temiz = { ...VARSAYILAN_OKUMA_YOLU, ...yeni, secildi: true };
+    const yol = yolBul(temiz.yolId);
+    setOkumaYolu(temiz);
+    setMod(yol.mod);
+    setOnboardingAcik(false);
+    (async () => {
+      try {
+        await window.storage.set(OKUMA_YOLU_ANAHTAR, JSON.stringify(temiz));
+        await window.storage.set("dinleti-mod-v1", yol.mod);
+      } catch {}
+    })();
   };
-  const modUyum = (k) => (mod === "cocuk" ? k.kategori === "Masal" : k.kategori !== "Masal");
+
+  const modDegistir = (m) => {
+    const aday = OKUMA_YOLLARI.find((y) => y.mod === m) || yolBul(okumaYolu.yolId);
+    okumaYolunuKaydet({ ...okumaYolu, yolId: aday.id });
+  };
+  const modUyum = (k) => (aktifMod === "cocuk" ? k.kategori === "Masal" : k.kategori !== "Masal");
 
   const seriGuncelle = () => {
     setSeri((e) => {
@@ -724,7 +810,7 @@ export default function DinletiApp() {
       seriGuncelle();
       const k = kitapBul(id);
       let ix = 0, t = 0;
-      for (let i = 0; i < k.bolumler.length; i++) { t += k.bolumler[i].dk * 60; if (p < t) { ix = i; break; } }
+      for (let i = 0; i < k.bolumler.length; i++) { t += bolumSn(k.bolumler[i]); if (p < t) { ix = i; break; } }
       konusmayiBaslat(k, ix, 0);
       return;
     }
@@ -848,37 +934,77 @@ export default function DinletiApp() {
     );
   };
 
-  const AnaSayfa = () => (
-    <div style={{ padding: "24px 20px" }}>
-      <div style={{ ...baslikStil, fontSize: 30, marginBottom: 4 }}>Dinleti</div>
-      <div style={{ color: S.soluk, fontSize: 14, marginBottom: 14 }}>
-        {mod === "cocuk" ? "Masallarla dinle, takip et, okumaya alış." : "Klasikleri sesli ve odaklı dinle."}
-        {" "}<span data-surum style={{ fontSize: 11, opacity: 0.6 }}>v{SURUM}</span>
+  const RozetYolu = () => {
+    const baslanan = Object.entries(ilerlemeler).filter(([id, v]) => v.pos > 10 && kitapBul(id));
+    const toplamTakipSn = baslanan.reduce((t, [id, v]) => t + Math.min(v.pos || 0, toplamSn(kitapBul(id))), 0);
+    const kazanilan = [
+      { id: "tohum", ad: "Okuma Tohumu", aciklama: "İlk dinlemeyi başlat", aktif: baslanan.length >= 1 },
+      { id: "filiz", ad: "Takip Filizi", aciklama: "3 farklı içeriğe dokun", aktif: baslanan.length >= 3 },
+      { id: "yaprak", ad: "Sakin Okur", aciklama: "10 dk takipli okuma", aktif: toplamTakipSn >= 600 },
+      { id: "kurdu", ad: okumaYoluDetay.rozetAdi || "Kitap Kurdu", aciklama: "7 günlük düzenli ritim", aktif: seri.sayi >= 7 },
+    ];
+    const aktifSayisi = kazanilan.filter((r) => r.aktif).length;
+    return (
+      <div data-rozet-yolu style={{ background: "rgba(255,255,255,0.045)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 14, marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 10 }}>
+          <div>
+            <div style={{ fontSize: 13, color: S.vurgu, fontWeight: 700 }}>Kitap Kurdu Yolculuğu</div>
+            <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>Sessiz, baskısız ilerleme: {aktifSayisi}/4 rozet açıldı.</div>
+          </div>
+          <div style={{ fontSize: 20 }}>🌱</div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {kazanilan.map((r) => (
+            <div key={r.id} style={{ borderRadius: 12, padding: "9px 10px", background: r.aktif ? "rgba(232,163,61,0.16)" : "rgba(255,255,255,0.055)", border: r.aktif ? "1px solid rgba(232,163,61,0.32)" : "1px solid rgba(255,255,255,0.06)", color: r.aktif ? S.metin : S.soluk }}>
+              <div style={{ fontSize: 12, fontWeight: 700 }}>{r.aktif ? "✓ " : "○ "}{r.ad}</div>
+              <div style={{ fontSize: 11, marginTop: 3, opacity: 0.85 }}>{r.aciklama}</div>
+            </div>
+          ))}
+        </div>
       </div>
-      <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
-        {[
-          { id: "cocuk", ad: "Çocuk", alt: "Masal + kısa pratik" },
-          { id: "yetiskin", ad: "Yetişkin", alt: "Klasikler + odak" },
-        ].map((m) => (
-          <button key={m.id} data-mod={m.id} onClick={() => modDegistir(m.id)}
-            style={{ flex: 1, textAlign: "left", background: mod === m.id ? "rgba(232,163,61,0.14)" : S.kart, border: mod === m.id ? "1px solid rgba(232,163,61,0.5)" : "1px solid transparent", borderRadius: 14, padding: "12px 14px", cursor: "pointer", fontFamily: "inherit" }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: mod === m.id ? S.vurgu : S.metin }}>{m.ad}</div>
-            <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{m.alt}</div>
-          </button>
+    );
+  };
+
+  const OkumaYoluKarti = () => (
+    <div data-okuma-yolu style={{ background: "linear-gradient(135deg, rgba(232,163,61,0.15), rgba(255,255,255,0.04))", border: "1px solid rgba(232,163,61,0.28)", borderRadius: 18, padding: 16, marginBottom: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start" }}>
+        <div>
+          <div style={{ fontSize: 11, color: S.vurgu, letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 700 }}>Okuma yolu</div>
+          <div style={{ ...baslikStil, fontSize: 21, marginTop: 3 }}>{okumaYoluDetay.baslik}</div>
+          <div style={{ color: S.soluk, fontSize: 13, marginTop: 4 }}>{okumaYoluDetay.yas} · {okumaEvreDetay.ad}</div>
+        </div>
+        <button onClick={() => setOnboardingAcik(true)} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, color: S.metin, padding: "8px 10px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>Değiştir</button>
+      </div>
+      <div style={{ color: "rgba(242,236,223,0.86)", fontSize: 14, lineHeight: 1.55, marginTop: 10 }}>{okumaYoluDetay.slogan}</div>
+      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 12 }}>
+        {okumaYolu.destekler.slice(0, 5).map((d) => (
+          <span key={d} style={{ fontSize: 11, color: S.soluk, background: "rgba(255,255,255,0.07)", borderRadius: 999, padding: "6px 9px" }}>{DESTEK_SECENEKLERI.find((x) => x.id === d)?.ad || d}</span>
         ))}
       </div>
+    </div>
+  );
+
+  const AnaSayfa = () => (
+    <div style={{ padding: "24px 20px" }}>
+      <div style={{ ...baslikStil, fontSize: 30, marginBottom: 4 }}>Okurio</div>
+      <div style={{ color: S.soluk, fontSize: 14, marginBottom: 14 }}>
+        Her yaşta okumayı kolaylaştıran sesli ve takipli okuma arkadaşı.
+        {" "}<span data-surum style={{ fontSize: 11, opacity: 0.6 }}>v{SURUM}</span>
+      </div>
+      <OkumaYoluKarti />
+      <RozetYolu />
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 18 }}>
-        {["Senkron kelime takibi", "Odak modu", "Rahat okuma aralığı", "Kaldığın yerden devam"].map((r) => (
+        {["Senkron kelime takibi", "Odak modu", "Rahat okuma aralığı", "Kısa günlük hedef"].map((r) => (
           <span key={r} style={{ fontSize: 12, color: S.soluk, background: S.kart, borderRadius: 10, padding: "7px 11px" }}>{r}</span>
         ))}
       </div>
       {seri.sayi > 0 && (
         <div data-seri style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(232,163,61,0.12)", borderRadius: 12, padding: "10px 14px", marginBottom: 14, color: S.vurgu, fontSize: 13 }}>
-          <Flame size={16} /> {seri.sayi} günlük dinleme serisi. Bugün de buradasın, harika.
+          <Flame size={16} /> {seri.sayi} günlük okuma ritmi. Bugün de buradasın, bu yeterli.
         </div>
       )}
       <DevamKart />
-      {RAFLAR.filter((raf) => !raf.mod || raf.mod === mod).map((raf) => (
+      {RAFLAR.filter((raf) => !raf.mod || raf.mod === aktifMod).map((raf) => (
         <div key={raf.ad} style={{ marginTop: 28 }}>
           <div style={{ ...baslikStil, fontSize: 19, marginBottom: 14 }}>{raf.ad}</div>
           <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 6 }}>
@@ -1163,6 +1289,69 @@ export default function DinletiApp() {
     );
   };
 
+  const OnboardingSayfa = () => {
+    const [taslak, setTaslak] = useState({ ...okumaYolu, destekler: [...okumaYolu.destekler] });
+    const yol = yolBul(taslak.yolId);
+    const toggleDestek = (id) => {
+      setTaslak((e) => ({ ...e, destekler: e.destekler.includes(id) ? e.destekler.filter((x) => x !== id) : [...e.destekler, id] }));
+    };
+    return (
+      <div style={{ padding: "26px 20px 110px" }}>
+        <div style={{ ...baslikStil, fontSize: 30, marginBottom: 6 }}>Okuma yolunu seç</div>
+        <div style={{ color: S.soluk, fontSize: 14, lineHeight: 1.55, marginBottom: 18 }}>
+          Yaş tek başına yeterli değil. Okurio, yaş bandını okuma evresi ve destek ihtiyacıyla birlikte kullanır.
+        </div>
+
+        <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>1 · Kim için?</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 18 }}>
+          {OKUMA_YOLLARI.map((y) => (
+            <button key={y.id} onClick={() => setTaslak((e) => ({ ...e, yolId: y.id }))} data-yol={y.id}
+              style={{ textAlign: "left", background: taslak.yolId === y.id ? "rgba(232,163,61,0.16)" : S.kart, border: taslak.yolId === y.id ? "1px solid rgba(232,163,61,0.48)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 12, cursor: "pointer", color: S.metin, fontFamily: "inherit" }}>
+              <div style={{ fontSize: 13, fontWeight: 700 }}>{y.baslik}</div>
+              <div style={{ fontSize: 11, color: S.soluk, marginTop: 3 }}>{y.yas}</div>
+            </button>
+          ))}
+        </div>
+
+        <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>2 · Okuma evresi</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
+          {EVRE_SECENEKLERI.map((e) => (
+            <button key={e.id} onClick={() => setTaslak((t) => ({ ...t, evreId: e.id }))}
+              style={{ textAlign: "left", background: taslak.evreId === e.id ? "rgba(232,163,61,0.14)" : S.kart, border: taslak.evreId === e.id ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "11px 12px", color: S.metin, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>
+              {e.ad}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>3 · Destekler</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
+          {DESTEK_SECENEKLERI.map((d) => {
+            const secili = taslak.destekler.includes(d.id);
+            return (
+              <button key={d.id} onClick={() => toggleDestek(d.id)}
+                style={{ background: secili ? "rgba(232,163,61,0.17)" : S.kart, border: secili ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 999, padding: "9px 12px", color: secili ? S.vurgu : S.soluk, cursor: "pointer", fontFamily: "inherit", fontSize: 12 }}>
+                {secili ? "✓ " : ""}{d.ad}
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ background: "rgba(255,255,255,0.045)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 15, marginBottom: 16 }}>
+          <div style={{ color: S.vurgu, fontSize: 12, fontWeight: 700 }}>Profil önizlemesi</div>
+          <div style={{ ...baslikStil, fontSize: 21, marginTop: 4 }}>{yol.baslik}</div>
+          <div style={{ color: S.soluk, fontSize: 13, marginTop: 4 }}>{yol.yas} · {evreBul(taslak.evreId).ad}</div>
+          <div style={{ color: "rgba(242,236,223,0.86)", fontSize: 14, lineHeight: 1.55, marginTop: 9 }}>{yol.slogan}</div>
+          <div style={{ color: S.soluk, fontSize: 12, marginTop: 10 }}>Rozet yolu: {yol.rozetAdi}. Gürültülü ödül değil; ilerleme ve doygunluk hissi.</div>
+        </div>
+
+        <button onClick={() => okumaYolunuKaydet(taslak)}
+          style={{ width: "100%", background: S.vurgu, color: "#14181F", border: "none", borderRadius: 15, padding: "14px 0", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+          Okuma yolumu başlat
+        </button>
+      </div>
+    );
+  };
+
   const AltMenu = () => (
     <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "min(480px, 100%)", background: "rgba(20,24,31,0.96)", backdropFilter: "blur(10px)", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", zIndex: 30 }}>
       {[
@@ -1180,10 +1369,10 @@ export default function DinletiApp() {
 
   return (
     <div style={govde}>
-      {detayId ? <DetaySayfa /> : sekme === "ana" ? <AnaSayfa /> : sekme === "ara" ? <AramaSayfa /> : <KitaplikSayfa />}
-      <MiniOynatici />
-      <TamOynatici />
-      <AltMenu />
+      {onboardingAcik ? <OnboardingSayfa /> : detayId ? <DetaySayfa /> : sekme === "ana" ? <AnaSayfa /> : sekme === "ara" ? <AramaSayfa /> : <KitaplikSayfa />}
+      {!onboardingAcik && <MiniOynatici />}
+      {!onboardingAcik && <TamOynatici />}
+      {!onboardingAcik && <AltMenu />}
     </div>
   );
 }
