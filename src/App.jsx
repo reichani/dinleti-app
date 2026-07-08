@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "1.9.0";
+const SURUM = "2.0.0";
 
 const KATALOG = [
   {
@@ -537,7 +537,9 @@ export default function DinletiApp() {
   }, [aktif, pozisyon]);
 
   /* Seslendirme (Web Speech) */
+  const zincirNo = useRef(0);
   const konusmayiDurdur = () => {
+    zincirNo.current += 1; // aktif cümle zincirini iptal et
     try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch {}
     konusmaRef.current = null;
   };
@@ -548,58 +550,81 @@ export default function DinletiApp() {
     if (!seslendirme || !window.speechSynthesis) return;
     konusmayiDurdur();
     sonSinir.current = 0;
+    const benimNo = zincirNo.current;
     try {
       const b = kitap.bolumler[bolumIx];
       const kelimeler = b.metin.trim().split(/\s+/);
-      const bas = Math.min(Math.max(0, kelimeBas), kelimeler.length - 1);
-      const govdeMetin = kelimeler.slice(bas).join(" ");
-      const onekMetin = bas === 0 ? `${b.ad}. ` : "";
-      const u = new SpeechSynthesisUtterance(onekMetin + govdeMetin);
+      const cumleler = [];
+      let cbas = 0;
+      kelimeler.forEach((k, i) => { if (/[.!?…]$/.test(k) || i === kelimeler.length - 1) { cumleler.push([cbas, i]); cbas = i + 1; } });
+      const basKelime = Math.min(Math.max(0, kelimeBas), kelimeler.length - 1);
+      let ilkCumle = cumleler.findIndex(([a, z]) => basKelime >= a && basKelime <= z);
+      if (ilkCumle < 0) ilkCumle = 0;
       const dil = kitap.dil === "en" ? "en-GB" : "tr-TR";
-      u.lang = dil; u.rate = hiz;
-      const onek = onekMetin.length; // bölüm adı vurgulanmaz
-      u.onboundary = (e) => {
-        if (e.name && e.name !== "word") return;
-        sonSinir.current = Date.now();
-        const ci = (e.charIndex || 0) - onek;
-        if (ci < 0) { setKelimeIx(bas); return; }
-        const oncekiler = govdeMetin.slice(0, ci).trim();
-        const idx = bas + (oncekiler ? oncekiler.split(/\s+/).length : 0);
-        setKelimeIx(Math.min(idx, kelimeler.length - 1));
-      };
-      const tahminMs = kelimeler.slice(bas).reduce((t, k) => t + kelimeSure(k, hiz), 0);
-      let basZaman = 0;
-      u.onstart = () => { basZaman = Date.now(); };
-      u.onend = () => {
-        if (konusmaRef.current !== u) return; // iptal/yenisiyle değiştirilmişse dokunma
-        if (basZaman && tahminMs > 1000) {
-          const oran = (Date.now() - basZaman) / tahminMs;
-          if (oran > 0.4 && oran < 3) kalibrasyon.current = Math.min(2, Math.max(0.5, kalibrasyon.current * 0.6 + oran * 0.4));
-        }
-        if (bolumIx + 1 < kitap.bolumler.length) {
-          setPozisyon(bolumBasiSn(kitap, bolumIx + 1));
-          setKelimeIx(0);
-          if (konusmayiBaslatRef.current) konusmayiBaslatRef.current(kitap, bolumIx + 1, 0);
-        }
-      };
       const hedef = kitap.dil === "en" ? "en" : "tr";
-      konusmaRef.current = u;
-      const konus = (deneme) => {
-        if (konusmaRef.current !== u) return; // bu arada iptal/degisti
+      const bolumBaslangic = Date.now();
+      const tahminMs = kelimeler.slice(basKelime).reduce((t, k) => t + kelimeSure(k, hiz), 0);
+
+      const sesAta = (u) => {
+        u.lang = dil; u.rate = hiz; u.pitch = 1.03;
         let liste = seslerRef.current;
-        if (!liste.length) { const l = window.speechSynthesis.getVoices(); if (l && l.length) { seslerRef.current = l; liste = l; } }
-        if (!liste.length && deneme < 6) { setTimeout(() => konus(deneme + 1), 180); return; }
+        if (!liste.length) { try { const l = window.speechSynthesis.getVoices(); if (l && l.length) { seslerRef.current = l; liste = l; } } catch {} }
         const puanla = (v) => {
           const ad = (v.name || "").toLowerCase();
           return (ad.includes("natural") ? 8 : 0) + (/enhanced|premium|neural/.test(ad) ? 6 : 0)
             + (/google|siri|samantha|yelda|filiz|daniel/.test(ad) ? 3 : 0) + (v.localService === false ? 1 : 0);
         };
-        const adaylar = liste.filter((v) => v.lang && v.lang.toLowerCase().startsWith(hedef)).sort((a, b) => puanla(b) - puanla(a));
+        const adaylar = liste.filter((v) => v.lang && v.lang.toLowerCase().startsWith(hedef)).sort((a, c) => puanla(c) - puanla(a));
         if (adaylar[0]) u.voice = adaylar[0];
-        u.pitch = 1.03; // düz makine tonunu bir tık yumuşat
+      };
+
+      /* Cümle zinciri: her utterance kısa tutulur; tarayıcı motorlarının uzun
+         okumayı ~15 sn sonra sessizce kesme kusuru böylece hiç tetiklenmez.
+         Her cümle sonunda vurgu bir sonraki cümlenin başına hizalanır. */
+      const konusCumle = (ci, ilkKelimeIx) => {
+        if (zincirNo.current !== benimNo) return;
+        if (ci >= cumleler.length) {
+          if (tahminMs > 1000) {
+            const oran = (Date.now() - bolumBaslangic) / tahminMs;
+            if (oran > 0.4 && oran < 3) kalibrasyon.current = Math.min(2, Math.max(0.5, kalibrasyon.current * 0.6 + oran * 0.4));
+          }
+          if (bolumIx + 1 < kitap.bolumler.length) {
+            setPozisyon(bolumBasiSn(kitap, bolumIx + 1));
+            setKelimeIx(0);
+            if (konusmayiBaslatRef.current) konusmayiBaslatRef.current(kitap, bolumIx + 1, 0);
+          }
+          return;
+        }
+        const [a, z] = cumleler[ci];
+        const basIx = ilkKelimeIx != null ? Math.max(a, ilkKelimeIx) : a;
+        const parca = kelimeler.slice(basIx, z + 1).join(" ");
+        const u = new SpeechSynthesisUtterance(parca);
+        sesAta(u);
+        u.onboundary = (e) => {
+          if (e.name && e.name !== "word") return;
+          sonSinir.current = Date.now();
+          const onceki = parca.slice(0, e.charIndex || 0).trim();
+          const idx = basIx + (onceki ? onceki.split(/\s+/).length : 0);
+          setKelimeIx(Math.min(idx, z));
+        };
+        u.onend = () => {
+          if (zincirNo.current !== benimNo) return;
+          if (ci + 1 < cumleler.length) { setKelimeIx(cumleler[ci + 1][0]); sonSinir.current = Date.now(); }
+          konusCumle(ci + 1, null);
+        };
+        konusmaRef.current = u;
         window.speechSynthesis.speak(u);
       };
-      konus(0);
+
+      if (basKelime === 0) {
+        const u0 = new SpeechSynthesisUtterance(b.ad + ".");
+        sesAta(u0);
+        u0.onend = () => { if (zincirNo.current === benimNo) konusCumle(0, null); };
+        konusmaRef.current = u0;
+        window.speechSynthesis.speak(u0);
+      } else {
+        konusCumle(ilkCumle, basKelime);
+      }
     } catch {}
   }, [seslendirme, hiz]);
   useEffect(() => { konusmayiBaslatRef.current = konusmayiBaslat; }, [konusmayiBaslat]);
