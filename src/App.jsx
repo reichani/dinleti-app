@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.4.0";
+const SURUM = "2.4.1";
 
 const KATALOG = [
 
@@ -516,6 +516,54 @@ const KATALOG = [
     ],
   },
   {
+    id: "oki-ayi-gordu",
+    baslik: "Oki Ay'ı Gördü",
+    yazar: "Okurio Özgün İçerik",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Bilim Hikâyesi",
+    yas: "6-8 yaş",
+    renk: ["#263B5E", "#6A8CC7"],
+    puan: 4.8,
+    sureDk: 4,
+    ozet: "Oki'nin gece gökyüzüne bakarak Ay'ı fark ettiği kısa ve sakin bilim hikâyesi.",
+    bolumler: [
+      { ad: "Ay'a Bakıyorum", dk: 2, metin: "Oki gece gökyüzüne baktı. Ay yumuşak bir ışık verdi. Lili, Ay bazen büyük görünür, dedi. Oki sessizce takip etti." },
+      { ad: "Birlikte Düşün", dk: 2, metin: "Ay bir lamba değildir. Güneşin ışığını bize yansıtır. Oki bunu duyunca gökyüzüne bir daha baktı." },
+    ],
+  },
+  {
+    id: "yildiz-mi-gezegen-mi",
+    baslik: "Yıldız mı, Gezegen mi?",
+    yazar: "Okurio Özgün İçerik",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Bilim Hikâyesi",
+    yas: "8-10 yaş",
+    renk: ["#203047", "#5978A8"],
+    puan: 4.8,
+    sureDk: 6,
+    ozet: "Oki ve Lili'nin yıldız ile gezegen arasındaki farkı merak ettiği kısa okuma güveni metni.",
+    bolumler: [
+      { ad: "Parlayan Noktalar", dk: 3, metin: "Oki teleskopa baktı. Gökyüzünde pek çok parlak nokta vardı. Lili, bazıları yıldız, bazıları gezegen, dedi. Oki bu farkı merak etti." },
+      { ad: "Küçük Bilgi", dk: 3, metin: "Yıldızlar kendi ışığını verir. Gezegenler ise yıldızların ışığını yansıtır. Oki defterine iki kelime yazdı: yıldız ve gezegen." },
+    ],
+  },
+  {
+    id: "oki-ay-haritasi",
+    baslik: "Oki ve Ay Haritası",
+    yazar: "Okurio Özgün İçerik",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Bilim Hikâyesi",
+    yas: "10-12 yaş",
+    renk: ["#1F2A44", "#7D8FC5"],
+    puan: 4.8,
+    sureDk: 8,
+    ozet: "Oki'nin Ay yüzeyini harita gibi düşünerek krater, iz ve keşif kavramlarını tanıdığı akıcı okuma metni.",
+    bolumler: [
+      { ad: "Haritadaki İzler", dk: 4, metin: "Oki, Ay fotoğrafına uzun uzun baktı. Yüzeyde yuvarlak izler vardı. Nana bunlara krater denir, dedi. Oki, Ay'ın da bir haritası olabilir mi, diye sordu." },
+      { ad: "Keşif Defteri", dk: 4, metin: "Lili bir defter açtı. Krater, yüzey ve keşif kelimelerini yazdı. Toto bir roket resmi çizdi. Oki, okumak bazen gökyüzüne bakmak gibidir, dedi." },
+    ],
+  },
+  {
     id: "japon-masallari",
     baslik: "Japon Masalları",
     yazar: "Japon Halk Masalı",
@@ -557,7 +605,9 @@ const RAFLAR = [
   { ad: "Oki Mini Hikâyeler", mod: "cocuk", ids: ["oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
   { ad: "Editörün Seçtikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
   { ad: "Masal Saati", mod: "cocuk", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
-  { ad: "English Corner", mod: "cocuk", ids: ["peter-rabbit-en", "aesop-fables-en", "ugly-duckling-en"] },
+  { ad: "English Corner", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10"], ids: ["peter-rabbit-en", "aesop-fables-en", "ugly-duckling-en"] },
+  { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["peter-rabbit-en", "aesop-fables-en", "ugly-duckling-en"] },
+  { ad: "Gökyüzü ve Yıldızlar", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-ayi-gordu", "yildiz-mi-gezegen-mi", "oki-ay-haritasi"] },
   { ad: "Dünya Masalları", mod: "cocuk", ids: ["japon-masallari", "cin-masallari", "grimm-masallari", "andersen-masallari", "ezop-masallari"] },
   { ad: "Kısa Dinletiler", mod: "yetiskin", ids: ["yuksek-okceler", "pembe-incili-kaftan", "diyet"] },
   { ad: "Klasik Romanlar", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "calikusu", "mai-ve-siyah"] },
@@ -581,10 +631,10 @@ const YOL_ICERIK_TURLERI = {
   okul_oncesi_3_4: ["masal", "fabl", "dunya_masali"],
   okumaya_hazirlik_5_6: ["harf_karti", "hece_karti", "masal", "fabl"],
   ilk_harfler_6_7: ["harf_karti", "hece_karti", "kelime_karti", "mini_hikaye"],
-  ilk_cumleler_7_8: ["mini_hikaye", "masal", "fabl", "english_easy"],
-  okuma_guveni_8_10: ["masal", "fabl", "dunya_masali", "english_easy", "mini_hikaye"],
-  akici_okuma_10_12: ["masal", "fabl", "dunya_masali", "english_easy", "kisa_hikaye"],
-  genc_okurlar_12_14: ["english_easy", "dunya_masali", "kisa_hikaye", "klasik_roman"],
+  ilk_cumleler_7_8: ["mini_hikaye", "masal", "fabl", "english_easy", "bilim_hikayesi"],
+  okuma_guveni_8_10: ["masal", "fabl", "dunya_masali", "english_easy", "mini_hikaye", "bilim_hikayesi"],
+  akici_okuma_10_12: ["masal", "fabl", "dunya_masali", "english_easy", "kisa_hikaye", "bilim_hikayesi"],
+  genc_okurlar_12_14: ["english_easy", "dunya_masali", "kisa_hikaye", "klasik_roman", "bilim_hikayesi"],
   klasiklere_hazirlik_14_16: ["kisa_hikaye", "klasik_roman", "english_easy"],
   lise_okuma_16_18: ["kisa_hikaye", "klasik_roman"],
   yetiskin_odak_18: ["kisa_hikaye", "klasik_roman"],
@@ -614,9 +664,12 @@ const ICERIK_METADATA = {
   "grimm-masallari": { yasMin: 5, yasMax: 10, segmentler: ["okumaya_hazirlik", "ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["dinleme", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "masal" },
   "japon-masallari": { yasMin: 5, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "dunya_masali" },
   "cin-masallari": { yasMin: 5, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "dunya_masali" },
-  "aesop-fables-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy" },
-  "peter-rabbit-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy" },
-  "ugly-duckling-en": { yasMin: 8, yasMax: 13, segmentler: ["okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy" },
+  "aesop-fables-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
+  "peter-rabbit-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
+  "ugly-duckling-en": { yasMin: 8, yasMax: 13, segmentler: ["okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
+  "oki-ayi-gordu": { yasMin: 6, yasMax: 8, segmentler: ["ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 2 },
+  "yildiz-mi-gezegen-mi": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 3 },
+  "oki-ay-haritasi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 4 },
   "yuksek-okceler": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
   "pembe-incili-kaftan": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
   "diyet": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
@@ -643,11 +696,41 @@ const SORU_BANKASI = {
   "oki-el-ele": [{ soru: "Oki kiminle el ele yürüdü?", secenekler: ["Lili", "Robot", "Karga"], cevap: "Lili", destek: "Oki ve Lili el ele yürüdü." }],
   "mino-nerede": [{ soru: "Mino nereden çıktı?", secenekler: ["El altından", "Denizden", "Aydan"], cevap: "El altından", destek: "Mino el altından çıktı." }],
   "nana-anlatiyor": [{ soru: "Kim anlattı?", secenekler: ["Nana", "Toto", "Mino"], cevap: "Nana", destek: "Hikâyede Nana anlattı." }],
+  "oki-ayi-gordu": [{ soru: "Oki gökyüzünde ne gördü?", secenekler: ["Ay'ı", "Denizi", "Kalemi"], cevap: "Ay'ı", destek: "Oki gece gökyüzünde Ay'ı gördü." }],
+  "yildiz-mi-gezegen-mi": [{ soru: "Yıldızlar ne yapar?", secenekler: ["Kendi ışığını verir", "Kalem tutar", "Kitap saklar"], cevap: "Kendi ışığını verir", destek: "Hikâyede yıldızların kendi ışığını verdiği anlatıldı." }],
+  "oki-ay-haritasi": [{ soru: "Ay yüzeyindeki yuvarlak izlere ne denir?", secenekler: ["Krater", "Köprü", "Deniz"], cevap: "Krater", destek: "Nana, Ay yüzeyindeki yuvarlak izlere krater denir, dedi." }],
 };
 
 function kitapSorusu(kitap) {
   if (!kitap) return null;
   return SORU_BANKASI[kitap.id]?.[0] || null;
+}
+
+const OQL_SEVIYELERI = {
+  0: "Dinleme",
+  1: "Harf-Hece",
+  2: "İlk Cümle",
+  3: "Okuma Güveni",
+  4: "Akıcı Okuma",
+  5: "Genç Okur",
+  6: "Klasiklere Hazırlık",
+  7: "Lise Okuma",
+  8: "Yetişkin Odak",
+};
+
+function kelimeleriSay(metin = "") {
+  return metin.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function icerikKalitesi(kitap) {
+  const meta = kitapMeta(kitap);
+  const metin = (kitap?.bolumler || []).map((b) => b.metin).join(" ");
+  const toplamKelime = kelimeleriSay(metin);
+  const cumleler = metin.split(/[.!?]+/).map((c) => c.trim()).filter(Boolean);
+  const ortCumle = cumleler.length ? toplamKelime / cumleler.length : 0;
+  const maxCumle = cumleler.reduce((m, c) => Math.max(m, kelimeleriSay(c)), 0);
+  const oql = meta.oql ?? (meta.yasMax <= 7 ? 1 : meta.yasMax <= 10 ? 3 : meta.yasMax <= 12 ? 4 : meta.yasMax <= 14 ? 5 : meta.yasMax <= 18 ? 7 : 8);
+  return { oql, ad: OQL_SEVIYELERI[oql] || "Okuma", toplamKelime, ortCumle, maxCumle };
 }
 
 const OKUMA_YOLLARI = [
@@ -1177,8 +1260,9 @@ export default function DinletiApp() {
   const kitapUyum = useCallback((k, yol = okumaYolu) => kitapOkumaYolunaUygunMu(k, yol), [okumaYolu]);
   const uyumluKatalog = useMemo(() => KATALOG.filter((k) => kitapUyum(k)), [kitapUyum]);
   const uyumluRaflar = useMemo(() => RAFLAR
+    .filter((raf) => !raf.yolIds || raf.yolIds.includes(okumaYolu.yolId))
     .map((raf) => ({ ...raf, ids: raf.ids.filter((id) => kitapUyum(kitapBul(id))) }))
-    .filter((raf) => raf.ids.length > 0), [kitapUyum]);
+    .filter((raf) => raf.ids.length > 0), [kitapUyum, okumaYolu.yolId]);
 
   const okumaYolunuKaydet = (yeni) => {
     const temiz = { ...VARSAYILAN_OKUMA_YOLU, ...yeni, secildi: true };
@@ -1368,6 +1452,7 @@ export default function DinletiApp() {
       <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{kitap.yazar}</div>
       {kitap.yas && <div data-yas style={{ fontSize: 11, color: S.vurgu, marginTop: 3 }}>{kitap.yas}{kitap.dil === "en" ? " · English" : ""}{kitapMeta(kitap).harfGrubu ? ` · ${kitapMeta(kitap).harfGrubu}. harf grubu` : ""}</div>}
       <div data-icerik-yolu style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{kitapMeta(kitap).icerikTuru.replace(/_/g, " ")}</div>
+      <div data-oql style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>OQL-{icerikKalitesi(kitap).oql} · {icerikKalitesi(kitap).toplamKelime} kelime</div>
     </div>
   );
 
@@ -1583,6 +1668,9 @@ export default function DinletiApp() {
             Tanıtım seçkisi: her bölümden kısa bir pasaj seslendirilir. Masal kategorisindeki eserler baştan sona tam anlatımdır.
           </div>
         )}
+        <div data-kalite-karti style={{ marginTop: 14, fontSize: 12, color: S.soluk, background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "8px 12px" }}>
+          Okuma seviyesi: OQL-{icerikKalitesi(k).oql} · {icerikKalitesi(k).ad} · {icerikKalitesi(k).toplamKelime} kelime · ort. cümle {icerikKalitesi(k).ortCumle.toFixed(1)} kelime
+        </div>
         <div style={{ marginTop: 14, fontSize: 14, lineHeight: 1.6, color: "rgba(242,236,223,0.85)" }}>{k.ozet}</div>
         <div style={{ ...baslikStil, fontSize: 17, margin: "24px 0 10px" }}>Bölümler</div>
         {k.bolumler.map((b, i) => {
