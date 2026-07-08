@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "1.6.0";
+const SURUM = "1.7.1";
 
 const KATALOG = [
   {
@@ -258,12 +258,47 @@ const KATALOG = [
       { ad: "The Swan", dk: 10, metin: "In spring, the duckling saw beautiful white birds on the lake. He looked at the water and saw his own reflection. He was not an ugly duckling at all. He was a swan." },
     ],
   },
+  {
+    id: "japon-masallari",
+    baslik: "Japon Masalları",
+    yazar: "Japon Halk Masalı",
+    seslendiren: "Stüdyo Kaydı",
+    kategori: "Masal",
+    yas: "5-9 yaş",
+    renk: ["#7A2E38", "#C4606B"],
+    puan: 4.7,
+    sureDk: 48,
+    ozet: "Şeftali çocuk Momotaro, denizin dibindeki saray ve ay prensesi. Japonya'nın en sevilen üç halk masalı.",
+    bolumler: [
+      { ad: "Momotaro, Şeftali Çocuk", dk: 16, metin: "Bir zamanlar Japonya'da yaşlı bir çift yaşarmış. Bir gün dere kenarında kocaman bir şeftali bulmuşlar. Şeftaliyi açtıklarında içinden gülen bir bebek çıkmış. Adını Momotaro koymuşlar." },
+      { ad: "Urashima Taro", dk: 16, metin: "Genç balıkçı Urashima Taro, kumsalda çocukların elinden bir kaplumbağayı kurtarmış. Kaplumbağa ona teşekkür etmiş ve onu denizin dibindeki masmavi saraya davet etmiş. İyilik hiçbir zaman unutulmazmış." },
+      { ad: "Ay Prensesi Kaguya", dk: 16, metin: "Yaşlı bambu kesicisi, ormanda parlayan bir bambu görmüş. İçinde avuç içi kadar küçük, ışık saçan bir kız bebek varmış. Kaguya büyüdükçe güzelleşmiş ama gözleri hep ayı ararmış." },
+    ],
+  },
+  {
+    id: "cin-masallari",
+    baslik: "Çin Masalları",
+    yazar: "Çin Halk Masalı",
+    seslendiren: "Stüdyo Kaydı",
+    kategori: "Masal",
+    yas: "5-9 yaş",
+    renk: ["#6B4A1E", "#B08A3D"],
+    puan: 4.6,
+    sureDk: 46,
+    ozet: "Gökyüzünde buluşan iki sevgili yıldız, dağları taşımaya karar veren ihtiyar ve yaramaz Maymun Kral. Çin'in binlerce yıllık üç anlatısı.",
+    bolumler: [
+      { ad: "Çoban ile Dokumacı Kız", dk: 15, metin: "Gökyüzünde, Samanyolu'nun iki yakasında iki yıldız yaşarmış. Biri çalışkan bir çoban, öteki bulutları dokuyan bir kızmış. Yılda bir gece, saksağanlar kanatlarından köprü kurarmış ki ikisi buluşabilsin." },
+      { ad: "Dağları Taşıyan İhtiyar", dk: 15, metin: "Doksan yaşındaki Yu Gong'un evinin önünde iki koca dağ varmış. Bir gün ailesini toplamış, bu dağları taşıyacağız demiş. Herkes gülmüş ama o başlamış. Damla damla göl olurmuş, sabırla koruk helva olurmuş." },
+      { ad: "Maymun Kral'ın Doğuşu", dk: 16, metin: "Çiçekler ve Meyveler Dağı'nın tepesinde sihirli bir taş varmış. Bir gün taş çatlamış ve içinden taştan bir maymun doğmuş. Gözlerinden iki altın ışık fışkırmış. Bu, maceraları dillere destan olacak Maymun Kral'mış." },
+    ],
+  },
 ];
 
 const RAFLAR = [
   { ad: "Editörün Seçtikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
   { ad: "Masal Saati", mod: "cocuk", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
   { ad: "English Corner", mod: "cocuk", ids: ["peter-rabbit-en", "aesop-fables-en", "ugly-duckling-en"] },
+  { ad: "Dünya Masalları", mod: "cocuk", ids: ["japon-masallari", "cin-masallari", "grimm-masallari", "andersen-masallari", "ezop-masallari"] },
   { ad: "Kısa Dinletiler", mod: "yetiskin", ids: ["yuksek-okceler", "pembe-incili-kaftan", "diyet"] },
   { ad: "Klasik Romanlar", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "calikusu", "mai-ve-siyah"] },
 ];
@@ -395,6 +430,7 @@ export default function DinletiApp() {
   const ARALIKLAR = [0, 0.07, 0.16];   // em cinsinden harf aralığı (Zorzi 2012 gerekçesi)
   const SATIRLAR = [1.7, 1.9, 2.15];
   const [okumaAcik, setOkumaAcik] = useState(true);
+  const [bolumlerAcik, setBolumlerAcik] = useState(false);
   const [seri, setSeri] = useState({ sayi: 0, sonGun: "" });
   const [mod, setMod] = useState("cocuk"); // cocuk | yetiskin
   const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend" });
@@ -945,55 +981,43 @@ export default function DinletiApp() {
     if (!aktif || !oynaticiAcik) return null;
     const oran = toplam ? pozisyon / toplam : 0;
     const b = aktif.bolumler[aktifBolumIx];
+    const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
       <div style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.6)" }}>
-        <div style={{ width: "min(480px, 100%)", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 40%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", padding: "18px 24px 28px", overflowY: "auto" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ width: "min(480px, 100%)", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100%", padding: "14px 18px 12px", boxSizing: "border-box" }}>
+
+          {/* Üst çubuk */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
             <button onClick={() => setOynaticiAcik(false)} aria-label="Kapat" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronDown size={20} /></button>
             <div style={{ fontSize: 12, color: S.soluk, letterSpacing: "0.08em", textTransform: "uppercase" }}>Şimdi dinleniyor</div>
             <button onClick={() => favoriDegistir(aktif.id)} aria-label="Favori" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, cursor: "pointer" }}>
               <Heart size={18} color={favoriler.includes(aktif.id) ? S.vurgu : S.metin} fill={favoriler.includes(aktif.id) ? S.vurgu : "none"} />
             </button>
           </div>
-          <div style={{ display: "flex", justifyContent: "center", margin: "26px 0 20px" }}><Kapak kitap={aktif} boyut={180} radius={14} /></div>
-          <div style={{ ...baslikStil, fontSize: 22, textAlign: "center" }}>{aktif.baslik}</div>
-          <div style={{ textAlign: "center", color: S.soluk, fontSize: 14, marginTop: 4 }}>{aktif.yazar} · {b.ad}</div>
 
-          <div style={{ marginTop: 26 }}>
-            <DalgaBar kitap={aktif} oran={oran} onSar={oranaSar} />
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: S.soluk, marginTop: 6 }}>
-              <span>{sureYaz(pozisyon)}</span><span>-{sureYaz(toplam - pozisyon)}</span>
+          {/* Kompakt kitap bilgisi */}
+          <div data-kompakt-baslik onClick={() => setBolumlerAcik(!bolumlerAcik)} style={{ display: "flex", alignItems: "center", gap: 12, margin: "12px 0 10px", flexShrink: 0, cursor: "pointer" }}>
+            <Kapak kitap={aktif} boyut={44} radius={6} />
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ ...baslikStil, fontSize: 16, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{aktif.baslik}</div>
+              <div style={{ color: S.soluk, fontSize: 12, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.ad} · {aktifBolumIx + 1}/{aktif.bolumler.length} bölüm</div>
             </div>
+            <ListMusic size={17} color={bolumlerAcik ? S.vurgu : S.soluk} />
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 26, marginTop: 20 }}>
-            <button onClick={() => sar(-15)} aria-label="15 saniye geri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-              <RotateCcw size={26} /><span style={{ fontSize: 10, color: S.soluk }}>15</span>
-            </button>
-            <button onClick={() => oynatDegistir()} aria-label={caliyor ? "Duraklat" : "Oynat"}
-              style={{ width: 68, height: 68, borderRadius: 34, background: S.vurgu, border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 22px rgba(232,163,61,0.35)" }}>
-              {caliyor ? <Pause size={28} color="#14181F" fill="#14181F" /> : <Play size={28} color="#14181F" fill="#14181F" style={{ marginLeft: 3 }} />}
-            </button>
-            <button onClick={() => sar(30)} aria-label="30 saniye ileri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-              <RotateCw size={26} /><span style={{ fontSize: 10, color: S.soluk }}>30</span>
-            </button>
-          </div>
+          {/* Bölüm listesi (katlanır) */}
+          {bolumlerAcik && (
+            <div data-bolum-listesi style={{ flexShrink: 0, maxHeight: 180, overflowY: "auto", background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "4px 12px", marginBottom: 10 }}>
+              {aktif.bolumler.map((bb, i) => (
+                <div key={i} onClick={() => { bolumeGit(i); setBolumlerAcik(false); }} style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: i < aktif.bolumler.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none", cursor: "pointer", fontSize: 13, color: i === aktifBolumIx ? S.vurgu : S.metin, fontWeight: i === aktifBolumIx ? 600 : 400 }}>
+                  <span>{i + 1}. {bb.ad}</span><span style={{ color: S.soluk, fontSize: 12 }}>{bb.dk} dk</span>
+                </div>
+              ))}
+            </div>
+          )}
 
-          <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 26, flexWrap: "wrap" }}>
-            <button onClick={hizDegistir} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: "9px 14px", color: S.metin, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}>
-              <Gauge size={15} /> {hiz}x
-            </button>
-            <button onClick={uykuDegistir} style={{ background: uyku > 0 ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: "9px 14px", color: uyku > 0 ? S.vurgu : S.metin, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}>
-              <Moon size={15} /> {uyku > 0 ? sureYaz(uyku) : "Uyku"}
-            </button>
-            <button onClick={() => { const y = !seslendirme; setSeslendirme(y); if (!y) konusmayiDurdur(); else if (caliyor) konusmayiBaslat(aktif, aktifBolumIx, 0); }}
-              style={{ background: seslendirme ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: "9px 14px", color: seslendirme ? S.vurgu : S.metin, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}>
-              <Volume2 size={15} /> Sesli okuma
-            </button>
-          </div>
-
-          {/* Erişilebilir okuma görünümü */}
-          <div style={{ marginTop: 26, background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: 16 }}>
+          {/* OKUMA ALANI: ekranın ana yüzeyi */}
+          <div data-okuma-alani style={{ flex: 1, minHeight: 0, overflowY: "auto", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: 14 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, color: S.soluk, fontSize: 13 }}><BookOpen size={15} /> Okuma görünümü</div>
               <button onClick={() => setOkumaAcik(!okumaAcik)} aria-label="Okuma görünümünü aç kapat"
@@ -1032,29 +1056,23 @@ export default function DinletiApp() {
                     })}
                   </div>
                   {ayar.odak && <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>Odak modu: cümle {cumleler.indexOf(aktifCumle) + 1} / {cumleler.length}</div>}
-                  <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-                    <button onClick={() => setAyar({ ...ayar, punto: (ayar.punto + 1) % PUNTOLAR.length })} aria-label="Yazı boyutu"
-                      style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: S.metin, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}>
+                  <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                    <button onClick={() => setAyar({ ...ayar, punto: (ayar.punto + 1) % PUNTOLAR.length })} aria-label="Yazı boyutu" style={cip(false)}>
                       <Type size={13} /> {["Küçük", "Orta", "Büyük"][ayar.punto]}
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, aralik: (ayar.aralik + 1) % ARALIKLAR.length })} aria-label="Harf aralığı"
-                      style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: S.metin, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}>
+                    <button onClick={() => setAyar({ ...ayar, aralik: (ayar.aralik + 1) % ARALIKLAR.length })} aria-label="Harf aralığı" style={cip(false)}>
                       <AlignJustify size={13} /> Aralık: {["Normal", "Geniş", "Ekstra"][ayar.aralik]}
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, odak: !ayar.odak })} aria-label="Odak modu"
-                      style={{ background: ayar.odak ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: ayar.odak ? S.vurgu : S.metin, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}>
+                    <button onClick={() => setAyar({ ...ayar, odak: !ayar.odak })} aria-label="Odak modu" style={cip(ayar.odak)}>
                       <Focus size={13} /> Odak modu
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, vurgu: !ayar.vurgu })} aria-label="Kelime vurgusu"
-                      style={{ background: ayar.vurgu ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: ayar.vurgu ? S.vurgu : S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
+                    <button onClick={() => setAyar({ ...ayar, vurgu: !ayar.vurgu })} aria-label="Kelime vurgusu" style={cip(ayar.vurgu)}>
                       Kelime vurgusu
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, tema: ayar.tema === "krem" ? "koyu" : "krem" })} aria-label="Zemin"
-                      style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
+                    <button onClick={() => setAyar({ ...ayar, tema: ayar.tema === "krem" ? "koyu" : "krem" })} aria-label="Zemin" style={cip(false)}>
                       Zemin: {ayar.tema === "krem" ? "Krem" : "Koyu"}
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, font: ayar.font === "lexend" ? "varsayilan" : "lexend" })} aria-label="Yazı tipi"
-                      style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
+                    <button onClick={() => setAyar({ ...ayar, font: ayar.font === "lexend" ? "varsayilan" : "lexend" })} aria-label="Yazı tipi" style={cip(false)}>
                       Yazı: {ayar.font === "lexend" ? "Lexend" : "Varsayılan"}
                     </button>
                   </div>
@@ -1063,13 +1081,31 @@ export default function DinletiApp() {
             })()}
           </div>
 
-          <div style={{ marginTop: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, color: S.soluk, fontSize: 13, marginBottom: 8 }}><ListMusic size={15} /> Bölümler</div>
-            {aktif.bolumler.map((bb, i) => (
-              <div key={i} onClick={() => bolumeGit(i)} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.06)", cursor: "pointer", fontSize: 14, color: i === aktifBolumIx ? S.vurgu : S.metin, fontWeight: i === aktifBolumIx ? 600 : 400 }}>
-                <span>{i + 1}. {bb.ad}</span><span style={{ color: S.soluk, fontSize: 12 }}>{bb.dk} dk</span>
-              </div>
-            ))}
+          {/* ALT KONTROL BLOĞU: sabit */}
+          <div data-alt-kontrol style={{ flexShrink: 0, paddingTop: 10 }}>
+            <DalgaBar kitap={aktif} oran={oran} onSar={oranaSar} />
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: S.soluk, marginTop: 4 }}>
+              <span>{sureYaz(pozisyon)}</span><span>-{sureYaz(toplam - pozisyon)}</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 22, marginTop: 8 }}>
+              <button onClick={() => sar(-15)} aria-label="15 saniye geri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                <RotateCcw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>15</span>
+              </button>
+              <button onClick={() => oynatDegistir()} aria-label={caliyor ? "Duraklat" : "Oynat"}
+                style={{ width: 58, height: 58, borderRadius: 29, background: S.vurgu, border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 22px rgba(232,163,61,0.35)" }}>
+                {caliyor ? <Pause size={25} color="#14181F" fill="#14181F" /> : <Play size={25} color="#14181F" fill="#14181F" style={{ marginLeft: 3 }} />}
+              </button>
+              <button onClick={() => sar(30)} aria-label="30 saniye ileri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                <RotateCw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>30</span>
+              </button>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
+              <button onClick={hizDegistir} style={cip(false)}><Gauge size={14} /> {hiz}x</button>
+              <button onClick={uykuDegistir} style={cip(uyku > 0)}><Moon size={14} /> {uyku > 0 ? sureYaz(uyku) : "Uyku"}</button>
+              <button onClick={() => { const y = !seslendirme; setSeslendirme(y); if (!y) konusmayiDurdur(); else if (caliyor) konusmayiBaslat(aktif, aktifBolumIx, 0); }} style={cip(seslendirme)}>
+                <Volume2 size={14} /> Sesli okuma
+              </button>
+            </div>
           </div>
         </div>
       </div>
