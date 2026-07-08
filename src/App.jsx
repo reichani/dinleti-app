@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "1.7.1";
+const SURUM = "1.9.0";
 
 const KATALOG = [
   {
@@ -307,8 +307,9 @@ const RAFLAR = [
 /* Yardımcılar                                                         */
 /* ------------------------------------------------------------------ */
 const kitapBul = (id) => KATALOG.find((k) => k.id === id);
-const toplamSn = (kitap) => kitap.bolumler.reduce((t, b) => t + b.dk * 60, 0);
-const bolumBasiSn = (kitap, i) => kitap.bolumler.slice(0, i).reduce((t, b) => t + b.dk * 60, 0);
+const bolumSn = (b) => Math.max(20, Math.round(b.metin.trim().split(/\s+/).length * 60 / 155));
+const toplamSn = (kitap) => kitap.bolumler.reduce((t, b) => t + bolumSn(b), 0);
+const bolumBasiSn = (kitap, i) => kitap.bolumler.slice(0, i).reduce((t, b) => t + bolumSn(b), 0);
 
 function kelimeSure(k, hiz) {
   let ms = (240 + 62 * k.length) / hiz;
@@ -431,6 +432,20 @@ export default function DinletiApp() {
   const SATIRLAR = [1.7, 1.9, 2.15];
   const [okumaAcik, setOkumaAcik] = useState(true);
   const [bolumlerAcik, setBolumlerAcik] = useState(false);
+  // Okuma profili: birleşimli, YALNIZCA oturum belleğinde tutulur (KVKK veri minimizasyonu —
+  // tanı etiketi hiçbir zaman kalıcı depoya yazılmaz; kalıcı olan yalnız nötr ayar sonuçlarıdır)
+  const [profil, setProfil] = useState({ dis: false, dehb: false, gorsel: false });
+
+  const profilUygula = (yeniProfil) => {
+    setProfil(yeniProfil);
+    // Taban ayardan başlayıp aktif profillerin birleşimini uygula
+    const a = { punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend" };
+    if (yeniProfil.dis) { a.aralik = Math.max(a.aralik, 1); a.vurgu = true; a.tema = "krem"; a.font = "lexend"; }
+    if (yeniProfil.gorsel) { a.punto = 2; a.aralik = Math.max(a.aralik, 1); }
+    if (yeniProfil.dis && yeniProfil.gorsel) a.aralik = 2; // eşzamanlılıkta sıkışıklık en güçlü (Liu 2024)
+    if (yeniProfil.dehb) a.odak = true;
+    setAyar(a);
+  };
   const [seri, setSeri] = useState({ sayi: 0, sonGun: "" });
   const [mod, setMod] = useState("cocuk"); // cocuk | yetiskin
   const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend" });
@@ -515,7 +530,7 @@ export default function DinletiApp() {
     if (!aktif) return 0;
     let t = 0;
     for (let i = 0; i < aktif.bolumler.length; i++) {
-      t += aktif.bolumler[i].dk * 60;
+      t += bolumSn(aktif.bolumler[i]);
       if (pozisyon < t) return i;
     }
     return aktif.bolumler.length - 1;
@@ -703,7 +718,7 @@ export default function DinletiApp() {
     if (!aktif) return;
     let t = 0;
     for (let i = 0; i < aktif.bolumler.length; i++) {
-      const s = aktif.bolumler[i].dk * 60;
+      const s = bolumSn(aktif.bolumler[i]);
       if (poz < t + s) {
         const oran = (poz - t) / s;
         const ks = aktif.bolumler[i].metin.trim().split(/\s+/).length;
@@ -867,7 +882,7 @@ export default function DinletiApp() {
             <Kapak kitap={k} boyut={52} radius={6} />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600, fontSize: 15 }}>{k.baslik}</div>
-              <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{k.yazar} · {k.kategori}{k.dil === "en" ? " · English" : ""}{k.yas ? ` · ${k.yas}` : ""} · {sureUzun(k.sureDk)}</div>
+              <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{k.yazar} · {k.kategori}{k.dil === "en" ? " · English" : ""}{k.yas ? ` · ${k.yas}` : ""} · {sureYaz(toplamSn(k))}</div>
             </div>
           </div>
         ))}
@@ -924,7 +939,7 @@ export default function DinletiApp() {
         <div style={{ ...baslikStil, fontSize: 24, textAlign: "center" }}>{k.baslik}</div>
         <div style={{ textAlign: "center", color: S.soluk, fontSize: 14, marginTop: 4 }}>{k.yazar}</div>
         <div style={{ display: "flex", justifyContent: "center", gap: 18, marginTop: 12, fontSize: 12, color: S.soluk }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 5 }}><Clock size={13} /> {sureUzun(k.sureDk)}</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 5 }}><Clock size={13} /> {sureYaz(toplamSn(k))}</span>
           <span style={{ display: "flex", alignItems: "center", gap: 5 }}><BookOpen size={13} /> {k.bolumler.length} bölüm</span>
           <span style={{ color: S.vurgu }}>★ {k.puan}</span>
           {k.yas && <span style={{ background: "rgba(232,163,61,0.15)", color: S.vurgu, borderRadius: 6, padding: "1px 7px" }}>{k.yas}</span>}
@@ -934,7 +949,12 @@ export default function DinletiApp() {
           style={{ width: "100%", marginTop: 18, background: S.vurgu, color: "#14181F", border: "none", borderRadius: 14, padding: "14px 0", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
           {p > 10 ? `Devam et · ${sureYaz(p)}` : "Dinlemeye başla"}
         </button>
-        <div style={{ marginTop: 22, fontSize: 14, lineHeight: 1.6, color: "rgba(242,236,223,0.85)" }}>{k.ozet}</div>
+        {k.kategori !== "Masal" && (
+          <div data-demo-notu style={{ marginTop: 14, fontSize: 12, color: S.vurgu, background: "rgba(232,163,61,0.10)", borderRadius: 10, padding: "8px 12px" }}>
+            Tanıtım seçkisi: her bölümden kısa bir pasaj seslendirilir. Masal kategorisindeki eserler baştan sona tam anlatımdır.
+          </div>
+        )}
+        <div style={{ marginTop: 14, fontSize: 14, lineHeight: 1.6, color: "rgba(242,236,223,0.85)" }}>{k.ozet}</div>
         <div style={{ ...baslikStil, fontSize: 17, margin: "24px 0 10px" }}>Bölümler</div>
         {k.bolumler.map((b, i) => {
           const aktifMi = aktifId === k.id && aktifBolumIx === i;
@@ -945,7 +965,7 @@ export default function DinletiApp() {
                 <div style={{ width: 26, textAlign: "center", color: aktifMi ? S.vurgu : S.soluk, fontSize: 13 }}>{aktifMi ? <Volume2 size={15} /> : i + 1}</div>
                 <div style={{ fontSize: 14, fontWeight: aktifMi ? 600 : 400, color: aktifMi ? S.vurgu : S.metin }}>{b.ad}</div>
               </div>
-              <div style={{ fontSize: 12, color: S.soluk }}>{b.dk} dk</div>
+              <div style={{ fontSize: 12, color: S.soluk }}>{sureYaz(bolumSn(b))}</div>
             </div>
           );
         })}
@@ -1010,7 +1030,7 @@ export default function DinletiApp() {
             <div data-bolum-listesi style={{ flexShrink: 0, maxHeight: 180, overflowY: "auto", background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "4px 12px", marginBottom: 10 }}>
               {aktif.bolumler.map((bb, i) => (
                 <div key={i} onClick={() => { bolumeGit(i); setBolumlerAcik(false); }} style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: i < aktif.bolumler.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none", cursor: "pointer", fontSize: 13, color: i === aktifBolumIx ? S.vurgu : S.metin, fontWeight: i === aktifBolumIx ? 600 : 400 }}>
-                  <span>{i + 1}. {bb.ad}</span><span style={{ color: S.soluk, fontSize: 12 }}>{bb.dk} dk</span>
+                  <span>{i + 1}. {bb.ad}</span><span style={{ color: S.soluk, fontSize: 12 }}>{sureYaz(bolumSn(bb))}</span>
                 </div>
               ))}
             </div>
@@ -1056,7 +1076,13 @@ export default function DinletiApp() {
                     })}
                   </div>
                   {ayar.odak && <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>Odak modu: cümle {cumleler.indexOf(aktifCumle) + 1} / {cumleler.length}</div>}
-                  <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                  <div style={{ marginTop: 12, fontSize: 12, color: S.soluk }}>Bana göre ayarla (birlikte seçilebilir):</div>
+                  <div style={{ display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
+                    <button data-profil="dis" onClick={() => profilUygula({ ...profil, dis: !profil.dis })} aria-label="Disleksi profili" style={cip(profil.dis)}>Disleksi</button>
+                    <button data-profil="dehb" onClick={() => profilUygula({ ...profil, dehb: !profil.dehb })} aria-label="DEHB profili" style={cip(profil.dehb)}>DEHB</button>
+                    <button data-profil="gorsel" onClick={() => profilUygula({ ...profil, gorsel: !profil.gorsel })} aria-label="Görsel hassasiyet profili" style={cip(profil.gorsel)}>Görsel hassasiyet</button>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
                     <button onClick={() => setAyar({ ...ayar, punto: (ayar.punto + 1) % PUNTOLAR.length })} aria-label="Yazı boyutu" style={cip(false)}>
                       <Type size={13} /> {["Küçük", "Orta", "Büyük"][ayar.punto]}
                     </button>
