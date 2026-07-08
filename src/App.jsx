@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.2.1";
+const SURUM = "2.3.1";
 
 const KATALOG = [
 
@@ -487,6 +487,14 @@ const SES_TONLARI = [
 ];
 const sesTonuBul = (id) => SES_TONLARI.find((s) => s.id === id) || SES_TONLARI[0];
 
+const OKUMA_MODLARI = [
+  { id: "dinliyorum", ad: "Dinliyorum", aciklama: "Okurio okur, ben metni takip ederim.", sesli: true, rateCarpan: 1 },
+  { id: "birlikte", ad: "Birlikte Okuyorum", aciklama: "Ses daha yavaş akar, ben eşlik ederim.", sesli: true, rateCarpan: 0.84 },
+  { id: "kendim", ad: "Kendim Okuyorum", aciklama: "Ses kapanır; takıldığım yerde yardım alırım.", sesli: false, rateCarpan: 1 },
+];
+const okumaModuBul = (id) => OKUMA_MODLARI.find((m) => m.id === id) || OKUMA_MODLARI[0];
+const OKUMA_MODU_ANAHTAR = "okurio-okuma-modu-v1";
+
 const DESTEK_SECENEKLERI = [
   { id: "kelime_takibi", ad: "Kelime takibi" },
   { id: "hece_takibi", ad: "Hece takibi" },
@@ -655,6 +663,7 @@ export default function DinletiApp() {
   const [hiz, setHiz] = useState(1);
   const [uyku, setUyku] = useState(0);                // kalan sn, 0 = kapalı
   const [seslendirme, setSeslendirme] = useState(true);
+  const [okumaModu, setOkumaModu] = useState("dinliyorum");
   const [sesTonu, setSesTonu] = useState("oki");
   const [favoriler, setFavoriler] = useState([]);
   const [ilerlemeler, setIlerlemeler] = useState({}); // {id:{pos,ts}}
@@ -684,9 +693,12 @@ export default function DinletiApp() {
   const [, setMod] = useState("cocuk"); // geriye dönük uyumluluk: cocuk | yetiskin
   const [okumaYolu, setOkumaYolu] = useState(VARSAYILAN_OKUMA_YOLU);
   const [onboardingAcik, setOnboardingAcik] = useState(false);
+  const [profilMesaji, setProfilMesaji] = useState("");
   const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend" });
   const [kelimeIx, setKelimeIx] = useState(0);
   const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
+  const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
+  const etkinSeslendirme = seslendirme && okumaModuAyar.sesli;
 
   const konusmaRef = useRef(null);
   const sonKayit = useRef(0);
@@ -754,6 +766,16 @@ export default function DinletiApp() {
     })();
     (async () => {
       try {
+        const r = await window.storage.get(OKUMA_MODU_ANAHTAR);
+        if (r && OKUMA_MODLARI.some((m) => m.id === r.value)) {
+          setOkumaModu(r.value);
+          const m = okumaModuBul(r.value);
+          setSeslendirme(m.sesli);
+        }
+      } catch {}
+    })();
+    (async () => {
+      try {
         const r = await window.storage.get("dinleti-seri-v1");
         if (r) setSeri(JSON.parse(r.value));
       } catch {}
@@ -798,7 +820,7 @@ export default function DinletiApp() {
   const kalibrasyon = useRef(1);       // gerçek TTS temposu / tahmin (bölüm sonunda güncellenir)
   const konusmayiBaslatRef = useRef(null);
   const konusmayiBaslat = useCallback((kitap, bolumIx, kelimeBas = 0) => {
-    if (!seslendirme || !window.speechSynthesis) return;
+    if (!etkinSeslendirme || !window.speechSynthesis) return;
     konusmayiDurdur();
     sonSinir.current = 0;
     const benimNo = zincirNo.current;
@@ -818,7 +840,7 @@ export default function DinletiApp() {
 
       const sesAta = (u) => {
         u.lang = dil;
-        u.rate = Math.max(0.55, Math.min(1.8, hiz * sesTonuAyar.rate));
+        u.rate = Math.max(0.55, Math.min(1.8, hiz * sesTonuAyar.rate * okumaModuAyar.rateCarpan));
         u.pitch = sesTonuAyar.pitch;
         u.volume = 1;
         let liste = seslerRef.current;
@@ -876,16 +898,15 @@ export default function DinletiApp() {
       };
 
       if (basKelime === 0) {
-        const u0 = new SpeechSynthesisUtterance(b.ad + ".");
-        sesAta(u0);
-        u0.onend = () => { window.setTimeout(() => { if (zincirNo.current === benimNo) konusCumle(0, null); }, 260); };
-        konusmaRef.current = u0;
-        window.speechSynthesis.speak(u0);
+        // v2.2.2: Bölüm başlığını seslendirme.
+        // Kullanıcı ekranda bölüm adını zaten görüyor; başlığın okunması
+        // özellikle İngilizce kitaplarda metinle sesin karıştığı algısını yaratıyordu.
+        konusCumle(0, null);
       } else {
         konusCumle(ilkCumle, basKelime);
       }
     } catch {}
-  }, [seslendirme, hiz, sesTonuAyar]);
+  }, [etkinSeslendirme, hiz, sesTonuAyar, okumaModuAyar]);
   useEffect(() => { konusmayiBaslatRef.current = konusmayiBaslat; }, [konusmayiBaslat]);
 
   /* Zaman ilerletici */
@@ -974,6 +995,9 @@ export default function DinletiApp() {
       setDetayId(null);
       setAktifId(null);
       setPozisyon(0);
+      setProfilMesaji("Okuma yolun değişti. Önceki içerik yeni yoluna uygun olmadığı için durdurdum ve sana uygun içerikleri gösteriyorum.");
+    } else if (temiz.yolId !== okumaYolu.yolId || temiz.evreId !== okumaYolu.evreId) {
+      setProfilMesaji("Okuma yolun güncellendi. Sana uygun içerikleri öne aldım.");
     }
     setOkumaYolu(temiz);
     setMod(yol.mod);
@@ -1011,7 +1035,7 @@ export default function DinletiApp() {
       const k = kitapBul(id);
       let ix = 0, t = 0;
       for (let i = 0; i < k.bolumler.length; i++) { t += bolumSn(k.bolumler[i]); if (p < t) { ix = i; break; } }
-      konusmayiBaslat(k, ix, 0);
+      if (etkinSeslendirme) konusmayiBaslat(k, ix, 0);
       return;
     }
     if (caliyor) {
@@ -1022,7 +1046,7 @@ export default function DinletiApp() {
         return yeni;
       });
     }
-    else { setCaliyor(true); seriGuncelle(); konusmayiBaslat(aktif, aktifBolumIx, 0); }
+    else { setCaliyor(true); seriGuncelle(); if (etkinSeslendirme) konusmayiBaslat(aktif, aktifBolumIx, 0); }
   };
 
   const vurguHizala = (poz, konusmayiYenile = false) => {
@@ -1035,7 +1059,7 @@ export default function DinletiApp() {
         const ks = aktif.bolumler[i].metin.trim().split(/\s+/).length;
         const kelime = Math.min(ks - 1, Math.max(0, Math.floor(oran * ks)));
         setKelimeIx(kelime);
-        if (konusmayiYenile && caliyor) konusmayiBaslat(aktif, i, kelime);
+        if (konusmayiYenile && caliyor && etkinSeslendirme) konusmayiBaslat(aktif, i, kelime);
         return;
       }
       t += s;
@@ -1062,7 +1086,7 @@ export default function DinletiApp() {
     setKelimeIx(0);
     setCaliyor(true);
     seriGuncelle();
-    konusmayiBaslat(k, ix, 0);
+    if (etkinSeslendirme) konusmayiBaslat(k, ix, 0);
   };
 
   const bolumeGit = (ix) => {
@@ -1091,7 +1115,31 @@ export default function DinletiApp() {
     const yeni = SES_TONLARI[(ix + 1) % SES_TONLARI.length].id;
     setSesTonu(yeni);
     (async () => { try { await window.storage.set(SES_TONU_ANAHTAR, yeni); } catch {} })();
-    if (caliyor && aktif) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx);
+    if (caliyor && aktif && etkinSeslendirme) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx);
+  };
+
+  const okumaModuDegistir = (yeni) => {
+    setOkumaModu(yeni);
+    const m = okumaModuBul(yeni);
+    setSeslendirme(m.sesli);
+    if (!m.sesli) konusmayiDurdur();
+    else if (caliyor && aktif) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx);
+    (async () => { try { await window.storage.set(OKUMA_MODU_ANAHTAR, yeni); } catch {} })();
+  };
+
+  const yardimOku = () => {
+    if (!aktif || !window.speechSynthesis) return;
+    const kelimeler = aktif.bolumler[aktifBolumIx].metin.trim().split(/\s+/);
+    const kelime = kelimeler[Math.min(kelimeIx, kelimeler.length - 1)] || kelimeler[0];
+    try { window.speechSynthesis.cancel(); } catch {}
+    const temiz = kelime.replace(/[.,!?;:…]/g, "");
+    const heceler = temiz.length <= 3 ? temiz : temiz.split("").join(" ");
+    const metin = okumaYolu.evreId === "hece_kelime" ? `${temiz}. ${heceler}. ${temiz}.` : temiz;
+    const u = new SpeechSynthesisUtterance(metin);
+    u.lang = aktif.dil === "en" ? "en-GB" : "tr-TR";
+    u.rate = 0.72;
+    u.pitch = okumaYolu.mod === "cocuk" ? 1.08 : 1;
+    window.speechSynthesis.speak(u);
   };
 
   const uykuDegistir = () => {
@@ -1211,6 +1259,13 @@ export default function DinletiApp() {
         {" "}<span data-surum style={{ fontSize: 11, opacity: 0.6 }}>v{SURUM}</span>
       </div>
       <OkumaYoluKarti />
+      {profilMesaji && (
+        <div data-profil-gecis-mesaji style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "rgba(232,163,61,0.12)", border: "1px solid rgba(232,163,61,0.28)", borderRadius: 14, padding: "10px 12px", marginBottom: 14 }}>
+          <div style={{ color: S.vurgu, fontSize: 14, fontWeight: 700 }}>Okuma yolu</div>
+          <div style={{ color: "rgba(242,236,223,0.88)", fontSize: 13, lineHeight: 1.45, flex: 1 }}>{profilMesaji}</div>
+          <button onClick={() => setProfilMesaji("")} aria-label="Mesajı kapat" style={{ background: "transparent", border: "none", color: S.soluk, cursor: "pointer", fontSize: 16, lineHeight: 1 }}>×</button>
+        </div>
+      )}
       <RozetYolu />
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 18 }}>
         {["Senkron kelime takibi", "Odak modu", "Rahat okuma aralığı", "Kısa günlük hedef"].map((r) => (
@@ -1503,13 +1558,26 @@ export default function DinletiApp() {
                 <RotateCw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>30</span>
               </button>
             </div>
+            <div data-okuma-modlari style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+              {OKUMA_MODLARI.map((m) => (
+                <button key={m.id} onClick={() => okumaModuDegistir(m.id)} title={m.aciklama} style={cip(okumaModu === m.id)}>
+                  {m.ad}
+                </button>
+              ))}
+            </div>
+            <div data-okuma-modu-ipucu style={{ margin: "8px auto 0", maxWidth: 390, background: "rgba(255,255,255,0.055)", border: "1px solid rgba(255,255,255,0.075)", borderRadius: 12, padding: "8px 11px", color: "rgba(242,236,223,0.88)", fontSize: 12, lineHeight: 1.45, textAlign: "center" }}>
+              <strong style={{ color: S.vurgu }}>{okumaModuAyar.ad}:</strong> {okumaModuAyar.aciklama}
+              {okumaModu === "kendim" ? " Ses otomatik başlamaz; takıldığım yerde kısa yardım alırım." : ""}
+            </div>
+            {okumaModu === "kendim" && (
+              <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
+                <button data-yardim="takildim" onClick={yardimOku} style={{ ...cip(false), borderColor: "rgba(232,163,61,0.45)", color: S.vurgu }}>Takıldım · Bana oku</button>
+              </div>
+            )}
             <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
               <button onClick={hizDegistir} style={cip(false)}><Gauge size={14} /> {hiz}x</button>
-              <button onClick={sesTonuDegistir} title={sesTonuAyar.aciklama} style={cip(true)}><Volume2 size={14} /> Ses: {sesTonuAyar.kisa}</button>
+              <button onClick={sesTonuDegistir} title={sesTonuAyar.aciklama} style={cip(etkinSeslendirme)}><Volume2 size={14} /> Ses: {etkinSeslendirme ? sesTonuAyar.kisa : "Kapalı"}</button>
               <button onClick={uykuDegistir} style={cip(uyku > 0)}><Moon size={14} /> {uyku > 0 ? sureYaz(uyku) : "Uyku"}</button>
-              <button onClick={() => { const y = !seslendirme; setSeslendirme(y); if (!y) konusmayiDurdur(); else if (caliyor) konusmayiBaslat(aktif, aktifBolumIx, 0); }} style={cip(seslendirme)}>
-                <Volume2 size={14} /> Sesli okuma
-              </button>
             </div>
           </div>
         </div>
@@ -1527,7 +1595,7 @@ export default function DinletiApp() {
       <div style={{ padding: "26px 20px 110px" }}>
         <div style={{ ...baslikStil, fontSize: 30, marginBottom: 6 }}>Okuma yolunu seç</div>
         <div style={{ color: S.soluk, fontSize: 14, lineHeight: 1.55, marginBottom: 18 }}>
-          Yaş tek başına yeterli değil. Okurio, yaş bandını okuma evresi ve destek ihtiyacıyla birlikte kullanır.
+          Yaş tek başına yeterli değil. Okurio, yaş bandını okuma evresi, destek ihtiyacı ve okuma moduyla birlikte kullanır.
         </div>
 
         <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>1 · Kim için?</div>
