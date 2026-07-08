@@ -4,9 +4,106 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.1.3";
+const SURUM = "2.2.1";
 
 const KATALOG = [
+
+  {
+    id: "oki-ses-a",
+    baslik: "A Sesi",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#6A4A1F", "#E0A64B"],
+    puan: 4.9,
+    sureDk: 2,
+    ozet: "1. harf grubu için A sesini duymaya, görmeye ve kısa heceler içinde takip etmeye hazırlayan mikro çalışma.",
+    bolumler: [
+      { ad: "Sesi Dinle", dk: 1, metin: "Bugünün sesi a. A sesi ağzımız açıkken çıkar. A. A. A. Oki a sesini duydu." },
+      { ad: "Harf ve Hece", dk: 1, metin: "a. an. al. at. Ela a sesini buldu. Oki el salladı." },
+    ],
+  },
+  {
+    id: "oki-ses-n",
+    baslik: "N Sesi",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#365A46", "#78A878"],
+    puan: 4.9,
+    sureDk: 2,
+    ozet: "N sesini a/e sesleriyle birleştirerek an, en ve ana gibi ilk hecelere geçiş.",
+    bolumler: [
+      { ad: "Sesi Dinle", dk: 1, metin: "Bugünün sesi n. N sesi kısa ve yumuşak çıkar. N. N. N. Nana n sesini söyledi." },
+      { ad: "Heceye Geç", dk: 1, metin: "a ve n yan yana geldi. an. e ve n yan yana geldi. en. Oki an hecesini takip etti." },
+    ],
+  },
+  {
+    id: "oki-heceler-1",
+    baslik: "an en al el at et",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#334A66", "#6D93C9"],
+    puan: 4.9,
+    sureDk: 3,
+    ozet: "1. harf grubunun ilk heceleri: an, en, al, el, at, et. Heceleri sesle ve vurguyla takip etme çalışması.",
+    bolumler: [
+      { ad: "Hece Kartları", dk: 2, metin: "an. en. al. el. at. et. Oki heceleri tane tane dinledi. Lili el hecesini buldu." },
+      { ad: "Tekrar", dk: 1, metin: "an. al. at. el. et. en. Her hece kısa bir adımdır. Oki yavaşça takip etti." },
+    ],
+  },
+  {
+    id: "oki-kelimeler-1",
+    baslik: "İlk Kelimeler: ana, anne, Ali, Ela",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#5A3B5F", "#A77AB0"],
+    puan: 4.9,
+    sureDk: 3,
+    ozet: "1. harf grubuyla kurulabilen ilk anlamlı kelimeleri tanıma ve kelime kelime takip etme çalışması.",
+    bolumler: [
+      { ad: "Kelime Kartları", dk: 2, metin: "ana. anne. Ali. Ela. at. el. tel. Oki kelimeleri duydu. Ela el salladı." },
+      { ad: "Kısa Cümle", dk: 1, metin: "Ali atı tanıdı. Ela el ele. Anne tane tane anlattı." },
+    ],
+  },
+  {
+    id: "oki-ati-taniyor",
+    baslik: "Oki Atı Tanıyor",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#6B3B2A", "#C78258"],
+    puan: 4.9,
+    sureDk: 4,
+    ozet: "Cin Ali sadeliğinden ilham alan ama tamamen özgün, 1. harf grubu ile kısa cümle takip hikâyesi.",
+    bolumler: [
+      { ad: "Mini Hikâye", dk: 3, metin: "Oki atı gördü. At ona baktı. Oki el salladı. Lili güldü. Nana tane tane anlattı." },
+      { ad: "Birlikte Tekrar", dk: 1, metin: "Oki atı gördü. At ona baktı. Oki el salladı. Şimdi sen de yavaşça takip et." },
+    ],
+  },
+  {
+    id: "ela-el-ele",
+    baslik: "Ela El Ele",
+    yazar: "Okurio İlk Okuma",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "İlk Okuma",
+    yas: "6-7 yaş",
+    renk: ["#2E5A5A", "#71A9A6"],
+    puan: 4.9,
+    sureDk: 4,
+    ozet: "İlk kelimeler ve kısa cümlelerle, el-ele temasını sakin ve tekrar eden bir mini hikâyeye dönüştüren özgün içerik.",
+    bolumler: [
+      { ad: "Mini Hikâye", dk: 3, metin: "Ela el ele yürüdü. Ali atı anlattı. Oki ana dedi. Lili el salladı. Herkes tane tane okudu." },
+      { ad: "Birlikte Tekrar", dk: 1, metin: "Ela el ele. Ali ata baktı. Oki el salladı. Yavaşça takip edelim." },
+    ],
+  },
   {
     id: "kurk-mantolu-madonna",
     yas: "13+ yaş",
@@ -295,6 +392,8 @@ const KATALOG = [
 ];
 
 const RAFLAR = [
+  { ad: "Oki İlk Harfler", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-heceler-1", "oki-kelimeler-1", "oki-ati-taniyor", "ela-el-ele"] },
+  { ad: "1. Grup: a n e t i l", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-heceler-1", "oki-kelimeler-1"] },
   { ad: "Editörün Seçtikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
   { ad: "Masal Saati", mod: "cocuk", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
   { ad: "English Corner", mod: "cocuk", ids: ["peter-rabbit-en", "aesop-fables-en", "ugly-duckling-en"] },
@@ -317,7 +416,26 @@ const YOL_SEGMENT_GRUPLARI = {
   yetiskin_odak_18: ["yetiskin_odak", "lise_okuma"],
 };
 
+const YOL_ICERIK_TURLERI = {
+  okul_oncesi_3_4: ["masal", "fabl", "dunya_masali"],
+  okumaya_hazirlik_5_6: ["harf_karti", "hece_karti", "masal", "fabl"],
+  ilk_harfler_6_7: ["harf_karti", "hece_karti", "kelime_karti", "mini_hikaye"],
+  ilk_cumleler_7_8: ["mini_hikaye", "masal", "fabl", "english_easy"],
+  okuma_guveni_8_10: ["masal", "fabl", "dunya_masali", "english_easy", "mini_hikaye"],
+  akici_okuma_10_12: ["masal", "fabl", "dunya_masali", "english_easy", "kisa_hikaye"],
+  genc_okurlar_12_14: ["english_easy", "dunya_masali", "kisa_hikaye", "klasik_roman"],
+  klasiklere_hazirlik_14_16: ["kisa_hikaye", "klasik_roman", "english_easy"],
+  lise_okuma_16_18: ["kisa_hikaye", "klasik_roman"],
+  yetiskin_odak_18: ["kisa_hikaye", "klasik_roman"],
+};
+
 const ICERIK_METADATA = {
+  "oki-ses-a": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["a"], heceler: ["an", "al", "at"] },
+  "oki-ses-n": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["n"], heceler: ["an", "en"] },
+  "oki-heceler-1": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler"], okumaEvreleri: ["hece_kelime", "ses_harf", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "hece_karti", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"], heceler: ["an", "en", "al", "el", "at", "et"] },
+  "oki-kelimeler-1": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "kelime_karti", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"], kelimeler: ["ana", "anne", "Ali", "Ela", "at", "el", "tel"] },
+  "oki-ati-taniyor": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
+  "ela-el-ele": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
   "keloglan-masallari": { yasMin: 4, yasMax: 8, segmentler: ["okul_oncesi", "okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "masal" },
   "la-fontaine-fugue": { yasMin: 4, yasMax: 9, segmentler: ["okul_oncesi", "okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "fabl" },
   "andersen-masallari": { yasMin: 5, yasMax: 10, segmentler: ["okumaya_hazirlik", "ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["dinleme", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "masal" },
@@ -338,13 +456,13 @@ const ICERIK_METADATA = {
 
 const OKUMA_YOLLARI = [
   { id: "okul_oncesi_3_4", baslik: "Minik Dinleyiciler", yas: "3–4", mod: "cocuk", evre: "dinleme", hedef: "Dinleme alışkanlığı, kelime duyarlılığı ve kısa hikâye ritmi", slogan: "Dinle, hayal et, anlat.", rozetAdi: "Hikâye Tohumu" },
-  { id: "okumaya_hazirlik_5_6", baslik: "Okumaya Hazırlık", yas: "5–6", mod: "cocuk", evre: "ses_farkindaligi", hedef: "Ses farkındalığı, ritim, dikkat ve okuma öncesi hazırlık", slogan: "Sesleri duy, hikâyeyi takip et.", rozetAdi: "Ses Kaşifi" },
-  { id: "ilk_harfler_6_7", baslik: "İlk Harfler ve Heceler", yas: "6–7", mod: "cocuk", evre: "harf_hece", hedef: "MEB harf gruplarına uygun ses–harf–hece–kelime yolu", slogan: "Sesleri duy, harfleri gör, heceleri birleştir.", rozetAdi: "Hece Ustası" },
+  { id: "okumaya_hazirlik_5_6", baslik: "Okumaya Hazırlık", yas: "5–6", mod: "cocuk", evre: "dinleme", hedef: "Ses farkındalığı, ritim, dikkat ve okuma öncesi hazırlık", slogan: "Sesleri duy, hikâyeyi takip et.", rozetAdi: "Ses Kaşifi" },
+  { id: "ilk_harfler_6_7", baslik: "İlk Harfler ve Heceler", yas: "6–7", mod: "cocuk", evre: "hece_kelime", hedef: "MEB harf gruplarına uygun ses–harf–hece–kelime yolu", slogan: "Sesleri duy, harfleri gör, heceleri birleştir.", rozetAdi: "Hece Ustası" },
   { id: "ilk_cumleler_7_8", baslik: "İlk Cümleler", yas: "7–8", mod: "cocuk", evre: "kisa_cumle", hedef: "Kısa cümle, tekrar, güven ve anlamlı okuma", slogan: "Kısa cümlelerle kendi hızında ilerle.", rozetAdi: "Cümle Yolcusu" },
-  { id: "okuma_guveni_8_10", baslik: "Okuma Güveni", yas: "8–10", mod: "cocuk", evre: "akicilik_baslangic", hedef: "Okuma pratiği, satır takibi, dikkat ve güven", slogan: "Zorlanmadan oku, kaldığın yerden devam et.", rozetAdi: "Sakin Okur" },
+  { id: "okuma_guveni_8_10", baslik: "Okuma Güveni", yas: "8–10", mod: "cocuk", evre: "paragraf", hedef: "Okuma pratiği, satır takibi, dikkat ve güven", slogan: "Zorlanmadan oku, kaldığın yerden devam et.", rozetAdi: "Sakin Okur" },
   { id: "akici_okuma_10_12", baslik: "Akıcı Okuma", yas: "10–12", mod: "cocuk", evre: "paragraf", hedef: "Paragraf takibi, kısa özet ve daha uzun hikâyeler", slogan: "Paragrafı takip et, hikâyeyi yakala.", rozetAdi: "Paragraf Gezgini" },
-  { id: "genc_okurlar_12_14", baslik: "Genç Okurlar", yas: "12–14", mod: "cocuk", evre: "uzun_metne_gecis", hedef: "Bilim, mitoloji, macera ve uzun metne geçiş", slogan: "Uzun metinlere küçük adımlarla gir.", rozetAdi: "Metin Kaşifi" },
-  { id: "klasiklere_hazirlik_14_16", baslik: "Klasiklere Hazırlık", yas: "14–16", mod: "cocuk", evre: "edebi_okuma", hedef: "Klasiklere giriş, ana fikir ve odaklı okuma", slogan: "Klasiklere hazır bir okuma ritmi kur.", rozetAdi: "Klasik Yolcusu" },
+  { id: "genc_okurlar_12_14", baslik: "Genç Okurlar", yas: "12–14", mod: "cocuk", evre: "uzun_metin", hedef: "Bilim, mitoloji, macera ve uzun metne geçiş", slogan: "Uzun metinlere küçük adımlarla gir.", rozetAdi: "Metin Kaşifi" },
+  { id: "klasiklere_hazirlik_14_16", baslik: "Klasiklere Hazırlık", yas: "14–16", mod: "cocuk", evre: "uzun_metin", hedef: "Klasiklere giriş, ana fikir ve odaklı okuma", slogan: "Klasiklere hazır bir okuma ritmi kur.", rozetAdi: "Klasik Yolcusu" },
   { id: "lise_okuma_16_18", baslik: "Lise Okuma", yas: "16–18", mod: "cocuk", evre: "akademik_klasik", hedef: "Klasik, akademik, sınav ve uzun metin dayanıklılığı", slogan: "Okuma yükünü azalt, metinden kopma.", rozetAdi: "Derin Okur" },
   { id: "yetiskin_odak_18", baslik: "Yetişkin Odak", yas: "18+", mod: "yetiskin", evre: "okumaya_donus", hedef: "Okumaya dönüş, dikkat modu ve görsel konfor", slogan: "Dinle, takip et, okumaya dön.", rozetAdi: "Kitap Kurdu" },
 ];
@@ -403,10 +521,12 @@ const kitapOkumaYolunaUygunMu = (kitap, yol = VARSAYILAN_OKUMA_YOLU) => {
   const yolDetay = yolBul(yol.yolId);
   const meta = kitapMeta(kitap);
   const hedefSegmentler = yolSegmentleri(yol.yolId);
+  const izinliTurler = YOL_ICERIK_TURLERI[yol.yolId] || [];
   const segmentUyumu = meta.segmentler.some((s) => hedefSegmentler.includes(s));
+  const turUyumu = izinliTurler.length === 0 || izinliTurler.includes(meta.icerikTuru);
   const modUyumu = yolDetay.mod === "yetiskin" ? meta.segmentler.includes("yetiskin_odak") : !meta.segmentler.every((s) => s === "yetiskin_odak");
-  const evreUyumu = !yol.evreId || meta.okumaEvreleri.includes(yol.evreId) || hedefSegmentler.includes("dinleme") || yolDetay.mod === "yetiskin";
-  return segmentUyumu && modUyumu && evreUyumu;
+  const evreUyumu = !yol.evreId || meta.okumaEvreleri.includes(yol.evreId) || yol.evreId === "dinleme" || yolDetay.mod === "yetiskin";
+  return segmentUyumu && turUyumu && modUyumu && evreUyumu;
 };
 
 /* ------------------------------------------------------------------ */
@@ -428,10 +548,6 @@ function sureYaz(sn) {
   sn = Math.max(0, Math.floor(sn));
   const s = Math.floor(sn / 3600), d = Math.floor((sn % 3600) / 60), sa = sn % 60;
   return s > 0 ? `${s}:${String(d).padStart(2, "0")}:${String(sa).padStart(2, "0")}` : `${d}:${String(sa).padStart(2, "0")}`;
-}
-function sureUzun(dk) {
-  const s = Math.floor(dk / 60), d = dk % 60;
-  return s > 0 ? `${s} sa ${d} dk` : `${d} dk`;
 }
 
 /* Kitaba özgü deterministik dalga formu (imza öğesi) */
@@ -461,7 +577,6 @@ if (typeof window !== "undefined" && !window.storage) {
 }
 const ANAHTAR = "dinleti-durum-v1";
 const OKUMA_YOLU_ANAHTAR = "okurio-okuma-yolu-v1";
-const ROZET_ANAHTAR = "okurio-rozet-v1";
 const SES_TONU_ANAHTAR = "okurio-ses-tonu-v1";
 async function durumOku() {
   try {
@@ -566,7 +681,7 @@ export default function DinletiApp() {
     setAyar(a);
   };
   const [seri, setSeri] = useState({ sayi: 0, sonGun: "" });
-  const [mod, setMod] = useState("cocuk"); // geriye dönük uyumluluk: cocuk | yetiskin
+  const [, setMod] = useState("cocuk"); // geriye dönük uyumluluk: cocuk | yetiskin
   const [okumaYolu, setOkumaYolu] = useState(VARSAYILAN_OKUMA_YOLU);
   const [onboardingAcik, setOnboardingAcik] = useState(false);
   const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend" });
@@ -658,10 +773,6 @@ export default function DinletiApp() {
     (async () => { try { await window.storage.set("dinleti-okuma-ayar-v1", JSON.stringify(ayar)); } catch {} })();
   }, [ayar]);
 
-  /* Kaydet */
-  const kaydet = useCallback((ek = {}) => {
-    durumYaz({ favoriler, ilerlemeler, hiz, sonKitap: aktifId, ...ek });
-  }, [favoriler, ilerlemeler, hiz, aktifId]);
 
   const aktif = aktifId ? kitapBul(aktifId) : null;
   const toplam = aktif ? toplamSn(aktif) : 0;
@@ -680,7 +791,7 @@ export default function DinletiApp() {
   const zincirNo = useRef(0);
   const konusmayiDurdur = () => {
     zincirNo.current += 1; // aktif cümle zincirini iptal et
-    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch {}
+    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch {}
     konusmaRef.current = null;
   };
   const sonSinir = useRef(0);          // son onboundary olayının zamanı (uyarlanabilir kapı)
@@ -845,8 +956,6 @@ export default function DinletiApp() {
   /* Oynat / duraklat */
   const okumaYoluDetay = yolBul(okumaYolu.yolId);
   const okumaEvreDetay = evreBul(okumaYolu.evreId);
-  const aktifMod = okumaYoluDetay.mod || mod;
-
   const kitapUyum = useCallback((k, yol = okumaYolu) => kitapOkumaYolunaUygunMu(k, yol), [okumaYolu]);
   const uyumluKatalog = useMemo(() => KATALOG.filter((k) => kitapUyum(k)), [kitapUyum]);
   const uyumluRaflar = useMemo(() => RAFLAR
@@ -877,10 +986,6 @@ export default function DinletiApp() {
     })();
   };
 
-  const modDegistir = (m) => {
-    const aday = OKUMA_YOLLARI.find((y) => y.mod === m) || yolBul(okumaYolu.yolId);
-    okumaYolunuKaydet({ ...okumaYolu, yolId: aday.id });
-  };
 
   const seriGuncelle = () => {
     setSeri((e) => {
@@ -1016,7 +1121,7 @@ export default function DinletiApp() {
       <Kapak kitap={kitap} boyut={genis ? 96 : 128} />
       <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{kitap.baslik}</div>
       <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{kitap.yazar}</div>
-      {kitap.yas && <div data-yas style={{ fontSize: 11, color: S.vurgu, marginTop: 3 }}>{kitap.yas}{kitap.dil === "en" ? " · English" : ""}</div>}
+      {kitap.yas && <div data-yas style={{ fontSize: 11, color: S.vurgu, marginTop: 3 }}>{kitap.yas}{kitap.dil === "en" ? " · English" : ""}{kitapMeta(kitap).harfGrubu ? ` · ${kitapMeta(kitap).harfGrubu}. harf grubu` : ""}</div>}
       <div data-icerik-yolu style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{kitapMeta(kitap).icerikTuru.replace(/_/g, " ")}</div>
     </div>
   );
@@ -1133,7 +1238,7 @@ export default function DinletiApp() {
   const AramaSayfa = () => {
     const q = arama.trim().toLowerCase();
     const evren = uyumluKatalog;
-    const sonuc = q ? evren.filter((k) => (k.baslik + " " + k.yazar + " " + k.kategori).toLowerCase().includes(q)) : evren;
+    const sonuc = q ? evren.filter((k) => (k.baslik + " " + k.yazar + " " + k.kategori + " " + (k.ozet || "")).toLowerCase().includes(q)) : evren;
     return (
       <div style={{ padding: "24px 20px" }}>
         <div style={{ ...baslikStil, fontSize: 26, marginBottom: 16 }}>Ara</div>
@@ -1428,7 +1533,7 @@ export default function DinletiApp() {
         <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>1 · Kim için?</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 18 }}>
           {OKUMA_YOLLARI.map((y) => (
-            <button key={y.id} onClick={() => setTaslak((e) => ({ ...e, yolId: y.id }))} data-yol={y.id}
+            <button key={y.id} onClick={() => setTaslak((e) => ({ ...e, yolId: y.id, evreId: y.evre }))} data-yol={y.id}
               style={{ textAlign: "left", background: taslak.yolId === y.id ? "rgba(232,163,61,0.16)" : S.kart, border: taslak.yolId === y.id ? "1px solid rgba(232,163,61,0.48)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 12, cursor: "pointer", color: S.metin, fontFamily: "inherit" }}>
               <div style={{ fontSize: 13, fontWeight: 700 }}>{y.baslik}</div>
               <div style={{ fontSize: 11, color: S.soluk, marginTop: 3 }}>{y.yas}</div>
