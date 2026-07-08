@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus } from "lucide-react";
+import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus, Flame } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
+const SURUM = "1.6.0";
+
 const KATALOG = [
   {
     id: "kurk-mantolu-madonna",
+    yas: "13+ yaş",
     baslik: "Kürk Mantolu Madonna",
     yazar: "Sabahattin Ali",
     seslendiren: "Stüdyo Kaydı",
@@ -27,6 +30,7 @@ const KATALOG = [
   },
   {
     id: "calikusu",
+    yas: "12+ yaş",
     baslik: "Çalıkuşu",
     yazar: "Reşat Nuri Güntekin",
     seslendiren: "Stüdyo Kaydı",
@@ -46,6 +50,7 @@ const KATALOG = [
   },
   {
     id: "yuksek-okceler",
+    yas: "10+ yaş",
     baslik: "Yüksek Ökçeler",
     yazar: "Ömer Seyfettin",
     seslendiren: "Stüdyo Kaydı",
@@ -62,6 +67,7 @@ const KATALOG = [
   },
   {
     id: "pembe-incili-kaftan",
+    yas: "10+ yaş",
     baslik: "Pembe İncili Kaftan",
     yazar: "Ömer Seyfettin",
     seslendiren: "Stüdyo Kaydı",
@@ -78,6 +84,7 @@ const KATALOG = [
   },
   {
     id: "mai-ve-siyah",
+    yas: "13+ yaş",
     baslik: "Mai ve Siyah",
     yazar: "Halit Ziya Uşaklıgil",
     seslendiren: "Stüdyo Kaydı",
@@ -97,6 +104,7 @@ const KATALOG = [
   },
   {
     id: "diyet",
+    yas: "10+ yaş",
     baslik: "Diyet",
     yazar: "Ömer Seyfettin",
     seslendiren: "Stüdyo Kaydı",
@@ -196,35 +204,69 @@ const KATALOG = [
       { ad: "Kurbağa Prens", dk: 20, metin: "Prensesin altın topu kuyuya düşmüş. Bir kurbağa, topunu çıkarırım ama bir şartım var demiş. Verilen söz tutulurmuş, çünkü sözünde durmak insanı güzelleştirirmiş." },
     ],
   },
-];
-
-const RAFLAR_COCUK = [
-  { ad: "Masal ile Okuma Pratiği", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
-  { ad: "Kısa Odak Dinletileri", ids: ["ezop-masallari", "la-fontaine-fugue", "keloglan-masallari"] },
-  { ad: "Sakinleşme ve Uyku Dinletileri", ids: ["andersen-masallari", "grimm-masallari", "keloglan-masallari"] },
-];
-
-const RAFLAR_YETISKIN = [
-  { ad: "Yarım Kalan Kitaplara Dönüş", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "calikusu"] },
-  { ad: "Kısa Klasikler", ids: ["yuksek-okceler", "pembe-incili-kaftan", "diyet"] },
-  { ad: "Odaklanması Kolay Hikâyeler", ids: ["pembe-incili-kaftan", "yuksek-okceler", "diyet"] },
-  { ad: "Türk Edebiyatı", ids: ["kurk-mantolu-madonna", "calikusu", "mai-ve-siyah"] },
-];
-
-const MODLAR = {
-  cocuk: {
-    ad: "Çocuk",
-    baslik: "Dinle, takip et, okumaya başla.",
-    aciklama: "Disleksi, ADHD veya okuma isteksizliği yaşayan çocuklar için sesli, vurgulu ve odaklı okuma deneyimi.",
-    etiket: "Çocuk modu",
+  {
+    id: "aesop-fables-en",
+    baslik: "Aesop's Fables",
+    yazar: "Aesop",
+    seslendiren: "Studio Recording",
+    kategori: "Masal",
+    dil: "en",
+    yas: "4-8 yaş",
+    renk: ["#2E4A5A", "#5A8CA0"],
+    puan: 4.7,
+    sureDk: 36,
+    ozet: "Three timeless fables in simple English: the tortoise and the hare, the lion and the mouse, and the boy who cried wolf.",
+    bolumler: [
+      { ad: "The Tortoise and the Hare", dk: 12, metin: "The hare laughed at the slow tortoise. Let us race, said the tortoise with a smile. The hare ran fast, then stopped to sleep under a tree. Slow and steady wins the race." },
+      { ad: "The Lion and the Mouse", dk: 12, metin: "A little mouse ran over a sleeping lion. The lion woke up and caught it. Please let me go, said the mouse, one day I will help you. The lion laughed, but he let the mouse go." },
+      { ad: "The Boy Who Cried Wolf", dk: 12, metin: "A shepherd boy liked to play tricks. Wolf, wolf, he shouted, and the villagers came running. One day a real wolf came. Nobody believed the boy this time." },
+    ],
   },
-  yetiskin: {
-    ad: "Yetişkin",
-    baslik: "Dinle, takip et, okumaya dön.",
-    aciklama: "Disleksi, ADHD veya uzun metne odaklanmakta zorlanan yetişkinler için erişilebilir klasikler ve takipli sesli okuma.",
-    etiket: "Yetişkin modu",
+  {
+    id: "peter-rabbit-en",
+    baslik: "The Tale of Peter Rabbit",
+    yazar: "Beatrix Potter",
+    seslendiren: "Studio Recording",
+    kategori: "Masal",
+    dil: "en",
+    yas: "4-8 yaş",
+    renk: ["#3A4A2E", "#7A9A5C"],
+    puan: 4.8,
+    sureDk: 30,
+    ozet: "The classic story of a naughty little rabbit who sneaks into Mr. McGregor's garden, retold in simple English.",
+    bolumler: [
+      { ad: "Into the Garden", dk: 10, metin: "Once upon a time there were four little rabbits. Their names were Flopsy, Mopsy, Cottontail, and Peter. Peter was very naughty. He ran straight to Mr. McGregor's garden." },
+      { ad: "The Chase", dk: 10, metin: "Mr. McGregor saw Peter near the cucumber frame. Stop, thief, he cried. Peter ran as fast as his little legs could carry him. He lost one shoe among the cabbages." },
+      { ad: "Safe at Home", dk: 10, metin: "At last Peter found the gate and slipped under it. He ran home and never stopped. His mother put him to bed with a spoonful of chamomile tea. Good little bunnies had bread and milk." },
+    ],
   },
-};
+  {
+    id: "ugly-duckling-en",
+    baslik: "The Ugly Duckling",
+    yazar: "Hans Christian Andersen",
+    seslendiren: "Studio Recording",
+    kategori: "Masal",
+    dil: "en",
+    yas: "5-9 yaş",
+    renk: ["#4A3A5E", "#8A6AA8"],
+    puan: 4.7,
+    sureDk: 32,
+    ozet: "Andersen's beloved story about being different, told in short and clear English sentences.",
+    bolumler: [
+      { ad: "The Strange Egg", dk: 11, metin: "On a sunny farm, a mother duck sat on her eggs. One egg was bigger than the others. When it opened, out came a grey and clumsy duckling. He did not look like the rest." },
+      { ad: "A Long Winter", dk: 11, metin: "The other animals laughed at the grey duckling. He felt sad and left the farm. The winter was long and cold, but he did not give up." },
+      { ad: "The Swan", dk: 10, metin: "In spring, the duckling saw beautiful white birds on the lake. He looked at the water and saw his own reflection. He was not an ugly duckling at all. He was a swan." },
+    ],
+  },
+];
+
+const RAFLAR = [
+  { ad: "Editörün Seçtikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
+  { ad: "Masal Saati", mod: "cocuk", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
+  { ad: "English Corner", mod: "cocuk", ids: ["peter-rabbit-en", "aesop-fables-en", "ugly-duckling-en"] },
+  { ad: "Kısa Dinletiler", mod: "yetiskin", ids: ["yuksek-okceler", "pembe-incili-kaftan", "diyet"] },
+  { ad: "Klasik Romanlar", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "calikusu", "mai-ve-siyah"] },
+];
 
 /* ------------------------------------------------------------------ */
 /* Yardımcılar                                                         */
@@ -232,6 +274,13 @@ const MODLAR = {
 const kitapBul = (id) => KATALOG.find((k) => k.id === id);
 const toplamSn = (kitap) => kitap.bolumler.reduce((t, b) => t + b.dk * 60, 0);
 const bolumBasiSn = (kitap, i) => kitap.bolumler.slice(0, i).reduce((t, b) => t + b.dk * 60, 0);
+
+function kelimeSure(k, hiz) {
+  let ms = (240 + 62 * k.length) / hiz;
+  if (/[.!?…]$/.test(k)) ms += 320 / hiz;
+  else if (/[,;:]$/.test(k)) ms += 140 / hiz;
+  return Math.max(120, ms);
+}
 
 function sureYaz(sn) {
   sn = Math.max(0, Math.floor(sn));
@@ -257,44 +306,17 @@ function dalgaUret(id, n = 56) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Kalıcı durum: Cloudflare Pages için localStorage desteği             */
+/* Kalıcı durum (window.storage)                                       */
 /* ------------------------------------------------------------------ */
 const ANAHTAR = "dinleti-durum-v1";
-const MOD_ANAHTAR = "dinleti-mod-v1";
-
-async function depodanOku(anahtar) {
-  try {
-    if (typeof window !== "undefined" && window.storage?.get) {
-      const r = await window.storage.get(anahtar);
-      return r ? r.value : null;
-    }
-    if (typeof window !== "undefined" && window.localStorage) {
-      return window.localStorage.getItem(anahtar);
-    }
-  } catch {}
-  return null;
-}
-
-async function depoyaYaz(anahtar, deger) {
-  try {
-    if (typeof window !== "undefined" && window.storage?.set) {
-      await window.storage.set(anahtar, deger);
-      return;
-    }
-    if (typeof window !== "undefined" && window.localStorage) {
-      window.localStorage.setItem(anahtar, deger);
-    }
-  } catch {}
-}
-
 async function durumOku() {
   try {
-    const r = await depodanOku(ANAHTAR);
-    return r ? JSON.parse(r) : null;
+    const r = await window.storage.get(ANAHTAR);
+    return r ? JSON.parse(r.value) : null;
   } catch { return null; }
 }
 async function durumYaz(durum) {
-  try { await depoyaYaz(ANAHTAR, JSON.stringify(durum)); } catch {}
+  try { await window.storage.set(ANAHTAR, JSON.stringify(durum)); } catch {}
 }
 
 /* ------------------------------------------------------------------ */
@@ -356,7 +378,6 @@ export default function DinletiApp() {
   const [oynaticiAcik, setOynaticiAcik] = useState(false);
   const [arama, setArama] = useState("");
   const [yukleniyor, setYukleniyor] = useState(true);
-  const [mod, setMod] = useState("yetiskin"); // yetiskin | cocuk
 
   // Çalma durumu
   const [aktifId, setAktifId] = useState(null);
@@ -368,22 +389,38 @@ export default function DinletiApp() {
   const [favoriler, setFavoriler] = useState([]);
   const [ilerlemeler, setIlerlemeler] = useState({}); // {id:{pos,ts}}
 
+  // Okuma modu (senkron metin + ses) ve erişilebilirlik ayarları
   /* Erişilebilir okuma görünümü (disleksi/DEHB destekleri) */
   const PUNTOLAR = [15, 17, 20];
   const ARALIKLAR = [0, 0.07, 0.16];   // em cinsinden harf aralığı (Zorzi 2012 gerekçesi)
   const SATIRLAR = [1.7, 1.9, 2.15];
   const [okumaAcik, setOkumaAcik] = useState(true);
-  const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true });
+  const [seri, setSeri] = useState({ sayi: 0, sonGun: "" });
+  const [mod, setMod] = useState("cocuk"); // cocuk | yetiskin
+  const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend" });
   const [kelimeIx, setKelimeIx] = useState(0);
 
   const konusmaRef = useRef(null);
   const sonKayit = useRef(0);
+  const seslerRef = useRef([]);
+
+  /* Sesler asenkron yüklenir; önbelleğe al ve değişiklikleri dinle */
+  useEffect(() => {
+    if (!window.speechSynthesis) return;
+    const yukle = () => { const l = window.speechSynthesis.getVoices(); if (l && l.length) seslerRef.current = l; };
+    yukle();
+    if (typeof window.speechSynthesis.addEventListener === "function") {
+      window.speechSynthesis.addEventListener("voiceschanged", yukle);
+      return () => window.speechSynthesis.removeEventListener("voiceschanged", yukle);
+    }
+    window.speechSynthesis.onvoiceschanged = yukle;
+  }, []);
 
   /* Yazı tipleri */
   useEffect(() => {
     const l = document.createElement("link");
     l.rel = "stylesheet";
-    l.href = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap";
+    l.href = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&display=swap";
     document.head.appendChild(l);
     return () => document.head.removeChild(l);
   }, []);
@@ -405,14 +442,20 @@ export default function DinletiApp() {
     })();
     (async () => {
       try {
-        const r = await depodanOku("dinleti-okuma-ayar-v1");
-        if (r) setAyar((e) => ({ ...e, ...JSON.parse(r) }));
+        const r = await window.storage.get("dinleti-mod-v1");
+        if (r && (r.value === "cocuk" || r.value === "yetiskin")) setMod(r.value);
       } catch {}
     })();
     (async () => {
       try {
-        const r = await depodanOku(MOD_ANAHTAR);
-        if (r && MODLAR[JSON.parse(r)]) setMod(JSON.parse(r));
+        const r = await window.storage.get("dinleti-seri-v1");
+        if (r) setSeri(JSON.parse(r.value));
+      } catch {}
+    })();
+    (async () => {
+      try {
+        const r = await window.storage.get("dinleti-okuma-ayar-v1");
+        if (r) setAyar((e) => ({ ...e, ...JSON.parse(r.value) }));
       } catch {}
     })();
   }, []);
@@ -421,12 +464,8 @@ export default function DinletiApp() {
   const ilkAyar = useRef(true);
   useEffect(() => {
     if (ilkAyar.current) { ilkAyar.current = false; return; }
-    (async () => { try { await depoyaYaz("dinleti-okuma-ayar-v1", JSON.stringify(ayar)); } catch {} })();
+    (async () => { try { await window.storage.set("dinleti-okuma-ayar-v1", JSON.stringify(ayar)); } catch {} })();
   }, [ayar]);
-
-  useEffect(() => {
-    (async () => { try { await depoyaYaz(MOD_ANAHTAR, JSON.stringify(mod)); } catch {} })();
-  }, [mod]);
 
   /* Kaydet */
   const kaydet = useCallback((ek = {}) => {
@@ -451,29 +490,68 @@ export default function DinletiApp() {
     try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch {}
     konusmaRef.current = null;
   };
-  const konusmayiBaslat = useCallback((kitap, bolumIx, oran) => {
+  const sonSinir = useRef(0);          // son onboundary olayının zamanı (uyarlanabilir kapı)
+  const kalibrasyon = useRef(1);       // gerçek TTS temposu / tahmin (bölüm sonunda güncellenir)
+  const konusmayiBaslatRef = useRef(null);
+  const konusmayiBaslat = useCallback((kitap, bolumIx, kelimeBas = 0) => {
     if (!seslendirme || !window.speechSynthesis) return;
     konusmayiDurdur();
+    sonSinir.current = 0;
     try {
       const b = kitap.bolumler[bolumIx];
-      const u = new SpeechSynthesisUtterance(`${b.ad}. ${b.metin}`);
-      u.lang = "tr-TR"; u.rate = hiz;
-      const onek = b.ad.length + 2; // "Bölüm adı. " kısmı vurgulanmaz
+      const kelimeler = b.metin.trim().split(/\s+/);
+      const bas = Math.min(Math.max(0, kelimeBas), kelimeler.length - 1);
+      const govdeMetin = kelimeler.slice(bas).join(" ");
+      const onekMetin = bas === 0 ? `${b.ad}. ` : "";
+      const u = new SpeechSynthesisUtterance(onekMetin + govdeMetin);
+      const dil = kitap.dil === "en" ? "en-GB" : "tr-TR";
+      u.lang = dil; u.rate = hiz;
+      const onek = onekMetin.length; // bölüm adı vurgulanmaz
       u.onboundary = (e) => {
         if (e.name && e.name !== "word") return;
+        sonSinir.current = Date.now();
         const ci = (e.charIndex || 0) - onek;
-        if (ci < 0) { setKelimeIx(0); return; }
-        const oncekiler = b.metin.slice(0, ci).trim();
-        const idx = oncekiler ? oncekiler.split(/\s+/).length : 0;
-        setKelimeIx(Math.min(idx, b.metin.trim().split(/\s+/).length - 1));
+        if (ci < 0) { setKelimeIx(bas); return; }
+        const oncekiler = govdeMetin.slice(0, ci).trim();
+        const idx = bas + (oncekiler ? oncekiler.split(/\s+/).length : 0);
+        setKelimeIx(Math.min(idx, kelimeler.length - 1));
       };
-      const sesler = window.speechSynthesis.getVoices();
-      const tr = sesler.find((v) => v.lang && v.lang.startsWith("tr"));
-      if (tr) u.voice = tr;
+      const tahminMs = kelimeler.slice(bas).reduce((t, k) => t + kelimeSure(k, hiz), 0);
+      let basZaman = 0;
+      u.onstart = () => { basZaman = Date.now(); };
+      u.onend = () => {
+        if (konusmaRef.current !== u) return; // iptal/yenisiyle değiştirilmişse dokunma
+        if (basZaman && tahminMs > 1000) {
+          const oran = (Date.now() - basZaman) / tahminMs;
+          if (oran > 0.4 && oran < 3) kalibrasyon.current = Math.min(2, Math.max(0.5, kalibrasyon.current * 0.6 + oran * 0.4));
+        }
+        if (bolumIx + 1 < kitap.bolumler.length) {
+          setPozisyon(bolumBasiSn(kitap, bolumIx + 1));
+          setKelimeIx(0);
+          if (konusmayiBaslatRef.current) konusmayiBaslatRef.current(kitap, bolumIx + 1, 0);
+        }
+      };
+      const hedef = kitap.dil === "en" ? "en" : "tr";
       konusmaRef.current = u;
-      window.speechSynthesis.speak(u);
+      const konus = (deneme) => {
+        if (konusmaRef.current !== u) return; // bu arada iptal/degisti
+        let liste = seslerRef.current;
+        if (!liste.length) { const l = window.speechSynthesis.getVoices(); if (l && l.length) { seslerRef.current = l; liste = l; } }
+        if (!liste.length && deneme < 6) { setTimeout(() => konus(deneme + 1), 180); return; }
+        const puanla = (v) => {
+          const ad = (v.name || "").toLowerCase();
+          return (ad.includes("natural") ? 8 : 0) + (/enhanced|premium|neural/.test(ad) ? 6 : 0)
+            + (/google|siri|samantha|yelda|filiz|daniel/.test(ad) ? 3 : 0) + (v.localService === false ? 1 : 0);
+        };
+        const adaylar = liste.filter((v) => v.lang && v.lang.toLowerCase().startsWith(hedef)).sort((a, b) => puanla(b) - puanla(a));
+        if (adaylar[0]) u.voice = adaylar[0];
+        u.pitch = 1.03; // düz makine tonunu bir tık yumuşat
+        window.speechSynthesis.speak(u);
+      };
+      konus(0);
     } catch {}
   }, [seslendirme, hiz]);
+  useEffect(() => { konusmayiBaslatRef.current = konusmayiBaslat; }, [konusmayiBaslat]);
 
   /* Zaman ilerletici */
   useEffect(() => {
@@ -499,14 +577,33 @@ export default function DinletiApp() {
   /* Kelime vurgusu: bölüm/kitap değişince başa dön */
   useEffect(() => { setKelimeIx(0); }, [aktifId, aktifBolumIx]);
 
-  /* Kelime vurgusu: TTS yoksa zamana dayalı ilerlet (yaklaşık 160 kelime/dk x hız) */
+  /* Kelime vurgusu: uyarlanabilir tahmin motoru.
+     onboundary olayları geliyorsa gerçek senkron onları kullanır; gelmiyorsa
+     (mobil tarayıcıların çoğu göndermez) kelime uzunluğu ağırlıklı zamanlayıcı sürer. */
   useEffect(() => {
     if (!caliyor || !aktif || !okumaAcik) return;
     const kelimeler = aktif.bolumler[aktifBolumIx].metin.trim().split(/\s+/);
-    const ms = Math.max(110, Math.round(60000 / (160 * hiz)));
-    const int = setInterval(() => setKelimeIx((i) => Math.min(kelimeler.length - 1, i + 1)), ms);
-    return () => clearInterval(int);
-  }, [caliyor, aktif, aktifBolumIx, hiz, okumaAcik]);
+    let zaman = null, iptal = false;
+    const en = aktif.dil === "en";
+    const sure = (k) => {
+      let ms = (en ? 190 + 48 * k.length : 240 + 62 * k.length) / hiz; // dil temposu
+      if (/[.!?…]$/.test(k)) ms += (en ? 260 : 320) / hiz;             // cümle sonu duraklaması
+      else if (/[,;:]$/.test(k)) ms += 140 / hiz;
+      return Math.max(110, ms);
+    };
+    const adim = () => {
+      if (iptal) return;
+      setKelimeIx((i) => {
+        if (iptal) return i; // temizlik ile güncelleyici arasındaki yarışı kapat
+        const ttsSuruyor = Date.now() - sonSinir.current < 1500; // gerçek sınır olayları canlı
+        const yeni = ttsSuruyor ? i : Math.min(kelimeler.length - 1, i + 1);
+        zaman = setTimeout(adim, sure(kelimeler[Math.min(yeni, kelimeler.length - 1)]));
+        return yeni;
+      });
+    };
+    zaman = setTimeout(adim, 400);
+    return () => { iptal = true; if (zaman) clearTimeout(zaman); };
+  }, [caliyor, aktif, aktifBolumIx, hiz, okumaAcik, seslendirme]);
 
   /* İlerlemeyi 5 sn'de bir kaydet */
   useEffect(() => {
@@ -522,6 +619,23 @@ export default function DinletiApp() {
   }, [pozisyon, aktifId]); // eslint-disable-line
 
   /* Oynat / duraklat */
+  const modDegistir = (m) => {
+    setMod(m);
+    (async () => { try { await window.storage.set("dinleti-mod-v1", m); } catch {} })();
+  };
+  const modUyum = (k) => (mod === "cocuk" ? k.kategori === "Masal" : k.kategori !== "Masal");
+
+  const seriGuncelle = () => {
+    setSeri((e) => {
+      const bugun = new Date().toISOString().slice(0, 10);
+      if (e.sonGun === bugun) return e;
+      const dun = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      const yeni = { sayi: e.sonGun === dun ? e.sayi + 1 : 1, sonGun: bugun };
+      (async () => { try { await window.storage.set("dinleti-seri-v1", JSON.stringify(yeni)); } catch {} })();
+      return yeni;
+    });
+  };
+
   const oynatDegistir = (kitapId) => {
     const id = kitapId || aktifId;
     if (!id) return;
@@ -531,6 +645,7 @@ export default function DinletiApp() {
       const p = ilerlemeler[id]?.pos || 0;
       setPozisyon(p);
       setCaliyor(true);
+      seriGuncelle();
       const k = kitapBul(id);
       let ix = 0, t = 0;
       for (let i = 0; i < k.bolumler.length; i++) { t += k.bolumler[i].dk * 60; if (p < t) { ix = i; break; } }
@@ -545,10 +660,10 @@ export default function DinletiApp() {
         return yeni;
       });
     }
-    else { setCaliyor(true); konusmayiBaslat(aktif, aktifBolumIx, 0); }
+    else { setCaliyor(true); seriGuncelle(); konusmayiBaslat(aktif, aktifBolumIx, 0); }
   };
 
-  const vurguHizala = (poz) => {
+  const vurguHizala = (poz, konusmayiYenile = false) => {
     if (!aktif) return;
     let t = 0;
     for (let i = 0; i < aktif.bolumler.length; i++) {
@@ -556,7 +671,9 @@ export default function DinletiApp() {
       if (poz < t + s) {
         const oran = (poz - t) / s;
         const ks = aktif.bolumler[i].metin.trim().split(/\s+/).length;
-        setKelimeIx(Math.min(ks - 1, Math.max(0, Math.floor(oran * ks))));
+        const kelime = Math.min(ks - 1, Math.max(0, Math.floor(oran * ks)));
+        setKelimeIx(kelime);
+        if (konusmayiYenile && caliyor) konusmayiBaslat(aktif, i, kelime);
         return;
       }
       t += s;
@@ -566,13 +683,13 @@ export default function DinletiApp() {
     if (!aktif) return;
     const yeni = Math.min(toplam, Math.max(0, pozisyon + sn));
     setPozisyon(yeni);
-    vurguHizala(yeni);
+    vurguHizala(yeni, true);
   };
   const oranaSar = (oran) => {
     if (!aktif) return;
     const yeni = Math.floor(oran * toplam);
     setPozisyon(yeni);
-    vurguHizala(yeni);
+    vurguHizala(yeni, true);
   };
   const bolumeGit = (ix) => {
     if (!aktif) return;
@@ -610,9 +727,6 @@ export default function DinletiApp() {
   };
   const govde = { fontFamily: "'Inter', system-ui, sans-serif", background: S.fon, color: S.metin, minHeight: "100vh", maxWidth: 480, margin: "0 auto", position: "relative", paddingBottom: 150 };
   const baslikStil = { fontFamily: "'Fraunces', serif", fontWeight: 600 };
-  const aktifMod = MODLAR[mod] || MODLAR.yetiskin;
-  const aktifRaflar = mod === "cocuk" ? RAFLAR_COCUK : RAFLAR_YETISKIN;
-  const modKitaplari = KATALOG.filter((k) => mod === "cocuk" ? Boolean(k.yas) : !k.yas);
 
   if (yukleniyor) {
     return <div style={{ ...govde, display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
@@ -627,6 +741,7 @@ export default function DinletiApp() {
       <Kapak kitap={kitap} boyut={genis ? 96 : 128} />
       <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{kitap.baslik}</div>
       <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{kitap.yazar}</div>
+      {kitap.yas && <div data-yas style={{ fontSize: 11, color: S.vurgu, marginTop: 3 }}>{kitap.yas}{kitap.dil === "en" ? " · English" : ""}</div>}
     </div>
   );
 
@@ -657,41 +772,37 @@ export default function DinletiApp() {
     );
   };
 
-  const ModSecici = () => (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, margin: "18px 0 18px" }}>
-      {["cocuk", "yetiskin"].map((id) => {
-        const secili = mod === id;
-        return (
-          <button key={id} onClick={() => { setMod(id); setDetayId(null); }}
-            style={{ background: secili ? "rgba(232,163,61,0.18)" : S.kart, border: `1px solid ${secili ? "rgba(232,163,61,0.55)" : "rgba(255,255,255,0.07)"}`, borderRadius: 14, padding: "13px 12px", color: secili ? S.vurgu : S.metin, cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
-            <div style={{ fontWeight: 700, fontSize: 14 }}>{MODLAR[id].ad}</div>
-            <div style={{ color: secili ? "rgba(232,163,61,0.9)" : S.soluk, fontSize: 11, marginTop: 4 }}>{id === "cocuk" ? "Masal + kısa pratik" : "Klasikler + odak"}</div>
-          </button>
-        );
-      })}
-    </div>
-  );
-
-  const DestekSeridi = () => (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 16 }}>
-      {["Senkron kelime takibi", "Dikkat modu", "Rahat okuma aralığı", "Kaldığın yerden devam"].map((t) => (
-        <div key={t} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "10px 11px", color: "rgba(242,236,223,0.88)", fontSize: 12 }}>
-          {t}
-        </div>
-      ))}
-    </div>
-  );
-
   const AnaSayfa = () => (
     <div style={{ padding: "24px 20px" }}>
-      <div style={{ fontSize: 11, color: S.vurgu, letterSpacing: "0.09em", textTransform: "uppercase", marginBottom: 6 }}>{aktifMod.etiket}</div>
       <div style={{ ...baslikStil, fontSize: 30, marginBottom: 4 }}>Dinleti</div>
-      <div style={{ ...baslikStil, fontSize: 23, lineHeight: 1.2, marginBottom: 8 }}>{aktifMod.baslik}</div>
-      <div style={{ color: S.soluk, fontSize: 14, lineHeight: 1.5 }}>{aktifMod.aciklama}</div>
-      <ModSecici />
+      <div style={{ color: S.soluk, fontSize: 14, marginBottom: 14 }}>
+        {mod === "cocuk" ? "Masallarla dinle, takip et, okumaya alış." : "Klasikleri sesli ve odaklı dinle."}
+        {" "}<span data-surum style={{ fontSize: 11, opacity: 0.6 }}>v{SURUM}</span>
+      </div>
+      <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+        {[
+          { id: "cocuk", ad: "Çocuk", alt: "Masal + kısa pratik" },
+          { id: "yetiskin", ad: "Yetişkin", alt: "Klasikler + odak" },
+        ].map((m) => (
+          <button key={m.id} data-mod={m.id} onClick={() => modDegistir(m.id)}
+            style={{ flex: 1, textAlign: "left", background: mod === m.id ? "rgba(232,163,61,0.14)" : S.kart, border: mod === m.id ? "1px solid rgba(232,163,61,0.5)" : "1px solid transparent", borderRadius: 14, padding: "12px 14px", cursor: "pointer", fontFamily: "inherit" }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: mod === m.id ? S.vurgu : S.metin }}>{m.ad}</div>
+            <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{m.alt}</div>
+          </button>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 18 }}>
+        {["Senkron kelime takibi", "Odak modu", "Rahat okuma aralığı", "Kaldığın yerden devam"].map((r) => (
+          <span key={r} style={{ fontSize: 12, color: S.soluk, background: S.kart, borderRadius: 10, padding: "7px 11px" }}>{r}</span>
+        ))}
+      </div>
+      {seri.sayi > 0 && (
+        <div data-seri style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(232,163,61,0.12)", borderRadius: 12, padding: "10px 14px", marginBottom: 14, color: S.vurgu, fontSize: 13 }}>
+          <Flame size={16} /> {seri.sayi} günlük dinleme serisi. Bugün de buradasın, harika.
+        </div>
+      )}
       <DevamKart />
-      <DestekSeridi />
-      {aktifRaflar.map((raf) => (
+      {RAFLAR.filter((raf) => !raf.mod || raf.mod === mod).map((raf) => (
         <div key={raf.ad} style={{ marginTop: 28 }}>
           <div style={{ ...baslikStil, fontSize: 19, marginBottom: 14 }}>{raf.ad}</div>
           <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 6 }}>
@@ -704,15 +815,14 @@ export default function DinletiApp() {
 
   const AramaSayfa = () => {
     const q = arama.trim().toLowerCase();
-    const kaynak = modKitaplari;
-    const sonuc = q ? kaynak.filter((k) => (k.baslik + " " + k.yazar + " " + k.kategori).toLowerCase().includes(q)) : kaynak;
+    const evren = KATALOG.filter(modUyum);
+    const sonuc = q ? evren.filter((k) => (k.baslik + " " + k.yazar + " " + k.kategori).toLowerCase().includes(q)) : evren;
     return (
       <div style={{ padding: "24px 20px" }}>
-        <div style={{ ...baslikStil, fontSize: 26, marginBottom: 4 }}>Ara</div>
-        <div style={{ color: S.soluk, fontSize: 13, marginBottom: 14 }}>{aktifMod.ad} kataloğunda ara</div>
+        <div style={{ ...baslikStil, fontSize: 26, marginBottom: 16 }}>Ara</div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, background: S.kart, borderRadius: 12, padding: "12px 14px", marginBottom: 20 }}>
           <Search size={18} color={S.soluk} />
-          <input value={arama} onChange={(e) => setArama(e.target.value)} placeholder={mod === "cocuk" ? "Masal veya yazar ara" : "Kitap veya yazar ara"}
+          <input value={arama} onChange={(e) => setArama(e.target.value)} placeholder="Kitap veya yazar ara"
             style={{ background: "none", border: "none", outline: "none", color: S.metin, fontSize: 15, flex: 1, fontFamily: "inherit" }} />
         </div>
         {sonuc.length === 0 && <div style={{ color: S.soluk, fontSize: 14 }}>Sonuç bulunamadı. Başka bir kelime dene.</div>}
@@ -721,7 +831,7 @@ export default function DinletiApp() {
             <Kapak kitap={k} boyut={52} radius={6} />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600, fontSize: 15 }}>{k.baslik}</div>
-              <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{k.yazar} · {k.kategori}{k.yas ? ` · ${k.yas}` : ""} · {sureUzun(k.sureDk)}</div>
+              <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{k.yazar} · {k.kategori}{k.dil === "en" ? " · English" : ""}{k.yas ? ` · ${k.yas}` : ""} · {sureUzun(k.sureDk)}</div>
             </div>
           </div>
         ))}
@@ -782,16 +892,13 @@ export default function DinletiApp() {
           <span style={{ display: "flex", alignItems: "center", gap: 5 }}><BookOpen size={13} /> {k.bolumler.length} bölüm</span>
           <span style={{ color: S.vurgu }}>★ {k.puan}</span>
           {k.yas && <span style={{ background: "rgba(232,163,61,0.15)", color: S.vurgu, borderRadius: 6, padding: "1px 7px" }}>{k.yas}</span>}
-          {!k.yas && <span style={{ background: "rgba(232,163,61,0.15)", color: S.vurgu, borderRadius: 6, padding: "1px 7px" }}>Yetişkin</span>}
+          {k.dil === "en" && <span style={{ background: "rgba(90,140,160,0.25)", color: "#9CCDE0", borderRadius: 6, padding: "1px 7px" }}>English</span>}
         </div>
         <button onClick={() => { oynatDegistir(k.id); setOynaticiAcik(true); }}
           style={{ width: "100%", marginTop: 18, background: S.vurgu, color: "#14181F", border: "none", borderRadius: 14, padding: "14px 0", fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
           {p > 10 ? `Devam et · ${sureYaz(p)}` : "Dinlemeye başla"}
         </button>
         <div style={{ marginTop: 22, fontSize: 14, lineHeight: 1.6, color: "rgba(242,236,223,0.85)" }}>{k.ozet}</div>
-        <div style={{ marginTop: 14, background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 12, fontSize: 12, lineHeight: 1.5, color: S.soluk }}>
-          Dinleti bir tanı veya tedavi aracı değildir; disleksi, ADHD ve okuma güçlüğü yaşayan kullanıcılar için erişilebilir okuma deneyimini destekler.
-        </div>
         <div style={{ ...baslikStil, fontSize: 17, margin: "24px 0 10px" }}>Bölümler</div>
         {k.bolumler.map((b, i) => {
           const aktifMi = aktifId === k.id && aktifBolumIx === i;
@@ -888,8 +995,8 @@ export default function DinletiApp() {
           {/* Erişilebilir okuma görünümü */}
           <div style={{ marginTop: 26, background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: 16 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, color: S.soluk, fontSize: 13 }}><BookOpen size={15} /> Takipli metin</div>
-              <button onClick={() => setOkumaAcik(!okumaAcik)} aria-label="Takipli metni aç kapat"
+              <div style={{ display: "flex", alignItems: "center", gap: 8, color: S.soluk, fontSize: 13 }}><BookOpen size={15} /> Okuma görünümü</div>
+              <button onClick={() => setOkumaAcik(!okumaAcik)} aria-label="Okuma görünümünü aç kapat"
                 style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "5px 10px", color: S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
                 {okumaAcik ? "Gizle" : "Göster"}
               </button>
@@ -904,22 +1011,27 @@ export default function DinletiApp() {
               const kaydirma = ayar.odak ? aktifCumle[0] : 0;
               return (
                 <>
-                  <div data-okuma-metin="1" style={{
+                  <div data-okuma-metin="1" data-tema={ayar.tema} style={{
                     fontSize: PUNTOLAR[ayar.punto], letterSpacing: `${ARALIKLAR[ayar.aralik]}em`,
                     lineHeight: SATIRLAR[ayar.aralik], wordSpacing: `${ARALIKLAR[ayar.aralik] * 2.2}em`,
-                    color: "rgba(242,236,223,0.92)", minHeight: 60,
+                    color: ayar.tema === "krem" ? "#2A2622" : "rgba(242,236,223,0.92)",
+                    background: ayar.tema === "krem" ? "#F2ECDF" : "none",
+                    borderRadius: ayar.tema === "krem" ? 12 : 0,
+                    padding: ayar.tema === "krem" ? "14px 16px" : 0,
+                    fontFamily: ayar.font === "lexend" ? "'Lexend', sans-serif" : "inherit",
+                    textAlign: "left", minHeight: 60,
                   }}>
                     {gorunecek.map((k, i) => {
                       const gercekIx = i + kaydirma;
                       const aktifMi = ayar.vurgu && gercekIx === kelimeIx;
                       return <span key={gercekIx} data-aktif={aktifMi ? "1" : undefined} style={{
-                        background: aktifMi ? "rgba(232,163,61,0.35)" : "none",
+                        background: aktifMi ? (ayar.tema === "krem" ? "rgba(201,139,61,0.45)" : "rgba(232,163,61,0.35)") : "none",
                         borderRadius: 4, padding: aktifMi ? "0 2px" : 0,
-                        color: aktifMi ? "#FFF3DC" : undefined,
+                        color: aktifMi ? (ayar.tema === "krem" ? "#1A1510" : "#FFF3DC") : undefined,
                       }}>{k}{" "}</span>;
                     })}
                   </div>
-                  {ayar.odak && <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>Dikkat modu: cümle {cumleler.indexOf(aktifCumle) + 1} / {cumleler.length}</div>}
+                  {ayar.odak && <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>Odak modu: cümle {cumleler.indexOf(aktifCumle) + 1} / {cumleler.length}</div>}
                   <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
                     <button onClick={() => setAyar({ ...ayar, punto: (ayar.punto + 1) % PUNTOLAR.length })} aria-label="Yazı boyutu"
                       style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: S.metin, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}>
@@ -927,15 +1039,23 @@ export default function DinletiApp() {
                     </button>
                     <button onClick={() => setAyar({ ...ayar, aralik: (ayar.aralik + 1) % ARALIKLAR.length })} aria-label="Harf aralığı"
                       style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: S.metin, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}>
-                      <AlignJustify size={13} /> Rahat aralık: {["Normal", "Geniş", "Ekstra"][ayar.aralik]}
+                      <AlignJustify size={13} /> Aralık: {["Normal", "Geniş", "Ekstra"][ayar.aralik]}
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, odak: !ayar.odak })} aria-label="Dikkat modu"
+                    <button onClick={() => setAyar({ ...ayar, odak: !ayar.odak })} aria-label="Odak modu"
                       style={{ background: ayar.odak ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: ayar.odak ? S.vurgu : S.metin, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}>
-                      <Focus size={13} /> Dikkat modu
+                      <Focus size={13} /> Odak modu
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, vurgu: !ayar.vurgu })} aria-label="Senkron kelime takibi"
+                    <button onClick={() => setAyar({ ...ayar, vurgu: !ayar.vurgu })} aria-label="Kelime vurgusu"
                       style={{ background: ayar.vurgu ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: ayar.vurgu ? S.vurgu : S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
                       Kelime vurgusu
+                    </button>
+                    <button onClick={() => setAyar({ ...ayar, tema: ayar.tema === "krem" ? "koyu" : "krem" })} aria-label="Zemin"
+                      style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
+                      Zemin: {ayar.tema === "krem" ? "Krem" : "Koyu"}
+                    </button>
+                    <button onClick={() => setAyar({ ...ayar, font: ayar.font === "lexend" ? "varsayilan" : "lexend" })} aria-label="Yazı tipi"
+                      style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
+                      Yazı: {ayar.font === "lexend" ? "Lexend" : "Varsayılan"}
                     </button>
                   </div>
                 </>
