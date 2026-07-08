@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.1.0";
+const SURUM = "2.1.1";
 
 const KATALOG = [
   {
@@ -326,6 +326,16 @@ const EVRE_SECENEKLERI = [
   { id: "okumaya_donus", ad: "Okumaya geri dönmek istiyor" },
 ];
 
+
+const SES_TONLARI = [
+  { id: "oki", ad: "Oki Anlatıcı", kisa: "Oki", aciklama: "Çocuklar için sıcak, yumuşak ve tane tane okuma.", rate: 0.88, pitch: 1.08, noktaMs: 620, virgulMs: 230 },
+  { id: "sakin", ad: "Sakin Rehber", kisa: "Sakin", aciklama: "Daha düşük tempolu, yorulmadan takip etmeye uygun okuma.", rate: 0.84, pitch: 1.02, noktaMs: 700, virgulMs: 260 },
+  { id: "tane", ad: "Tane Tane", kisa: "Tane", aciklama: "İlk okuma ve hece-kelime takibi için belirgin duraklamalı okuma.", rate: 0.76, pitch: 1.05, noktaMs: 780, virgulMs: 300 },
+  { id: "masal", ad: "Masal Anlatıcısı", kisa: "Masal", aciklama: "Masallar için hafif neşeli ve canlı okuma tonu.", rate: 0.9, pitch: 1.12, noktaMs: 640, virgulMs: 240 },
+  { id: "odak", ad: "Odak Modu", kisa: "Odak", aciklama: "Yetişkin ve uzun metinler için sade, dengeli ve daha az vurgulu okuma.", rate: 0.96, pitch: 0.98, noktaMs: 520, virgulMs: 180 },
+];
+const sesTonuBul = (id) => SES_TONLARI.find((s) => s.id === id) || SES_TONLARI[0];
+
 const DESTEK_SECENEKLERI = [
   { id: "kelime_takibi", ad: "Kelime takibi" },
   { id: "hece_takibi", ad: "Hece takibi" },
@@ -399,6 +409,7 @@ if (typeof window !== "undefined" && !window.storage) {
 const ANAHTAR = "dinleti-durum-v1";
 const OKUMA_YOLU_ANAHTAR = "okurio-okuma-yolu-v1";
 const ROZET_ANAHTAR = "okurio-rozet-v1";
+const SES_TONU_ANAHTAR = "okurio-ses-tonu-v1";
 async function durumOku() {
   try {
     const r = await window.storage.get(ANAHTAR);
@@ -476,6 +487,7 @@ export default function DinletiApp() {
   const [hiz, setHiz] = useState(1);
   const [uyku, setUyku] = useState(0);                // kalan sn, 0 = kapalı
   const [seslendirme, setSeslendirme] = useState(true);
+  const [sesTonu, setSesTonu] = useState("oki");
   const [favoriler, setFavoriler] = useState([]);
   const [ilerlemeler, setIlerlemeler] = useState({}); // {id:{pos,ts}}
 
@@ -506,6 +518,7 @@ export default function DinletiApp() {
   const [onboardingAcik, setOnboardingAcik] = useState(false);
   const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend" });
   const [kelimeIx, setKelimeIx] = useState(0);
+  const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
 
   const konusmaRef = useRef(null);
   const sonKayit = useRef(0);
@@ -564,6 +577,12 @@ export default function DinletiApp() {
           setOnboardingAcik(true);
         }
       } catch { setOnboardingAcik(true); }
+    })();
+    (async () => {
+      try {
+        const r = await window.storage.get(SES_TONU_ANAHTAR);
+        if (r && SES_TONLARI.some((s) => s.id === r.value)) setSesTonu(r.value);
+      } catch {}
     })();
     (async () => {
       try {
@@ -634,7 +653,10 @@ export default function DinletiApp() {
       const tahminMs = kelimeler.slice(basKelime).reduce((t, k) => t + kelimeSure(k, hiz), 0);
 
       const sesAta = (u) => {
-        u.lang = dil; u.rate = hiz; u.pitch = 1.03;
+        u.lang = dil;
+        u.rate = Math.max(0.55, Math.min(1.8, hiz * sesTonuAyar.rate));
+        u.pitch = sesTonuAyar.pitch;
+        u.volume = 1;
         let liste = seslerRef.current;
         if (!liste.length) { try { const l = window.speechSynthesis.getVoices(); if (l && l.length) { seslerRef.current = l; liste = l; } } catch {} }
         const puanla = (v) => {
@@ -677,8 +699,13 @@ export default function DinletiApp() {
         };
         u.onend = () => {
           if (zincirNo.current !== benimNo) return;
-          if (ci + 1 < cumleler.length) { setKelimeIx(cumleler[ci + 1][0]); sonSinir.current = Date.now(); }
-          konusCumle(ci + 1, null);
+          const sonKelime = kelimeler[z] || "";
+          const duraklama = /[.!?…]$/.test(sonKelime) ? sesTonuAyar.noktaMs : (/[,;:]$/.test(sonKelime) ? sesTonuAyar.virgulMs : 140);
+          window.setTimeout(() => {
+            if (zincirNo.current !== benimNo) return;
+            if (ci + 1 < cumleler.length) { setKelimeIx(cumleler[ci + 1][0]); sonSinir.current = Date.now(); }
+            konusCumle(ci + 1, null);
+          }, duraklama);
         };
         konusmaRef.current = u;
         window.speechSynthesis.speak(u);
@@ -687,14 +714,14 @@ export default function DinletiApp() {
       if (basKelime === 0) {
         const u0 = new SpeechSynthesisUtterance(b.ad + ".");
         sesAta(u0);
-        u0.onend = () => { if (zincirNo.current === benimNo) konusCumle(0, null); };
+        u0.onend = () => { window.setTimeout(() => { if (zincirNo.current === benimNo) konusCumle(0, null); }, 260); };
         konusmaRef.current = u0;
         window.speechSynthesis.speak(u0);
       } else {
         konusCumle(ilkCumle, basKelime);
       }
     } catch {}
-  }, [seslendirme, hiz]);
+  }, [seslendirme, hiz, sesTonuAyar]);
   useEffect(() => { konusmayiBaslatRef.current = konusmayiBaslat; }, [konusmayiBaslat]);
 
   /* Zaman ilerletici */
@@ -876,6 +903,14 @@ export default function DinletiApp() {
     durumYaz({ favoriler, ilerlemeler, hiz: yeni, sonKitap: aktifId });
   };
   const uykular = [0, 15 * 60, 30 * 60, 60 * 60];
+  const sesTonuDegistir = () => {
+    const ix = SES_TONLARI.findIndex((s) => s.id === sesTonu);
+    const yeni = SES_TONLARI[(ix + 1) % SES_TONLARI.length].id;
+    setSesTonu(yeni);
+    (async () => { try { await window.storage.set(SES_TONU_ANAHTAR, yeni); } catch {} })();
+    if (caliyor && aktif) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx);
+  };
+
   const uykuDegistir = () => {
     const enYakin = uykular.reduce((a, b) => (Math.abs(b - uyku) < Math.abs(a - uyku) ? b : a), 0);
     const ix = uykular.indexOf(enYakin);
@@ -1172,6 +1207,7 @@ export default function DinletiApp() {
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ ...baslikStil, fontSize: 16, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{aktif.baslik}</div>
               <div style={{ color: S.soluk, fontSize: 12, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.ad} · {aktifBolumIx + 1}/{aktif.bolumler.length} bölüm</div>
+              <div data-ses-tonu style={{ color: S.vurgu, fontSize: 11, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sesTonuAyar.ad}</div>
             </div>
             <ListMusic size={17} color={bolumlerAcik ? S.vurgu : S.soluk} />
           </div>
@@ -1278,6 +1314,7 @@ export default function DinletiApp() {
             </div>
             <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
               <button onClick={hizDegistir} style={cip(false)}><Gauge size={14} /> {hiz}x</button>
+              <button onClick={sesTonuDegistir} title={sesTonuAyar.aciklama} style={cip(true)}><Volume2 size={14} /> Ses: {sesTonuAyar.kisa}</button>
               <button onClick={uykuDegistir} style={cip(uyku > 0)}><Moon size={14} /> {uyku > 0 ? sureYaz(uyku) : "Uyku"}</button>
               <button onClick={() => { const y = !seslendirme; setSeslendirme(y); if (!y) konusmayiDurdur(); else if (caliyor) konusmayiBaslat(aktif, aktifBolumIx, 0); }} style={cip(seslendirme)}>
                 <Volume2 size={14} /> Sesli okuma
