@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.4.8";
+const SURUM = "2.4.9";
 
 const KATALOG = [
 
@@ -1757,6 +1757,10 @@ export default function DinletiApp() {
   const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
   const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
   const etkinSeslendirme = seslendirme && okumaModuAyar.sesli;
+  // v2.4.9: kendiMetniAc callback'i bu değerleri dependency olarak kullandığı için
+  // ilk render'da TDZ/ReferenceError oluşmaması adına callback'ten önce hesaplanır.
+  const okumaYoluDetay = yolBul(okumaYolu.yolId);
+  const okumaEvreDetay = evreBul(okumaYolu.evreId);
 
   const kendiMetniAc = useCallback((metin, baslik = "Kendi Metnim") => {
     const temizMetin = (metin || "").replace(/\s+/g, " ").trim();
@@ -2082,8 +2086,6 @@ export default function DinletiApp() {
   }, [pozisyon, aktifId]); // eslint-disable-line
 
   /* Oynat / duraklat */
-  const okumaYoluDetay = yolBul(okumaYolu.yolId);
-  const okumaEvreDetay = evreBul(okumaYolu.evreId);
   const kitapUyum = useCallback((k, yol = okumaYolu) => kitapOkumaYolunaUygunMu(k, yol), [okumaYolu]);
   const uyumluKatalog = useMemo(() => KATALOG.filter((k) => kitapUyum(k)), [kitapUyum]);
   const uyumluRaflar = useMemo(() => RAFLAR
