@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.4.6";
+const SURUM = "2.4.7";
 
 const KATALOG = [
 
@@ -959,27 +959,309 @@ const KATALOG = [
     ],
   },
 
+  {
+    id: "toto-tak-tak-dedi",
+    baslik: "Toto Tak Tak Dedi",
+    yazar: "Okurio İçerik Ekibi",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Ritim Oyunu",
+    yas: "3-5 yaş",
+    renk: ["#6B4A2B", "#D19A55"],
+    puan: 4.9,
+    sureDk: 3,
+    ozet: "Okuma öncesi ritim, ses farkındalığı ve tekrar için kısa Oki oyunu.",
+    bolumler: [
+      { ad: "Tak Tak", dk: 1, metin: "Toto kapıya baktı. Tak tak. Oki güldü. Tak tak. Mino geldi. Miyav dedi." },
+      { ad: "Ses Oyunu", dk: 1, metin: "Tak tak kapı. Pıt pıt yağmur. Şıp şıp su. Oki dinledi." },
+    ],
+  },
+  {
+    id: "nana-ritim-oyunu",
+    baslik: "Nana’nın Ritim Oyunu",
+    yazar: "Okurio İçerik Ekibi",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Ritim Oyunu",
+    yas: "4-6 yaş",
+    renk: ["#5B3F73", "#B497D6"],
+    puan: 4.9,
+    sureDk: 3,
+    ozet: "Nana ile tekrar, ritim ve dinleme sırası çalışması.",
+    bolumler: [
+      { ad: "La La", dk: 1, metin: "Nana la la dedi. Lili la la dedi. Oki dinledi. Sonra o da la la dedi." },
+      { ad: "Sıra Bende", dk: 1, metin: "Nana durdu. Oki bekledi. Lili gülümsedi. Şimdi sıra Oki’deydi." },
+    ],
+  },
+  {
+    id: "oki-hop-hop",
+    baslik: "Oki Hop Hop",
+    yazar: "Okurio İçerik Ekibi",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Tekerleme",
+    yas: "5-7 yaş",
+    renk: ["#7A4D1F", "#E0A94C"],
+    puan: 4.8,
+    sureDk: 3,
+    ozet: "Kısa tekrar ve ses oyunu: hop, top, dur, bak.",
+    bolumler: [
+      { ad: "Hop Hop", dk: 1, metin: "Oki hop hop dedi. Top hopladı. Toto baktı. Mino saklandı." },
+      { ad: "Top Nerede?", dk: 1, metin: "Top orada. Oki burada. Lili güldü. Toto durdu." },
+    ],
+  },
+  {
+    id: "oki-ay-siiri",
+    baslik: "Oki’nin Ay Şiiri",
+    yazar: "Okurio Şiir Ekibi",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Şiir",
+    yas: "5-8 yaş",
+    renk: ["#24385F", "#8FA9D9"],
+    puan: 4.9,
+    sureDk: 4,
+    ozet: "Kısa dizelerle ay, gece ve sakin takip çalışması.",
+    bolumler: [
+      { ad: "Ay", dk: 2, metin: "Ay geldi geceye. Yavaşça baktı bize. Oki pencere açtı. Işık düştü eline." },
+      { ad: "Sessiz Işık", dk: 2, metin: "Lili saydı yıldızı. Bir, iki, üç. Mino uyudu usulca. Gece oldu güç değil, güzel." },
+    ],
+  },
+  {
+    id: "yagmur-tip-tip-siiri",
+    baslik: "Yağmur Tıp Tıp",
+    yazar: "Okurio Şiir Ekibi",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Şiir",
+    yas: "6-8 yaş",
+    renk: ["#24556B", "#74B7D6"],
+    puan: 4.8,
+    sureDk: 3,
+    ozet: "Ses farkındalığı için yağmur ritimli kısa şiir.",
+    bolumler: [
+      { ad: "Tıp Tıp", dk: 1, metin: "Tıp tıp yağmur. Camda küçük ses. Oki dinler. İçinde sakin bir nefes." },
+      { ad: "Pıt Pıt", dk: 1, metin: "Pıt pıt damla. Toprak güzel kokar. Lili bakar. Mino patisini saklar." },
+    ],
+  },
+  {
+    id: "gokyuzu-siiri",
+    baslik: "Gökyüzü Şiiri",
+    yazar: "Okurio Şiir Ekibi",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Şiir",
+    yas: "8-10 yaş",
+    renk: ["#162B45", "#5F8DC2"],
+    puan: 4.8,
+    sureDk: 5,
+    ozet: "Gökyüzü ve yıldızlar subject’i için kısa, görsel ve sakin şiir.",
+    bolumler: [
+      { ad: "Yukarı Bak", dk: 2, metin: "Gökyüzü mavi bir sayfa gibi açıldı. Oki başını kaldırdı. Bir bulut geçti. Sonra bir kuş, sessizce yolunu buldu." },
+      { ad: "Yıldız Defteri", dk: 2, metin: "Gece olunca gökyüzü karardı. Ama karanlık boş değildi. Lili yıldızları saydı. Her yıldız, uzak bir ışık gibi parladı." },
+    ],
+  },
+  {
+    id: "ay-bilmecesi",
+    baslik: "Ay Bilmecesi",
+    yazar: "Okurio İçerik Ekibi",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Bilmece",
+    yas: "6-9 yaş",
+    renk: ["#25304F", "#B6C4E8"],
+    puan: 4.8,
+    sureDk: 3,
+    ozet: "Gökyüzü subject’i için kısa tahmin et oyunu.",
+    bolumler: [
+      { ad: "Kimim Ben?", dk: 1, metin: "Gece çıkarım. Bazen ince, bazen yuvarlak görünürüm. Güneşten ışık alırım. Ben neyim?" },
+      { ad: "Cevap", dk: 1, metin: "Ben Ay’ım. Kendi ışığımı yapmam. Güneşin ışığını yansıtırım." },
+    ],
+  },
+  {
+    id: "yildiz-bilmecesi",
+    baslik: "Yıldız Bilmecesi",
+    yazar: "Okurio İçerik Ekibi",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Bilmece",
+    yas: "7-10 yaş",
+    renk: ["#1A2440", "#D8C46A"],
+    puan: 4.8,
+    sureDk: 3,
+    ozet: "Yıldız kavramını basit soru-cevapla anlatan kısa bilmece.",
+    bolumler: [
+      { ad: "Uzak Işık", dk: 1, metin: "Çok uzaktayım. Gece parlıyor gibi görünürüm. Kendi ışığımı veririm. Ben neyim?" },
+      { ad: "Cevap", dk: 1, metin: "Ben yıldızım. Güneş de bir yıldızdır. Bize en yakın yıldız Güneş’tir." },
+    ],
+  },
+  {
+    id: "tohum-bilmecesi",
+    baslik: "Tohum Bilmecesi",
+    yazar: "Okurio İçerik Ekibi",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Bilmece",
+    yas: "8-10 yaş",
+    renk: ["#2E4B2F", "#88B06A"],
+    puan: 4.8,
+    sureDk: 3,
+    ozet: "Doğa Kulübü için tahmin ve kelime hazinesi oyunu.",
+    bolumler: [
+      { ad: "Küçük Başlangıç", dk: 1, metin: "Çok küçüğüm. Toprağa düşerim. Su içerim. Bazen bir çiçeğe, bazen bir ağaca dönüşürüm. Ben neyim?" },
+      { ad: "Cevap", dk: 1, metin: "Ben tohumum. Bir tohum küçük başlar. Ama içinde büyük bir yolculuk saklar." },
+    ],
+  },
+  {
+    id: "bir-tohumun-yolculugu",
+    baslik: "Bir Tohumun Yolculuğu",
+    yazar: "Okurio Doğa Kulübü",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Doğa Bilimi",
+    yas: "8-10 yaş",
+    renk: ["#315C3B", "#95C77C"],
+    puan: 4.8,
+    sureDk: 6,
+    ozet: "Bir tohumun toprak, su ve ışıkla başlayan yolunu hikâyeleştiren kısa bilim metni.",
+    bolumler: [
+      { ad: "Toprağın İçinde", dk: 3, metin: "Oki küçük bir tohum buldu. Tohum avucunda sessizdi. Nana, bu küçük şeyin içinde bir bitkinin yolu var, dedi. Oki tohumu toprağa bıraktı." },
+      { ad: "İlk Yaprak", dk: 3, metin: "Yağmur yağdı. Güneş çıktı. Bir gün toprağın üstünde yeşil bir nokta belirdi. Lili, bu bir başlangıç, dedi. Oki her gün gelip baktı." },
+    ],
+  },
+  {
+    id: "arilar-neden-dans-eder",
+    baslik: "Arılar Neden Dans Eder?",
+    yazar: "Okurio Doğa Kulübü",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Doğa Bilimi",
+    yas: "10-12 yaş",
+    renk: ["#6E551B", "#DDBA45"],
+    puan: 4.8,
+    sureDk: 7,
+    ozet: "Arıların yön ve yiyecek bilgisini nasıl paylaştığını sade bir hikâyeyle anlatır.",
+    bolumler: [
+      { ad: "Kovanın Önünde", dk: 3, metin: "Oki kovana uzaktan baktı. Bir arı dönüyor, duruyor, sonra tekrar dönüyordu. Toto, bu arı oyun mu oynuyor, diye sordu. Nana gülümsedi: Belki de haber veriyor." },
+      { ad: "Dans Eden Bilgi", dk: 4, metin: "Nana arıların bazı hareketlerle yiyeceğin yönünü anlatabildiğini söyledi. Lili defterine yazdı: Bazen bir dans, bir harita gibi çalışabilir." },
+    ],
+  },
+  {
+    id: "kutup-tilkisi-yolculugu",
+    baslik: "Kutup Tilkisinin Yolculuğu",
+    yazar: "Okurio Doğa Kulübü",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Doğa Bilimi",
+    yas: "10-12 yaş",
+    renk: ["#3B5266", "#D7E7EF"],
+    puan: 4.8,
+    sureDk: 7,
+    ozet: "Kutup tilkisinin çevreye uyumunu ve yol bulma becerisini anlatan sakin bilim hikâyesi.",
+    bolumler: [
+      { ad: "Beyaz Kürk", dk: 3, metin: "Lili bir fotoğrafta bembeyaz bir tilki gördü. Nana, bu kutup tilkisi, dedi. Karın içinde fark edilmemek için kürkü ona yardım eder." },
+      { ad: "Sessiz Yol", dk: 4, metin: "Kutup tilkisi uzun yollar yürüyebilir. Soğuğa dayanır, izleri takip eder, küçük sesleri dinler. Oki, doğada her canlının bir yolu var, diye düşündü." },
+    ],
+  },
+  {
+    id: "mino-nerede-sahnesi",
+    baslik: "Mino Nerede? Sahnesi",
+    yazar: "Okurio Rol Okuma Ekibi",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Piyes",
+    yas: "6-8 yaş",
+    renk: ["#5B3A2E", "#C89065"],
+    puan: 4.8,
+    sureDk: 5,
+    ozet: "Kısa repliklerle rol alarak okuma pratiği.",
+    bolumler: [
+      { ad: "Sahne 1", dk: 2, metin: "Anlatıcı: Oki bahçeye baktı. Oki: Mino nerede? Lili: Sandalyenin altında olabilir. Mino: Miyav!" },
+      { ad: "Sahne 2", dk: 2, metin: "Oki: Seni buldum Mino. Lili: Sıra bende. Anlatıcı: Üç arkadaş güldü." },
+    ],
+  },
+  {
+    id: "labirentte-uc-ses",
+    baslik: "Labirentte Üç Ses",
+    yazar: "Okurio Rol Okuma Ekibi",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "Piyes",
+    yas: "10-12 yaş",
+    renk: ["#4D365F", "#9B7BB8"],
+    puan: 4.8,
+    sureDk: 8,
+    ozet: "Mitoloji ve rol okuma birleşimi: Oki, Lili ve Toto labirenti anlamaya çalışır.",
+    bolumler: [
+      { ad: "İpin Başında", dk: 4, metin: "Anlatıcı: Oki haritaya baktı. Oki: Labirent çok karışık. Lili: O zaman bir işaret bırakmalıyız. Toto: İp kullanabiliriz!" },
+      { ad: "Yol Bulmak", dk: 4, metin: "Oki: İp bize yolu hatırlatır. Lili: Bazen bir fikir de ip gibi olur. Toto: O zaman ben ipi tutuyorum." },
+    ],
+  },
+  {
+    id: "little-star-poem-en",
+    baslik: "Little Star Poem",
+    yazar: "Okurio English Team",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "English Poem",
+    dil: "en",
+    yas: "6-8 yaş",
+    renk: ["#1B2C52", "#C9D778"],
+    puan: 4.8,
+    sureDk: 3,
+    ozet: "Pre-A1 / A1 seviyesinde kısa İngilizce yıldız şiiri.",
+    bolumler: [
+      { ad: "Star", dk: 1, metin: "Little star, little light. You are soft in the night. Oki looks up. Lili smiles." },
+      { ad: "Night", dk: 1, metin: "The sky is dark. The star is bright. Mino is quiet. The night is kind." },
+    ],
+  },
+  {
+    id: "moon-poem-en",
+    baslik: "Moon Poem",
+    yazar: "Okurio English Team",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "English Poem",
+    dil: "en",
+    yas: "8-10 yaş",
+    renk: ["#203656", "#AFC3E8"],
+    puan: 4.8,
+    sureDk: 4,
+    ozet: "A1 seviyesinde ay, gece ve sakin takip şiiri.",
+    bolumler: [
+      { ad: "Moon", dk: 2, metin: "The moon is not a lamp. The moon is not a star. It takes the sun’s light and sends it from far." },
+      { ad: "Look", dk: 2, metin: "Oki looks at the moon. Lili writes one word: light. Toto whispers, good night." },
+    ],
+  },
+  {
+    id: "space-poem-en",
+    baslik: "Space Poem",
+    yazar: "Okurio English Team",
+    seslendiren: "Oki Anlatıcı",
+    kategori: "English Poem",
+    dil: "en",
+    yas: "10-12 yaş",
+    renk: ["#161B3E", "#6C86D4"],
+    puan: 4.8,
+    sureDk: 5,
+    ozet: "A1-A2 seviyesinde uzay, soru ve merak şiiri.",
+    bolumler: [
+      { ad: "Question", dk: 2, metin: "Space is wide. Space is deep. Oki has a question he wants to keep. Where does a comet go? How does a small star glow?" },
+      { ad: "Answer", dk: 2, metin: "Nana says, a question is a door. Read one line, then read one more." },
+    ],
+  },
+
+
 ];
 
 const RAFLAR = [
-  { ad: "Oki Minik Dinleyiciler", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-sesleri-dinliyor", "mino-miyav-dedi", "lili-yildiz-sayiyor"] },
+  { ad: "Oki Minik Dinleyiciler", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-sesleri-dinliyor", "mino-miyav-dedi", "lili-yildiz-sayiyor", "toto-tak-tak-dedi", "nana-ritim-oyunu"] },
   { ad: "Oki İlk Harfler", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1", "oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
   { ad: "1. Grup: a n e t i l", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1"] },
   { ad: "Oki Mini Hikâyeler", mod: "cocuk", ids: ["oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
   { ad: "Editörün Seçtikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
   { ad: "Masal Saati", mod: "cocuk", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
   { ad: "English Corner", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10"], ids: ["fox-and-grapes-en", "lion-and-mouse-graded-en", "aesop-fables-en", "ugly-duckling-en"] },
-  { ad: "English Word Cards", mod: "cocuk", yolIds: ["okumaya_hazirlik_5_6", "ilk_harfler_6_7", "ilk_cumleler_7_8"], ids: ["english-hello-card", "english-sky-words-card", "english-colors-card"] },
-  { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en", "fox-and-grapes-en", "lion-and-mouse-graded-en", "ugly-duckling-en"] },
+  { ad: "English Word Cards", mod: "cocuk", yolIds: ["okumaya_hazirlik_5_6", "ilk_harfler_6_7", "ilk_cumleler_7_8"], ids: ["english-hello-card", "english-sky-words-card", "english-colors-card", "little-star-poem-en"] },
+  { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en", "fox-and-grapes-en", "lion-and-mouse-graded-en", "ugly-duckling-en", "moon-poem-en", "space-poem-en"] },
   { ad: "Young English Readers", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en"] },
   { ad: "English Classics Bridge", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en"] },
-  { ad: "Gökyüzü ve Yıldızlar", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-ayi-gordu", "yildiz-mi-gezegen-mi", "oki-ay-haritasi"] },
+  { ad: "Gökyüzü ve Yıldızlar", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-ayi-gordu", "yildiz-mi-gezegen-mi", "oki-ay-haritasi", "ay-bilmecesi", "yildiz-bilmecesi", "gokyuzu-siiri"] },
+
+  { ad: "Şiir ve Ritim", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6", "ilk_harfler_6_7", "ilk_cumleler_7_8"], ids: ["toto-tak-tak-dedi", "nana-ritim-oyunu", "oki-hop-hop", "oki-ay-siiri", "yagmur-tip-tip-siiri"] },
+  { ad: "Bilmeceler", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["ay-bilmecesi", "yildiz-bilmecesi", "tohum-bilmecesi"] },
+  { ad: "Oki Doğa Kulübü", mod: "cocuk", yolIds: ["okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["bir-tohumun-yolculugu", "arilar-neden-dans-eder", "kutup-tilkisi-yolculugu", "tohum-bilmecesi"] },
+  { ad: "English Poems", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["little-star-poem-en", "moon-poem-en", "space-poem-en"] },
   { ad: "Eski Zaman Masalları", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-gunesin-hikayesi", "lili-ay-isigi"] },
   { ad: "Oki Mitolojiye Başlıyor", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["oki-pegasus", "oki-labirentin-izi"] },
   { ad: "Mitoloji ve Kahramanlar", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["prometheusun-secimi", "oki-labirentin-izi", "oki-pegasus"] },
   { ad: "Mitolojiden Klasiklere", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["ikarus-bugun-ne-anlatir", "prometheusun-secimi", "ariadnenin-ipi-yetiskin"] },
   { ad: "Mitolojiyle Okumaya Dönüş", mod: "yetiskin", yolIds: ["yetiskin_odak_18"], ids: ["ariadnenin-ipi-yetiskin", "ikarus-bugun-ne-anlatir"] },
-  { ad: "Rol Seçerek Oku", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-lili-sahnesi", "toto-acele-etme-piyesi", "uzay-kulubu-piyesi"] },
+  { ad: "Rol Seçerek Oku", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-lili-sahnesi", "toto-acele-etme-piyesi", "uzay-kulubu-piyesi", "mino-nerede-sahnesi", "labirentte-uc-ses"] },
   { ad: "Dünya Masalları", mod: "cocuk", ids: ["japon-masallari", "cin-masallari", "grimm-masallari", "andersen-masallari", "ezop-masallari"] },
   { ad: "Kısa Dinletiler", mod: "yetiskin", ids: ["yuksek-okceler", "pembe-incili-kaftan", "diyet"] },
   { ad: "Klasik Romanlar", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "calikusu", "mai-ve-siyah"] },
@@ -1000,16 +1282,16 @@ const YOL_SEGMENT_GRUPLARI = {
 };
 
 const YOL_ICERIK_TURLERI = {
-  okul_oncesi_3_4: ["dinleme_hikayesi", "mini_hikaye", "masal", "fabl", "dunya_masali", "mitoloji_hikayesi"],
-  okumaya_hazirlik_5_6: ["dinleme_hikayesi", "harf_karti", "hece_karti", "english_word_card", "masal", "fabl", "mitoloji_hikayesi"],
-  ilk_harfler_6_7: ["harf_karti", "hece_karti", "kelime_karti", "mini_hikaye", "english_word_card"],
-  ilk_cumleler_7_8: ["mini_hikaye", "masal", "fabl", "english_word_card", "english_easy", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
-  okuma_guveni_8_10: ["masal", "fabl", "dunya_masali", "english_easy", "mini_hikaye", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
-  akici_okuma_10_12: ["masal", "fabl", "dunya_masali", "english_easy", "english_reading", "english_science", "kisa_hikaye", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
-  genc_okurlar_12_14: ["english_easy", "english_reading", "english_science", "english_classic_bridge", "dunya_masali", "kisa_hikaye", "klasik_roman", "bilim_hikayesi", "mitoloji_hikayesi", "piyes"],
-  klasiklere_hazirlik_14_16: ["kisa_hikaye", "klasik_roman", "english_easy", "english_reading", "english_classic_bridge", "mitoloji_hikayesi"],
-  lise_okuma_16_18: ["kisa_hikaye", "klasik_roman", "english_classic_bridge", "mitoloji_hikayesi"],
-  yetiskin_odak_18: ["kisa_hikaye", "klasik_roman", "mitoloji_hikayesi"],
+  okul_oncesi_3_4: ["dinleme_hikayesi", "mini_hikaye", "masal", "fabl", "dunya_masali", "mitoloji_hikayesi", "tekerleme", "siir"],
+  okumaya_hazirlik_5_6: ["dinleme_hikayesi", "harf_karti", "hece_karti", "english_word_card", "masal", "fabl", "mitoloji_hikayesi", "tekerleme", "siir", "english_poem"],
+  ilk_harfler_6_7: ["harf_karti", "hece_karti", "kelime_karti", "mini_hikaye", "english_word_card", "tekerleme", "siir"],
+  ilk_cumleler_7_8: ["mini_hikaye", "masal", "fabl", "english_word_card", "english_easy", "english_poem", "bilim_hikayesi", "mitoloji_hikayesi", "piyes", "siir", "bilmece", "tekerleme"],
+  okuma_guveni_8_10: ["masal", "fabl", "dunya_masali", "english_easy", "english_poem", "mini_hikaye", "bilim_hikayesi", "doga_bilim", "mitoloji_hikayesi", "piyes", "siir", "bilmece"],
+  akici_okuma_10_12: ["masal", "fabl", "dunya_masali", "english_easy", "english_reading", "english_science", "english_poem", "kisa_hikaye", "bilim_hikayesi", "doga_bilim", "mitoloji_hikayesi", "piyes", "siir", "bilmece"],
+  genc_okurlar_12_14: ["english_easy", "english_reading", "english_science", "english_classic_bridge", "english_poem", "dunya_masali", "kisa_hikaye", "klasik_roman", "bilim_hikayesi", "doga_bilim", "mitoloji_hikayesi", "piyes", "siir", "bilmece"],
+  klasiklere_hazirlik_14_16: ["kisa_hikaye", "klasik_roman", "english_easy", "english_reading", "english_classic_bridge", "mitoloji_hikayesi", "siir"],
+  lise_okuma_16_18: ["kisa_hikaye", "klasik_roman", "english_classic_bridge", "mitoloji_hikayesi", "siir"],
+  yetiskin_odak_18: ["kisa_hikaye", "klasik_roman", "mitoloji_hikayesi", "siir"],
 };
 
 const ICERIK_METADATA = {
@@ -1071,6 +1353,24 @@ const ICERIK_METADATA = {
   "pembe-incili-kaftan": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
   "diyet": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
   "calikusu": { yasMin: 12, yasMax: 99, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
+
+  "toto-tak-tak-dedi": { yasMin: 3, yasMax: 5, segmentler: ["okul_oncesi", "okumaya_hazirlik", "dinleme"], okumaEvreleri: ["dinleme", "ses_farkindaligi"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "tekerleme", subject: "ritim", oql: 0 },
+  "nana-ritim-oyunu": { yasMin: 4, yasMax: 6, segmentler: ["okul_oncesi", "okumaya_hazirlik", "dinleme"], okumaEvreleri: ["dinleme", "ses_farkindaligi"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "tekerleme", subject: "ritim", oql: 0 },
+  "oki-hop-hop": { yasMin: 5, yasMax: 7, segmentler: ["okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["dinleme", "ses_harf", "kisa_cumle"], destekler: ["kelime_takibi", "hece_takibi", "odak"], icerikTuru: "tekerleme", subject: "ritim", oql: 1 },
+  "oki-ay-siiri": { yasMin: 5, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_cumleler"], okumaEvreleri: ["dinleme", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "siir", subject: "siir", oql: 1 },
+  "yagmur-tip-tip-siiri": { yasMin: 6, yasMax: 8, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["kisa_cumle", "hece_kelime"], destekler: ["kelime_takibi", "hece_takibi", "odak"], icerikTuru: "siir", subject: "siir", oql: 2 },
+  "gokyuzu-siiri": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "siir", subject: "gokyuzu", oql: 3 },
+  "ay-bilmecesi": { yasMin: 6, yasMax: 9, segmentler: ["ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak"], icerikTuru: "bilmece", subject: "gokyuzu", oql: 2 },
+  "yildiz-bilmecesi": { yasMin: 7, yasMax: 10, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak"], icerikTuru: "bilmece", subject: "gokyuzu", oql: 3 },
+  "tohum-bilmecesi": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf"], destekler: ["kelime_takibi", "odak"], icerikTuru: "bilmece", subject: "doga", oql: 3 },
+  "bir-tohumun-yolculugu": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "doga_bilim", subject: "doga", oql: 3, targetWords: ["tohum", "toprak", "yaprak", "başlangıç"] },
+  "arilar-neden-dans-eder": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "doga_bilim", subject: "doga", oql: 4, targetWords: ["kovan", "yön", "bilgi", "dans"] },
+  "kutup-tilkisi-yolculugu": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "doga_bilim", subject: "doga", oql: 4, targetWords: ["kutup", "uyum", "iz", "yolculuk"] },
+  "mino-nerede-sahnesi": { yasMin: 6, yasMax: 8, segmentler: ["ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "piyes", subject: "rol_okuma", oql: 2 },
+  "labirentte-uc-ses": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "piyes", subject: "rol_okuma", oql: 4 },
+  "little-star-poem-en": { yasMin: 6, yasMax: 8, segmentler: ["ilk_cumleler", "okumaya_hazirlik"], okumaEvreleri: ["dinleme", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "english_poem", subject: "english", oql: 1, cefr: "Pre-A1", targetWords: ["star", "light", "night", "sky"] },
+  "moon-poem-en": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_poem", subject: "english", oql: 3, cefr: "A1", targetWords: ["moon", "light", "night", "look"] },
+  "space-poem-en": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_poem", subject: "english", oql: 4, cefr: "A1-A2", targetWords: ["space", "question", "comet", "glow"] },
   "kurk-mantolu-madonna": { yasMin: 13, yasMax: 99, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
   "mai-ve-siyah": { yasMin: 13, yasMax: 99, segmentler: ["klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
 };
@@ -1109,6 +1409,24 @@ const SORU_BANKASI = {
   "happy-prince-swallow-en": [{ soru: "What choice did the swallow make?", secenekler: ["To stay and help", "To hide a book", "To build a boat"], cevap: "To stay and help", destek: "The swallow chose to stay one more night and help." }],
   "moon-not-star-en": [{ soru: "Does the moon make its own light?", secenekler: ["No, it reflects light", "Yes, like a star", "It is a lamp"], cevap: "No, it reflects light", destek: "The moon reflects light from the sun." }],
 
+
+  "toto-tak-tak-dedi": [{ soru: "Toto hangi sesi duydu?", secenekler: ["Tak tak", "Vuu", "Ding dong"], cevap: "Tak tak", destek: "Toto kapıdan tak tak sesini duydu." }],
+  "nana-ritim-oyunu": [{ soru: "Nana hangi sesi söyledi?", secenekler: ["La la", "Moo", "Hop"], cevap: "La la", destek: "Nana ritim oyununda la la dedi." }],
+  "oki-hop-hop": [{ soru: "Top ne yaptı?", secenekler: ["Hopladı", "Uyudu", "Uçtu"], cevap: "Hopladı", destek: "Hikâyede top hopladı." }],
+  "oki-ay-siiri": [{ soru: "Şiirde geceye ne geldi?", secenekler: ["Ay", "Top", "Kalem"], cevap: "Ay", destek: "Şiirde ay geceye geldi." }],
+  "yagmur-tip-tip-siiri": [{ soru: "Yağmur nasıl ses çıkardı?", secenekler: ["Tıp tıp", "Miyav", "Hop"], cevap: "Tıp tıp", destek: "Şiirde yağmur tıp tıp dedi." }],
+  "gokyuzu-siiri": [{ soru: "Lili neyi saydı?", secenekler: ["Yıldızları", "Ayakkabıları", "Kalemleri"], cevap: "Yıldızları", destek: "Lili gökyüzündeki yıldızları saydı." }],
+  "ay-bilmecesi": [{ soru: "Bilmecenin cevabı neydi?", secenekler: ["Ay", "Top", "Kapı"], cevap: "Ay", destek: "Gece görünen ve Güneş ışığını yansıtan şey Ay’dır." }],
+  "yildiz-bilmecesi": [{ soru: "Yıldız ne yapar?", secenekler: ["Kendi ışığını verir", "Kalem taşır", "Uyur"], cevap: "Kendi ışığını verir", destek: "Yıldız kendi ışığını verir." }],
+  "tohum-bilmecesi": [{ soru: "Toprakta büyüyebilen küçük başlangıç neydi?", secenekler: ["Tohum", "Taş", "Ay"], cevap: "Tohum", destek: "Tohum toprağa düşer ve büyüyebilir." }],
+  "bir-tohumun-yolculugu": [{ soru: "Tohumun büyümesine ne yardım etti?", secenekler: ["Yağmur ve güneş", "Karanlık kutu", "Sessiz kalem"], cevap: "Yağmur ve güneş", destek: "Yağmur ve güneş tohumun büyümesine yardım etti." }],
+  "arilar-neden-dans-eder": [{ soru: "Arıların dansı ne anlatabilir?", secenekler: ["Yiyeceğin yönünü", "Kitabın rengini", "Ayakkabı numarasını"], cevap: "Yiyeceğin yönünü", destek: "Arıların hareketleri yiyeceğin yönü hakkında bilgi verebilir." }],
+  "kutup-tilkisi-yolculugu": [{ soru: "Kutup tilkisinin beyaz kürkü ne işe yarar?", secenekler: ["Karda fark edilmemeye", "Uçmaya", "Müzik yapmaya"], cevap: "Karda fark edilmemeye", destek: "Beyaz kürk karda saklanmasına yardım eder." }],
+  "mino-nerede-sahnesi": [{ soru: "Mino nereden ses verdi?", secenekler: ["Sandalyenin altından", "Gökyüzünden", "Denizden"], cevap: "Sandalyenin altından", destek: "Sahnede Mino sandalyenin altından miyav dedi." }],
+  "labirentte-uc-ses": [{ soru: "Labirentte yolu hatırlatmak için ne kullanıldı?", secenekler: ["İp", "Balon", "Kaşık"], cevap: "İp", destek: "İp, labirentte yolu hatırlatmaya yardım etti." }],
+  "little-star-poem-en": [{ soru: "What is bright?", secenekler: ["The star", "The chair", "The door"], cevap: "The star", destek: "The poem says the star is bright." }],
+  "moon-poem-en": [{ soru: "What does the moon take?", secenekler: ["The sun’s light", "A red ball", "A book"], cevap: "The sun’s light", destek: "The poem says the moon takes the sun’s light." }],
+  "space-poem-en": [{ soru: "What does Oki have?", secenekler: ["A question", "A hat", "A sandwich"], cevap: "A question", destek: "Oki has a question about space." }],
   "oki-gunesin-hikayesi": [{ soru: "Oki sabah ne gördü?", secenekler: ["Güneşi", "Denizi", "Kalemi"], cevap: "Güneşi", destek: "Oki sabah güneşi gördü." }],
   "lili-ay-isigi": [{ soru: "Lili neyi takip etti?", secenekler: ["Ay ışığını", "Topu", "Suyu"], cevap: "Ay ışığını", destek: "Lili ay ışığını takip etti." }],
   "oki-pegasus": [{ soru: "Pegasus nasıl bir attı?", secenekler: ["Kanatlı", "Küçük bir kedi", "Tahta bir oyuncak"], cevap: "Kanatlı", destek: "Pegasus eski hikâyelerde kanatlı bir attı." }],
@@ -1182,9 +1500,29 @@ const EVRE_SECENEKLERI = [
   { id: "kisa_cumle", ad: "Kısa cümle okuyor" },
   { id: "paragraf", ad: "Paragraf okuyor" },
   { id: "uzun_metin", ad: "Uzun metinde zorlanıyor" },
+  { id: "akademik_klasik", ad: "Akademik / klasik okuma yapıyor" },
   { id: "okumaya_donus", ad: "Okumaya geri dönmek istiyor" },
 ];
 
+
+
+
+const EVRE_SECENEKLERI_BY_YOL = {
+  okul_oncesi_3_4: ["dinleme"],
+  okumaya_hazirlik_5_6: ["dinleme", "ses_harf"],
+  ilk_harfler_6_7: ["ses_harf", "hece_kelime"],
+  ilk_cumleler_7_8: ["hece_kelime", "kisa_cumle"],
+  okuma_guveni_8_10: ["kisa_cumle", "paragraf"],
+  akici_okuma_10_12: ["paragraf", "uzun_metin"],
+  genc_okurlar_12_14: ["paragraf", "uzun_metin"],
+  klasiklere_hazirlik_14_16: ["uzun_metin", "akademik_klasik"],
+  lise_okuma_16_18: ["uzun_metin", "akademik_klasik"],
+  yetiskin_odak_18: ["okumaya_donus", "uzun_metin"],
+};
+const evreSecenekleri = (yolId) => {
+  const izinli = EVRE_SECENEKLERI_BY_YOL[yolId] || EVRE_SECENEKLERI.map((e) => e.id);
+  return EVRE_SECENEKLERI.filter((e) => izinli.includes(e.id));
+};
 
 const SES_TONLARI = [
   { id: "oki", ad: "Oki Anlatıcı", kisa: "Oki", aciklama: "Çocuklar için sıcak, yumuşak ve tane tane okuma.", rate: 0.88, pitch: 1.08, noktaMs: 620, virgulMs: 230 },
@@ -2371,7 +2709,7 @@ export default function DinletiApp() {
         <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>1 · Kim için?</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 18 }}>
           {OKUMA_YOLLARI.map((y) => (
-            <button key={y.id} onClick={() => setTaslak((e) => ({ ...e, yolId: y.id, evreId: y.evre }))} data-yol={y.id}
+            <button key={y.id} onClick={() => setTaslak((e) => { const izinli = evreSecenekleri(y.id); const yeniEvre = izinli.some((x) => x.id === e.evreId) ? e.evreId : y.evre; return { ...e, yolId: y.id, evreId: yeniEvre }; })} data-yol={y.id}
               style={{ textAlign: "left", background: taslak.yolId === y.id ? "rgba(232,163,61,0.16)" : S.kart, border: taslak.yolId === y.id ? "1px solid rgba(232,163,61,0.48)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 12, cursor: "pointer", color: S.metin, fontFamily: "inherit" }}>
               <div style={{ fontSize: 13, fontWeight: 700 }}>{y.baslik}</div>
               <div style={{ fontSize: 11, color: S.soluk, marginTop: 3 }}>{y.yas}</div>
@@ -2381,7 +2719,7 @@ export default function DinletiApp() {
 
         <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>2 · Okuma evresi</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
-          {EVRE_SECENEKLERI.map((e) => (
+          {evreSecenekleri(taslak.yolId).map((e) => (
             <button key={e.id} onClick={() => setTaslak((t) => ({ ...t, evreId: e.id }))}
               style={{ textAlign: "left", background: taslak.evreId === e.id ? "rgba(232,163,61,0.14)" : S.kart, border: taslak.evreId === e.id ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "11px 12px", color: S.metin, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>
               {e.ad}
