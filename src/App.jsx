@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.4.7";
+const SURUM = "2.4.8";
 
 const KATALOG = [
 
@@ -1718,8 +1718,16 @@ export default function DinletiApp() {
   // Okuma modu (senkron metin + ses) ve erişilebilirlik ayarları
   /* Erişilebilir okuma görünümü (disleksi/DEHB destekleri) */
   const PUNTOLAR = [15, 17, 20];
-  const ARALIKLAR = [0, 0.07, 0.16];   // em cinsinden harf aralığı (Zorzi 2012 gerekçesi)
+  const ARALIKLAR = [0, 0.07, 0.16];   // em cinsinden harf aralığı
   const SATIRLAR = [1.7, 1.9, 2.15];
+  const FONTLAR = [
+    { id: "lexend", ad: "Lexend", aile: "'Lexend', sans-serif" },
+    { id: "opendyslexic", ad: "OpenDyslexic", aile: "'OpenDyslexic', 'Lexend', sans-serif" },
+    { id: "varsayilan", ad: "Varsayılan", aile: "inherit" },
+  ];
+  const fontAile = (id) => (FONTLAR.find((f) => f.id === id) || FONTLAR[0]).aile;
+  const fontAd = (id) => (FONTLAR.find((f) => f.id === id) || FONTLAR[0]).ad;
+  const sonrakiFont = (id) => FONTLAR[(FONTLAR.findIndex((f) => f.id === id) + 1 + FONTLAR.length) % FONTLAR.length].id;
   const [okumaAcik, setOkumaAcik] = useState(true);
   const [bolumlerAcik, setBolumlerAcik] = useState(false);
   // Okuma profili: birleşimli, YALNIZCA oturum belleğinde tutulur (KVKK veri minimizasyonu —
@@ -1729,11 +1737,11 @@ export default function DinletiApp() {
   const profilUygula = (yeniProfil) => {
     setProfil(yeniProfil);
     // Taban ayardan başlayıp aktif profillerin birleşimini uygula
-    const a = { punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend" };
-    if (yeniProfil.dis) { a.aralik = Math.max(a.aralik, 1); a.vurgu = true; a.tema = "krem"; a.font = "lexend"; }
+    const a = { punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", biyonik: false };
+    if (yeniProfil.dis) { a.aralik = Math.max(a.aralik, 1); a.vurgu = true; a.tema = "krem"; a.font = "opendyslexic"; }
     if (yeniProfil.gorsel) { a.punto = 2; a.aralik = Math.max(a.aralik, 1); }
     if (yeniProfil.dis && yeniProfil.gorsel) a.aralik = 2; // eşzamanlılıkta sıkışıklık en güçlü (Liu 2024)
-    if (yeniProfil.dehb) a.odak = true;
+    if (yeniProfil.dehb) { a.odak = true; a.biyonik = true; }
     setAyar(a);
   };
   const [seri, setSeri] = useState({ sayi: 0, sonGun: "" });
@@ -1741,11 +1749,59 @@ export default function DinletiApp() {
   const [okumaYolu, setOkumaYolu] = useState(VARSAYILAN_OKUMA_YOLU);
   const [onboardingAcik, setOnboardingAcik] = useState(false);
   const [profilMesaji, setProfilMesaji] = useState("");
-  const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend" });
+  const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", biyonik: false });
   const [kelimeIx, setKelimeIx] = useState(0);
+  const [kendiMetin, setKendiMetin] = useState("");
+  const [kendiBaslik, setKendiBaslik] = useState("Kendi Metnim");
+  const [kendiMetinMesaji, setKendiMetinMesaji] = useState("");
   const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
   const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
   const etkinSeslendirme = seslendirme && okumaModuAyar.sesli;
+
+  const kendiMetniAc = useCallback((metin, baslik = "Kendi Metnim") => {
+    const temizMetin = (metin || "").replace(/\s+/g, " ").trim();
+    if (temizMetin.length < 20) { setKendiMetinMesaji("En az birkaç cümlelik düz metin ekle."); return; }
+    const id = `kendi-metin-${Date.now()}`;
+    const kelimeSayisi = temizMetin.split(/\s+/).length;
+    const parcalar = temizMetin.match(/[^.!?…]+[.!?…]?/g) || [temizMetin];
+    const bolumler = [];
+    let buf = [];
+    parcalar.forEach((c) => {
+      buf.push(c.trim());
+      if (buf.join(" ").split(/\s+/).length >= 90) {
+        bolumler.push({ ad: `Bölüm ${bolumler.length + 1}`, dk: Math.max(1, Math.round(buf.join(" ").split(/\s+/).length / 130)), metin: buf.join(" ") });
+        buf = [];
+      }
+    });
+    if (buf.length) bolumler.push({ ad: `Bölüm ${bolumler.length + 1}`, dk: Math.max(1, Math.round(buf.join(" ").split(/\s+/).length / 130)), metin: buf.join(" ") });
+    const kitap = {
+      id, baslik: baslik || "Kendi Metnim", yazar: "Kullanıcı İçeriği", seslendiren: "Oki Anlatıcı", kategori: "Kendi Metnim",
+      yas: okumaYoluDetay.yas || "Kişisel", renk: ["#3B465C", "#9FB3D7"], puan: 5, sureDk: Math.max(1, Math.ceil(kelimeSayisi / 130)),
+      ozet: "Kopyala-yapıştır veya TXT dosyasıyla eklenen kişisel kullanım metni.", bolumler, kullaniciIcerigi: true,
+    };
+    KATALOG.unshift(kitap);
+    ICERIK_METADATA[id] = { yasMin: 6, yasMax: 99, segmentler: YOL_SEGMENT_GRUPLARI[okumaYolu.yolId] || ["yetiskin_odak"], okumaEvreleri: [okumaYolu.evreId], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kullanici_metni", subject: "kendi_metin", oql: okumaYoluDetay.oql || 4 };
+    setAktifId(id); setPozisyon(0); setKelimeIx(0); setOynaticiAcik(true); setKendiMetin(""); setKendiMetinMesaji("Metin okuma moduna alındı.");
+  }, [okumaYolu, okumaYoluDetay]);
+
+  const dosyaMetniYukle = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+      setKendiMetinMesaji("PDF desteği için güvenli metin çıkarma katmanı gerekiyor. Bugünkü MVP’de TXT ve kopyala-yapıştır destekleniyor.");
+      e.target.value = "";
+      return;
+    }
+    if (!file.name.toLowerCase().endsWith(".txt") && !file.type.startsWith("text/")) {
+      setKendiMetinMesaji("Şimdilik yalnızca .txt veya düz metin dosyası yükle.");
+      e.target.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => kendiMetniAc(String(reader.result || ""), file.name.replace(/\.txt$/i, ""));
+    reader.readAsText(file, "utf-8");
+    e.target.value = "";
+  }, [kendiMetniAc]);
 
   const konusmaRef = useRef(null);
   const sonKayit = useRef(0);
@@ -1769,7 +1825,11 @@ export default function DinletiApp() {
     l.rel = "stylesheet";
     l.href = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&display=swap";
     document.head.appendChild(l);
-    return () => document.head.removeChild(l);
+    const st = document.createElement("style");
+    st.textContent = `/* OpenDyslexic kullanıcı cihazında veya ileride lisanslı webfont olarak yüklendiğinde otomatik devreye girer. */
+      .okurio-opendyslexic { font-family: 'OpenDyslexic', 'Lexend', system-ui, sans-serif; }`;
+    document.head.appendChild(st);
+    return () => { document.head.removeChild(l); document.head.removeChild(st); };
   }, []);
 
   /* Kalıcı durumu yükle */
@@ -2349,6 +2409,24 @@ export default function DinletiApp() {
           Bu yolda {icerikAuditOzeti.toplam} uygun içerik · {icerikAuditOzeti.englishSayisi} İngilizce içerik · {icerikAuditOzeti.bosRaflar.length} hazırlık rafı
         </div>
       </div>
+
+      <div data-kendi-metnim style={{ background: S.kart, border: "1px solid rgba(232,163,61,0.22)", borderRadius: 16, padding: 14, marginTop: 14, marginBottom: 18 }}>
+        <div style={{ color: S.vurgu, fontSize: 12, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" }}>Kendi metnimi okuma moduna al</div>
+        <div style={{ color: S.soluk, fontSize: 12, lineHeight: 1.45, marginTop: 6 }}>TXT veya kopyala-yapıştır metin; disleksi, DEHB, biyonik okuma ve odak ayarlarıyla açılır. PDF desteği güvenli metin çıkarma katmanına alınacak.</div>
+        <input value={kendiBaslik} onChange={(e) => setKendiBaslik(e.target.value)} aria-label="Kendi metnim başlık" style={{ width: "100%", boxSizing: "border-box", marginTop: 10, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "9px 10px", fontFamily: "inherit" }} />
+        <textarea value={kendiMetin} onChange={(e) => setKendiMetin(e.target.value)} placeholder="Metni buraya yapıştır..." aria-label="Kendi metnim" style={{ width: "100%", boxSizing: "border-box", minHeight: 78, marginTop: 8, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "10px", fontFamily: "inherit", resize: "vertical" }} />
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+          <button onClick={() => kendiMetniAc(kendiMetin, kendiBaslik)} style={{ background: S.vurgu, color: "#14181F", border: "none", borderRadius: 10, padding: "9px 12px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}>Okuma moduna al</button>
+          <label style={{ background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "9px 12px", cursor: "pointer", fontSize: 13 }}>TXT/PDF seç
+            <input type="file" accept=".txt,text/plain,.pdf,application/pdf" onChange={dosyaMetniYukle} style={{ display: "none" }} />
+          </label>
+        </div>
+        {kendiMetinMesaji && <div style={{ color: S.soluk, fontSize: 12, marginTop: 8 }}>{kendiMetinMesaji}</div>}
+      </div>
+
+      <div data-terms style={{ color: S.soluk, fontSize: 11, lineHeight: 1.45, margin: "-4px 0 14px", opacity: 0.9 }}>
+        Kullanıcı kendi yüklediği içeriklerin telif haklarından sorumludur. Okurio bu metinleri kişisel kullanım ve erişilebilir okuma desteği amacıyla işler; yayınlama veya dağıtım hakkı sağlamaz.
+      </div>
       {uyumluRaflar.map((raf) => (
         <div key={raf.ad} style={{ marginTop: 28 }}>
           <div style={{ ...baslikStil, fontSize: 19, marginBottom: 14 }}>{raf.ad} <span style={{ fontFamily: "Inter, system-ui, sans-serif", color: S.soluk, fontSize: 12, fontWeight: 500 }}>· {raf.ids.length > 0 ? `${raf.ids.length} içerik` : "hazırlanıyor"}</span></div>
@@ -2574,17 +2652,22 @@ export default function DinletiApp() {
                     background: ayar.tema === "krem" ? "#F2ECDF" : "none",
                     borderRadius: ayar.tema === "krem" ? 12 : 0,
                     padding: ayar.tema === "krem" ? "14px 16px" : 0,
-                    fontFamily: ayar.font === "lexend" ? "'Lexend', sans-serif" : "inherit",
+                    fontFamily: fontAile(ayar.font),
                     textAlign: "left", minHeight: 60,
                   }}>
                     {gorunecek.map((k, i) => {
                       const gercekIx = i + kaydirma;
                       const aktifMi = ayar.vurgu && gercekIx === kelimeIx;
+                      const temiz = k.replace(/[.,!?…;:]+$/u, "");
+                      const son = k.slice(temiz.length);
+                      const n = Math.max(1, Math.ceil(temiz.length * 0.45));
                       return <span key={gercekIx} data-aktif={aktifMi ? "1" : undefined} style={{
                         background: aktifMi ? (ayar.tema === "krem" ? "rgba(201,139,61,0.45)" : "rgba(232,163,61,0.35)") : "none",
                         borderRadius: 4, padding: aktifMi ? "0 2px" : 0,
                         color: aktifMi ? (ayar.tema === "krem" ? "#1A1510" : "#FFF3DC") : undefined,
-                      }}>{k}{" "}</span>;
+                      }}>
+                        {ayar.biyonik && temiz.length > 3 ? <><strong style={{ fontWeight: 850 }}>{temiz.slice(0, n)}</strong>{temiz.slice(n)}{son}</> : k}{" "}
+                      </span>;
                     })}
                   </div>
                   {ayar.odak && <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>Odak modu: cümle {cumleler.indexOf(aktifCumle) + 1} / {cumleler.length}</div>}
@@ -2610,8 +2693,11 @@ export default function DinletiApp() {
                     <button onClick={() => setAyar({ ...ayar, tema: ayar.tema === "krem" ? "koyu" : "krem" })} aria-label="Zemin" style={cip(false)}>
                       Zemin: {ayar.tema === "krem" ? "Krem" : "Koyu"}
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, font: ayar.font === "lexend" ? "varsayilan" : "lexend" })} aria-label="Yazı tipi" style={cip(false)}>
-                      Yazı: {ayar.font === "lexend" ? "Lexend" : "Varsayılan"}
+                    <button onClick={() => setAyar({ ...ayar, biyonik: !ayar.biyonik })} aria-label="Biyonik okuma" style={cip(ayar.biyonik)}>
+                      Biyonik okuma
+                    </button>
+                    <button onClick={() => setAyar({ ...ayar, font: sonrakiFont(ayar.font) })} aria-label="Yazı tipi" style={cip(ayar.font === "opendyslexic")}>
+                      Yazı: {fontAd(ayar.font)}
                     </button>
                   </div>
                 </>
