@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.4.9";
+const SURUM = "2.5.0";
 
 const KATALOG = [
 
@@ -2592,10 +2592,13 @@ export default function DinletiApp() {
     if (!aktif || !oynaticiAcik) return null;
     const oran = toplam ? pozisyon / toplam : 0;
     const b = aktif.bolumler[aktifBolumIx];
-    const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
+    const mobilDar = typeof window !== "undefined" && window.innerWidth <= 430;
+    const mobilKisa = typeof window !== "undefined" && window.innerHeight <= 760;
+    const soruHazir = toplam > 0 && pozisyon >= Math.max(0, toplam - 2);
+    const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
       <div style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.6)" }}>
-        <div style={{ width: "min(480px, 100%)", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100%", padding: "14px 18px 12px", boxSizing: "border-box" }}>
+        <div data-mobile-stability="v2.5.0" style={{ width: "min(480px, 100%)", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 18px 12px", boxSizing: "border-box" }}>
 
           {/* Üst çubuk */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
@@ -2607,11 +2610,11 @@ export default function DinletiApp() {
           </div>
 
           {/* Kompakt kitap bilgisi */}
-          <div data-kompakt-baslik onClick={() => setBolumlerAcik(!bolumlerAcik)} style={{ display: "flex", alignItems: "center", gap: 12, margin: "12px 0 10px", flexShrink: 0, cursor: "pointer" }}>
-            <Kapak kitap={aktif} boyut={44} radius={6} />
+          <div data-kompakt-baslik onClick={() => setBolumlerAcik(!bolumlerAcik)} style={{ display: "flex", alignItems: "center", gap: mobilDar ? 9 : 12, margin: mobilDar ? "8px 0 8px" : "12px 0 10px", flexShrink: 0, cursor: "pointer" }}>
+            <Kapak kitap={aktif} boyut={mobilDar ? 36 : 44} radius={6} />
             <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ ...baslikStil, fontSize: 16, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{aktif.baslik}</div>
-              <div style={{ color: S.soluk, fontSize: 12, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.ad} · {aktifBolumIx + 1}/{aktif.bolumler.length} bölüm</div>
+              <div style={{ ...baslikStil, fontSize: mobilDar ? 15 : 16, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{aktif.baslik}</div>
+              <div style={{ color: S.soluk, fontSize: mobilDar ? 11 : 12, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.ad} · {aktifBolumIx + 1}/{aktif.bolumler.length} bölüm</div>
               <div data-ses-tonu style={{ color: S.vurgu, fontSize: 11, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sesTonuAyar.ad}</div>
             </div>
             <ListMusic size={17} color={bolumlerAcik ? S.vurgu : S.soluk} />
@@ -2629,7 +2632,7 @@ export default function DinletiApp() {
           )}
 
           {/* OKUMA ALANI: ekranın ana yüzeyi */}
-          <div data-okuma-alani style={{ flex: 1, minHeight: 0, overflowY: "auto", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: 14 }}>
+          <div data-okuma-alani style={{ flex: "1 1 auto", minHeight: mobilDar ? (mobilKisa ? "38dvh" : "44dvh") : 0, overflowY: "auto", WebkitOverflowScrolling: "touch", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: mobilDar ? 10 : 14 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, color: S.soluk, fontSize: 13 }}><BookOpen size={15} /> Okuma görünümü</div>
               <button onClick={() => setOkumaAcik(!okumaAcik)} aria-label="Okuma görünümünü aç kapat"
@@ -2655,7 +2658,7 @@ export default function DinletiApp() {
                     borderRadius: ayar.tema === "krem" ? 12 : 0,
                     padding: ayar.tema === "krem" ? "14px 16px" : 0,
                     fontFamily: fontAile(ayar.font),
-                    textAlign: "left", minHeight: 60,
+                    textAlign: "left", minHeight: mobilDar ? (mobilKisa ? "24dvh" : "30dvh") : 60, maxHeight: mobilDar ? (mobilKisa ? "34dvh" : "40dvh") : "none", overflowY: mobilDar ? "auto" : "visible", WebkitOverflowScrolling: "touch",
                   }}>
                     {gorunecek.map((k, i) => {
                       const gercekIx = i + kaydirma;
@@ -2710,9 +2713,9 @@ export default function DinletiApp() {
 
           {(() => {
             const soru = kitapSorusu(aktif);
-            if (!soru) return null;
+            if (!soru || !soruHazir) return null;
             return (
-              <div data-birlikte-dusunelim style={{ flexShrink: 0, marginTop: 10, background: "rgba(232,163,61,0.10)", border: "1px solid rgba(232,163,61,0.22)", borderRadius: 14, padding: "10px 12px" }}>
+              <div data-birlikte-dusunelim data-soru-zamani="bolum-sonu" style={{ flexShrink: 0, marginTop: mobilDar ? 8 : 10, background: "rgba(232,163,61,0.10)", border: "1px solid rgba(232,163,61,0.22)", borderRadius: 14, padding: mobilDar ? "8px 10px" : "10px 12px" }}>
                 <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>Birlikte Düşünelim</div>
                 <div style={{ fontSize: 14, color: S.metin, fontWeight: 600, marginBottom: 8 }}>{soru.soru}</div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -2737,17 +2740,17 @@ export default function DinletiApp() {
           })()}
 
           {/* ALT KONTROL BLOĞU: sabit */}
-          <div data-alt-kontrol style={{ flexShrink: 0, paddingTop: 10 }}>
+          <div data-alt-kontrol style={{ flexShrink: 0, paddingTop: mobilDar ? 6 : 10 }}>
             <DalgaBar kitap={aktif} oran={oran} onSar={oranaSar} />
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: S.soluk, marginTop: 4 }}>
               <span>{sureYaz(pozisyon)}</span><span>-{sureYaz(toplam - pozisyon)}</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 22, marginTop: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: mobilDar ? 18 : 22, marginTop: mobilDar ? 6 : 8 }}>
               <button onClick={() => sar(-15)} aria-label="15 saniye geri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                 <RotateCcw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>15</span>
               </button>
               <button onClick={() => oynatDegistir()} aria-label={caliyor ? "Duraklat" : "Oynat"}
-                style={{ width: 58, height: 58, borderRadius: 29, background: S.vurgu, border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 22px rgba(232,163,61,0.35)" }}>
+                style={{ width: mobilDar ? 52 : 58, height: mobilDar ? 52 : 58, borderRadius: mobilDar ? 26 : 29, background: S.vurgu, border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 22px rgba(232,163,61,0.35)" }}>
                 {caliyor ? <Pause size={25} color="#14181F" fill="#14181F" /> : <Play size={25} color="#14181F" fill="#14181F" style={{ marginLeft: 3 }} />}
               </button>
               <button onClick={() => sar(30)} aria-label="30 saniye ileri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
@@ -2761,7 +2764,7 @@ export default function DinletiApp() {
                 </button>
               ))}
             </div>
-            <div data-okuma-modu-ipucu style={{ margin: "8px auto 0", maxWidth: 390, background: "rgba(255,255,255,0.055)", border: "1px solid rgba(255,255,255,0.075)", borderRadius: 12, padding: "8px 11px", color: "rgba(242,236,223,0.88)", fontSize: 12, lineHeight: 1.45, textAlign: "center" }}>
+            <div data-okuma-modu-ipucu style={{ margin: mobilKisa ? "6px auto 0" : "8px auto 0", maxWidth: 390, background: "rgba(255,255,255,0.055)", border: "1px solid rgba(255,255,255,0.075)", borderRadius: 12, padding: mobilDar ? "7px 9px" : "8px 11px", color: "rgba(242,236,223,0.88)", fontSize: mobilDar ? 11 : 12, lineHeight: 1.45, textAlign: "center" }}>
               <strong style={{ color: S.vurgu }}>{okumaModuAyar.ad}:</strong> {okumaModuAyar.aciklama}
               {okumaModu === "kendim" ? " Ses otomatik başlamaz; takıldığım yerde kısa yardım alırım." : ""}
             </div>
