@@ -58,7 +58,7 @@ test.describe("Sprint 3 mobil okuma stabilitesi", () => {
       modes.setAttribute("data-okuma-modlari", "1");
       modes.innerHTML = "<button>Dinliyorum</button><button>Birlikte Okuyorum</button><button>Kendim Okuyorum</button>";
       document.body.appendChild(modes);
-      window.__okurioReadingFixes.refresh();
+      window.__okurioReadingFixes.markInteractiveControls(modes);
       const style = getComputedStyle(modes);
       const result = {
         maxHeight: style.maxHeight,
@@ -75,12 +75,11 @@ test.describe("Sprint 3 mobil okuma stabilitesi", () => {
   });
 
   test("Takıldım butonu erişilebilir yardım kontrolü olarak işaretlenir", async ({ page }) => {
-    const result = await page.evaluate(async () => {
+    const result = await page.evaluate(() => {
       const button = document.createElement("button");
       button.textContent = "Takıldım · Bana oku";
       document.body.appendChild(button);
-      window.__okurioReadingFixes.refresh();
-      await new Promise((resolve) => requestAnimationFrame(resolve));
+      window.__okurioReadingFixes.markInteractiveControls(document);
       const value = {
         marker: button.dataset.yardimOku,
         label: button.getAttribute("aria-label"),
