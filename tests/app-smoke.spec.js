@@ -33,6 +33,8 @@ test.describe("Dinleti/Okurio temel açılış kontrolleri", () => {
     await expect(startButton).toBeVisible();
     await startButton.click();
 
-    await expect(page.getByText(/Oki Sesleri Dinliyor/i).first()).toBeVisible();
+    await expect(page.getByText(/İçerik durumu/i)).toBeVisible();
+    await expect(page.getByText(/Masal Saati/i).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /Ana Sayfa/i })).toBeVisible();
   });
 });
