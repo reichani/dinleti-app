@@ -21,8 +21,18 @@ test.describe("Dinleti/Okurio temel açılış kontrolleri", () => {
     await expect(page).toHaveTitle(/Dinleti|Okurio/i);
   });
 
-  test("ana içerik kullanıcıya görünür", async ({ page }) => {
+  test("onboarding ekranı ve ana kataloğa geçiş çalışır", async ({ page }) => {
     await page.goto("/");
+
+    await expect(page.getByText(/Okuma yolunu seç/i)).toBeVisible();
+
+    const startButton = page.getByRole("button", {
+      name: /Okuma yolumu başlat/i
+    });
+
+    await expect(startButton).toBeVisible();
+    await startButton.click();
+
     await expect(page.getByText(/Oki Sesleri Dinliyor/i).first()).toBeVisible();
   });
 });
