@@ -65,4 +65,25 @@ test.describe("Mobil görünüm regresyonları", () => {
     expect(rootBox).not.toBeNull();
     expect(rootBox.width).toBeGreaterThanOrEqual(320);
   });
+
+  test("mobil okuma stil paketi build içine yüklenir", async ({ page }) => {
+    await page.goto("/");
+
+    const kurallar = await page.evaluate(() =>
+      [...document.styleSheets]
+        .flatMap((sheet) => {
+          try {
+            return [...sheet.cssRules].map((rule) => rule.cssText);
+          } catch {
+            return [];
+          }
+        })
+        .join("\n")
+    );
+
+    expect(kurallar).toContain("[data-okuma-metin]");
+    expect(kurallar).toContain("overflow-wrap: anywhere");
+    expect(kurallar).toContain("max-height: none !important");
+    expect(kurallar).toContain("safe-area-inset-bottom");
+  });
 });
