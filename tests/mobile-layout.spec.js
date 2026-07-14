@@ -97,11 +97,11 @@ test.describe("Mobil görünüm regresyonları", () => {
     expect(kurallar).toContain("touch-action: manipulation");
   });
 
-  test("mobil okuma metni doğal akar ve ikinci kaydırma kutusu oluşturmaz", async ({ page }) => {
+  test("mobil okuma metni sabit kartta kayar ve aktif kelime takibine alan bırakır", async ({ page }, testInfo) => {
     await onboardingTamamla(page);
 
     await page.getByLabel("Kendi metnim", { exact: true }).fill(
-      "Oki bugün sakin bir metin okuyor. Kelimeler ekrana rahatça sığıyor. Satırlar düzenli aralıklarla ilerliyor. Uzun metinlerde kullanıcı küçük bir kutunun içine sıkışmıyor."
+      "Oki bugün sakin bir metin okuyor. Kelimeler ekrana rahatça sığıyor. Satırlar düzenli aralıklarla ilerliyor. Uzun metinlerde aktif kelime kartın içinde görünür kalıyor. Okuma devam ettikçe metin kontrollü biçimde kayıyor."
     );
     await page.getByRole("button", { name: /Okuma moduna al/i }).click();
 
@@ -115,13 +115,16 @@ test.describe("Mobil görünüm regresyonları", () => {
         overflowY: style.overflowY,
         fontSize: Number.parseFloat(style.fontSize),
         lineHeight: Number.parseFloat(style.lineHeight),
+        height: rect.height,
         left: rect.left,
         right: rect.right,
         viewportWidth: window.innerWidth
       };
     });
 
-    expect(metrics.overflowY).toBe("visible");
+    const mobilProje = testInfo.project.name !== "desktop-chrome";
+    expect(metrics.overflowY).toBe(mobilProje ? "auto" : "visible");
+    if (mobilProje) expect(metrics.height).toBeGreaterThanOrEqual(170);
     expect(metrics.fontSize).toBeGreaterThanOrEqual(17);
     expect(metrics.lineHeight).toBeGreaterThan(metrics.fontSize * 1.5);
     expect(metrics.left).toBeGreaterThanOrEqual(0);
