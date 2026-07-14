@@ -1,4 +1,4 @@
-/* Sprint 1 — Okurio mobil okuma yüzeyi */
+/* Sprint 3 — Okurio mobil okuma yüzeyi ve senkron takip */
 
 [data-mobile-stability] {
   overscroll-behavior: contain;
@@ -12,17 +12,40 @@
 [data-okuma-metin] {
   overflow-wrap: break-word;
   word-break: normal;
-  hyphens: auto;
+  hyphens: none;
+  -webkit-hyphens: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 [data-okuma-metin] span {
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
+  white-space: nowrap;
+  scroll-margin-block: 35%;
 }
+
+[data-yardim-oku="1"] {
+  position: sticky;
+  bottom: 8px;
+  z-index: 4;
+  min-height: 48px !important;
+  border: 1px solid rgba(232, 163, 61, 0.38) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+[data-okuma-modu]::before {
+  display: inline-block;
+  margin-right: 6px;
+  font-size: 0.95em;
+}
+
+[data-okuma-modu="dinliyorum"]::before { content: "🎧"; }
+[data-okuma-modu="birlikte"]::before { content: "📖"; }
+[data-okuma-modu="kendim"]::before { content: "📚"; }
 
 @media (max-width: 430px) {
   [data-mobile-stability] {
@@ -41,15 +64,17 @@
   }
 
   [data-okuma-metin] {
-    min-height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
+    height: clamp(190px, 31dvh, 270px) !important;
+    min-height: 190px !important;
+    max-height: 34dvh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     font-size: max(18px, 1em) !important;
     line-height: 1.68 !important;
     padding: 16px !important;
     width: 100%;
     box-sizing: border-box;
-    contain: content;
+    overscroll-behavior: contain;
   }
 
   [data-okuma-metin] span {
@@ -70,11 +95,9 @@
   }
 
   [data-okuma-modlari] {
-    max-height: 74px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    overscroll-behavior: contain;
-    padding-bottom: 2px;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-bottom: 4px;
   }
 }
 
@@ -84,6 +107,9 @@
   }
 
   [data-okuma-metin] {
+    height: clamp(170px, 28dvh, 220px) !important;
+    min-height: 170px !important;
+    max-height: 31dvh !important;
     font-size: max(17px, 1em) !important;
     line-height: 1.6 !important;
     padding: 14px !important;
@@ -100,7 +126,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-okuma-alani] {
+  [data-okuma-alani],
+  [data-okuma-metin] {
     scroll-behavior: auto;
   }
 }
