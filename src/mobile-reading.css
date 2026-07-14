@@ -1,4 +1,4 @@
-/* Sprint 3 — Okurio mobil okuma yüzeyi ve senkron takip */
+/* Sprint 4 — Okurio mobil okuma yüzeyi, senkron takip ve demo stabilitesi */
 
 [data-mobile-stability] {
   overscroll-behavior: contain;
@@ -26,6 +26,12 @@
   -webkit-box-decoration-break: clone;
   white-space: nowrap;
   scroll-margin-block: 35%;
+}
+
+[data-okuma-metin] span[data-uzun-token="1"] {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 [data-yardim-oku="1"] {
