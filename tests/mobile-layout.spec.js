@@ -1,5 +1,14 @@
 import { test, expect } from "@playwright/test";
 
+async function onboardingTamamla(page) {
+  await page.goto("/");
+  const startButton = page.getByRole("button", { name: /Okuma yolumu başlat/i });
+  if (await startButton.isVisible().catch(() => false)) {
+    await startButton.click();
+  }
+  await expect(page.getByText(/İçerik durumu/i)).toBeVisible();
+}
+
 test.describe("Mobil görünüm regresyonları", () => {
   test("sayfada yatay taşma oluşmaz", async ({ page }) => {
     await page.goto("/");
@@ -82,8 +91,41 @@ test.describe("Mobil görünüm regresyonları", () => {
     );
 
     expect(kurallar).toContain("[data-okuma-metin]");
-    expect(kurallar).toContain("overflow-wrap: anywhere");
+    expect(kurallar).toContain("overflow-wrap: break-word");
     expect(kurallar).toContain("max-height: none !important");
     expect(kurallar).toContain("safe-area-inset-bottom");
+    expect(kurallar).toContain("touch-action: manipulation");
+  });
+
+  test("mobil okuma metni doğal akar ve ikinci kaydırma kutusu oluşturmaz", async ({ page }) => {
+    await onboardingTamamla(page);
+
+    await page.getByLabel("Kendi metnim").fill(
+      "Oki bugün sakin bir metin okuyor. Kelimeler ekrana rahatça sığıyor. Satırlar düzenli aralıklarla ilerliyor. Uzun metinlerde kullanıcı küçük bir kutunun içine sıkışmıyor."
+    );
+    await page.getByRole("button", { name: /Okuma moduna al/i }).click();
+
+    const readingText = page.locator("[data-okuma-metin]");
+    await expect(readingText).toBeVisible();
+
+    const metrics = await readingText.evaluate((element) => {
+      const style = window.getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return {
+        overflowY: style.overflowY,
+        fontSize: Number.parseFloat(style.fontSize),
+        lineHeight: Number.parseFloat(style.lineHeight),
+        left: rect.left,
+        right: rect.right,
+        viewportWidth: window.innerWidth
+      };
+    });
+
+    expect(metrics.overflowY).toBe("visible");
+    expect(metrics.fontSize).toBeGreaterThanOrEqual(17);
+    expect(metrics.lineHeight).toBeGreaterThan(metrics.fontSize * 1.5);
+    expect(metrics.left).toBeGreaterThanOrEqual(0);
+    expect(metrics.right).toBeLessThanOrEqual(metrics.viewportWidth + 1);
+    await expect(page.locator("[data-alt-kontrol]")).toBeVisible();
   });
 });
