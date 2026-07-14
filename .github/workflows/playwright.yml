@@ -25,7 +25,7 @@ jobs:
           cache: npm
 
       - name: Bağımlılıkları kur
-        run: npm ci
+        run: npm install
 
       - name: Production build doğrulaması
         run: npm run build
