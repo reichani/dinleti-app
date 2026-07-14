@@ -1,22 +1,29 @@
 {
-"name": "dinleti-cf",
-"private": true,
-"version": "0.0.0",
-"type": "module",
-"scripts": {
-"dev": "vite",
-"build": "vite build",
-"preview": "vite preview"
-},
-"dependencies": {
-"lucide-react": "^1.23.0",
-"react": "^19.2.7",
-"react-dom": "^19.2.7"
-},
-"devDependencies": {
-"@types/react": "^19.2.17",
-"@types/react-dom": "^19.2.3",
-"@vitejs/plugin-react": "^6.0.3",
-"vite": "^8.1.1"
-}
+  "name": "dinleti-cf",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "playwright test",
+    "test:mobile": "playwright test --project=android-mobile --project=samsung-s24 --project=small-mobile",
+    "test:desktop": "playwright test --project=desktop-chrome",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report"
+  },
+  "dependencies": {
+    "lucide-react": "^1.23.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "vite": "^8.1.1"
+  }
 }
