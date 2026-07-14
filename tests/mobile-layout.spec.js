@@ -100,7 +100,7 @@ test.describe("Mobil görünüm regresyonları", () => {
   test("mobil okuma metni doğal akar ve ikinci kaydırma kutusu oluşturmaz", async ({ page }) => {
     await onboardingTamamla(page);
 
-    await page.getByLabel("Kendi metnim").fill(
+    await page.getByLabel("Kendi metnim", { exact: true }).fill(
       "Oki bugün sakin bir metin okuyor. Kelimeler ekrana rahatça sığıyor. Satırlar düzenli aralıklarla ilerliyor. Uzun metinlerde kullanıcı küçük bir kutunun içine sıkışmıyor."
     );
     await page.getByRole("button", { name: /Okuma moduna al/i }).click();
