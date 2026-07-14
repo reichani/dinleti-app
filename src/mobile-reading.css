@@ -1,0 +1,106 @@
+/* Sprint 1 — Okurio mobil okuma yüzeyi */
+
+[data-mobile-stability] {
+  overscroll-behavior: contain;
+}
+
+[data-okuma-alani] {
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+}
+
+[data-okuma-metin] {
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+[data-okuma-metin] span {
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+@media (max-width: 430px) {
+  [data-mobile-stability] {
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  [data-okuma-alani] {
+    min-height: 0 !important;
+    padding: 12px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior-y: contain;
+    scroll-behavior: smooth;
+    scrollbar-gutter: auto;
+  }
+
+  [data-okuma-metin] {
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    font-size: max(18px, 1em) !important;
+    line-height: 1.68 !important;
+    padding: 16px !important;
+    width: 100%;
+    box-sizing: border-box;
+    contain: content;
+  }
+
+  [data-okuma-metin] span {
+    line-height: inherit;
+  }
+
+  [data-alt-kontrol] {
+    position: relative;
+    z-index: 2;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: linear-gradient(180deg, rgba(20, 24, 31, 0), rgba(20, 24, 31, 0.96) 18%);
+  }
+
+  [data-alt-kontrol] button,
+  [data-okuma-alani] button {
+    min-height: 40px;
+    touch-action: manipulation;
+  }
+
+  [data-okuma-modlari] {
+    max-height: 74px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    padding-bottom: 2px;
+  }
+}
+
+@media (max-width: 380px), (max-height: 760px) {
+  [data-okuma-alani] {
+    padding: 10px !important;
+  }
+
+  [data-okuma-metin] {
+    font-size: max(17px, 1em) !important;
+    line-height: 1.6 !important;
+    padding: 14px !important;
+  }
+
+  [data-kompakt-baslik] {
+    margin-top: 6px !important;
+    margin-bottom: 6px !important;
+  }
+
+  [data-alt-kontrol] {
+    padding-top: 4px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-okuma-alani] {
+    scroll-behavior: auto;
+  }
+}

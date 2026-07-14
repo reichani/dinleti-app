@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
+import "./mobile-reading.css";
 
 // Claude artifact ortamindaki window.storage API'sini localStorage ile kopruler.
 // Ayni App.jsx dosyasi hem artifact icinde hem Cloudflare Pages'te calisir.
