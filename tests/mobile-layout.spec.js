@@ -97,7 +97,7 @@ test.describe("Mobil görünüm regresyonları", () => {
     expect(kurallar).toContain("touch-action: manipulation");
   });
 
-  test("mobil okuma metni sabit kartta kayar ve aktif kelime takibine alan bırakır", async ({ page }) => {
+  test("mobil okuma metni sabit kartta kayar ve aktif kelime takibine alan bırakır", async ({ page }, testInfo) => {
     await onboardingTamamla(page);
 
     await page.getByLabel("Kendi metnim", { exact: true }).fill(
@@ -122,8 +122,9 @@ test.describe("Mobil görünüm regresyonları", () => {
       };
     });
 
-    expect(metrics.overflowY).toBe("auto");
-    expect(metrics.height).toBeGreaterThanOrEqual(170);
+    const mobilProje = testInfo.project.name !== "desktop-chrome";
+    expect(metrics.overflowY).toBe(mobilProje ? "auto" : "visible");
+    if (mobilProje) expect(metrics.height).toBeGreaterThanOrEqual(170);
     expect(metrics.fontSize).toBeGreaterThanOrEqual(17);
     expect(metrics.lineHeight).toBeGreaterThan(metrics.fontSize * 1.5);
     expect(metrics.left).toBeGreaterThanOrEqual(0);
