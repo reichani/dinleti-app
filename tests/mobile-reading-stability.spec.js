@@ -6,7 +6,7 @@ test.describe("Sprint 3 mobil okuma stabilitesi", () => {
     await page.waitForFunction(() => Boolean(window.__okurioReadingFixes));
   });
 
-  test("aktif kelime görünür alan dışındaysa merkeze kaydırılır", async ({ page }) => {
+  test("aktif kelime yalnızca metin kartının içinde merkeze kaydırılır", async ({ page }) => {
     const result = await page.evaluate(() => {
       const area = document.createElement("div");
       area.setAttribute("data-okuma-metin", "1");
@@ -17,15 +17,34 @@ test.describe("Sprint 3 mobil okuma stabilitesi", () => {
 
       const active = area.querySelector('[data-aktif="1"]');
       let options = null;
-      active.scrollIntoView = (received) => { options = received; };
-      const scrolled = window.__okurioReadingFixes.scrollActiveWord(active);
+      area.scrollTo = (received) => { options = received; };
+      const scrolled = window.__okurioReadingFixes.scrollActiveWord(active, { force: true, now: 1000 });
       area.remove();
       return { scrolled, options };
     });
 
     expect(result.scrolled).toBe(true);
-    expect(result.options.block).toBe("center");
-    expect(result.options.inline).toBe("nearest");
+    expect(result.options.behavior).toBe("auto");
+    expect(result.options.top).toBeGreaterThanOrEqual(0);
+  });
+
+  test("ses çalışmıyorsa otomatik metin akışı yapılmaz", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const area = document.createElement("div");
+      area.setAttribute("data-okuma-metin", "1");
+      area.style.height = "100px";
+      area.innerHTML = `<div style="height:300px"></div><span data-aktif="1">kelime</span>`;
+      document.body.appendChild(area);
+      const active = area.querySelector('[data-aktif="1"]');
+      let callCount = 0;
+      area.scrollTo = () => { callCount += 1; };
+      const scrolled = window.__okurioReadingFixes.scrollActiveWord(active, { now: 2000 });
+      area.remove();
+      return { scrolled, callCount };
+    });
+
+    expect(result.scrolled).toBe(false);
+    expect(result.callCount).toBe(0);
   });
 
   test("kelimeler satır içinde bölünmez ve otomatik heceleme kapalıdır", async ({ page }) => {
