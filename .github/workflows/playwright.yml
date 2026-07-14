@@ -1,4 +1,4 @@
-name: Okurio Sprint 0 Regression Tests
+name: Okurio Regression and Build Checks
 
 on:
   pull_request:
@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-      - sprint-0-playwright-regression
   workflow_dispatch:
 
 jobs:
@@ -28,11 +27,29 @@ jobs:
       - name: Bağımlılıkları kur
         run: npm install
 
+      - name: Production build oluştur
+        run: npm run build
+
+      - name: Deployment paketini doğrula
+        run: |
+          test -f dist/index.html
+          test -f dist/_redirects
+          test -f dist/_headers
+          test -d dist/assets
+
       - name: Playwright Chromium kur
         run: npx playwright install --with-deps chromium
 
       - name: Regresyon testlerini çalıştır
         run: npm test
+
+      - name: Build paketini sakla
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: okurio-production-build
+          path: dist/
+          retention-days: 14
 
       - name: Test raporunu sakla
         if: always()
