@@ -1,50 +1,41 @@
 import { test, expect } from "@playwright/test";
 
+const TEST_OKUMA_YOLU = {
+  secildi: true,
+  yolId: "okuma_guveni_8_10",
+  evreId: "paragraf",
+  destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin", "kisa_hedef"],
+};
+
 async function onboardingTamamla(page) {
+  await page.addInitScript((okumaYolu) => {
+    localStorage.setItem("okurio-okuma-yolu-v1", JSON.stringify(okumaYolu));
+    localStorage.setItem("dinleti-mod-v1", "cocuk");
+  }, TEST_OKUMA_YOLU);
   await page.goto("/");
-  const startButton = page.getByRole("button", { name: /Okuma yolumu başlat/i });
-  if (await startButton.isVisible().catch(() => false)) {
-    await startButton.click();
-  }
+  await expect(page.locator("[data-kendi-metnim]")).toBeVisible();
   await expect(page.getByText(/İçerik durumu/i)).toBeVisible();
 }
 
 test.describe("Mobil görünüm regresyonları", () => {
   test("sayfada yatay taşma oluşmaz", async ({ page }) => {
     await page.goto("/");
-
     const overflow = await page.evaluate(() => ({
       documentWidth: document.documentElement.scrollWidth,
       viewportWidth: document.documentElement.clientWidth,
-      difference:
-        document.documentElement.scrollWidth -
-        document.documentElement.clientWidth
+      difference: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     }));
-
-    expect(
-      overflow.difference,
-      `Sayfa ${overflow.difference}px yatay taşıyor`
-    ).toBeLessThanOrEqual(1);
+    expect(overflow.difference, `Sayfa ${overflow.difference}px yatay taşıyor`).toBeLessThanOrEqual(1);
   });
 
   test("görünür öğeler ekran sınırlarını aşmaz", async ({ page }) => {
     await page.goto("/");
-
     const overflowingElements = await page.evaluate(() =>
       [...document.querySelectorAll("body *")]
         .filter((element) => {
           const style = window.getComputedStyle(element);
           const rect = element.getBoundingClientRect();
-
-          if (
-            style.position === "fixed" ||
-            style.position === "absolute" ||
-            rect.width === 0 ||
-            rect.height === 0
-          ) {
-            return false;
-          }
-
+          if (style.position === "fixed" || style.position === "absolute" || rect.width === 0 || rect.height === 0) return false;
           return rect.left < -1 || rect.right > window.innerWidth + 1;
         })
         .slice(0, 20)
@@ -53,23 +44,19 @@ test.describe("Mobil görünüm regresyonları", () => {
           return {
             tag: element.tagName,
             text: element.textContent?.trim().slice(0, 80),
-            className:
-              typeof element.className === "string" ? element.className : "",
+            className: typeof element.className === "string" ? element.className : "",
             left: rect.left,
-            right: rect.right
+            right: rect.right,
           };
         })
     );
-
     expect(overflowingElements).toEqual([]);
   });
 
   test("ana uygulama alanı mobil ekranda kullanılabilir", async ({ page }) => {
     await page.goto("/");
-
     const root = page.locator("#root");
     await expect(root).toBeVisible();
-
     const rootBox = await root.boundingBox();
     expect(rootBox).not.toBeNull();
     expect(rootBox.width).toBeGreaterThanOrEqual(320);
@@ -77,7 +64,6 @@ test.describe("Mobil görünüm regresyonları", () => {
 
   test("mobil okuma stil paketi build içine yüklenir", async ({ page }) => {
     await page.goto("/");
-
     const kurallar = await page.evaluate(() =>
       [...document.styleSheets]
         .flatMap((sheet) => {
@@ -89,9 +75,10 @@ test.describe("Mobil görünüm regresyonları", () => {
         })
         .join("\n")
     );
-
     expect(kurallar).toContain("[data-okuma-metin]");
-    expect(kurallar).toContain("overflow-wrap: break-word");
+    expect(kurallar).toContain("overflow-wrap: anywhere");
+    expect(kurallar).toContain('span[data-uzun-token="1"]');
+    expect(kurallar).toContain("word-break: break-word");
     expect(kurallar).toContain("max-height: none !important");
     expect(kurallar).toContain("safe-area-inset-bottom");
     expect(kurallar).toContain("touch-action: manipulation");
@@ -99,13 +86,14 @@ test.describe("Mobil görünüm regresyonları", () => {
 
   test("mobil okuma metni sabit kartta kayar ve aktif kelime takibine alan bırakır", async ({ page }, testInfo) => {
     await onboardingTamamla(page);
+    const input = page.getByLabel("Kendi metnim", { exact: true });
+    await input.fill("Oki bugün sakin bir metin okuyor. Kelimeler ekrana rahatça sığıyor. Satırlar düzenli aralıklarla ilerliyor. Uzun metinlerde aktif kelime kartın içinde görünür kalıyor. Okuma devam ettikçe metin kontrollü biçimde kayıyor.");
+    await expect(input).not.toHaveValue("");
+    await page.getByRole("button", { name: "Okuma moduna al", exact: true }).click();
 
-    await page.getByLabel("Kendi metnim", { exact: true }).fill(
-      "Oki bugün sakin bir metin okuyor. Kelimeler ekrana rahatça sığıyor. Satırlar düzenli aralıklarla ilerliyor. Uzun metinlerde aktif kelime kartın içinde görünür kalıyor. Okuma devam ettikçe metin kontrollü biçimde kayıyor."
-    );
-    await page.getByRole("button", { name: /Okuma moduna al/i }).click();
-
-    const readingText = page.locator("[data-okuma-metin]");
+    const player = page.locator("[data-mobile-stability]");
+    const readingText = player.locator("[data-okuma-metin]");
+    await expect(player).toBeVisible();
     await expect(readingText).toBeVisible();
 
     const metrics = await readingText.evaluate((element) => {
@@ -113,22 +101,28 @@ test.describe("Mobil görünüm regresyonları", () => {
       const rect = element.getBoundingClientRect();
       return {
         overflowY: style.overflowY,
+        overflowX: style.overflowX,
         fontSize: Number.parseFloat(style.fontSize),
         lineHeight: Number.parseFloat(style.lineHeight),
         height: rect.height,
         left: rect.left,
         right: rect.right,
-        viewportWidth: window.innerWidth
+        viewportWidth: window.innerWidth,
+        scrollLeft: element.scrollLeft,
       };
     });
 
     const mobilProje = testInfo.project.name !== "desktop-chrome";
     expect(metrics.overflowY).toBe(mobilProje ? "auto" : "visible");
-    if (mobilProje) expect(metrics.height).toBeGreaterThanOrEqual(170);
+    if (mobilProje) {
+      expect(metrics.overflowX).toBe("hidden");
+      expect(metrics.height).toBeGreaterThanOrEqual(170);
+    }
     expect(metrics.fontSize).toBeGreaterThanOrEqual(17);
     expect(metrics.lineHeight).toBeGreaterThan(metrics.fontSize * 1.5);
     expect(metrics.left).toBeGreaterThanOrEqual(0);
     expect(metrics.right).toBeLessThanOrEqual(metrics.viewportWidth + 1);
-    await expect(page.locator("[data-alt-kontrol]")).toBeVisible();
+    expect(metrics.scrollLeft).toBe(0);
+    await expect(player.locator("[data-alt-kontrol]")).toBeVisible();
   });
 });
