@@ -7,6 +7,9 @@ const TEST_OKUMA_YOLU = {
   destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin", "kisa_hedef"],
 };
 
+const oynatici = (page) => page.locator("[data-mobile-stability]");
+const modButonu = (page, id) => oynatici(page).locator(`[data-okuma-modu="${id}"]`);
+
 async function onboardingTamamla(page) {
   await page.addInitScript((okumaYolu) => {
     localStorage.setItem("okurio-okuma-yolu-v1", JSON.stringify(okumaYolu));
@@ -22,10 +25,20 @@ async function kendiMetniniAc(page, text) {
   const input = page.getByLabel("Kendi metnim", { exact: true });
   await input.scrollIntoViewIfNeeded();
   await input.fill(text);
-  await page.getByRole("button", { name: "Okuma moduna al", exact: true }).click();
-  await expect(page.locator("[data-mobile-stability]")).toBeVisible({ timeout: 10000 });
-  await expect(page.locator("[data-okuma-metin]")).toBeVisible();
+  await expect(input).toHaveValue(text);
+  const ac = page.getByRole("button", { name: "Okuma moduna al", exact: true });
+  await ac.scrollIntoViewIfNeeded();
+  await ac.click();
+  await expect(oynatici(page)).toBeVisible({ timeout: 10000 });
+  await expect(oynatici(page).locator("[data-okuma-metin]")).toBeVisible();
   await page.waitForFunction(() => Boolean(window.__okurioReadingFixes));
+}
+
+async function modaGec(page, id, ipucu) {
+  const button = modButonu(page, id);
+  await expect(button).toBeVisible();
+  await button.click();
+  await expect(oynatici(page).locator("[data-okuma-modu-ipucu]")).toContainText(ipucu);
 }
 
 function uzunMetin() {
@@ -37,16 +50,11 @@ function uzunMetin() {
 test.describe("1. Mod geçişleri ve kullanıcı durumu", () => {
   test("Dinliyorum → Birlikte → Kendim akışı ses durumunu ve yardımı doğru günceller", async ({ page }) => {
     await kendiMetniniAc(page, "Oki bu metni sakin ve anlaşılır biçimde okur. Kullanıcı üç okuma modunu sırayla dener.");
-    const dinliyorum = page.getByRole("button", { name: "Dinliyorum", exact: true });
-    const birlikte = page.getByRole("button", { name: "Birlikte Okuyorum", exact: true });
-    const kendim = page.getByRole("button", { name: "Kendim Okuyorum", exact: true });
-    await expect(dinliyorum).toHaveAttribute("data-okuma-modu", "dinliyorum");
-    await birlikte.click();
-    await expect(page.getByText(/Birlikte Okuyorum:/i)).toBeVisible();
-    await kendim.click();
-    await expect(page.getByText(/Kendim Okuyorum:/i)).toBeVisible();
-    await expect(page.getByRole("button", { name: "Takıldım, bana oku" })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Ses: Kapalı/i })).toBeVisible();
+    await expect(modButonu(page, "dinliyorum")).toBeVisible();
+    await modaGec(page, "birlikte", "Birlikte Okuyorum");
+    await modaGec(page, "kendim", "Kendim Okuyorum");
+    await expect(oynatici(page).locator('[data-yardim-oku="1"]')).toBeVisible();
+    await expect(oynatici(page).getByRole("button", { name: /Ses: Kapalı/i })).toBeVisible();
   });
 });
 
@@ -124,13 +132,15 @@ test.describe("3. Uzun süre ve mutation fırtınası", () => {
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await kendiMetniniAc(page, uzunMetin());
-    const buttons = [
-      page.getByRole("button", { name: "Dinliyorum", exact: true }),
-      page.getByRole("button", { name: "Birlikte Okuyorum", exact: true }),
-      page.getByRole("button", { name: "Kendim Okuyorum", exact: true }),
-    ];
-    for (let i = 0; i < 12; i += 1) await buttons[i % buttons.length].click();
-    await expect(page.locator("[data-okuma-metin]")).toHaveCount(1);
+    const ids = ["dinliyorum", "birlikte", "kendim"];
+    for (let i = 0; i < 12; i += 1) {
+      const id = ids[i % ids.length];
+      const button = modButonu(page, id);
+      await expect(button).toBeVisible();
+      await button.click();
+      await expect(oynatici(page).locator("[data-okuma-metin]")).toHaveCount(1);
+    }
+    await expect(oynatici(page).locator("[data-okuma-metin]")).toHaveCount(1);
     expect(errors).toEqual([]);
   });
 });
@@ -139,15 +149,15 @@ test.describe("4. Görsel ve geometrik stabilite", () => {
   test("okuma kartı mod geçişlerinde yerinden oynamaz, kırpılmaz ve yatay kaymaz", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name === "desktop-chrome", "Mobil geometri sözleşmesi");
     await kendiMetniniAc(page, uzunMetin());
-    const card = page.locator("[data-okuma-metin]");
+    const card = oynatici(page).locator("[data-okuma-metin]");
     const readMetrics = () => card.evaluate((element) => {
       const rect = element.getBoundingClientRect();
       return { left: rect.left, right: rect.right, top: rect.top, height: rect.height, scrollLeft: element.scrollLeft, viewport: window.innerWidth };
     });
     const before = await readMetrics();
-    await page.getByRole("button", { name: "Birlikte Okuyorum", exact: true }).click();
+    await modaGec(page, "birlikte", "Birlikte Okuyorum");
     const together = await readMetrics();
-    await page.getByRole("button", { name: "Kendim Okuyorum", exact: true }).click();
+    await modaGec(page, "kendim", "Kendim Okuyorum");
     const self = await readMetrics();
     for (const metrics of [before, together, self]) {
       expect(metrics.left).toBeGreaterThanOrEqual(0);
@@ -164,12 +174,12 @@ test.describe("5. Erişilebilirlik ve dokunma hedefleri", () => {
   test("temel okuma kontrolleri erişilebilir ada ve en az 40px dokunma alanına sahiptir", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name === "desktop-chrome", "Mobil dokunma hedefi sözleşmesi");
     await kendiMetniniAc(page, "Kısa bir erişilebilirlik testi metni.");
-    await page.getByRole("button", { name: "Kendim Okuyorum", exact: true }).click();
+    await modaGec(page, "kendim", "Kendim Okuyorum");
     const controls = [
-      page.getByRole("button", { name: "Dinliyorum", exact: true }),
-      page.getByRole("button", { name: "Birlikte Okuyorum", exact: true }),
-      page.getByRole("button", { name: "Kendim Okuyorum", exact: true }),
-      page.getByRole("button", { name: "Takıldım, bana oku" }),
+      modButonu(page, "dinliyorum"),
+      modButonu(page, "birlikte"),
+      modButonu(page, "kendim"),
+      oynatici(page).locator('[data-yardim-oku="1"]'),
     ];
     for (const control of controls) {
       await expect(control).toBeVisible();
@@ -205,8 +215,8 @@ test.describe("8. İçerik sınır durumları", () => {
     test.skip(testInfo.project.name === "desktop-chrome", "Mobil içerik taşma sözleşmesi");
     const text = "https://dinleti-app.pages.dev/cok-uzun-bir-demo-baglantisi?parametre=okurio accessibility@okurio.example Çığ Şule ığdır özgürlük süpercalifragilisticexpialidocious";
     await kendiMetniniAc(page, text);
-    await page.waitForFunction(() => document.querySelectorAll("[data-okuma-metin] [data-uzun-token='1']").length >= 2);
-    const result = await page.locator("[data-okuma-metin]").evaluate((element) => ({
+    await page.waitForFunction(() => document.querySelectorAll("[data-mobile-stability] [data-okuma-metin] [data-uzun-token='1']").length >= 2);
+    const result = await oynatici(page).locator("[data-okuma-metin]").evaluate((element) => ({
       scrollWidth: element.scrollWidth,
       clientWidth: element.clientWidth,
       longTokens: element.querySelectorAll("[data-uzun-token='1']").length,
