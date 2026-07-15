@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.5.0";
+const SURUM = "2.5.1";
 
 const KATALOG = [
 
@@ -1679,7 +1679,7 @@ function DalgaBar({ kitap, oran, onSar }) {
   };
   return (
     <div ref={ref} onClick={tikla} role="slider" aria-label="İlerleme" aria-valuenow={Math.round(oran * 100)}
-      style={{ display: "flex", alignItems: "center", gap: 2, height: 52, cursor: "pointer", touchAction: "none" }}>
+      style={{ display: "flex", alignItems: "center", gap: 2, height: 30, cursor: "pointer", touchAction: "none" }}>
       {dalga.map((y, i) => {
         const gecti = i / dalga.length <= oran;
         return <div key={i} style={{
@@ -1785,7 +1785,7 @@ export default function DinletiApp() {
     };
     KATALOG.unshift(kitap);
     ICERIK_METADATA[id] = { yasMin: 6, yasMax: 99, segmentler: YOL_SEGMENT_GRUPLARI[okumaYolu.yolId] || ["yetiskin_odak"], okumaEvreleri: [okumaYolu.evreId], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kullanici_metni", subject: "kendi_metin", oql: okumaYoluDetay.oql || 4 };
-    setAktifId(id); setPozisyon(0); setKelimeIx(0); setOynaticiAcik(true); setKendiMetin(""); setKendiMetinMesaji("Metin okuma moduna alındı.");
+    setAktifId(id); setDetayId(null); setSekme("ana"); setPozisyon(0); setKelimeIx(0); setCaliyor(false); setOynaticiAcik(true); setKendiMetin(""); setKendiMetinMesaji("Metin okuma moduna alındı.");
   }, [okumaYolu, okumaYoluDetay]);
 
   const dosyaMetniYukle = useCallback((e) => {
@@ -2359,7 +2359,7 @@ export default function DinletiApp() {
   };
 
   const OkumaYoluKarti = () => (
-    <div data-okuma-yolu style={{ background: "linear-gradient(135deg, rgba(232,163,61,0.15), rgba(255,255,255,0.04))", border: "1px solid rgba(232,163,61,0.28)", borderRadius: 18, padding: 16, marginBottom: 16 }}>
+    <div data-okuma-yolu style={{ background: "linear-gradient(135deg, rgba(232,163,61,0.12), rgba(255,255,255,0.035))", border: "1px solid rgba(232,163,61,0.24)", borderRadius: 16, padding: 12, marginBottom: 12 }}>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start" }}>
         <div>
           <div style={{ fontSize: 11, color: S.vurgu, letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 700 }}>Okuma yolu</div>
@@ -2368,12 +2368,7 @@ export default function DinletiApp() {
         </div>
         <button onClick={() => setOnboardingAcik(true)} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, color: S.metin, padding: "8px 10px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>Değiştir</button>
       </div>
-      <div style={{ color: "rgba(242,236,223,0.86)", fontSize: 14, lineHeight: 1.55, marginTop: 10 }}>{okumaYoluDetay.slogan}</div>
-      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 12 }}>
-        {okumaYolu.destekler.slice(0, 5).map((d) => (
-          <span key={d} style={{ fontSize: 11, color: S.soluk, background: "rgba(255,255,255,0.07)", borderRadius: 999, padding: "6px 9px" }}>{DESTEK_SECENEKLERI.find((x) => x.id === d)?.ad || d}</span>
-        ))}
-      </div>
+      <div style={{ color: S.soluk, fontSize: 12, marginTop: 7 }}>{okumaYolu.destekler.length} destek aktif · Düzenlemek için Değiştir</div>
     </div>
   );
 
@@ -2478,7 +2473,7 @@ export default function DinletiApp() {
     return (
       <div style={{ padding: "24px 20px" }}>
         <div style={{ ...baslikStil, fontSize: 26, marginBottom: 20 }}>Kitaplığım</div>
-        <div style={{ ...baslikStil, fontSize: 17, marginBottom: 12 }}>Dinlemeye devam</div>
+        <div style={{ ...baslikStil, fontSize: 17, marginBottom: 12 }}>Okumaya devam</div>
         {devamlar.length === 0 && <div style={{ color: S.soluk, fontSize: 14, marginBottom: 20 }}>Henüz dinlemeye başlamadın. Ana sayfadan bir kitap seç.</div>}
         {devamlar.map(([id, v]) => {
           const k = kitapBul(id); const oran = v.pos / toplamSn(k);
@@ -2487,7 +2482,7 @@ export default function DinletiApp() {
               <Kapak kitap={k} boyut={52} radius={6} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: 15 }}>{k.baslik}</div>
-                <div style={{ fontSize: 12, color: S.soluk, margin: "4px 0 6px" }}>%{Math.round(oran * 100)} dinlendi</div>
+                <div style={{ fontSize: 12, color: S.soluk, margin: "4px 0 6px" }}>%{Math.round(oran * 100)} okundu</div>
                 <div style={{ height: 3, background: "rgba(255,255,255,0.1)", borderRadius: 2 }}>
                   <div style={{ width: `${oran * 100}%`, height: "100%", background: S.vurgu, borderRadius: 2 }} />
                 </div>
@@ -2535,11 +2530,11 @@ export default function DinletiApp() {
         )}
         <button disabled={!profilUyumlu} onClick={() => { oynatDegistir(k.id); setOynaticiAcik(true); }}
           style={{ width: "100%", marginTop: 18, background: profilUyumlu ? S.vurgu : "rgba(255,255,255,0.12)", color: profilUyumlu ? "#14181F" : S.soluk, border: "none", borderRadius: 14, padding: "14px 0", fontSize: 15, fontWeight: 600, cursor: profilUyumlu ? "pointer" : "not-allowed", fontFamily: "inherit" }}>
-          {p > 10 ? `Devam et · ${sureYaz(p)}` : "Dinlemeye başla"}
+          {p > 10 ? `Devam et · ${sureYaz(p)}` : "Okumaya başla"}
         </button>
         {k.kategori !== "Masal" && (
           <div data-demo-notu style={{ marginTop: 14, fontSize: 12, color: S.vurgu, background: "rgba(232,163,61,0.10)", borderRadius: 10, padding: "8px 12px" }}>
-            Tanıtım seçkisi: her bölümden kısa bir pasaj seslendirilir. Masal kategorisindeki eserler baştan sona tam anlatımdır.
+            Tanıtım seçkisi: Her bölümden kısa bir okuma bölümü bulunur. Masallar baştan sona okunabilir.
           </div>
         )}
         <div data-kalite-karti style={{ marginTop: 14, fontSize: 12, color: S.soluk, background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "8px 12px" }}>
@@ -2598,19 +2593,19 @@ export default function DinletiApp() {
     const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
       <div style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.6)" }}>
-        <div data-mobile-stability="v2.5.0" style={{ width: "min(480px, 100%)", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 18px 12px", boxSizing: "border-box" }}>
+        <div data-mobile-stability="v2.5.1" style={{ width: "min(480px, 100%)", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 18px 12px", boxSizing: "border-box" }}>
 
           {/* Üst çubuk */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
             <button onClick={() => setOynaticiAcik(false)} aria-label="Kapat" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronDown size={20} /></button>
-            <div style={{ fontSize: 12, color: S.soluk, letterSpacing: "0.08em", textTransform: "uppercase" }}>Şimdi dinleniyor</div>
+            <div style={{ fontSize: 12, color: S.soluk, letterSpacing: "0.08em", textTransform: "uppercase" }}>Şimdi okunuyor</div>
             <button onClick={() => favoriDegistir(aktif.id)} aria-label="Favori" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, cursor: "pointer" }}>
               <Heart size={18} color={favoriler.includes(aktif.id) ? S.vurgu : S.metin} fill={favoriler.includes(aktif.id) ? S.vurgu : "none"} />
             </button>
           </div>
 
           {/* Kompakt kitap bilgisi */}
-          <div data-kompakt-baslik onClick={() => setBolumlerAcik(!bolumlerAcik)} style={{ display: "flex", alignItems: "center", gap: mobilDar ? 9 : 12, margin: mobilDar ? "8px 0 8px" : "12px 0 10px", flexShrink: 0, cursor: "pointer" }}>
+          <div data-kompakt-baslik onClick={() => setBolumlerAcik(!bolumlerAcik)} style={{ display: "flex", alignItems: "center", gap: mobilDar ? 9 : 12, margin: mobilDar ? "5px 0 5px" : "8px 0 6px", flexShrink: 0, cursor: "pointer" }}>
             <Kapak kitap={aktif} boyut={mobilDar ? 36 : 44} radius={6} />
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ ...baslikStil, fontSize: mobilDar ? 15 : 16, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{aktif.baslik}</div>
@@ -2757,23 +2752,23 @@ export default function DinletiApp() {
                 <RotateCw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>30</span>
               </button>
             </div>
-            <div data-okuma-modlari style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+            <div data-okuma-modlari style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 5, flexWrap: "wrap" }}>
               {OKUMA_MODLARI.map((m) => (
                 <button key={m.id} onClick={() => okumaModuDegistir(m.id)} title={m.aciklama} style={cip(okumaModu === m.id)}>
                   {m.ad}
                 </button>
               ))}
             </div>
-            <div data-okuma-modu-ipucu style={{ margin: mobilKisa ? "6px auto 0" : "8px auto 0", maxWidth: 390, background: "rgba(255,255,255,0.055)", border: "1px solid rgba(255,255,255,0.075)", borderRadius: 12, padding: mobilDar ? "7px 9px" : "8px 11px", color: "rgba(242,236,223,0.88)", fontSize: mobilDar ? 11 : 12, lineHeight: 1.45, textAlign: "center" }}>
+            <div data-okuma-modu-ipucu style={{ margin: "5px auto 0", maxWidth: 390, background: "rgba(255,255,255,0.055)", border: "1px solid rgba(255,255,255,0.075)", borderRadius: 12, padding: "6px 9px", color: "rgba(242,236,223,0.88)", fontSize: mobilDar ? 11 : 12, lineHeight: 1.45, textAlign: "center" }}>
               <strong style={{ color: S.vurgu }}>{okumaModuAyar.ad}:</strong> {okumaModuAyar.aciklama}
               {okumaModu === "kendim" ? " Ses otomatik başlamaz; takıldığım yerde kısa yardım alırım." : ""}
             </div>
             {okumaModu === "kendim" && (
               <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
-                <button data-yardim="takildim" onClick={yardimOku} style={{ ...cip(false), borderColor: "rgba(232,163,61,0.45)", color: S.vurgu }}>Takıldım · Bana oku</button>
+                <button data-yardim="takildim" onClick={yardimOku} style={{ ...cip(false), borderColor: "rgba(232,163,61,0.45)", color: S.vurgu }}>Yardım · Oku</button>
               </div>
             )}
-            <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 5, flexWrap: "wrap" }}>
               <button onClick={hizDegistir} style={cip(false)}><Gauge size={14} /> {hiz}x</button>
               <button onClick={sesTonuDegistir} title={sesTonuAyar.aciklama} style={cip(etkinSeslendirme)}><Volume2 size={14} /> Ses: {etkinSeslendirme ? sesTonuAyar.kisa : "Kapalı"}</button>
               <button onClick={uykuDegistir} style={cip(uyku > 0)}><Moon size={14} /> {uyku > 0 ? sureYaz(uyku) : "Uyku"}</button>
