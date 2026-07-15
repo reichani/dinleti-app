@@ -92,11 +92,12 @@ test.describe("Persona bazlı okuma akışı", () => {
     await expect(player.getByText(/Odak modu:\s*cümle/i)).toHaveCount(0, { timeout: 5000 });
     const readingText = player.locator("[data-okuma-metin]");
     await expect(readingText).toContainText("Cümle 1");
-    await expect(readingText).toContainText("Cümle 18");
+    await expect(readingText).toContainText("Cümle 9");
+    await expect(readingText).not.toContainText("Cümle 10");
     await expect(player).toHaveAttribute("data-persona-flow", "calm");
   });
 
-  test("bağımsız okuyucu: Kendim Okuyorum modunda bütün metin ve parmakla kaydırma korunur", async ({ page }) => {
+  test("bağımsız okuyucu: Kendim Okuyorum modunda bütün bölüm ve parmakla kaydırma korunur", async ({ page }) => {
     await kendiMetniniAc(page, personaMetni);
     const player = page.locator("[data-mobile-stability]");
 
@@ -105,7 +106,7 @@ test.describe("Persona bazlı okuma akışı", () => {
 
     const readingText = player.locator("[data-okuma-metin]");
     await expect(readingText).toContainText("Cümle 1");
-    await expect(readingText).toContainText("Cümle 18");
+    await expect(readingText).toContainText("Cümle 9");
     await expect(readingText).toHaveAttribute("data-kullanici-kaydirma", "1");
 
     const behavior = await readingText.evaluate((element) => {
@@ -129,7 +130,7 @@ test.describe("Persona bazlı okuma akışı", () => {
     await player.getByRole("button", { name: "Disleksi profili" }).click();
 
     const readingText = player.locator("[data-okuma-metin]");
-    await expect(readingText.locator('[data-uzun-token="1"]')).toBeVisible();
+    await expect(readingText.locator('[data-uzun-token="1"]').first()).toBeVisible();
     const widths = await readingText.evaluate((element) => ({
       clientWidth: element.clientWidth,
       scrollWidth: element.scrollWidth,
