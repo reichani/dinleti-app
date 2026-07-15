@@ -10,6 +10,18 @@ function speechIsActuallyRunning() {
   }
 }
 
+function isLongToken(text) {
+  const value = (text || '').trim();
+  return value.length > 24 || /^https?:\/\//i.test(value) || /\S+@\S+\.\S+/.test(value);
+}
+
+export function markReadingTokens(root = document) {
+  root.querySelectorAll('[data-okuma-metin] span').forEach((span) => {
+    if (isLongToken(span.textContent)) span.dataset.uzunToken = '1';
+    else delete span.dataset.uzunToken;
+  });
+}
+
 export function scrollActiveWord(
   activeWord = document.querySelector(ACTIVE_SELECTOR),
   { force = false, now = Date.now() } = {},
@@ -19,8 +31,6 @@ export function scrollActiveWord(
   const readingText = activeWord.closest('[data-okuma-metin]');
   if (!(readingText instanceof HTMLElement)) return false;
 
-  // Kendim Okuyorum, duraklatılmış oynatıcı ve bölüm sonlarında React'in
-  // tahmini kelime sayacı değişse bile ekran kendi kendine akmamalı.
   if (!force && !speechIsActuallyRunning()) return false;
   if (!force && now - lastScrollAt < MIN_SCROLL_INTERVAL_MS) return false;
 
@@ -29,18 +39,15 @@ export function scrollActiveWord(
   const comfortTop = containerRect.top + containerRect.height * 0.24;
   const comfortBottom = containerRect.bottom - containerRect.height * 0.24;
 
-  if (wordRect.top >= comfortTop && wordRect.bottom <= comfortBottom) return true;
+  if (wordRect.top >= comfortTop && wordRect.bottom <= comfortBottom) {
+    if (readingText.scrollLeft !== 0) readingText.scrollLeft = 0;
+    return true;
+  }
 
-  const wordCenterInsideContainer =
-    activeWord.offsetTop + activeWord.offsetHeight / 2;
-  const targetTop = Math.max(
-    0,
-    wordCenterInsideContainer - readingText.clientHeight / 2,
-  );
+  const wordCenterInsideContainer = activeWord.offsetTop + activeWord.offsetHeight / 2;
+  const targetTop = Math.max(0, wordCenterInsideContainer - readingText.clientHeight / 2);
 
-  // scrollIntoView tüm üst kapsayıcıları da oynatıyordu. Yalnızca metin kartını
-  // kaydırarak ekranın zıplamasını ve hızlı akış hissini engelliyoruz.
-  readingText.scrollTo({ top: targetTop, behavior: 'auto' });
+  readingText.scrollTo({ top: targetTop, left: 0, behavior: 'auto' });
   lastScrollAt = now;
   return true;
 }
@@ -58,6 +65,7 @@ export function markInteractiveControls(root = document) {
     if (label === 'Birlikte Okuyorum') button.dataset.okumaModu = 'birlikte';
     if (label === 'Kendim Okuyorum') button.dataset.okumaModu = 'kendim';
   });
+  markReadingTokens(root);
 }
 
 let frame = 0;
@@ -75,9 +83,7 @@ export function installReadingMobileFixes() {
 
   const observer = new MutationObserver((mutations) => {
     const relevant = mutations.some((mutation) => {
-      if (mutation.type === 'attributes') {
-        return mutation.attributeName === 'data-aktif';
-      }
+      if (mutation.type === 'attributes') return mutation.attributeName === 'data-aktif';
       return mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0;
     });
     if (relevant) scheduleRefresh();
@@ -97,6 +103,7 @@ export function installReadingMobileFixes() {
   window.__okurioReadingFixes = {
     scrollActiveWord,
     markInteractiveControls,
+    markReadingTokens,
     refresh: scheduleRefresh,
     speechIsActuallyRunning,
   };

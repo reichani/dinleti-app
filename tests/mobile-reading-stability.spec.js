@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Sprint 3 mobil okuma stabilitesi", () => {
+test.describe("Sprint 4 mobil okuma stabilitesi", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
     await page.waitForFunction(() => Boolean(window.__okurioReadingFixes));
@@ -26,6 +26,7 @@ test.describe("Sprint 3 mobil okuma stabilitesi", () => {
     expect(result.scrolled).toBe(true);
     expect(result.options.behavior).toBe("auto");
     expect(result.options.top).toBeGreaterThanOrEqual(0);
+    expect(result.options.left).toBe(0);
   });
 
   test("ses çalışmıyorsa otomatik metin akışı yapılmaz", async ({ page }) => {
@@ -47,7 +48,7 @@ test.describe("Sprint 3 mobil okuma stabilitesi", () => {
     expect(result.callCount).toBe(0);
   });
 
-  test("kelimeler satır içinde bölünmez ve otomatik heceleme kapalıdır", async ({ page }) => {
+  test("normal kelimeler doğal satır kırar, heceleme kapalı kalır", async ({ page }) => {
     const styles = await page.evaluate(() => {
       const text = document.createElement("div");
       text.setAttribute("data-okuma-metin", "1");
@@ -59,8 +60,9 @@ test.describe("Sprint 3 mobil okuma stabilitesi", () => {
       const wordStyle = getComputedStyle(word);
       const result = {
         hyphens: textStyle.hyphens,
-        wordBreak: textStyle.wordBreak,
+        wordBreak: wordStyle.wordBreak,
         whiteSpace: wordStyle.whiteSpace,
+        overflowWrap: wordStyle.overflowWrap,
       };
       text.remove();
       return result;
@@ -68,7 +70,8 @@ test.describe("Sprint 3 mobil okuma stabilitesi", () => {
 
     expect(styles.hyphens).toBe("none");
     expect(styles.wordBreak).toBe("normal");
-    expect(styles.whiteSpace).toBe("nowrap");
+    expect(styles.whiteSpace).toBe("normal");
+    expect(styles.overflowWrap).toBe("anywhere");
   });
 
   test("üç okuma modu mobilde kırpılmadan görünür kalır", async ({ page }) => {
