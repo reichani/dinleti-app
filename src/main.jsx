@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import "./mobile-reading.css";
 import { installReadingMobileFixes } from "./reading-mobile-fixes.js";
+import { installContextualWordHelp } from "./contextual-word-help.js";
 
 // Claude artifact ortamindaki window.storage API'sini localStorage ile kopruler.
 // Ayni App.jsx dosyasi hem artifact icinde hem Cloudflare Pages'te calisir.
@@ -36,3 +37,4 @@ document.body.style.margin = "0";
 document.body.style.background = "#14181F";
 createRoot(document.getElementById("root")).render(<App />);
 installReadingMobileFixes();
+installContextualWordHelp();
