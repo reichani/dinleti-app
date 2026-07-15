@@ -39,4 +39,14 @@ s = s.replace(/<DalgaBar kitap=\{aktif\} oran=\{oran\} onSar=\{oranaSar\} \/>/g,
 
 if (s === before) throw new Error('Reader-first patch made no changes');
 fs.writeFileSync(path, s);
-console.log('Applied reader-first v2.6.0 UX and contextual word-help hooks');
+
+const testPath = 'tests/demo-readiness.spec.js';
+let t = fs.readFileSync(testPath, 'utf8');
+t = t.replace('  const button = modButonu(page, id);\n  await expect(button).toBeVisible();', '  const compact = oynatici(page).locator("[data-okuma-modu-kompakt] button");\n  const button = modButonu(page, id);\n  if (!(await button.isVisible())) await compact.click();\n  await expect(button).toBeVisible();');
+t = t.replace('    await expect(modButonu(page, "dinliyorum")).toBeVisible();', '    await expect(oynatici(page).locator("[data-okuma-modu-kompakt] button")).toBeVisible();');
+t = t.replace('    await expect(oynatici(page).locator(\'[data-yardim-oku="1"]\')).toBeVisible();', '    await expect(oynatici(page).locator(\'[data-kelime-yardimi="1"]\')).toBeVisible();');
+t = t.replace('      const button = modButonu(page, id);\n      await expect(button).toBeVisible();\n      await button.click();', '      const button = modButonu(page, id);\n      if (!(await button.isVisible())) await oynatici(page).locator("[data-okuma-modu-kompakt] button").click();\n      await expect(button).toBeVisible();\n      await button.click();');
+t = t.replace('      oynatici(page).locator(\'[data-yardim-oku="1"]\'),', '      oynatici(page).locator("[data-okuma-modu-kompakt] button"),');
+fs.writeFileSync(testPath, t);
+
+console.log('Applied reader-first v2.6.0 UX, contextual word-help hooks and regression updates');
