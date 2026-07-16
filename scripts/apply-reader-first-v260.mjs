@@ -49,40 +49,40 @@ if (!s.includes('const kelimeyiSeslendir')) {
 }
 
 const oldWordBlock = `                      const temiz = k.replace(/[.,!?…;:]+$/u, "");
-                      const son = k.slice(temiz.length);
-                      const n = Math.max(1, Math.ceil(temiz.length * 0.45));
-                      return <span key={gercekIx} data-aktif={aktifMi ? "1" : undefined} style={{
-                        background: aktifMi ? (ayar.tema === "krem" ? "rgba(201,139,61,0.45)" : "rgba(232,163,61,0.35)") : "none",
-                        borderRadius: 4, padding: aktifMi ? "0 2px" : 0,
-                        color: aktifMi ? (ayar.tema === "krem" ? "#1A1510" : "#FFF3DC") : undefined,
-                      }}>
-                        {ayar.biyonik && temiz.length > 3 ? <><strong style={{ fontWeight: 850 }}>{temiz.slice(0, n)}</strong>{temiz.slice(n)}{son}</> : k}{" "}
-                      </span>;`;
+                       const son = k.slice(temiz.length);
+                       const n = Math.max(1, Math.ceil(temiz.length * 0.45));
+                       return <span key={gercekIx} data-aktif={aktifMi ? "1" : undefined} style={{
+                         background: aktifMi ? (ayar.tema === "krem" ? "rgba(201,139,61,0.45)" : "rgba(232,163,61,0.35)") : "none",
+                         borderRadius: 4, padding: aktifMi ? "0 2px" : 0,
+                         color: aktifMi ? (ayar.tema === "krem" ? "#1A1510" : "#FFF3DC") : undefined,
+                       }}>
+                         {ayar.biyonik && temiz.length > 3 ? <><strong style={{ fontWeight: 850 }}>{temiz.slice(0, n)}</strong>{temiz.slice(n)}{son}</> : k}{" "}
+                       </span>;`;
 
 const newWordBlock = `                      const temiz = k.replace(/[.,!?…;:]+$/u, "");
-                      const son = k.slice(temiz.length);
-                      const n = Math.max(1, Math.ceil(temiz.length * 0.45));
-                      const sozluk = findGlossaryEntry(aktif.id, temiz);
-                      return <span
-                        key={gercekIx}
-                        data-aktif={aktifMi ? "1" : undefined}
-                        data-hedef-kelime={sozluk ? temiz.toLocaleLowerCase("tr-TR") : undefined}
-                        role={sozluk ? "button" : undefined}
-                        tabIndex={sozluk ? 0 : undefined}
-                        aria-label={sozluk ? \`${temiz} kelimesinin anlamını aç\` : undefined}
-                        onClick={() => sozluk && setSeciliSozluk(sozluk)}
-                        onKeyDown={(e) => { if (sozluk && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); setSeciliSozluk(sozluk); } }}
-                        style={{
-                          background: aktifMi ? (ayar.tema === "krem" ? "rgba(201,139,61,0.45)" : "rgba(232,163,61,0.35)") : "none",
-                          borderRadius: 4,
-                          padding: aktifMi ? "0 2px" : 0,
-                          color: aktifMi ? (ayar.tema === "krem" ? "#1A1510" : "#FFF3DC") : undefined,
-                          cursor: sozluk ? "help" : undefined,
-                          textDecoration: sozluk ? "underline dotted" : undefined,
-                          textUnderlineOffset: sozluk ? 3 : undefined,
-                        }}>
-                        {ayar.biyonik && temiz.length > 3 ? <><strong style={{ fontWeight: 850 }}>{temiz.slice(0, n)}</strong>{temiz.slice(n)}{son}</> : k}{" "}
-                      </span>;`;
+                       const son = k.slice(temiz.length);
+                       const n = Math.max(1, Math.ceil(temiz.length * 0.45));
+                       const sozluk = findGlossaryEntry(aktif.id, temiz);
+                       return <span
+                         key={gercekIx}
+                         data-aktif={aktifMi ? "1" : undefined}
+                         data-hedef-kelime={sozluk ? temiz.toLocaleLowerCase("tr-TR") : undefined}
+                         role={sozluk ? "button" : undefined}
+                         tabIndex={sozluk ? 0 : undefined}
+                         aria-label={sozluk ? \`${temiz} kelimesinin anlamını aç\` : undefined}
+                         onClick={() => sozluk && setSeciliSozluk(sozluk)}
+                         onKeyDown={(e) => { if (sozluk && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); setSeciliSozluk(sozluk); } }}
+                         style={{
+                           background: aktifMi ? (ayar.tema === "krem" ? "rgba(201,139,61,0.45)" : "rgba(232,163,61,0.35)") : "none",
+                           borderRadius: 4,
+                           padding: aktifMi ? "0 2px" : 0,
+                           color: aktifMi ? (ayar.tema === "krem" ? "#1A1510" : "#FFF3DC") : undefined,
+                           cursor: sozluk ? "help" : undefined,
+                           textDecoration: sozluk ? "underline dotted" : undefined,
+                           textUnderlineOffset: sozluk ? 3 : undefined,
+                         }}>
+                         {ayar.biyonik && temiz.length > 3 ? <><strong style={{ fontWeight: 850 }}>{temiz.slice(0, n)}</strong>{temiz.slice(n)}{son}</> : k}{" "}
+                       </span>;`;
 
 if (!s.includes('data-hedef-kelime=')) replaceOnce(oldWordBlock, newWordBlock, 'clickable glossary word rendering');
 
@@ -95,38 +95,38 @@ if (!s.includes('data-sozluk-karti')) {
 }
 
 const oldModes = `<div data-okuma-modlari style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 5, flexWrap: "wrap" }}>
-              {OKUMA_MODLARI.map((m) => (
-                <button key={m.id} onClick={() => okumaModuDegistir(m.id)} title={m.aciklama} style={cip(okumaModu === m.id)}>
-                  {m.ad}
-                </button>
-              ))}
-            </div>
-            <div data-okuma-modu-ipucu style={{ margin: "5px auto 0", maxWidth: 390, background: "rgba(255,255,255,0.055)", border: "1px solid rgba(255,255,255,0.075)", borderRadius: 12, padding: "6px 9px", color: "rgba(242,236,223,0.88)", fontSize: mobilDar ? 11 : 12, lineHeight: 1.45, textAlign: "center" }}>
-              <strong style={{ color: S.vurgu }}>{okumaModuAyar.ad}:</strong> {okumaModuAyar.aciklama}
-              {okumaModu === "kendim" ? " Ses otomatik başlamaz; takıldığım yerde kısa yardım alırım." : ""}
-            </div>
-            {okumaModu === "kendim" && (
-              <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
-                <button data-yardim="takildim" onClick={yardimOku} style={{ ...cip(false), borderColor: "rgba(232,163,61,0.45)", color: S.vurgu }}>Yardım · Oku</button>
-              </div>
-            )}`;
+               {OKUMA_MODLARI.map((m) => (
+                 <button key={m.id} onClick={() => okumaModuDegistir(m.id)} title={m.aciklama} style={cip(okumaModu === m.id)}>
+                   {m.ad}
+                 </button>
+               ))}
+             </div>
+             <div data-okuma-modu-ipucu style={{ margin: "5px auto 0", maxWidth: 390, background: "rgba(255,255,255,0.055)", border: "1px solid rgba(255,255,255,0.075)", borderRadius: 12, padding: "6px 9px", color: "rgba(242,236,223,0.88)", fontSize: mobilDar ? 11 : 12, lineHeight: 1.45, textAlign: "center" }}>
+               <strong style={{ color: S.vurgu }}>{okumaModuAyar.ad}:</strong> {okumaModuAyar.aciklama}
+               {okumaModu === "kendim" ? " Ses otomatik başlamaz; takıldığım yerde kısa yardım alırım." : ""}
+             </div>
+             {okumaModu === "kendim" && (
+               <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
+                 <button data-yardim="takildim" onClick={yardimOku} style={{ ...cip(false), borderColor: "rgba(232,163,61,0.45)", color: S.vurgu }}>Yardım · Oku</button>
+               </div>
+             )}`;
 
 const newModes = `<div data-okuma-modu-kompakt style={{ display: "flex", justifyContent: "center", marginTop: 7 }}>
-              <button onClick={() => setModPaneliAcik((v) => !v)} aria-expanded={modPaneliAcik} aria-label={\`Okuma modu: \${okumaModuAyar.ad}\`} style={{ ...cip(true), minWidth: 180, minHeight: 44, justifyContent: "center" }}>Mod: {okumaModuAyar.ad} ▾</button>
-            </div>
-            {modPaneliAcik && (
-              <div data-okuma-modlari style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                {OKUMA_MODLARI.map((m) => (
-                  <button key={m.id} data-okuma-modu={m.id} onClick={() => { okumaModuDegistir(m.id); setModPaneliAcik(false); setSeciliSozluk(null); }} title={m.aciklama} style={{ ...cip(okumaModu === m.id), minHeight: 44 }}>{m.ad}</button>
-                ))}
-              </div>
-            )}
-            <div data-okuma-modu-ipucu style={{ margin: "5px auto 0", maxWidth: 390, color: S.soluk, fontSize: 11, lineHeight: 1.35, textAlign: "center" }}>{okumaModuAyar.ad}: {okumaModuAyar.aciklama}</div>
-            {okumaModu === "kendim" && (
-              <div data-kelime-yardimi="1" role="note" style={{ margin: "6px auto 0", color: S.vurgu, fontSize: 11, textAlign: "center" }}>
-                Altı çizili hedef kelimeye dokunarak yaşına uygun kısa anlamını aç.
-              </div>
-            )}`;
+               <button onClick={() => setModPaneliAcik((v) => !v)} aria-expanded={modPaneliAcik} aria-label={\`Okuma modu: \${okumaModuAyar.ad}\`} style={{ ...cip(true), minWidth: 180, minHeight: 44, justifyContent: "center" }}>Mod: {okumaModuAyar.ad} ▾</button>
+             </div>
+             {modPaneliAcik && (
+               <div data-okuma-modlari style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                 {OKUMA_MODLARI.map((m) => (
+                   <button key={m.id} data-okuma-modu={m.id} onClick={() => { okumaModuDegistir(m.id); setModPaneliAcik(false); setSeciliSozluk(null); }} title={m.aciklama} style={{ ...cip(okumaModu === m.id), minHeight: 44 }}>{m.ad}</button>
+                 ))}
+               </div>
+             )}
+             <div data-okuma-modu-ipucu style={{ margin: "5px auto 0", maxWidth: 390, color: S.soluk, fontSize: 11, lineHeight: 1.35, textAlign: "center" }}>{okumaModuAyar.ad}: {okumaModuAyar.aciklama}</div>
+             {okumaModu === "kendim" && (
+               <div data-kelime-yardimi="1" role="note" style={{ margin: "6px auto 0", color: S.vurgu, fontSize: 11, textAlign: "center" }}>
+                 Altı çizili hedef kelimeye dokunarak yaşına uygun kısa anlamını aç.
+               </div>
+             )}`;
 
 if (!s.includes('data-okuma-modu-kompakt')) replaceOnce(oldModes, newModes, 'compact mode selector and contextual help copy');
 
@@ -146,6 +146,10 @@ if (!s.includes('data-alt-araclar')) {
   );
 }
 
+for (const marker of ['const SURUM = "2.6.0";', 'data-okuma-modu-kompakt', 'data-kompakt-ilerleme', 'data-hedef-kelime=', 'data-sozluk-karti']) {
+  if (!s.includes(marker)) throw new Error(`Release marker missing after patch: ${marker}`);
+}
+
 if (s === before) throw new Error('Reader-first patch made no changes');
 fs.writeFileSync(appPath, s);
 
@@ -163,13 +167,17 @@ t = t.replace(
   '      const button = modButonu(page, id);\n      await expect(button).toBeVisible();\n      await button.click();',
   '      const button = modButonu(page, id);\n      if (!(await button.isVisible())) await oynatici(page).locator("[data-okuma-modu-kompakt] button").click();\n      await expect(button).toBeVisible();\n      await button.click();',
 );
-t = t.replace('      oynatici(page).locator(\'[data-yardim-oku="1"]\'),', '      oynatici(page).locator("[data-okuma-modu-kompakt] button"),');
+t = t.replace(
+  '    const controls = [\n      modButonu(page, "dinliyorum"),\n      modButonu(page, "birlikte"),\n      modButonu(page, "kendim"),\n      oynatici(page).locator(\'[data-yardim-oku="1"]\'),\n    ];',
+  '    const compact = oynatici(page).locator("[data-okuma-modu-kompakt] button");\n    const controls = [compact, oynatici(page).locator("[data-alt-araclar] button").first()];',
+);
 
-if (!t.includes('Kelime kartı akışı')) {
-  t += `\n\ntest.describe("10. Kelime kartı akışı", () => {\n  test("hedef kelimeye dokununca yaşa uygun anlam kartı açılır ve okuma konumu korunur", async ({ page }) => {\n    await onboardingTamamla(page);\n    await page.getByText("Mino Neden Üzüldü?", { exact: true }).first().click();\n    await page.getByRole("button", { name: /Okumaya başla/i }).click();\n    const player = oynatici(page);\n    await expect(player).toBeVisible();\n    const progressBefore = await player.locator('[role="slider"][aria-label="Okuma ilerlemesi"]').getAttribute("aria-valuenow");\n    const target = player.locator('[data-hedef-kelime="üzüntü"]').first();\n    await expect(target).toBeVisible();\n    await target.click();\n    const card = player.locator("[data-sozluk-karti]");\n    await expect(card).toBeVisible();\n    await expect(card).toContainText("İnsan kendini mutsuz hissettiğinde oluşan duygudur.");\n    await expect(card.getByRole("button", { name: /kelimesini seslendir/i })).toBeVisible();\n    const progressAfter = await player.locator('[role="slider"][aria-label="Okuma ilerlemesi"]').getAttribute("aria-valuenow");\n    expect(progressAfter).toBe(progressBefore);\n    await card.getByRole("button", { name: "Kelime açıklamasını kapat" }).click();\n    await expect(card).toHaveCount(0);\n  });\n});\n`;
+if (!t.includes('kelime kartı hedef kelimeye dokununca açılır')) {
+  t += `\n\ntest.describe("10. Kelime kartı akışı", () => {\n  test("kelime kartı hedef kelimeye dokununca açılır ve ilerlemeyi değiştirmez", async ({ page }) => {\n    await onboardingTamamla(page);\n    const firstCard = page.locator("[data-kitap-karti]").first();\n    if (await firstCard.count()) await firstCard.click();\n    const start = page.getByRole("button", { name: /Okumaya başla|Okumaya devam et/i }).first();\n    if (await start.count()) await start.click();\n    await expect(oynatici(page)).toBeVisible();\n    const target = oynatici(page).locator("[data-hedef-kelime]").first();\n    test.skip((await target.count()) === 0, "Seçilen pilot içerikte sözlük hedefi yok");\n    const progress = await oynatici(page).locator("[role=slider]").getAttribute("aria-valuenow");\n    await target.click();\n    await expect(oynatici(page).locator("[data-sozluk-karti]")).toBeVisible();\n    await expect(oynatici(page).getByRole("button", { name: /kelimesini seslendir/i })).toBeVisible();\n    await expect(oynatici(page).locator("[role=slider]")).toHaveAttribute("aria-valuenow", progress || "0");\n    await oynatici(page).getByRole("button", { name: "Kelime açıklamasını kapat" }).click();\n    await expect(oynatici(page).locator("[data-sozluk-karti]")).toHaveCount(0);\n  });\n});\n`;
 }
 
-if (t === testBefore) throw new Error('Regression test patch made no changes');
+if (t.includes('data-yardim-oku')) throw new Error('Legacy help selector still exists in regression tests');
+if (t === testBefore) throw new Error('Regression patch made no changes');
 fs.writeFileSync(testPath, t);
 
-console.log('Applied direct App.jsx reader-first v2.6.0, contextual word card and regression updates');
+console.log('Applied direct reader-first v2.6.0 code and regression updates');
