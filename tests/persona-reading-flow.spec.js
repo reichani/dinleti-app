@@ -102,6 +102,7 @@ test.describe("Persona bazlı okuma akışı", () => {
     const player = page.locator("[data-mobile-stability]");
 
     await player.getByRole("button", { name: "DEHB profili" }).click();
+    await player.locator("[data-okuma-modu-kompakt] button").click();
     await player.locator('[data-okuma-modu="kendim"]').click();
 
     const readingText = player.locator("[data-okuma-metin]");

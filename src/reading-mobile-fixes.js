@@ -97,10 +97,10 @@ export function ensureCalmReadingFlow(root = document) {
   }
 
   const manualMode = player.querySelector('[data-okuma-modu="kendim"]');
-  const manualSelected = manualMode instanceof HTMLElement
+  const manualSelected = (manualMode instanceof HTMLElement
     && (manualMode.getAttribute('aria-pressed') === 'true'
       || /rgba\(232,\s*163,\s*61/i.test(manualMode.getAttribute('style') || '')
-      || /Kendim Okuyorum:/i.test(normalizedLabel(player)));
+    )) || /Kendim Okuyorum:/i.test(normalizedLabel(player));
 
   const readingText = player.querySelector('[data-okuma-metin]');
   if (manualSelected && readingText instanceof HTMLElement) {
@@ -124,11 +124,6 @@ function scheduleCalmFlowGuard() {
 export function markInteractiveControls(root = document) {
   root.querySelectorAll('button').forEach((button) => {
     const label = normalizedLabel(button);
-
-    if (label.includes('Takıldım') || label.includes('Bana oku')) {
-      button.dataset.yardimOku = '1';
-      button.setAttribute('aria-label', 'Takıldım, bana oku');
-    }
 
     if (label.endsWith('Dinliyorum')) button.dataset.okumaModu = 'dinliyorum';
     if (label.endsWith('Birlikte Okuyorum')) button.dataset.okumaModu = 'birlikte';

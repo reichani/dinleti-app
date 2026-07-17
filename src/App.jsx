@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus, Flame } from "lucide-react";
+import GlossaryCard from "./components/GlossaryCard.jsx";
+import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdapter.js";
 
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.5.1";
+const SURUM = "2.6.0";
 
-const KATALOG = [
+const KATALOG = mergePilotStories([
 
 
   {
@@ -1236,10 +1238,11 @@ const KATALOG = [
   },
 
 
-];
+]);
 
 const RAFLAR = [
   { ad: "Oki Minik Dinleyiciler", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-sesleri-dinliyor", "mino-miyav-dedi", "lili-yildiz-sayiyor", "toto-tak-tak-dedi", "nana-ritim-oyunu"] },
+  { ad: "Oki Pilot Hikâyeleri", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["oe-01-mino-neden-uzuldu", "os-01-toto-bir-an-durdu"] },
   { ad: "Oki İlk Harfler", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1", "oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
   { ad: "1. Grup: a n e t i l", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1"] },
   { ad: "Oki Mini Hikâyeler", mod: "cocuk", ids: ["oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
@@ -1295,6 +1298,8 @@ const YOL_ICERIK_TURLERI = {
 };
 
 const ICERIK_METADATA = {
+  "oe-01-mino-neden-uzuldu": { yasMin: 7, yasMax: 9, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf", "dinleme"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "duygu_farkindaligi", oql: 3 },
+  "os-01-toto-bir-an-durdu": { yasMin: 7, yasMax: 9, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf", "dinleme"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "oz_duzenleme", oql: 3 },
   "oki-sesleri-dinliyor": { yasMin: 3, yasMax: 4, segmentler: ["okul_oncesi", "dinleme"], okumaEvreleri: ["dinleme"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "dinleme_hikayesi", subject: "oki_minik", oql: 0 },
   "mino-miyav-dedi": { yasMin: 3, yasMax: 4, segmentler: ["okul_oncesi", "dinleme"], okumaEvreleri: ["dinleme"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "dinleme_hikayesi", subject: "oki_minik", oql: 0 },
   "lili-yildiz-sayiyor": { yasMin: 3, yasMax: 4, segmentler: ["okul_oncesi", "dinleme"], okumaEvreleri: ["dinleme"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "dinleme_hikayesi", subject: "gokyuzu", oql: 0 },
@@ -1754,6 +1759,9 @@ export default function DinletiApp() {
   const [kendiMetin, setKendiMetin] = useState("");
   const [kendiBaslik, setKendiBaslik] = useState("Kendi Metnim");
   const [kendiMetinMesaji, setKendiMetinMesaji] = useState("");
+  const [modPaneliAcik, setModPaneliAcik] = useState(false);
+  const [seciliSozluk, setSeciliSozluk] = useState(null);
+  const sozlukTetikleyiciRef = useRef(null);
   const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
   const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
   const etkinSeslendirme = seslendirme && okumaModuAyar.sesli;
@@ -1783,7 +1791,7 @@ export default function DinletiApp() {
       yas: okumaYoluDetay.yas || "Kişisel", renk: ["#3B465C", "#9FB3D7"], puan: 5, sureDk: Math.max(1, Math.ceil(kelimeSayisi / 130)),
       ozet: "Kopyala-yapıştır veya TXT dosyasıyla eklenen kişisel kullanım metni.", bolumler, kullaniciIcerigi: true,
     };
-    KATALOG.unshift(kitap);
+    if (!KATALOG.some((k) => k.id === id)) KATALOG.unshift(kitap);
     ICERIK_METADATA[id] = { yasMin: 6, yasMax: 99, segmentler: YOL_SEGMENT_GRUPLARI[okumaYolu.yolId] || ["yetiskin_odak"], okumaEvreleri: [okumaYolu.evreId], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kullanici_metni", subject: "kendi_metin", oql: okumaYoluDetay.oql || 4 };
     setAktifId(id); setDetayId(null); setSekme("ana"); setPozisyon(0); setKelimeIx(0); setCaliyor(false); setOynaticiAcik(true); setKendiMetin(""); setKendiMetinMesaji("Metin okuma moduna alındı.");
   }, [okumaYolu, okumaYoluDetay]);
@@ -2239,6 +2247,8 @@ export default function DinletiApp() {
 
   const okumaModuDegistir = (yeni) => {
     setOkumaModu(yeni);
+    setModPaneliAcik(false);
+    setSeciliSozluk(null);
     const m = okumaModuBul(yeni);
     setSeslendirme(m.sesli);
     if (!m.sesli) konusmayiDurdur();
@@ -2246,18 +2256,26 @@ export default function DinletiApp() {
     (async () => { try { await window.storage.set(OKUMA_MODU_ANAHTAR, yeni); } catch {} })();
   };
 
-  const yardimOku = () => {
-    if (!aktif || !window.speechSynthesis) return;
-    const kelimeler = aktif.bolumler[aktifBolumIx].metin.trim().split(/\s+/);
-    const kelime = kelimeler[Math.min(kelimeIx, kelimeler.length - 1)] || kelimeler[0];
+  const sozlukAc = (entry, trigger) => {
+    if (!entry) return;
+    sozlukTetikleyiciRef.current = trigger || null;
+    setSeciliSozluk(entry);
+  };
+
+  const sozlukKapat = () => {
+    setSeciliSozluk(null);
+    window.requestAnimationFrame(() => sozlukTetikleyiciRef.current?.focus());
+  };
+
+  const kelimeyiSeslendir = (kelime) => {
+    if (!kelime || !window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    setCaliyor(false);
+    setSeslendirme(false);
     try { window.speechSynthesis.cancel(); } catch {}
-    const temiz = kelime.replace(/[.,!?;:…]/g, "");
-    const heceler = temiz.length <= 3 ? temiz : temiz.split("").join(" ");
-    const metin = okumaYolu.evreId === "hece_kelime" ? `${temiz}. ${heceler}. ${temiz}.` : temiz;
-    const u = new SpeechSynthesisUtterance(metin);
-    u.lang = aktif.dil === "en" ? "en-GB" : "tr-TR";
-    u.rate = 0.72;
-    u.pitch = okumaYolu.mod === "cocuk" ? 1.08 : 1;
+    const u = new window.SpeechSynthesisUtterance(kelime);
+    u.lang = "tr-TR";
+    u.rate = 0.86;
+    u.pitch = 1;
     window.speechSynthesis.speak(u);
   };
 
@@ -2287,7 +2305,20 @@ export default function DinletiApp() {
     const meta = kitapMeta(kitap);
     const kalite = icerikKalitesi(kitap);
     return (
-      <div onClick={() => setDetayId(kitap.id)} style={{ cursor: "pointer", width: genis ? "100%" : 128 }}>
+      <div
+        data-kitap-karti
+        role="button"
+        tabIndex={0}
+        aria-label={`${kitap.baslik} ayrıntılarını aç`}
+        onClick={() => setDetayId(kitap.id)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setDetayId(kitap.id);
+          }
+        }}
+        style={{ cursor: "pointer", width: genis ? "100%" : 128 }}
+      >
         <Kapak kitap={kitap} boyut={genis ? 96 : 128} />
         <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{kitap.baslik}</div>
         <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{kitap.yazar}</div>
@@ -2530,7 +2561,7 @@ export default function DinletiApp() {
         )}
         <button disabled={!profilUyumlu} onClick={() => { oynatDegistir(k.id); setOynaticiAcik(true); }}
           style={{ width: "100%", marginTop: 18, background: profilUyumlu ? S.vurgu : "rgba(255,255,255,0.12)", color: profilUyumlu ? "#14181F" : S.soluk, border: "none", borderRadius: 14, padding: "14px 0", fontSize: 15, fontWeight: 600, cursor: profilUyumlu ? "pointer" : "not-allowed", fontFamily: "inherit" }}>
-          {p > 10 ? `Devam et · ${sureYaz(p)}` : "Okumaya başla"}
+          {p > 10 ? `Okumaya devam et · ${sureYaz(p)}` : "Okumaya başla"}
         </button>
         {k.kategori !== "Masal" && (
           <div data-demo-notu style={{ marginTop: 14, fontSize: 12, color: S.vurgu, background: "rgba(232,163,61,0.10)", borderRadius: 10, padding: "8px 12px" }}>
@@ -2593,7 +2624,7 @@ export default function DinletiApp() {
     const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
       <div style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.6)" }}>
-        <div data-mobile-stability="v2.5.1" style={{ width: "min(480px, 100%)", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 18px 12px", boxSizing: "border-box" }}>
+        <div data-mobile-stability="v2.6.0" data-reader-shell data-story-id={aktif.id} style={{ width: "min(760px, 100%)", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box" }}>
 
           {/* Üst çubuk */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
@@ -2661,15 +2692,40 @@ export default function DinletiApp() {
                       const temiz = k.replace(/[.,!?…;:]+$/u, "");
                       const son = k.slice(temiz.length);
                       const n = Math.max(1, Math.ceil(temiz.length * 0.45));
-                      return <span key={gercekIx} data-aktif={aktifMi ? "1" : undefined} style={{
-                        background: aktifMi ? (ayar.tema === "krem" ? "rgba(201,139,61,0.45)" : "rgba(232,163,61,0.35)") : "none",
-                        borderRadius: 4, padding: aktifMi ? "0 2px" : 0,
-                        color: aktifMi ? (ayar.tema === "krem" ? "#1A1510" : "#FFF3DC") : undefined,
-                      }}>
+                      const sozluk = findGlossaryEntry(aktif.id, temiz);
+                      return <span
+                        key={gercekIx}
+                        data-aktif={aktifMi ? "1" : undefined}
+                        data-hedef-kelime={sozluk ? temiz.toLocaleLowerCase("tr-TR") : undefined}
+                        role={sozluk ? "button" : undefined}
+                        tabIndex={sozluk ? 0 : undefined}
+                        aria-haspopup={sozluk ? "dialog" : undefined}
+                        aria-label={sozluk ? `${temiz} kelimesinin anlamını aç` : undefined}
+                        onClick={(event) => sozluk && sozlukAc(sozluk, event.currentTarget)}
+                        onKeyDown={(event) => {
+                          if (sozluk && (event.key === "Enter" || event.key === " ")) {
+                            event.preventDefault();
+                            sozlukAc(sozluk, event.currentTarget);
+                          }
+                        }}
+                        style={{
+                          background: aktifMi ? (ayar.tema === "krem" ? "rgba(201,139,61,0.45)" : "rgba(232,163,61,0.35)") : "none",
+                          borderRadius: 4,
+                          padding: aktifMi ? "0 2px" : 0,
+                          color: aktifMi ? (ayar.tema === "krem" ? "#1A1510" : "#FFF3DC") : undefined,
+                          cursor: sozluk ? "help" : undefined,
+                          textDecoration: sozluk ? "underline dotted" : undefined,
+                          textUnderlineOffset: sozluk ? 3 : undefined,
+                        }}>
                         {ayar.biyonik && temiz.length > 3 ? <><strong style={{ fontWeight: 850 }}>{temiz.slice(0, n)}</strong>{temiz.slice(n)}{son}</> : k}{" "}
                       </span>;
                     })}
                   </div>
+                  {seciliSozluk && (
+                    <div data-sozluk-karti style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
+                      <GlossaryCard entry={seciliSozluk} onClose={sozlukKapat} onPronounce={kelimeyiSeslendir} />
+                    </div>
+                  )}
                   {ayar.odak && <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>Odak modu: cümle {cumleler.indexOf(aktifCumle) + 1} / {cumleler.length}</div>}
                   <div style={{ marginTop: 12, fontSize: 12, color: S.soluk }}>Bana göre ayarla (birlikte seçilebilir):</div>
                   <div style={{ display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
@@ -2736,7 +2792,31 @@ export default function DinletiApp() {
 
           {/* ALT KONTROL BLOĞU: sabit */}
           <div data-alt-kontrol style={{ flexShrink: 0, paddingTop: mobilDar ? 6 : 10 }}>
-            <DalgaBar kitap={aktif} oran={oran} onSar={oranaSar} />
+            <div data-kompakt-ilerleme style={{ marginTop: 4 }}>
+              <div
+                role="slider"
+                tabIndex={0}
+                aria-label="Okuma ilerlemesi"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(oran * 100)}
+                aria-valuetext={`%${Math.round(oran * 100)} tamamlandı`}
+                onClick={(event) => {
+                  const rect = event.currentTarget.getBoundingClientRect();
+                  oranaSar((event.clientX - rect.left) / rect.width);
+                }}
+                onKeyDown={(event) => {
+                  const step = event.shiftKey ? 0.1 : 0.02;
+                  if (["ArrowLeft", "ArrowDown"].includes(event.key)) { event.preventDefault(); oranaSar(Math.max(0, oran - step)); }
+                  if (["ArrowRight", "ArrowUp"].includes(event.key)) { event.preventDefault(); oranaSar(Math.min(1, oran + step)); }
+                  if (event.key === "Home") { event.preventDefault(); oranaSar(0); }
+                  if (event.key === "End") { event.preventDefault(); oranaSar(1); }
+                }}
+                style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,0.12)", cursor: "pointer", overflow: "hidden" }}
+              >
+                <div style={{ width: `${oran * 100}%`, height: "100%", background: S.vurgu }} />
+              </div>
+            </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: S.soluk, marginTop: 4 }}>
               <span>{sureYaz(pozisyon)}</span><span>-{sureYaz(toplam - pozisyon)}</span>
             </div>
@@ -2752,26 +2832,30 @@ export default function DinletiApp() {
                 <RotateCw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>30</span>
               </button>
             </div>
-            <div data-okuma-modlari style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 5, flexWrap: "wrap" }}>
-              {OKUMA_MODLARI.map((m) => (
-                <button key={m.id} onClick={() => okumaModuDegistir(m.id)} title={m.aciklama} style={cip(okumaModu === m.id)}>
-                  {m.ad}
-                </button>
-              ))}
+            <div data-okuma-modu-kompakt style={{ display: "flex", justifyContent: "center", marginTop: 7 }}>
+              <button onClick={() => setModPaneliAcik((acik) => !acik)} aria-expanded={modPaneliAcik} aria-controls="okurio-okuma-modlari" aria-label={`Okuma modu: ${okumaModuAyar.ad}`} style={{ ...cip(true), minWidth: 190, minHeight: 44, justifyContent: "center" }}>
+                Mod: {okumaModuAyar.ad} ▾
+              </button>
             </div>
-            <div data-okuma-modu-ipucu style={{ margin: "5px auto 0", maxWidth: 390, background: "rgba(255,255,255,0.055)", border: "1px solid rgba(255,255,255,0.075)", borderRadius: 12, padding: "6px 9px", color: "rgba(242,236,223,0.88)", fontSize: mobilDar ? 11 : 12, lineHeight: 1.45, textAlign: "center" }}>
-              <strong style={{ color: S.vurgu }}>{okumaModuAyar.ad}:</strong> {okumaModuAyar.aciklama}
-              {okumaModu === "kendim" ? " Ses otomatik başlamaz; takıldığım yerde kısa yardım alırım." : ""}
-            </div>
-            {okumaModu === "kendim" && (
-              <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
-                <button data-yardim="takildim" onClick={yardimOku} style={{ ...cip(false), borderColor: "rgba(232,163,61,0.45)", color: S.vurgu }}>Yardım · Oku</button>
+            {modPaneliAcik && (
+              <div id="okurio-okuma-modlari" data-okuma-modlari style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                {OKUMA_MODLARI.map((m) => (
+                  <button key={m.id} data-okuma-modu={m.id} onClick={() => okumaModuDegistir(m.id)} title={m.aciklama} style={{ ...cip(okumaModu === m.id), minHeight: 44 }}>
+                    {m.ad}
+                  </button>
+                ))}
               </div>
             )}
-            <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 5, flexWrap: "wrap" }}>
-              <button onClick={hizDegistir} style={cip(false)}><Gauge size={14} /> {hiz}x</button>
-              <button onClick={sesTonuDegistir} title={sesTonuAyar.aciklama} style={cip(etkinSeslendirme)}><Volume2 size={14} /> Ses: {etkinSeslendirme ? sesTonuAyar.kisa : "Kapalı"}</button>
-              <button onClick={uykuDegistir} style={cip(uyku > 0)}><Moon size={14} /> {uyku > 0 ? sureYaz(uyku) : "Uyku"}</button>
+            <div data-okuma-modu-ipucu style={{ margin: "5px auto 0", maxWidth: 520, color: S.soluk, fontSize: 11, lineHeight: 1.35, textAlign: "center" }}>{okumaModuAyar.ad}: {okumaModuAyar.aciklama}</div>
+            {okumaModu === "kendim" && (
+              <div data-kelime-yardimi="1" role="note" style={{ margin: "6px auto 0", color: S.vurgu, fontSize: 11, textAlign: "center" }}>
+                Altı çizili hedef kelimeye dokunarak yaşına uygun kısa anlamını aç.
+              </div>
+            )}
+            <div data-alt-araclar style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 6, flexWrap: "wrap" }}>
+              <button onClick={hizDegistir} style={{ ...cip(false), minHeight: 44, padding: "6px 9px" }}><Gauge size={13} /> {hiz}x</button>
+              <button onClick={sesTonuDegistir} title={sesTonuAyar.aciklama} style={{ ...cip(etkinSeslendirme), minHeight: 44, padding: "6px 9px" }}><Volume2 size={13} /> Ses: {etkinSeslendirme ? sesTonuAyar.kisa : "Kapalı"}</button>
+              <button onClick={uykuDegistir} style={{ ...cip(uyku > 0), minHeight: 44, padding: "6px 9px" }}><Moon size={13} /> {uyku > 0 ? sureYaz(uyku) : "Uyku"}</button>
             </div>
           </div>
         </div>

@@ -6,12 +6,22 @@
 }
 
 [data-okuma-alani] {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-gutter: stable;
   min-width: 0;
 }
 
 [data-okuma-metin] {
+  min-height: min(360px, 48dvh) !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
   overflow-wrap: anywhere;
   word-break: normal;
   hyphens: none;
@@ -44,13 +54,14 @@
   min-width: 0 !important;
 }
 
-[data-yardim-oku="1"] {
-  position: sticky;
-  bottom: 8px;
-  z-index: 4;
-  min-height: 48px !important;
-  border: 1px solid rgba(232, 163, 61, 0.38) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+[data-hedef-kelime] {
+  border-radius: 4px;
+  outline-offset: 3px;
+  touch-action: manipulation;
+}
+
+[data-sozluk-karti] {
+  scroll-margin-block: 12px;
 }
 
 [data-okuma-modu]::before {
@@ -70,18 +81,19 @@
  */
 @container (max-width: 480px) {
   [data-okuma-alani] {
-    flex: 0 1 auto !important;
+    flex: 1 1 auto !important;
     min-height: 0 !important;
     max-height: none !important;
     padding: 10px !important;
-    overflow: visible !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     scrollbar-gutter: auto;
   }
 
   [data-okuma-metin] {
-    height: clamp(180px, 31dvh, 260px) !important;
-    min-height: 180px !important;
-    max-height: 260px !important;
+    height: auto !important;
+    min-height: clamp(240px, 40dvh, 360px) !important;
+    max-height: none !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     padding: 14px !important;
@@ -112,9 +124,9 @@
   }
 
   [data-okuma-metin] {
-    height: clamp(190px, 31dvh, 270px) !important;
-    min-height: 190px !important;
-    max-height: 34dvh !important;
+    height: auto !important;
+    min-height: clamp(240px, 40dvh, 340px) !important;
+    max-height: none !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     font-size: max(18px, 1em) !important;
@@ -155,9 +167,9 @@
   }
 
   [data-okuma-metin] {
-    height: clamp(170px, 28dvh, 220px) !important;
-    min-height: 170px !important;
-    max-height: 31dvh !important;
+    height: auto !important;
+    min-height: clamp(220px, 34dvh, 290px) !important;
+    max-height: none !important;
     font-size: max(17px, 1em) !important;
     line-height: 1.6 !important;
     padding: 14px !important;

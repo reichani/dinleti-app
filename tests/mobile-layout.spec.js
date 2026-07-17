@@ -113,10 +113,10 @@ test.describe("Mobil görünüm regresyonları", () => {
     });
 
     const mobilProje = testInfo.project.name !== "desktop-chrome";
-    expect(metrics.overflowY).toBe(mobilProje ? "auto" : "visible");
+    expect(metrics.overflowY).toBe("auto");
     if (mobilProje) {
       expect(metrics.overflowX).toBe("hidden");
-      expect(metrics.height).toBeGreaterThanOrEqual(170);
+      expect(metrics.height).toBeGreaterThanOrEqual(220);
     }
     expect(metrics.fontSize).toBeGreaterThanOrEqual(17);
     expect(metrics.lineHeight).toBeGreaterThan(metrics.fontSize * 1.5);

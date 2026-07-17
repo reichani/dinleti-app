@@ -69,7 +69,7 @@ const newWordBlock = `                      const temiz = k.replace(/[.,!?…;:]
                          data-hedef-kelime={sozluk ? temiz.toLocaleLowerCase("tr-TR") : undefined}
                          role={sozluk ? "button" : undefined}
                          tabIndex={sozluk ? 0 : undefined}
-                         aria-label={sozluk ? \`${temiz} kelimesinin anlamını aç\` : undefined}
+                         aria-label={sozluk ? \`\${temiz} kelimesinin anlamını aç\` : undefined}
                          onClick={() => sozluk && setSeciliSozluk(sozluk)}
                          onKeyDown={(e) => { if (sozluk && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); setSeciliSozluk(sozluk); } }}
                          style={{
@@ -150,8 +150,7 @@ for (const marker of ['const SURUM = "2.6.0";', 'data-okuma-modu-kompakt', 'data
   if (!s.includes(marker)) throw new Error(`Release marker missing after patch: ${marker}`);
 }
 
-if (s === before) throw new Error('Reader-first patch made no changes');
-fs.writeFileSync(appPath, s);
+if (s !== before) fs.writeFileSync(appPath, s);
 
 const testPath = 'tests/demo-readiness.spec.js';
 let t = fs.readFileSync(testPath, 'utf8');
@@ -172,12 +171,13 @@ t = t.replace(
   '    const compact = oynatici(page).locator("[data-okuma-modu-kompakt] button");\n    const controls = [compact, oynatici(page).locator("[data-alt-araclar] button").first()];',
 );
 
-if (!t.includes('kelime kartı hedef kelimeye dokununca açılır')) {
+if (!t.includes('Reader-first v2.6.0 akışı') && !t.includes('kelime kartı hedef kelimeye dokununca açılır')) {
   t += `\n\ntest.describe("10. Kelime kartı akışı", () => {\n  test("kelime kartı hedef kelimeye dokununca açılır ve ilerlemeyi değiştirmez", async ({ page }) => {\n    await onboardingTamamla(page);\n    const firstCard = page.locator("[data-kitap-karti]").first();\n    if (await firstCard.count()) await firstCard.click();\n    const start = page.getByRole("button", { name: /Okumaya başla|Okumaya devam et/i }).first();\n    if (await start.count()) await start.click();\n    await expect(oynatici(page)).toBeVisible();\n    const target = oynatici(page).locator("[data-hedef-kelime]").first();\n    test.skip((await target.count()) === 0, "Seçilen pilot içerikte sözlük hedefi yok");\n    const progress = await oynatici(page).locator("[role=slider]").getAttribute("aria-valuenow");\n    await target.click();\n    await expect(oynatici(page).locator("[data-sozluk-karti]")).toBeVisible();\n    await expect(oynatici(page).getByRole("button", { name: /kelimesini seslendir/i })).toBeVisible();\n    await expect(oynatici(page).locator("[role=slider]")).toHaveAttribute("aria-valuenow", progress || "0");\n    await oynatici(page).getByRole("button", { name: "Kelime açıklamasını kapat" }).click();\n    await expect(oynatici(page).locator("[data-sozluk-karti]")).toHaveCount(0);\n  });\n});\n`;
 }
 
 if (t.includes('data-yardim-oku')) throw new Error('Legacy help selector still exists in regression tests');
-if (t === testBefore) throw new Error('Regression patch made no changes');
-fs.writeFileSync(testPath, t);
+if (t !== testBefore) fs.writeFileSync(testPath, t);
 
-console.log('Applied direct reader-first v2.6.0 code and regression updates');
+console.log(s === before && t === testBefore
+  ? 'Reader-first v2.6.0 code and regression updates already applied'
+  : 'Applied direct reader-first v2.6.0 code and regression updates');

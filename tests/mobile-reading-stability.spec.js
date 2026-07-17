@@ -74,7 +74,7 @@ test.describe("Sprint 4 mobil okuma stabilitesi", () => {
     expect(styles.overflowWrap).toBe("anywhere");
   });
 
-  test("üç okuma modu mobilde kırpılmadan görünür kalır", async ({ page }) => {
+  test("açılır seçicideki üç okuma modu mobilde kırpılmadan görünür kalır", async ({ page }) => {
     const styles = await page.evaluate(() => {
       const modes = document.createElement("div");
       modes.setAttribute("data-okuma-modlari", "1");
@@ -96,23 +96,23 @@ test.describe("Sprint 4 mobil okuma stabilitesi", () => {
     expect(styles.modeCount).toBe(3);
   });
 
-  test("Takıldım butonu erişilebilir yardım kontrolü olarak işaretlenir", async ({ page }) => {
+  test("kompakt mod seçicisi tek bir mod seçeneği gibi yeniden işaretlenmez", async ({ page }) => {
     const result = await page.evaluate(() => {
       const button = document.createElement("button");
-      button.textContent = "Takıldım · Bana oku";
+      button.dataset.okumaModuKompakt = "1";
+      button.textContent = "Mod: Kendim Okuyorum ▾";
+      button.setAttribute("aria-label", "Okuma modu: Kendim Okuyorum");
       document.body.appendChild(button);
       window.__okurioReadingFixes.markInteractiveControls(document);
       const value = {
-        marker: button.dataset.yardimOku,
+        concreteMode: button.dataset.okumaModu,
         label: button.getAttribute("aria-label"),
-        minHeight: getComputedStyle(button).minHeight,
       };
       button.remove();
       return value;
     });
 
-    expect(result.marker).toBe("1");
-    expect(result.label).toBe("Takıldım, bana oku");
-    expect(parseFloat(result.minHeight)).toBeGreaterThanOrEqual(48);
+    expect(result.concreteMode).toBeUndefined();
+    expect(result.label).toBe("Okuma modu: Kendim Okuyorum");
   });
 });
