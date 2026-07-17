@@ -16,6 +16,10 @@ test.describe("Sprint 4 mobil okuma stabilitesi", () => {
       document.body.appendChild(area);
 
       const active = area.querySelector('[data-aktif="1"]');
+      Object.defineProperty(area, "clientHeight", { configurable: true, value: 120 });
+      Object.defineProperty(area, "scrollHeight", { configurable: true, value: 720 });
+      area.getBoundingClientRect = () => ({ top: 0, bottom: 120, left: 0, right: 320, width: 320, height: 120 });
+      active.getBoundingClientRect = () => ({ top: 420, bottom: 450, left: 0, right: 100, width: 100, height: 30 });
       let options = null;
       area.scrollTo = (received) => { options = received; };
       const scrolled = window.__okurioReadingFixes.scrollActiveWord(active, { force: true, now: 1000 });

@@ -1765,6 +1765,16 @@ export default function DinletiApp() {
   const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
   const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
   const etkinSeslendirme = seslendirme && okumaModuAyar.sesli;
+
+  useEffect(() => {
+    if (seciliSozluk || !sozlukTetikleyiciRef.current) return undefined;
+    const trigger = sozlukTetikleyiciRef.current;
+    const frame = window.requestAnimationFrame(() => {
+      if (trigger.isConnected) trigger.focus();
+      sozlukTetikleyiciRef.current = null;
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [seciliSozluk]);
   // v2.4.9: kendiMetniAc callback'i bu değerleri dependency olarak kullandığı için
   // ilk render'da TDZ/ReferenceError oluşmaması adına callback'ten önce hesaplanır.
   const okumaYoluDetay = yolBul(okumaYolu.yolId);
@@ -2264,7 +2274,6 @@ export default function DinletiApp() {
 
   const sozlukKapat = () => {
     setSeciliSozluk(null);
-    window.requestAnimationFrame(() => sozlukTetikleyiciRef.current?.focus());
   };
 
   const kelimeyiSeslendir = (kelime) => {
