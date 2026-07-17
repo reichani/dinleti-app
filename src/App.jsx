@@ -2264,10 +2264,19 @@ export default function DinletiApp() {
 
   const sozlukKapat = () => {
     const trigger = sozlukTetikleyiciRef.current;
-    if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+    const hedefKelime = trigger?.dataset.hedefKelime;
+    const odagiGeriVer = () => {
+      const guncelTrigger = trigger?.isConnected
+        ? trigger
+        : hedefKelime
+          ? document.querySelector(`[data-mobile-stability] [data-hedef-kelime="${hedefKelime}"]`)
+          : null;
+      if (guncelTrigger instanceof HTMLElement) guncelTrigger.focus({ preventScroll: true });
+    };
+    odagiGeriVer();
     setSeciliSozluk(null);
     window.setTimeout(() => {
-      if (trigger?.isConnected && document.activeElement !== trigger) trigger.focus({ preventScroll: true });
+      odagiGeriVer();
       sozlukTetikleyiciRef.current = null;
     }, 0);
   };
