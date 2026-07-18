@@ -22,6 +22,10 @@ async function onboardingTamamla(page) {
 
 async function kendiMetniniAc(page, text) {
   await onboardingTamamla(page);
+  const acici = page.locator("[data-kendi-metnim-ac]");
+  await expect(acici).toBeVisible();
+  await acici.click();
+  await expect(page.locator("[data-kendi-metnim-panel]")).toBeVisible();
   const input = page.getByLabel("Kendi metnim", { exact: true });
   await input.scrollIntoViewIfNeeded();
   await input.fill(text);
@@ -47,6 +51,28 @@ function uzunMetin() {
   ).join(" ");
 }
 
+
+test.describe("0. Odaklı giriş ve görünür sürüm", () => {
+  test("onboarding sürümü gösterir ve kendi metnim alanı istenmeden açılmaz", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator("[data-surum]")).toContainText("v2.5.1");
+    if (await page.locator("[data-kendi-metnim]").count()) {
+      await expect(page.locator("[data-kendi-metnim-ac]")).toBeVisible();
+      await expect(page.locator("[data-kendi-metnim-panel]")).toHaveCount(0);
+    }
+  });
+
+  test("okuma ayarları metin alanını varsayılan olarak kalabalıklaştırmaz", async ({ page }) => {
+    await kendiMetniniAc(page, "Oki bugün sakin sakin okuyor. Uzun kelimelerde durabilir ve gerektiğinde yardım alabilir.");
+    await expect(oynatici(page).locator("[data-okuma-ayarlari]")).toBeVisible();
+    await expect(oynatici(page).locator("[data-okuma-ayarlari-panel]")).toHaveCount(0);
+    await oynatici(page).locator("[data-okuma-ayarlari]").click();
+    await expect(oynatici(page).locator("[data-okuma-ayarlari-panel]")).toBeVisible();
+    await oynatici(page).getByRole("button", { name: "Odak modu" }).click();
+    await expect(oynatici(page).locator("[data-odak-acik]")).toContainText("yalnızca okuduğun cümle");
+  });
+});
+
 test.describe("1. Mod geçişleri ve kullanıcı durumu", () => {
   test("Dinliyorum → Birlikte → Kendim akışı ses durumunu ve yardımı doğru günceller", async ({ page }) => {
     await kendiMetniniAc(page, "Oki bu metni sakin ve anlaşılır biçimde okur. Kullanıcı üç okuma modunu sırayla dener.");
@@ -55,6 +81,9 @@ test.describe("1. Mod geçişleri ve kullanıcı durumu", () => {
     await modaGec(page, "kendim", "Kendim Okuyorum");
     await expect(oynatici(page).locator('[data-yardim="takildim"]')).toBeVisible();
     await expect(oynatici(page).getByRole("button", { name: /Ses: Kapalı/i })).toBeVisible();
+    await modaGec(page, "birlikte", "Birlikte Okuyorum");
+    await expect(oynatici(page).locator('[data-yardim="takildim"]')).toHaveCount(0);
+    await expect(oynatici(page).getByRole("button", { name: /Ses: (?!Kapalı)/i })).toBeVisible();
   });
 });
 
