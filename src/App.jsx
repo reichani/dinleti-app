@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from "react";
 import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus, Flame } from "lucide-react";
 import GlossaryCard from "./components/GlossaryCard.jsx";
 import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdapter.js";
@@ -1767,6 +1767,7 @@ export default function DinletiApp() {
   const okuyucuGeriOdakRef = useRef(null);
   const kendiMetinGeriOdakRef = useRef(null);
   const kendiMetinCtaRef = useRef(null);
+  const oncekiOynaticiAcikRef = useRef(false);
 
   const okuyucuyuKapatVeOdakla = () => {
     setOynaticiAcik(false);
@@ -1782,6 +1783,16 @@ export default function DinletiApp() {
       if (geri?.isConnected) geri.focus({ preventScroll: true });
     }, 0);
   };
+
+  useLayoutEffect(() => {
+    const kapandi = oncekiOynaticiAcikRef.current && !oynaticiAcik;
+    oncekiOynaticiAcikRef.current = oynaticiAcik;
+    if (!kapandi) return;
+    const kaliciCta = kendiMetinCtaRef.current?.isConnected
+      ? kendiMetinCtaRef.current
+      : document.querySelector("[data-kendi-metnim] > button");
+    if (kaliciCta instanceof HTMLElement) kaliciCta.focus({ preventScroll: true });
+  }, [oynaticiAcik]);
   const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
   const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
   const etkinSeslendirme = seslendirme && okumaModuAyar.sesli;
