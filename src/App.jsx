@@ -2765,7 +2765,7 @@ export default function DinletiApp() {
             </div>
             {okumaModu === "kendim" && (
               <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
-                <button data-yardim="takildim" onClick={yardimOku} style={{ ...cip(false), borderColor: "rgba(232,163,61,0.45)", color: S.vurgu }}>Yardım · Oku</button>
+                <button data-yardim="takildim" aria-label="Yardım · Oku" onClick={yardimOku} style={{ ...cip(false), minWidth: 40, minHeight: 40, borderColor: "rgba(232,163,61,0.45)", color: S.vurgu }}>Yardım · Oku</button>
               </div>
             )}
             <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 5, flexWrap: "wrap" }}>
