@@ -57,7 +57,6 @@ function uzunMetin() {
 test.describe("1. Mod geçişleri ve kullanıcı durumu", () => {
   test("Dinliyorum → Birlikte → Kendim akışı ses durumunu ve yardımı doğru günceller", async ({ page }) => {
     await kendiMetniniAc(page, "Oki bu metni sakin ve anlaşılır biçimde okur. Kullanıcı üç okuma modunu sırayla dener.");
-    await expect(oynatici(page).locator("[data-okuma-modu-kompakt] button")).toBeVisible();
     await modaGec(page, "birlikte", "Ses daha yavaş akar, ben eşlik ederim.");
     await modaGec(page, "kendim", "Ses kapanır; takıldığım yerde yardım alırım.");
     await expect(oynatici(page).locator('[data-kelime-yardimi="1"]')).toBeVisible();

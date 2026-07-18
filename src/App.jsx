@@ -1766,6 +1766,7 @@ export default function DinletiApp() {
   const sozlukTetikleyiciRef = useRef(null);
   const okuyucuGeriOdakRef = useRef(null);
   const kendiMetinGeriOdakRef = useRef(null);
+  const kendiMetinCtaRef = useRef(null);
   const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
   const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
   const etkinSeslendirme = seslendirme && okumaModuAyar.sesli;
@@ -1973,10 +1974,14 @@ export default function DinletiApp() {
     return () => {
       window.removeEventListener("keydown", klavye);
       document.body.style.overflow = oncekiOverflow;
-      const geri = okuyucuGeriOdakRef.current?.isConnected
-        ? okuyucuGeriOdakRef.current
-        : kendiMetinGeriOdakRef.current;
-      window.requestAnimationFrame(() => geri?.isConnected && geri.focus({ preventScroll: true }));
+      window.requestAnimationFrame(() => {
+        const geri = okuyucuGeriOdakRef.current?.isConnected
+          ? okuyucuGeriOdakRef.current
+          : kendiMetinCtaRef.current?.isConnected
+            ? kendiMetinCtaRef.current
+            : kendiMetinGeriOdakRef.current;
+        if (geri?.isConnected) geri.focus({ preventScroll: true });
+      });
     };
   }, [oynaticiAcik]);
 
@@ -2553,7 +2558,7 @@ export default function DinletiApp() {
         </div>
       ))}
       <div data-kendi-metnim style={{ marginTop: 32, marginBottom: 18 }}>
-        <button onClick={() => setKendiMetinPaneliAcik(true)} aria-haspopup="dialog" aria-expanded={kendiMetinPaneliAcik} style={{ width: "100%", minHeight: 56, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: S.kart, border: "1px solid rgba(232,163,61,0.22)", borderRadius: 16, padding: "12px 14px", color: S.metin, cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
+        <button ref={kendiMetinCtaRef} onClick={() => setKendiMetinPaneliAcik(true)} aria-haspopup="dialog" aria-expanded={kendiMetinPaneliAcik} style={{ width: "100%", minHeight: 56, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: S.kart, border: "1px solid rgba(232,163,61,0.22)", borderRadius: 16, padding: "12px 14px", color: S.metin, cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
           <span>
             <strong style={{ display: "block", color: S.vurgu, fontSize: 14 }}>Kendi metnini oku</strong>
             <span style={{ display: "block", color: S.soluk, fontSize: 12, marginTop: 2 }}>Kopyala-yapıştır veya TXT</span>
