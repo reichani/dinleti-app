@@ -1754,6 +1754,8 @@ export default function DinletiApp() {
   const [kendiMetin, setKendiMetin] = useState("");
   const [kendiBaslik, setKendiBaslik] = useState("Kendi Metnim");
   const [kendiMetinMesaji, setKendiMetinMesaji] = useState("");
+  const [kendiMetinAcik, setKendiMetinAcik] = useState(false);
+  const [ayarlarAcik, setAyarlarAcik] = useState(false);
   const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
   const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
   const etkinSeslendirme = seslendirme && okumaModuAyar.sesli;
@@ -1930,8 +1932,8 @@ export default function DinletiApp() {
   const sonSinir = useRef(0);          // son onboundary olayının zamanı (uyarlanabilir kapı)
   const kalibrasyon = useRef(1);       // gerçek TTS temposu / tahmin (bölüm sonunda güncellenir)
   const konusmayiBaslatRef = useRef(null);
-  const konusmayiBaslat = useCallback((kitap, bolumIx, kelimeBas = 0) => {
-    if (!etkinSeslendirme || !window.speechSynthesis) return;
+  const konusmayiBaslat = useCallback((kitap, bolumIx, kelimeBas = 0, sesiZorla = false) => {
+    if ((!etkinSeslendirme && !sesiZorla) || !window.speechSynthesis) return;
     konusmayiDurdur();
     sonSinir.current = 0;
     const benimNo = zincirNo.current;
@@ -2242,7 +2244,7 @@ export default function DinletiApp() {
     const m = okumaModuBul(yeni);
     setSeslendirme(m.sesli);
     if (!m.sesli) konusmayiDurdur();
-    else if (caliyor && aktif) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx);
+    else if (caliyor && aktif) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx, true);
     (async () => { try { await window.storage.set(OKUMA_MODU_ANAHTAR, yeni); } catch {} })();
   };
 
@@ -2407,23 +2409,30 @@ export default function DinletiApp() {
         </div>
       </div>
 
-      <div data-kendi-metnim style={{ background: S.kart, border: "1px solid rgba(232,163,61,0.22)", borderRadius: 16, padding: 14, marginTop: 14, marginBottom: 18 }}>
-        <div style={{ color: S.vurgu, fontSize: 12, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" }}>Kendi metnimi okuma moduna al</div>
-        <div style={{ color: S.soluk, fontSize: 12, lineHeight: 1.45, marginTop: 6 }}>TXT veya kopyala-yapıştır metin; disleksi, DEHB, biyonik okuma ve odak ayarlarıyla açılır. PDF desteği güvenli metin çıkarma katmanına alınacak.</div>
-        <input value={kendiBaslik} onChange={(e) => setKendiBaslik(e.target.value)} aria-label="Kendi metnim başlık" style={{ width: "100%", boxSizing: "border-box", marginTop: 10, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "9px 10px", fontFamily: "inherit" }} />
-        <textarea value={kendiMetin} onChange={(e) => setKendiMetin(e.target.value)} placeholder="Metni buraya yapıştır..." aria-label="Kendi metnim" style={{ width: "100%", boxSizing: "border-box", minHeight: 78, marginTop: 8, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "10px", fontFamily: "inherit", resize: "vertical" }} />
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
-          <button onClick={() => kendiMetniAc(kendiMetin, kendiBaslik)} style={{ background: S.vurgu, color: "#14181F", border: "none", borderRadius: 10, padding: "9px 12px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}>Okuma moduna al</button>
-          <label style={{ background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "9px 12px", cursor: "pointer", fontSize: 13 }}>TXT/PDF seç
-            <input type="file" accept=".txt,text/plain,.pdf,application/pdf" onChange={dosyaMetniYukle} style={{ display: "none" }} />
-          </label>
-        </div>
-        {kendiMetinMesaji && <div style={{ color: S.soluk, fontSize: 12, marginTop: 8 }}>{kendiMetinMesaji}</div>}
+      <div data-kendi-metnim style={{ marginTop: 14, marginBottom: 18 }}>
+        <button data-kendi-metnim-ac onClick={() => setKendiMetinAcik((acik) => !acik)} aria-expanded={kendiMetinAcik}
+          style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", background: S.kart, border: "1px solid rgba(232,163,61,0.22)", borderRadius: kendiMetinAcik ? "14px 14px 0 0" : 14, padding: "12px 14px", color: S.metin, cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
+          <span><strong style={{ color: S.vurgu }}>Kendi metnimi ekle</strong><span style={{ display: "block", color: S.soluk, fontSize: 11, marginTop: 3 }}>Kopyala-yapıştır veya TXT</span></span>
+          <ChevronDown size={18} style={{ transform: kendiMetinAcik ? "rotate(180deg)" : "none", transition: "transform 160ms ease" }} />
+        </button>
+        {kendiMetinAcik && (
+          <div data-kendi-metnim-panel style={{ background: S.kart, border: "1px solid rgba(232,163,61,0.22)", borderTop: "none", borderRadius: "0 0 14px 14px", padding: 14 }}>
+            <input value={kendiBaslik} onChange={(e) => setKendiBaslik(e.target.value)} aria-label="Kendi metnim başlık" style={{ width: "100%", boxSizing: "border-box", borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "9px 10px", fontFamily: "inherit" }} />
+            <textarea value={kendiMetin} onChange={(e) => setKendiMetin(e.target.value)} placeholder="Metni buraya yapıştır..." aria-label="Kendi metnim" style={{ width: "100%", boxSizing: "border-box", minHeight: 96, marginTop: 8, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "10px", fontFamily: "inherit", resize: "vertical" }} />
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+              <button onClick={() => kendiMetniAc(kendiMetin, kendiBaslik)} style={{ background: S.vurgu, color: "#14181F", border: "none", borderRadius: 10, padding: "10px 12px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}>Okuma moduna al</button>
+              <label style={{ background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "10px 12px", cursor: "pointer", fontSize: 13 }}>TXT seç
+                <input type="file" accept=".txt,text/plain" onChange={dosyaMetniYukle} style={{ display: "none" }} />
+              </label>
+            </div>
+            {kendiMetinMesaji && <div style={{ color: S.soluk, fontSize: 12, marginTop: 8 }}>{kendiMetinMesaji}</div>}
+            <div data-terms style={{ color: S.soluk, fontSize: 10, lineHeight: 1.45, marginTop: 10 }}>
+              Yüklediğin metin yalnızca kişisel ve erişilebilir okuma desteği amacıyla kullanılır.
+            </div>
+          </div>
+        )}
       </div>
 
-      <div data-terms style={{ color: S.soluk, fontSize: 11, lineHeight: 1.45, margin: "-4px 0 14px", opacity: 0.9 }}>
-        Kullanıcı kendi yüklediği içeriklerin telif haklarından sorumludur. Okurio bu metinleri kişisel kullanım ve erişilebilir okuma desteği amacıyla işler; yayınlama veya dağıtım hakkı sağlamaz.
-      </div>
       {uyumluRaflar.map((raf) => (
         <div key={raf.ad} style={{ marginTop: 28 }}>
           <div style={{ ...baslikStil, fontSize: 19, marginBottom: 14 }}>{raf.ad} <span style={{ fontFamily: "Inter, system-ui, sans-serif", color: S.soluk, fontSize: 12, fontWeight: 500 }}>· {raf.ids.length > 0 ? `${raf.ids.length} içerik` : "hazırlanıyor"}</span></div>
@@ -2598,7 +2607,7 @@ export default function DinletiApp() {
           {/* Üst çubuk */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
             <button onClick={() => setOynaticiAcik(false)} aria-label="Kapat" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronDown size={20} /></button>
-            <div style={{ fontSize: 12, color: S.soluk, letterSpacing: "0.08em", textTransform: "uppercase" }}>Şimdi okunuyor</div>
+            <div style={{ fontSize: 12, color: S.soluk, letterSpacing: "0.08em", textTransform: "uppercase" }}>Şimdi okunuyor · v{SURUM}</div>
             <button onClick={() => favoriDegistir(aktif.id)} aria-label="Favori" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, cursor: "pointer" }}>
               <Heart size={18} color={favoriler.includes(aktif.id) ? S.vurgu : S.metin} fill={favoriler.includes(aktif.id) ? S.vurgu : "none"} />
             </button>
@@ -2670,8 +2679,15 @@ export default function DinletiApp() {
                       </span>;
                     })}
                   </div>
-                  {ayar.odak && <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>Odak modu: cümle {cumleler.indexOf(aktifCumle) + 1} / {cumleler.length}</div>}
-                  <div style={{ marginTop: 12, fontSize: 12, color: S.soluk }}>Bana göre ayarla (birlikte seçilebilir):</div>
+                  {ayar.odak && <div data-odak-acik role="status" style={{ fontSize: 11, color: S.vurgu, marginTop: 8 }}>Odak açık: yalnızca okuduğun cümle öne çıkarılır.</div>}
+                  <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
+                    <button data-okuma-ayarlari onClick={() => setAyarlarAcik((acik) => !acik)} aria-expanded={ayarlarAcik} style={cip(ayarlarAcik)}>
+                      Okuma ayarları · {ayarlarAcik ? "Gizle" : "Aç"}
+                    </button>
+                  </div>
+                  {ayarlarAcik && (
+                    <div data-okuma-ayarlari-panel style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                  <div style={{ fontSize: 12, color: S.soluk }}>İhtiyacına göre seç; ayarlar birlikte kullanılabilir.</div>
                   <div style={{ display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
                     <button data-profil="dis" onClick={() => profilUygula({ ...profil, dis: !profil.dis })} aria-label="Disleksi profili" style={cip(profil.dis)}>Disleksi</button>
                     <button data-profil="dehb" onClick={() => profilUygula({ ...profil, dehb: !profil.dehb })} aria-label="DEHB profili" style={cip(profil.dehb)}>DEHB</button>
@@ -2685,7 +2701,7 @@ export default function DinletiApp() {
                       <AlignJustify size={13} /> Aralık: {["Normal", "Geniş", "Ekstra"][ayar.aralik]}
                     </button>
                     <button onClick={() => setAyar({ ...ayar, odak: !ayar.odak })} aria-label="Odak modu" style={cip(ayar.odak)}>
-                      <Focus size={13} /> Odak modu
+                      <Focus size={13} /> Odak: {ayar.odak ? "Açık" : "Kapalı"}
                     </button>
                     <button onClick={() => setAyar({ ...ayar, vurgu: !ayar.vurgu })} aria-label="Kelime vurgusu" style={cip(ayar.vurgu)}>
                       Kelime vurgusu
@@ -2700,6 +2716,9 @@ export default function DinletiApp() {
                       Yazı: {fontAd(ayar.font)}
                     </button>
                   </div>
+
+                    </div>
+                  )}
                 </>
               );
             })()}
@@ -2787,7 +2806,7 @@ export default function DinletiApp() {
     };
     return (
       <div style={{ padding: "26px 20px 110px" }}>
-        <div style={{ ...baslikStil, fontSize: 30, marginBottom: 6 }}>Okuma yolunu seç</div>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}><div style={{ ...baslikStil, fontSize: 30, marginBottom: 6 }}>Okuma yolunu seç</div><span data-surum style={{ color: S.soluk, fontSize: 11 }}>v{SURUM}</span></div>
         <div style={{ color: S.soluk, fontSize: 14, lineHeight: 1.55, marginBottom: 18 }}>
           Yaş tek başına yeterli değil. Okurio, yaş bandını okuma evresi, destek ihtiyacı ve okuma moduyla birlikte kullanır.
         </div>
