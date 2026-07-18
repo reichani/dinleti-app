@@ -1767,6 +1767,21 @@ export default function DinletiApp() {
   const okuyucuGeriOdakRef = useRef(null);
   const kendiMetinGeriOdakRef = useRef(null);
   const kendiMetinCtaRef = useRef(null);
+
+  const okuyucuyuKapatVeOdakla = () => {
+    setOynaticiAcik(false);
+    window.setTimeout(() => {
+      const kaliciCta = document.querySelector("[data-kendi-metnim] > button");
+      const geri = okuyucuGeriOdakRef.current?.isConnected
+        ? okuyucuGeriOdakRef.current
+        : kendiMetinCtaRef.current?.isConnected
+          ? kendiMetinCtaRef.current
+          : kaliciCta instanceof HTMLElement
+            ? kaliciCta
+            : kendiMetinGeriOdakRef.current;
+      if (geri?.isConnected) geri.focus({ preventScroll: true });
+    }, 0);
+  };
   const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
   const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
   const etkinSeslendirme = seslendirme && okumaModuAyar.sesli;
@@ -1958,7 +1973,7 @@ export default function DinletiApp() {
     const klavye = (event) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        setOynaticiAcik(false);
+        okuyucuyuKapatVeOdakla();
         return;
       }
       if (event.key !== "Tab") return;
@@ -2763,7 +2778,7 @@ export default function DinletiApp() {
 
           {/* Üst çubuk */}
           <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
-            <button onClick={() => setOynaticiAcik(false)} aria-label="Kapat" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronDown size={20} /></button>
+            <button onClick={okuyucuyuKapatVeOdakla} aria-label="Kapat" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronDown size={20} /></button>
             <div data-reader-eyebrow style={{ fontSize: 12, color: S.soluk, letterSpacing: "0.08em", textTransform: "uppercase" }}>Şimdi okunuyor</div>
             <button data-reader-favorite onClick={() => favoriDegistir(aktif.id)} aria-label="Favori" aria-pressed={favoriler.includes(aktif.id)} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, cursor: "pointer" }}>
               <Heart size={18} color={favoriler.includes(aktif.id) ? S.vurgu : S.metin} fill={favoriler.includes(aktif.id) ? S.vurgu : "none"} />
