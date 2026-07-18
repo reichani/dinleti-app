@@ -3,13 +3,17 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 import GlossaryCard from "./components/GlossaryCard.jsx";
 import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdapter.js";
 import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
+import { COMPLETE_OKURIO_SESSIONS } from "./content/completeOkurioSessions.js";
+import { classifyContent, estimateStorySeconds } from "./content/contentIntegrity.js";
 
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.7.1";
+const SURUM = "2.7.2";
 
 const KATALOG = mergePilotStories([
+
+  ...COMPLETE_OKURIO_SESSIONS,
 
 
   {
@@ -1225,15 +1229,15 @@ const KATALOG = mergePilotStories([
 ]);
 
 const RAFLAR = [
+  { ad: "Tam Okuma Oturumları", mod: "cocuk", yolIds: ["ilk_harfler_6_7"], ids: ["okurio-1-grup-ses-bahcesi", "okurio-lili-kayip-tohum-haritasi"] },
+  { ad: "Tam Metin · Kamu Malı", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["peter-rabbit-en"] },
   { ad: "Oki Minik Dinleyiciler", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-sesleri-dinliyor", "mino-miyav-dedi", "lili-yildiz-sayiyor", "toto-tak-tak-dedi", "nana-ritim-oyunu"] },
   { ad: "Oki Pilot Hikâyeleri", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["oe-01-mino-neden-uzuldu", "os-01-toto-bir-an-durdu"] },
-  { ad: "Oki İlk Harfler", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1", "oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
-  { ad: "1. Grup: a n e t i l", mod: "cocuk", ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1"] },
+  { ad: "Mikro Alıştırmalar", mod: "cocuk", yolIds: ["okumaya_hazirlik_5_6", "ilk_harfler_6_7"], ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1"] },
   { ad: "Oki Mini Hikâyeler", mod: "cocuk", ids: ["oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
   { ad: "Editörün Seçtikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
   { ad: "Masal Saati", mod: "cocuk", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
   { ad: "English Corner", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10"], ids: ["fox-and-grapes-en", "lion-and-mouse-graded-en", "aesop-fables-en", "ugly-duckling-en"] },
-  { ad: "Tam Metin · Kamu Malı", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["peter-rabbit-en"] },
   { ad: "English Word Cards", mod: "cocuk", yolIds: ["okumaya_hazirlik_5_6", "ilk_harfler_6_7", "ilk_cumleler_7_8"], ids: ["english-hello-card", "english-sky-words-card", "english-colors-card", "little-star-poem-en"] },
   { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en", "fox-and-grapes-en", "lion-and-mouse-graded-en", "ugly-duckling-en", "moon-poem-en", "space-poem-en"] },
   { ad: "Young English Readers", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en"] },
@@ -1283,6 +1287,8 @@ const YOL_ICERIK_TURLERI = {
 };
 
 const ICERIK_METADATA = {
+  "okurio-1-grup-ses-bahcesi": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["ses_harf", "hece_kelime", "kisa_cumle", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "rehberli_okuma", oql: 1 },
+  "okurio-lili-kayip-tohum-haritasi": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["ses_harf", "hece_kelime", "kisa_cumle", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "ozgun_hikaye", oql: 1 },
   "oe-01-mino-neden-uzuldu": { yasMin: 7, yasMax: 9, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf", "dinleme"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "duygu_farkindaligi", oql: 3 },
   "os-01-toto-bir-an-durdu": { yasMin: 7, yasMax: 9, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf", "dinleme"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "oz_duzenleme", oql: 3 },
   "oki-sesleri-dinliyor": { yasMin: 3, yasMax: 4, segmentler: ["okul_oncesi", "dinleme"], okumaEvreleri: ["dinleme"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "dinleme_hikayesi", subject: "oki_minik", oql: 0 },
@@ -1559,6 +1565,22 @@ const kitapMeta = (kitap) => ICERIK_METADATA[kitap.id] || {
   destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"],
   icerikTuru: kitap.kategori.toLowerCase(),
 };
+const icerikSunumu = (kitap) => {
+  const meta = kitapMeta(kitap);
+  const sinif = classifyContent(kitap, meta);
+  const seconds = (kitap?.bolumler || []).reduce((toplam, bolum) => toplam + estimateStorySeconds(bolum), 0);
+  if (meta.icerikTuru === "kullanici_metni") {
+    return { ...sinif, seconds, status: "personal-reading", label: "Kişisel metin", deployable: true, blockers: [] };
+  }
+  if (sinif.status === "preparing" || !sinif.deployable) {
+    return { ...sinif, seconds, classificationStatus: sinif.status, status: "preparing", label: "Hazırlanıyor", deployable: false };
+  }
+  return {
+    ...sinif,
+    seconds,
+    label: kitap.icerikDurumu === "tam-metin" && kitap.hakDurumu === "kamu-mali" ? "Tam metin" : sinif.label,
+  };
+};
 const yolSegmentleri = (yolId) => YOL_SEGMENT_GRUPLARI[yolId] || [yolBul(yolId).evre];
 const kitapOkumaYolunaUygunMu = (kitap, yol = VARSAYILAN_OKUMA_YOLU) => {
   if (!kitap) return false;
@@ -1577,8 +1599,8 @@ const kitapOkumaYolunaUygunMu = (kitap, yol = VARSAYILAN_OKUMA_YOLU) => {
 /* Yardımcılar                                                         */
 /* ------------------------------------------------------------------ */
 const kitapBul = (id) => KATALOG.find((k) => k.id === id);
-const bolumSn = (b) => Math.max(20, Math.round(b.metin.trim().split(/\s+/).length * 60 / 155));
-const toplamSn = (kitap) => kitap.bolumler.reduce((t, b) => t + bolumSn(b), 0);
+const bolumSn = (b) => estimateStorySeconds(b);
+const toplamSn = (kitap) => icerikSunumu(kitap).seconds;
 const bolumBasiSn = (kitap, i) => kitap.bolumler.slice(0, i).reduce((t, b) => t + bolumSn(b), 0);
 
 function kelimeSure(k, hiz) {
@@ -1876,7 +1898,7 @@ export default function DinletiApp() {
         setFavoriler(d.favoriler || []);
         setIlerlemeler(d.ilerlemeler || {});
         if (d.hiz) setHiz(d.hiz);
-        if (d.sonKitap && kitapBul(d.sonKitap)) {
+        if (d.sonKitap && kitapBul(d.sonKitap) && icerikSunumu(kitapBul(d.sonKitap)).deployable) {
           setAktifId(d.sonKitap);
           setPozisyon(d.ilerlemeler?.[d.sonKitap]?.pos || 0);
         }
@@ -2250,7 +2272,8 @@ export default function DinletiApp() {
 
   const oynatDegistir = (kitapId) => {
     const id = kitapId || aktifId;
-    if (!id) return;
+    const secilenKitap = kitapBul(id);
+    if (!id || !secilenKitap || !icerikSunumu(secilenKitap).deployable) return;
     if (id !== aktifId) {
       konusmayiDurdur();
       setAktifId(id);
@@ -2305,7 +2328,7 @@ export default function DinletiApp() {
   };
   const oynatKitapBolum = (kitapId, ix) => {
     const k = kitapBul(kitapId);
-    if (!k) return;
+    if (!k || !icerikSunumu(k).deployable) return;
     konusmayiDurdur();
     setAktifId(kitapId);
     setPozisyon(bolumBasiSn(k, ix));
@@ -2427,20 +2450,25 @@ export default function DinletiApp() {
   const KitapKart = ({ kitap, genis }) => {
     const meta = kitapMeta(kitap);
     const kalite = icerikKalitesi(kitap);
+    const sunum = icerikSunumu(kitap);
+    const ayrintiAc = () => setDetayId(kitap.id);
     return (
       <div
         data-kitap-karti
+        data-story-id={kitap.id}
+        data-content-status={sunum.status}
+        data-reading-enabled={sunum.deployable ? "true" : "false"}
         role="button"
         tabIndex={0}
-        aria-label={`${kitap.baslik} ayrıntılarını aç`}
-        onClick={() => setDetayId(kitap.id)}
+        aria-label={`${kitap.baslik} ayrıntılarını aç${sunum.deployable ? "" : " · hazırlanıyor"}`}
+        onClick={ayrintiAc}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
-            setDetayId(kitap.id);
+            ayrintiAc();
           }
         }}
-        style={{ cursor: "pointer", width: genis ? "100%" : 128 }}
+        style={{ cursor: "pointer", width: genis ? "100%" : 128, opacity: sunum.deployable ? 1 : 0.72 }}
       >
         <Kapak kitap={kitap} boyut={genis ? 96 : 128} />
         <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{kitap.baslik}</div>
@@ -2449,14 +2477,16 @@ export default function DinletiApp() {
           {kitap.yas || `${meta.yasMin || ""}${meta.yasMax ? `–${meta.yasMax}` : "+"} yaş`}{kitap.dil === "en" ? ` · CEFR ${meta.cefr || "A1"}` : ""}{meta.harfGrubu ? ` · ${meta.harfGrubu}. harf grubu` : ""}
         </div>
         <div data-icerik-yolu style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{meta.icerikTuru.replace(/_/g, " ")}</div>
-        <div data-oql style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>OQL-{kalite.oql} · {kalite.toplamKelime} kelime · ort. {kalite.ortCumle.toFixed(1)}</div>
+        <div data-content-scope style={{ fontSize: 11, color: sunum.deployable ? S.vurgu : "#D7B778", fontWeight: 700, marginTop: 4 }}>{sunum.label}</div>
+        <div data-actual-duration style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{sureYaz(sunum.seconds)} · {kalite.toplamKelime} kelime</div>
+        <div data-oql style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>OQL-{kalite.oql} · ort. cümle {kalite.ortCumle.toFixed(1)}</div>
       </div>
     );
   };
 
   const DevamKart = () => {
     const devamlar = Object.entries(ilerlemeler)
-      .filter(([id, v]) => v.pos > 10 && kitapUyum(kitapBul(id)))
+      .filter(([id, v]) => v.pos > 10 && kitapUyum(kitapBul(id)) && icerikSunumu(kitapBul(id)).deployable)
       .sort((a, b) => b[1].ts - a[1].ts);
     if (devamlar.length === 0) return null;
     const [id, v] = devamlar[0];
@@ -2554,20 +2584,27 @@ export default function DinletiApp() {
       )}
       <DevamKart />
       {uyumluRaflar.length === 0 && <div style={{ color: S.soluk, fontSize: 14, marginTop: 18 }}>Bu okuma yolu için içerik hazırlığı sürüyor. Okuma yolunu değiştirerek mevcut seçkilere bakabilirsin.</div>}
-      {uyumluRaflar.map((raf) => (
-        <div key={raf.ad} data-content-shelf style={{ marginTop: 28 }}>
-          <div style={{ ...baslikStil, fontSize: 19, marginBottom: 14 }}>{raf.ad} <span style={{ fontFamily: "Inter, system-ui, sans-serif", color: S.soluk, fontSize: 12, fontWeight: 500 }}>· {raf.ids.length > 0 ? `${raf.ids.length} içerik` : "hazırlanıyor"}</span></div>
-          {raf.ids.length === 0 ? (
-            <div data-bos-raf style={{ background: S.kart, color: S.soluk, borderRadius: 14, padding: 14, fontSize: 13 }}>
-              Bu başlık için içerik hazırlanıyor. İçerik ekibi bu okuma yoluna uygun metinleri OQL ve yaş seviyesine göre genişletiyor.
-            </div>
-          ) : (
-            <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 6 }}>
-              {raf.ids.map((id) => <KitapKart key={id} kitap={kitapBul(id)} />)}
-            </div>
-          )}
-        </div>
-      ))}
+      {uyumluRaflar.map((raf) => {
+        const hazirSayisi = raf.ids.filter((id) => icerikSunumu(kitapBul(id)).deployable).length;
+        const hazirlananSayisi = raf.ids.length - hazirSayisi;
+        const rafOzeti = raf.ids.length === 0
+          ? "hazırlanıyor"
+          : [hazirSayisi > 0 ? `${hazirSayisi} hazır` : "", hazirlananSayisi > 0 ? `${hazirlananSayisi} hazırlanıyor` : ""].filter(Boolean).join(" · ");
+        return (
+          <div key={raf.ad} data-content-shelf data-shelf-name={raf.ad} style={{ marginTop: 28 }}>
+            <div style={{ ...baslikStil, fontSize: 19, marginBottom: 14 }}>{raf.ad} <span style={{ fontFamily: "Inter, system-ui, sans-serif", color: S.soluk, fontSize: 12, fontWeight: 500 }}>· {rafOzeti}</span></div>
+            {raf.ids.length === 0 ? (
+              <div data-bos-raf style={{ background: S.kart, color: S.soluk, borderRadius: 14, padding: 14, fontSize: 13 }}>
+                Bu başlık için içerik hazırlanıyor. İçerik ekibi bu okuma yoluna uygun metinleri OQL ve yaş seviyesine göre genişletiyor.
+              </div>
+            ) : (
+              <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 6 }}>
+                {raf.ids.map((id) => <KitapKart key={id} kitap={kitapBul(id)} />)}
+              </div>
+            )}
+          </div>
+        );
+      })}
       <div data-kendi-metnim style={{ marginTop: 32, marginBottom: 18 }}>
         <button ref={kendiMetinCtaRef} onClick={() => setKendiMetinPaneliAcik(true)} aria-haspopup="dialog" aria-expanded={kendiMetinPaneliAcik} style={{ width: "100%", minHeight: 56, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: S.kart, border: "1px solid rgba(232,163,61,0.22)", borderRadius: 16, padding: "12px 14px", color: S.metin, cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
           <span>
@@ -2641,7 +2678,7 @@ export default function DinletiApp() {
 
   const KitaplikSayfa = () => {
     const favKitaplar = favoriler.map(kitapBul).filter((k) => k && kitapUyum(k));
-    const devamlar = Object.entries(ilerlemeler).filter(([id, v]) => v.pos > 10 && kitapUyum(kitapBul(id))).sort((a, b) => b[1].ts - a[1].ts);
+    const devamlar = Object.entries(ilerlemeler).filter(([id, v]) => v.pos > 10 && kitapUyum(kitapBul(id)) && icerikSunumu(kitapBul(id)).deployable).sort((a, b) => b[1].ts - a[1].ts);
     return (
       <main data-page-shell data-library-page style={{ padding: "24px 20px" }}>
         <div style={{ ...baslikStil, fontSize: 26, marginBottom: 20 }}>Kitaplığım</div>
@@ -2677,6 +2714,8 @@ export default function DinletiApp() {
     const k = kitapBul(detayId);
     if (!k) return null;
     const profilUyumlu = kitapUyum(k);
+    const sunum = icerikSunumu(k);
+    const baslatilabilir = profilUyumlu && sunum.deployable;
     const p = ilerlemeler[k.id]?.pos || 0;
     const fav = favoriler.includes(k.id);
     return (
@@ -2702,32 +2741,41 @@ export default function DinletiApp() {
             Bu içerik mevcut okuma yoluna tam uymuyor. Dinlemek için okuma yolunu değiştirmen önerilir.
           </div>
         )}
-        <button disabled={!profilUyumlu} onClick={() => { oynatDegistir(k.id); setOynaticiAcik(true); }}
-          style={{ width: "100%", marginTop: 18, background: profilUyumlu ? S.vurgu : "rgba(255,255,255,0.12)", color: profilUyumlu ? "#14181F" : S.soluk, border: "none", borderRadius: 14, padding: "14px 0", fontSize: 15, fontWeight: 600, cursor: profilUyumlu ? "pointer" : "not-allowed", fontFamily: "inherit" }}>
-          {p > 10 ? `Okumaya devam et · ${sureYaz(p)}` : "Okumaya başla"}
+        {!sunum.deployable && (
+          <div data-content-preparing style={{ marginTop: 14, fontSize: 13, color: "#E2C58F", background: "rgba(215,183,120,0.10)", border: "1px solid rgba(215,183,120,0.24)", borderRadius: 10, padding: "10px 12px", lineHeight: 1.5 }}>
+            Bu kısa seçki henüz tam bir okuma oturumu değil. Metin genişletilip içerik kontrolünden geçince açılacak.
+          </div>
+        )}
+        <button disabled={!baslatilabilir} onClick={() => { if (!baslatilabilir) return; oynatDegistir(k.id); setOynaticiAcik(true); }}
+          style={{ width: "100%", marginTop: 18, background: baslatilabilir ? S.vurgu : "rgba(255,255,255,0.12)", color: baslatilabilir ? "#14181F" : S.soluk, border: "none", borderRadius: 14, padding: "14px 0", fontSize: 15, fontWeight: 600, cursor: baslatilabilir ? "pointer" : "not-allowed", fontFamily: "inherit" }}>
+          {!sunum.deployable ? "Hazırlanıyor" : p > 10 ? `Okumaya devam et · ${sureYaz(p)}` : "Okumaya başla"}
         </button>
-        <div data-icerik-kapsami={k.icerikDurumu || "kisa-okuma"} style={{ marginTop: 14, fontSize: 12, color: S.vurgu, background: "rgba(232,163,61,0.10)", borderRadius: 10, padding: "8px 12px", lineHeight: 1.55 }}>
-          {k.icerikDurumu === "tam-metin" ? (
+        <div data-icerik-kapsami={sunum.status} style={{ marginTop: 14, fontSize: 12, color: S.vurgu, background: "rgba(232,163,61,0.10)", borderRadius: 10, padding: "8px 12px", lineHeight: 1.55 }}>
+          {k.icerikDurumu === "tam-metin" && k.hakDurumu === "kamu-mali" ? (
             <>
               <strong>Tam metin · Kamu malı kaynak.</strong>{" "}
               <a href={k.kaynak.url} target="_blank" rel="noreferrer" style={{ color: S.vurgu }}>Source of truth: {k.kaynak.ad}</a>
             </>
+          ) : sunum.status === "full-reading" ? (
+            <><strong>Tam okuma · Okurio özgün içerik.</strong> Gerçek süresi ve kapsamı doğrulanmış eksiksiz bir okuma oturumudur.</>
+          ) : sunum.status === "micro-exercise" ? (
+            <><strong>Mikro alıştırma.</strong> Harf, hece veya kelime çalışmasıdır; hikâye ya da tam eser değildir.</>
           ) : (
-            <><strong>Kısa okuma.</strong> Bu kayıt tam eser değildir; seçki, özgün kısa içerik veya sadeleştirilmiş uyarlamadır.</>
+            <><strong>Hazırlanıyor.</strong> Bu kısa kayıt tam eser veya tamamlanmış hikâye değildir ve henüz başlatılamaz.</>
           )}
         </div>
         <div data-kalite-karti style={{ marginTop: 14, fontSize: 12, color: S.soluk, background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "8px 12px" }}>
-          Okuma seviyesi: OQL-{icerikKalitesi(k).oql} · {icerikKalitesi(k).ad}{kitapMeta(k).cefr ? ` · CEFR ${kitapMeta(k).cefr}` : ""} · {icerikKalitesi(k).toplamKelime} kelime · ort. cümle {icerikKalitesi(k).ortCumle.toFixed(1)} kelime
+          Okuma seviyesi: OQL-{icerikKalitesi(k).oql} · {icerikKalitesi(k).ad}{kitapMeta(k).cefr ? ` · CEFR ${kitapMeta(k).cefr}` : ""} · {icerikKalitesi(k).toplamKelime} kelime · gerçek süre {sureYaz(sunum.seconds)} · ort. cümle {icerikKalitesi(k).ortCumle.toFixed(1)} kelime
         </div>
         <div style={{ marginTop: 14, fontSize: 14, lineHeight: 1.6, color: "rgba(242,236,223,0.85)" }}>{k.ozet}</div>
         <div style={{ ...baslikStil, fontSize: 17, margin: "24px 0 10px" }}>Bölümler</div>
         {k.bolumler.map((b, i) => {
           const aktifMi = aktifId === k.id && aktifBolumIx === i;
           return (
-            <div key={i} role="button" tabIndex={profilUyumlu ? 0 : -1} aria-disabled={!profilUyumlu} onClick={() => { if (!profilUyumlu) return; oynatKitapBolum(k.id, i); setOynaticiAcik(true); }} onKeyDown={(event) => {
-              if (profilUyumlu && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); oynatKitapBolum(k.id, i); setOynaticiAcik(true); }
+            <div key={i} role="button" tabIndex={baslatilabilir ? 0 : -1} aria-disabled={!baslatilabilir} onClick={() => { if (!baslatilabilir) return; oynatKitapBolum(k.id, i); setOynaticiAcik(true); }} onKeyDown={(event) => {
+              if (baslatilabilir && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); oynatKitapBolum(k.id, i); setOynaticiAcik(true); }
             }}
-              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}>
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.06)", cursor: baslatilabilir ? "pointer" : "not-allowed", opacity: baslatilabilir ? 1 : 0.55 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ width: 26, textAlign: "center", color: aktifMi ? S.vurgu : S.soluk, fontSize: 13 }}>{aktifMi ? <Volume2 size={15} /> : i + 1}</div>
                 <div style={{ fontSize: 14, fontWeight: aktifMi ? 600 : 400, color: aktifMi ? S.vurgu : S.metin }}>{b.ad}</div>
@@ -2775,7 +2823,7 @@ export default function DinletiApp() {
     const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
       <div data-reader-backdrop style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.78)" }}>
-        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.7.0" data-reader-shell data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
+        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.7.2" data-reader-shell data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
 
           {/* Üst çubuk */}
           <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>

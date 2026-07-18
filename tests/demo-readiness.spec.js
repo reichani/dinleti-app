@@ -256,31 +256,15 @@ test.describe("9. Deployment ve yenileme smoke testi", () => {
   });
 });
 
-test.describe("10. Reader-first v2.6.0 akışı", () => {
-  test("pilot hedef kelime kartı açılır, kapanır ve okuma ilerlemesini değiştirmez", async ({ page }) => {
+test.describe("10. Reader-first içerik güvenliği", () => {
+  test("iki dakikanın altındaki pilot hikâye ayrıntıda hazırlanıyor görünür ve başlatılamaz", async ({ page }) => {
     await onboardingTamamla(page);
-    const pilotCard = page.getByRole("button", { name: "Mino Neden Üzüldü? ayrıntılarını aç" });
+    const pilotCard = page.getByRole("button", { name: /Mino Neden Üzüldü\? ayrıntılarını aç/ });
     await pilotCard.scrollIntoViewIfNeeded();
     await pilotCard.click();
-    await page.getByRole("button", { name: "Okumaya başla", exact: true }).click();
-
-    await expect(oynatici(page)).toBeVisible();
-    const pause = oynatici(page).getByRole("button", { name: "Duraklat" });
-    if (await pause.isVisible()) await pause.click();
-    const target = oynatici(page).locator('[data-hedef-kelime="üzüntü"]');
-    await expect(target).toBeVisible();
-    const progress = await oynatici(page).getByRole("slider", { name: "Okuma ilerlemesi" }).getAttribute("aria-valuenow");
-
-    await target.click();
-    const glossary = oynatici(page).locator("[data-sozluk-karti]");
-    await expect(glossary).toBeVisible();
-    await expect(glossary).toContainText("İnsan kendini mutsuz hissettiğinde oluşan duygudur.");
-    await expect(glossary.getByRole("button", { name: "üzüntü kelimesini seslendir" })).toBeVisible();
-    await expect(oynatici(page).getByRole("slider", { name: "Okuma ilerlemesi" })).toHaveAttribute("aria-valuenow", progress || "0");
-
-    await glossary.getByRole("button", { name: "Kelime açıklamasını kapat" }).click();
-    await expect(glossary).toHaveCount(0);
-    await expect(target).toBeFocused();
+    await expect(page.locator("[data-content-preparing]")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Hazırlanıyor", exact: true })).toBeDisabled();
+    await expect(oynatici(page)).toHaveCount(0);
   });
 
   test("masaüstü okuyucu dar uygulama sütunuyla sınırlı kalmaz", async ({ page }, testInfo) => {

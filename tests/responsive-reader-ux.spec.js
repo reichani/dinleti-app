@@ -7,11 +7,11 @@ const OKUMA_YOLU = {
   destekler: ["kelime_takibi", "buyuk_yazi", "genis_aralik", "yumusak_zemin"],
 };
 
-async function uygulamayiHazirla(page) {
+async function uygulamayiHazirla(page, okumaYolu = OKUMA_YOLU) {
   await page.addInitScript((okumaYolu) => {
     localStorage.clear();
     localStorage.setItem("okurio-okuma-yolu-v1", JSON.stringify(okumaYolu));
-  }, OKUMA_YOLU);
+  }, okumaYolu);
   await page.goto("/");
   await expect(page.locator("[data-kendi-metnim]")).toBeVisible();
 }
@@ -30,6 +30,60 @@ async function okuyucuyuAc(page) {
 }
 
 test.describe("Responsive reader UX sözleşmesi", () => {
+  test("kartlarda gerçek süre ve kapsam görünür; kısa seçkiler hazırlanıyor durumundadır", async ({ page }) => {
+    await uygulamayiHazirla(page);
+    await expect(page.locator("[data-surum]")).toContainText("v2.7.2");
+
+    const kisaMasal = page.locator('[data-story-id="andersen-masallari"]');
+    await expect(kisaMasal).toBeVisible();
+    await expect(kisaMasal.locator("[data-content-scope]")).toHaveText("Hazırlanıyor");
+    await expect(kisaMasal.locator("[data-actual-duration]")).toContainText(/0:\d{2}/);
+    await expect(kisaMasal).toHaveAttribute("data-reading-enabled", "false");
+
+    const tamMetin = page.locator('[data-story-id="peter-rabbit-en"]');
+    await expect(tamMetin).toBeVisible();
+    await expect(tamMetin.locator("[data-content-scope]")).toHaveText("Tam metin");
+    await expect(tamMetin).toHaveAttribute("data-reading-enabled", "true");
+  });
+
+  test("kısa masal detayında okuma başlatılamaz", async ({ page }) => {
+    await uygulamayiHazirla(page);
+    await page.getByRole("button", { name: "Ara", exact: true }).click();
+    await page.getByPlaceholder("Kitap veya yazar ara").fill("Andersen Masalları");
+    await page.getByRole("button", { name: /Andersen Masalları/ }).click();
+
+    await expect(page.locator("[data-content-preparing]")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Hazırlanıyor", exact: true })).toBeDisabled();
+    await expect(page.locator('[data-icerik-kapsami="preparing"]')).toContainText("tam eser veya tamamlanmış hikâye değildir");
+    await expect(page.locator("[data-reader-shell]")).toHaveCount(0);
+  });
+
+  test("harf, hece ve kelime kartları ayrı Mikro Alıştırmalar rafındadır", async ({ page }) => {
+    await uygulamayiHazirla(page, {
+      ...OKUMA_YOLU,
+      yolId: "ilk_harfler_6_7",
+      evreId: "hece_kelime",
+      destekler: ["hece_takibi", "kelime_takibi", "buyuk_yazi", "genis_aralik"],
+    });
+
+    const mikroRaf = page.locator('[data-shelf-name="Mikro Alıştırmalar"]');
+    await expect(mikroRaf).toBeVisible();
+    const tamOturum = page.locator('[data-story-id="okurio-lili-kayip-tohum-haritasi"]');
+    await expect(tamOturum).toBeVisible();
+    await expect(tamOturum.locator("[data-content-scope]")).toHaveText("Tam okuma");
+    await expect(tamOturum.locator("[data-actual-duration]")).toContainText(/3:\d{2}/);
+    await expect(tamOturum).toHaveAttribute("data-reading-enabled", "true");
+
+    const harfKarti = mikroRaf.locator('[data-story-id="oki-ses-a"]');
+    await expect(harfKarti.locator("[data-content-scope]")).toHaveText("Mikro alıştırma");
+    await expect(harfKarti.locator("[data-actual-duration]")).toContainText(/0:\d{2}/);
+    await expect(harfKarti).toHaveAttribute("data-reading-enabled", "true");
+
+    await harfKarti.click();
+    await expect(page.getByRole("button", { name: "Okumaya başla", exact: true })).toBeEnabled();
+    await expect(page.locator('[data-icerik-kapsami="micro-exercise"]')).toContainText("Harf, hece veya kelime çalışmasıdır");
+  });
+
   test("Kendi Metnim raflardan sonra kapalı CTA olarak durur ve isteğe bağlı açılır", async ({ page }, testInfo) => {
     await uygulamayiHazirla(page);
     const cta = page.getByRole("button", { name: /Kendi metnini oku/i });
