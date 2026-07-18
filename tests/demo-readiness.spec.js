@@ -53,7 +53,7 @@ test.describe("1. Mod geçişleri ve kullanıcı durumu", () => {
     await expect(modButonu(page, "dinliyorum")).toBeVisible();
     await modaGec(page, "birlikte", "Birlikte Okuyorum");
     await modaGec(page, "kendim", "Kendim Okuyorum");
-    await expect(oynatici(page).locator('[data-yardim-oku="1"]')).toBeVisible();
+    await expect(oynatici(page).locator('[data-yardim="takildim"]')).toBeVisible();
     await expect(oynatici(page).getByRole("button", { name: /Ses: Kapalı/i })).toBeVisible();
   });
 });
@@ -179,7 +179,7 @@ test.describe("5. Erişilebilirlik ve dokunma hedefleri", () => {
       modButonu(page, "dinliyorum"),
       modButonu(page, "birlikte"),
       modButonu(page, "kendim"),
-      oynatici(page).locator('[data-yardim-oku="1"]'),
+      oynatici(page).locator('[data-yardim="takildim"]'),
     ];
     for (const control of controls) {
       await expect(control).toBeVisible();
