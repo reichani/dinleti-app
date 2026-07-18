@@ -2,11 +2,12 @@ import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallba
 import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus, Flame } from "lucide-react";
 import GlossaryCard from "./components/GlossaryCard.jsx";
 import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdapter.js";
+import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
 
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.7.0";
+const SURUM = "2.7.1";
 
 const KATALOG = mergePilotStories([
 
@@ -530,24 +531,7 @@ const KATALOG = mergePilotStories([
       { ad: "The Boy Who Cried Wolf", dk: 12, metin: "A shepherd boy liked to play tricks. Wolf, wolf, he shouted, and the villagers came running. One day a real wolf came. Nobody believed the boy this time." },
     ],
   },
-  {
-    id: "peter-rabbit-en",
-    baslik: "The Tale of Peter Rabbit",
-    yazar: "Beatrix Potter",
-    seslendiren: "Studio Recording",
-    kategori: "Masal",
-    dil: "en",
-    yas: "4-8 yaş",
-    renk: ["#3A4A2E", "#7A9A5C"],
-    puan: 4.8,
-    sureDk: 30,
-    ozet: "The classic story of a naughty little rabbit who sneaks into Mr. McGregor's garden, retold in simple English.",
-    bolumler: [
-      { ad: "Into the Garden", dk: 10, metin: "Once upon a time there were four little rabbits. Their names were Flopsy, Mopsy, Cottontail, and Peter. Peter was very naughty. He ran straight to Mr. McGregor's garden." },
-      { ad: "The Chase", dk: 10, metin: "Mr. McGregor saw Peter near the cucumber frame. Stop, thief, he cried. Peter ran as fast as his little legs could carry him. He lost one shoe among the cabbages." },
-      { ad: "Safe at Home", dk: 10, metin: "At last Peter found the gate and slipped under it. He ran home and never stopped. His mother put him to bed with a spoonful of chamomile tea. Good little bunnies had bread and milk." },
-    ],
-  },
+  PETER_RABBIT_FULL,
   {
     id: "ugly-duckling-en",
     baslik: "The Ugly Duckling",
@@ -1249,6 +1233,7 @@ const RAFLAR = [
   { ad: "Editörün Seçtikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
   { ad: "Masal Saati", mod: "cocuk", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
   { ad: "English Corner", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10"], ids: ["fox-and-grapes-en", "lion-and-mouse-graded-en", "aesop-fables-en", "ugly-duckling-en"] },
+  { ad: "Tam Metin · Kamu Malı", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["peter-rabbit-en"] },
   { ad: "English Word Cards", mod: "cocuk", yolIds: ["okumaya_hazirlik_5_6", "ilk_harfler_6_7", "ilk_cumleler_7_8"], ids: ["english-hello-card", "english-sky-words-card", "english-colors-card", "little-star-poem-en"] },
   { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en", "fox-and-grapes-en", "lion-and-mouse-graded-en", "ugly-duckling-en", "moon-poem-en", "space-poem-en"] },
   { ad: "Young English Readers", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en"] },
@@ -2721,11 +2706,16 @@ export default function DinletiApp() {
           style={{ width: "100%", marginTop: 18, background: profilUyumlu ? S.vurgu : "rgba(255,255,255,0.12)", color: profilUyumlu ? "#14181F" : S.soluk, border: "none", borderRadius: 14, padding: "14px 0", fontSize: 15, fontWeight: 600, cursor: profilUyumlu ? "pointer" : "not-allowed", fontFamily: "inherit" }}>
           {p > 10 ? `Okumaya devam et · ${sureYaz(p)}` : "Okumaya başla"}
         </button>
-        {k.kategori !== "Masal" && (
-          <div data-demo-notu style={{ marginTop: 14, fontSize: 12, color: S.vurgu, background: "rgba(232,163,61,0.10)", borderRadius: 10, padding: "8px 12px" }}>
-            Tanıtım seçkisi: Her bölümden kısa bir okuma bölümü bulunur. Masallar baştan sona okunabilir.
-          </div>
-        )}
+        <div data-icerik-kapsami={k.icerikDurumu || "kisa-okuma"} style={{ marginTop: 14, fontSize: 12, color: S.vurgu, background: "rgba(232,163,61,0.10)", borderRadius: 10, padding: "8px 12px", lineHeight: 1.55 }}>
+          {k.icerikDurumu === "tam-metin" ? (
+            <>
+              <strong>Tam metin · Kamu malı kaynak.</strong>{" "}
+              <a href={k.kaynak.url} target="_blank" rel="noreferrer" style={{ color: S.vurgu }}>Source of truth: {k.kaynak.ad}</a>
+            </>
+          ) : (
+            <><strong>Kısa okuma.</strong> Bu kayıt tam eser değildir; seçki, özgün kısa içerik veya sadeleştirilmiş uyarlamadır.</>
+          )}
+        </div>
         <div data-kalite-karti style={{ marginTop: 14, fontSize: 12, color: S.soluk, background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "8px 12px" }}>
           Okuma seviyesi: OQL-{icerikKalitesi(k).oql} · {icerikKalitesi(k).ad}{kitapMeta(k).cefr ? ` · CEFR ${kitapMeta(k).cefr}` : ""} · {icerikKalitesi(k).toplamKelime} kelime · ort. cümle {icerikKalitesi(k).ortCumle.toFixed(1)} kelime
         </div>
