@@ -1973,7 +1973,9 @@ export default function DinletiApp() {
     return () => {
       window.removeEventListener("keydown", klavye);
       document.body.style.overflow = oncekiOverflow;
-      const geri = okuyucuGeriOdakRef.current;
+      const geri = okuyucuGeriOdakRef.current?.isConnected
+        ? okuyucuGeriOdakRef.current
+        : kendiMetinGeriOdakRef.current;
       window.requestAnimationFrame(() => geri?.isConnected && geri.focus({ preventScroll: true }));
     };
   }, [oynaticiAcik]);
@@ -2815,7 +2817,7 @@ export default function DinletiApp() {
               return (
                 <div id="okurio-okuma-icerigi" data-reader-workspace>
                   <div data-reading-column>
-                  <div data-okuma-metin="1" data-tema={ayar.tema} style={{
+                  <div data-okuma-metin="1" data-tema={ayar.tema} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} style={{
                     fontSize: PUNTOLAR[ayar.punto], letterSpacing: `${ARALIKLAR[ayar.aralik]}em`,
                     lineHeight: SATIRLAR[ayar.aralik], wordSpacing: `${ARALIKLAR[ayar.aralik] * 2.2}em`,
                     color: ayar.tema === "krem" ? "#2A2622" : "rgba(242,236,223,0.92)",
@@ -2823,7 +2825,7 @@ export default function DinletiApp() {
                     borderRadius: ayar.tema === "krem" ? 12 : 0,
                     padding: ayar.tema === "krem" ? "14px 16px" : 0,
                     fontFamily: fontAile(ayar.font),
-                    textAlign: "left", minHeight: 0, height: "100%", maxHeight: "none", overflowY: "auto", WebkitOverflowScrolling: "touch",
+                    textAlign: "left", minHeight: 0, height: "100%", maxHeight: "none", overflowY: "auto", WebkitOverflowScrolling: "touch", touchAction: "pan-y",
                   }}>
                     {gorunecek.map((k, i) => {
                       const gercekIx = i + kaydirma;

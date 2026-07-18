@@ -37,7 +37,9 @@ test.describe("Responsive reader UX sözleşmesi", () => {
     await expect(cta).toBeVisible();
     await expect(page.getByLabel("Kendi metnim", { exact: true })).toHaveCount(0);
     const [ctaBox, shelfBox] = await Promise.all([cta.boundingBox(), lastShelf.boundingBox()]);
-    expect(ctaBox.top).toBeGreaterThanOrEqual(shelfBox.bottom);
+    expect(ctaBox).not.toBeNull();
+    expect(shelfBox).not.toBeNull();
+    expect(ctaBox.y).toBeGreaterThanOrEqual(shelfBox.y + shelfBox.height);
 
     await cta.click();
     const dialog = page.locator("[data-kendi-metin-dialog]");
@@ -119,10 +121,11 @@ test.describe("Responsive reader UX sözleşmesi", () => {
   });
 
   test("okuyucu Escape ile kapanır ve odak açan kontrole döner", async ({ page }) => {
-    const ac = await okuyucuyuAc(page);
+    await okuyucuyuAc(page);
+    const geriDonus = page.getByRole("button", { name: /Kendi metnini oku/i });
     await expect(page.getByRole("dialog", { name: /okuma ekranı/i })).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(page.locator("[data-reader-shell]")).toHaveCount(0);
-    await expect(ac).toBeFocused();
+    await expect(geriDonus).toBeFocused();
   });
 });

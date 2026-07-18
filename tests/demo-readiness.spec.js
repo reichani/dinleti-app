@@ -58,8 +58,8 @@ test.describe("1. Mod geçişleri ve kullanıcı durumu", () => {
   test("Dinliyorum → Birlikte → Kendim akışı ses durumunu ve yardımı doğru günceller", async ({ page }) => {
     await kendiMetniniAc(page, "Oki bu metni sakin ve anlaşılır biçimde okur. Kullanıcı üç okuma modunu sırayla dener.");
     await expect(oynatici(page).locator("[data-okuma-modu-kompakt] button")).toBeVisible();
-    await modaGec(page, "birlikte", "Birlikte Okuyorum");
-    await modaGec(page, "kendim", "Kendim Okuyorum");
+    await modaGec(page, "birlikte", "Ses daha yavaş akar, ben eşlik ederim.");
+    await modaGec(page, "kendim", "Ses kapanır; takıldığım yerde yardım alırım.");
     await expect(oynatici(page).locator('[data-kelime-yardimi="1"]')).toBeVisible();
     await expect(oynatici(page).getByRole("button", { name: /Ses: Kapalı/i })).toBeVisible();
   });
@@ -167,9 +167,9 @@ test.describe("4. Görsel ve geometrik stabilite", () => {
     });
     const before = await readMetrics();
     expect(before.height).toBeGreaterThanOrEqual(220);
-    await modaGec(page, "birlikte", "Birlikte Okuyorum");
+    await modaGec(page, "birlikte", "Ses daha yavaş akar, ben eşlik ederim.");
     const together = await readMetrics();
-    await modaGec(page, "kendim", "Kendim Okuyorum");
+    await modaGec(page, "kendim", "Ses kapanır; takıldığım yerde yardım alırım.");
     const self = await readMetrics();
     for (const metrics of [before, together, self]) {
       expect(metrics.left).toBeGreaterThanOrEqual(0);
@@ -186,8 +186,14 @@ test.describe("5. Erişilebilirlik ve dokunma hedefleri", () => {
   test("temel okuma kontrolleri erişilebilir ada ve en az 40px dokunma alanına sahiptir", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name === "desktop-chrome", "Mobil dokunma hedefi sözleşmesi");
     await kendiMetniniAc(page, "Kısa bir erişilebilirlik testi metni.");
-    await modaGec(page, "kendim", "Kendim Okuyorum");
+    await modaGec(page, "kendim", "Ses kapanır; takıldığım yerde yardım alırım.");
+    const settings = oynatici(page).locator("[data-reader-settings]");
+    if (!(await settings.isVisible())) {
+      await oynatici(page).locator("[data-reader-settings-toggle]").click();
+      await expect(settings).toBeVisible();
+    }
     const controls = [
+      oynatici(page).locator("[data-reader-settings-toggle]"),
       oynatici(page).locator("[data-okuma-modu-kompakt] button"),
       oynatici(page).locator("[data-alt-araclar] button").first(),
     ];
