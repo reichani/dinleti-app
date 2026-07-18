@@ -4,7 +4,7 @@ const TEST_OKUMA_YOLU = {
   secildi: true,
   yolId: "okuma_guveni_8_10",
   evreId: "paragraf",
-  destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin", "kisa_hedef"],
+  destekler: ["kelime_takibi", "genis_aralik", "yumusak_zemin", "kisa_hedef"],
 };
 
 async function onboardingTamamla(page) {
@@ -86,6 +86,7 @@ test.describe("Mobil görünüm regresyonları", () => {
 
   test("mobil okuma metni sabit kartta kayar ve aktif kelime takibine alan bırakır", async ({ page }, testInfo) => {
     await onboardingTamamla(page);
+    await page.getByRole("button", { name: /Kendi metnini oku/i }).click();
     const input = page.getByLabel("Kendi metnim", { exact: true });
     await input.fill("Oki bugün sakin bir metin okuyor. Kelimeler ekrana rahatça sığıyor. Satırlar düzenli aralıklarla ilerliyor. Uzun metinlerde aktif kelime kartın içinde görünür kalıyor. Okuma devam ettikçe metin kontrollü biçimde kayıyor.");
     await expect(input).not.toHaveValue("");

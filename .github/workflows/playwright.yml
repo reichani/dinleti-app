@@ -7,7 +7,15 @@ on:
   push:
     branches:
       - main
+  merge_group:
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: okurio-quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -24,8 +32,14 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Bağımlılıkları kur
-        run: npm install
+      - name: Bağımlılıkları deterministik kur
+        run: npm ci --no-audit --no-fund
+
+      - name: İçerik yapısını doğrula
+        run: npm run validate:content
+
+      - name: İçerik testlerini çalıştır
+        run: npm run test:content
 
       - name: Production build oluştur
         run: npm run build
@@ -35,7 +49,9 @@ jobs:
           test -f dist/index.html
           test -f dist/_redirects
           test -f dist/_headers
+          test -f dist/release.json
           test -d dist/assets
+          node -e "const r=require('./dist/release.json'); if(!r.commit) process.exit(1)"
 
       - name: Playwright Chromium kur
         run: npx playwright install --with-deps chromium
@@ -49,7 +65,7 @@ jobs:
         with:
           name: okurio-production-build
           path: dist/
-          retention-days: 14
+          retention-days: 30
 
       - name: Test raporunu sakla
         if: always()

@@ -75,7 +75,7 @@ test.describe("Sprint 4 mobil okuma stabilitesi", () => {
     expect(styles.hyphens).toBe("none");
     expect(styles.wordBreak).toBe("normal");
     expect(styles.whiteSpace).toBe("normal");
-    expect(styles.overflowWrap).toBe("anywhere");
+    expect(styles.overflowWrap).toBe("normal");
   });
 
   test("açılır seçicideki üç okuma modu mobilde kırpılmadan görünür kalır", async ({ page }) => {

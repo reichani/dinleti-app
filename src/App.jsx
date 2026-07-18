@@ -6,7 +6,7 @@ import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdap
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.6.0";
+const SURUM = "2.7.0";
 
 const KATALOG = mergePilotStories([
 
@@ -1721,19 +1721,19 @@ export default function DinletiApp() {
   const [ilerlemeler, setIlerlemeler] = useState({}); // {id:{pos,ts}}
 
   // Okuma modu (senkron metin + ses) ve erişilebilirlik ayarları
-  /* Erişilebilir okuma görünümü (disleksi/DEHB destekleri) */
-  const PUNTOLAR = [15, 17, 20];
-  const ARALIKLAR = [0, 0.07, 0.16];   // em cinsinden harf aralığı
-  const SATIRLAR = [1.7, 1.9, 2.15];
+  /* Kullanıcının seçtiği okuma ve görsel konfor tercihleri */
+  const PUNTOLAR = [18, 22, 26, 32];
+  const ARALIKLAR = [0, 0.05, 0.1, 0.16];   // em cinsinden harf aralığı
+  const SATIRLAR = [1.55, 1.65, 1.75, 1.9];
   const FONTLAR = [
     { id: "lexend", ad: "Lexend", aile: "'Lexend', sans-serif" },
-    { id: "opendyslexic", ad: "OpenDyslexic", aile: "'OpenDyslexic', 'Lexend', sans-serif" },
     { id: "varsayilan", ad: "Varsayılan", aile: "inherit" },
   ];
   const fontAile = (id) => (FONTLAR.find((f) => f.id === id) || FONTLAR[0]).aile;
   const fontAd = (id) => (FONTLAR.find((f) => f.id === id) || FONTLAR[0]).ad;
   const sonrakiFont = (id) => FONTLAR[(FONTLAR.findIndex((f) => f.id === id) + 1 + FONTLAR.length) % FONTLAR.length].id;
   const [okumaAcik, setOkumaAcik] = useState(true);
+  const [ayarPaneliAcik, setAyarPaneliAcik] = useState(false);
   const [bolumlerAcik, setBolumlerAcik] = useState(false);
   // Okuma profili: birleşimli, YALNIZCA oturum belleğinde tutulur (KVKK veri minimizasyonu —
   // tanı etiketi hiçbir zaman kalıcı depoya yazılmaz; kalıcı olan yalnız nötr ayar sonuçlarıdır)
@@ -1743,10 +1743,10 @@ export default function DinletiApp() {
     setProfil(yeniProfil);
     // Taban ayardan başlayıp aktif profillerin birleşimini uygula
     const a = { punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", biyonik: false };
-    if (yeniProfil.dis) { a.aralik = Math.max(a.aralik, 1); a.vurgu = true; a.tema = "krem"; a.font = "opendyslexic"; }
+    if (yeniProfil.dis) { a.aralik = Math.max(a.aralik, 1); a.vurgu = true; a.tema = "krem"; a.font = "lexend"; }
     if (yeniProfil.gorsel) { a.punto = 2; a.aralik = Math.max(a.aralik, 1); }
     if (yeniProfil.dis && yeniProfil.gorsel) a.aralik = 2; // eşzamanlılıkta sıkışıklık en güçlü (Liu 2024)
-    if (yeniProfil.dehb) { a.odak = true; a.biyonik = true; }
+    if (yeniProfil.dehb) { a.odak = true; a.biyonik = false; }
     setAyar(a);
   };
   const [seri, setSeri] = useState({ sayi: 0, sonGun: "" });
@@ -1759,9 +1759,13 @@ export default function DinletiApp() {
   const [kendiMetin, setKendiMetin] = useState("");
   const [kendiBaslik, setKendiBaslik] = useState("Kendi Metnim");
   const [kendiMetinMesaji, setKendiMetinMesaji] = useState("");
+  const [kendiMetinPaneliAcik, setKendiMetinPaneliAcik] = useState(false);
   const [modPaneliAcik, setModPaneliAcik] = useState(false);
+  const [soruKapali, setSoruKapali] = useState(false);
   const [seciliSozluk, setSeciliSozluk] = useState(null);
   const sozlukTetikleyiciRef = useRef(null);
+  const okuyucuGeriOdakRef = useRef(null);
+  const kendiMetinGeriOdakRef = useRef(null);
   const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
   const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
   const etkinSeslendirme = seslendirme && okumaModuAyar.sesli;
@@ -1769,6 +1773,18 @@ export default function DinletiApp() {
   // ilk render'da TDZ/ReferenceError oluşmaması adına callback'ten önce hesaplanır.
   const okumaYoluDetay = yolBul(okumaYolu.yolId);
   const okumaEvreDetay = evreBul(okumaYolu.evreId);
+
+  const destekAyarlariniUygula = (onceki, yol) => {
+    const destekler = new Set(yol?.destekler || []);
+    return {
+      ...onceki,
+      punto: destekler.has("buyuk_yazi") ? Math.max(onceki.punto, 2) : onceki.punto,
+      aralik: destekler.has("genis_aralik") ? Math.max(onceki.aralik, 1) : onceki.aralik,
+      odak: destekler.has("odak") ? true : onceki.odak,
+      vurgu: destekler.has("kelime_takibi") ? true : onceki.vurgu,
+      tema: destekler.has("yumusak_zemin") ? "krem" : onceki.tema,
+    };
+  };
 
   const kendiMetniAc = useCallback((metin, baslik = "Kendi Metnim") => {
     const temizMetin = (metin || "").replace(/\s+/g, " ").trim();
@@ -1793,7 +1809,7 @@ export default function DinletiApp() {
     };
     if (!KATALOG.some((k) => k.id === id)) KATALOG.unshift(kitap);
     ICERIK_METADATA[id] = { yasMin: 6, yasMax: 99, segmentler: YOL_SEGMENT_GRUPLARI[okumaYolu.yolId] || ["yetiskin_odak"], okumaEvreleri: [okumaYolu.evreId], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kullanici_metni", subject: "kendi_metin", oql: okumaYoluDetay.oql || 4 };
-    setAktifId(id); setDetayId(null); setSekme("ana"); setPozisyon(0); setKelimeIx(0); setCaliyor(false); setOynaticiAcik(true); setKendiMetin(""); setKendiMetinMesaji("Metin okuma moduna alındı.");
+    setAktifId(id); setDetayId(null); setSekme("ana"); setPozisyon(0); setKelimeIx(0); setCaliyor(false); setKendiMetinPaneliAcik(false); setOynaticiAcik(true); setKendiMetin(""); setKendiMetinMesaji("Metin okuma moduna alındı.");
   }, [okumaYolu, okumaYoluDetay]);
 
   const dosyaMetniYukle = useCallback((e) => {
@@ -1837,11 +1853,7 @@ export default function DinletiApp() {
     l.rel = "stylesheet";
     l.href = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&display=swap";
     document.head.appendChild(l);
-    const st = document.createElement("style");
-    st.textContent = `/* OpenDyslexic kullanıcı cihazında veya ileride lisanslı webfont olarak yüklendiğinde otomatik devreye girer. */
-      .okurio-opendyslexic { font-family: 'OpenDyslexic', 'Lexend', system-ui, sans-serif; }`;
-    document.head.appendChild(st);
-    return () => { document.head.removeChild(l); document.head.removeChild(st); };
+    return () => { document.head.removeChild(l); };
   }, []);
 
   /* Kalıcı durumu yükle */
@@ -1867,12 +1879,18 @@ export default function DinletiApp() {
     })();
     (async () => {
       try {
-        const r = await window.storage.get(OKUMA_YOLU_ANAHTAR);
+        const [r, kayitliAyar] = await Promise.all([
+          window.storage.get(OKUMA_YOLU_ANAHTAR),
+          window.storage.get("dinleti-okuma-ayar-v1"),
+        ]);
+        const kayitli = kayitliAyar ? JSON.parse(kayitliAyar.value) : {};
         if (r) {
           const y = { ...VARSAYILAN_OKUMA_YOLU, ...JSON.parse(r.value), secildi: true };
           setOkumaYolu(y);
           setMod(yolBul(y.yolId).mod);
+          setAyar((e) => destekAyarlariniUygula({ ...e, ...kayitli }, y));
         } else {
+          setAyar((e) => destekAyarlariniUygula({ ...e, ...kayitli }, VARSAYILAN_OKUMA_YOLU));
           setOnboardingAcik(true);
         }
       } catch { setOnboardingAcik(true); }
@@ -1899,12 +1917,6 @@ export default function DinletiApp() {
         if (r) setSeri(JSON.parse(r.value));
       } catch {}
     })();
-    (async () => {
-      try {
-        const r = await window.storage.get("dinleti-okuma-ayar-v1");
-        if (r) setAyar((e) => ({ ...e, ...JSON.parse(r.value) }));
-      } catch {}
-    })();
   }, []);
 
   /* Okuma ayarlarını kaydet */
@@ -1927,6 +1939,74 @@ export default function DinletiApp() {
     }
     return aktif.bolumler.length - 1;
   }, [aktif, pozisyon]);
+
+  useEffect(() => {
+    setSoruCevabi(null);
+    setSoruKapali(false);
+    setAyarPaneliAcik(false);
+  }, [aktifId, aktifBolumIx]);
+
+  useEffect(() => {
+    if (!oynaticiAcik) return undefined;
+    const aktifOda = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
+    okuyucuGeriOdakRef.current = aktifOda?.isConnected ? aktifOda : kendiMetinGeriOdakRef.current;
+    const oncekiOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const shell = document.querySelector("[data-reader-shell]");
+    const odaklanabilirler = () => shell ? [...shell.querySelectorAll('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')].filter((el) => !el.closest('[aria-hidden="true"]')) : [];
+    const klavye = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOynaticiAcik(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const liste = odaklanabilirler();
+      if (!liste.length) return;
+      const ilk = liste[0];
+      const son = liste[liste.length - 1];
+      if (event.shiftKey && document.activeElement === ilk) { event.preventDefault(); son.focus(); }
+      else if (!event.shiftKey && document.activeElement === son) { event.preventDefault(); ilk.focus(); }
+    };
+    window.addEventListener("keydown", klavye);
+    window.requestAnimationFrame(() => shell?.querySelector('[aria-label="Kapat"]')?.focus());
+    return () => {
+      window.removeEventListener("keydown", klavye);
+      document.body.style.overflow = oncekiOverflow;
+      const geri = okuyucuGeriOdakRef.current;
+      window.requestAnimationFrame(() => geri?.isConnected && geri.focus({ preventScroll: true }));
+    };
+  }, [oynaticiAcik]);
+
+  useEffect(() => {
+    if (!kendiMetinPaneliAcik) return undefined;
+    kendiMetinGeriOdakRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const oncekiOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const panel = document.querySelector("[data-kendi-metin-dialog]");
+    const klavye = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setKendiMetinPaneliAcik(false);
+        return;
+      }
+      if (event.key !== "Tab" || !panel) return;
+      const liste = [...panel.querySelectorAll('button:not([disabled]), input, textarea, [tabindex]:not([tabindex="-1"])')];
+      if (!liste.length) return;
+      const ilk = liste[0];
+      const son = liste[liste.length - 1];
+      if (event.shiftKey && document.activeElement === ilk) { event.preventDefault(); son.focus(); }
+      else if (!event.shiftKey && document.activeElement === son) { event.preventDefault(); ilk.focus(); }
+    };
+    window.addEventListener("keydown", klavye);
+    window.requestAnimationFrame(() => panel?.querySelector('[aria-label="Kendi metin panelini kapat"]')?.focus());
+    return () => {
+      window.removeEventListener("keydown", klavye);
+      document.body.style.overflow = oncekiOverflow;
+      const geri = kendiMetinGeriOdakRef.current;
+      window.requestAnimationFrame(() => geri?.isConnected && geri.focus({ preventScroll: true }));
+    };
+  }, [kendiMetinPaneliAcik]);
 
   /* Seslendirme (Web Speech) */
   const zincirNo = useRef(0);
@@ -2127,6 +2207,7 @@ export default function DinletiApp() {
       setProfilMesaji("Okuma yolun güncellendi. Sana uygun içerikleri öne aldım.");
     }
     setOkumaYolu(temiz);
+    setAyar((onceki) => destekAyarlariniUygula(onceki, temiz));
     setMod(yol.mod);
     setOnboardingAcik(false);
     (async () => {
@@ -2283,13 +2364,23 @@ export default function DinletiApp() {
 
   const kelimeyiSeslendir = (kelime) => {
     if (!kelime || !window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
+    const okumayaDevamEt = caliyor;
+    const sesAcikti = seslendirme;
     setCaliyor(false);
-    setSeslendirme(false);
     try { window.speechSynthesis.cancel(); } catch {}
     const u = new window.SpeechSynthesisUtterance(kelime);
     u.lang = "tr-TR";
     u.rate = 0.86;
     u.pitch = 1;
+    const oncekiDurumaDon = () => {
+      setSeslendirme(sesAcikti);
+      if (okumayaDevamEt && sesAcikti && aktif) {
+        setCaliyor(true);
+        konusmayiBaslat(aktif, aktifBolumIx, kelimeIx);
+      }
+    };
+    u.onend = oncekiDurumaDon;
+    u.onerror = oncekiDurumaDon;
     window.speechSynthesis.speak(u);
   };
 
@@ -2304,7 +2395,7 @@ export default function DinletiApp() {
     fon: "#14181F", kart: "#1C222D", kart2: "#242C3A",
     metin: "#F2ECDF", soluk: "#8B94A7", vurgu: "#E8A33D",
   };
-  const govde = { fontFamily: "'Inter', system-ui, sans-serif", background: S.fon, color: S.metin, minHeight: "100vh", maxWidth: 480, margin: "0 auto", position: "relative", paddingBottom: 150 };
+  const govde = { fontFamily: "'Inter', system-ui, sans-serif", background: S.fon, color: S.metin, minHeight: "100vh", width: "100%", maxWidth: 1180, margin: "0 auto", position: "relative", paddingBottom: 150, boxSizing: "border-box" };
   const baslikStil = { fontFamily: "'Fraunces', serif", fontWeight: 600 };
 
   if (yukleniyor) {
@@ -2418,7 +2509,7 @@ export default function DinletiApp() {
   );
 
   const AnaSayfa = () => (
-    <div style={{ padding: "24px 20px" }}>
+    <main data-page-shell data-home-page style={{ padding: "24px 20px" }}>
       <div style={{ ...baslikStil, fontSize: 30, marginBottom: 4 }}>Okurio</div>
       <div style={{ color: S.soluk, fontSize: 14, marginBottom: 14 }}>
         Her yaşta okumayı kolaylaştıran sesli ve takipli okuma arkadaşı.
@@ -2445,32 +2536,8 @@ export default function DinletiApp() {
       )}
       <DevamKart />
       {uyumluRaflar.length === 0 && <div style={{ color: S.soluk, fontSize: 14, marginTop: 18 }}>Bu okuma yolu için içerik hazırlığı sürüyor. Okuma yolunu değiştirerek mevcut seçkilere bakabilirsin.</div>}
-      <div data-audit-ozet style={{ background: S.kart, border: `1px solid ${S.kart2}`, borderRadius: 14, padding: 12, marginTop: 18 }}>
-        <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700 }}>İçerik durumu</div>
-        <div style={{ fontSize: 11, color: S.soluk, marginTop: 4 }}>
-          Bu yolda {icerikAuditOzeti.toplam} uygun içerik · {icerikAuditOzeti.englishSayisi} İngilizce içerik · {icerikAuditOzeti.bosRaflar.length} hazırlık rafı
-        </div>
-      </div>
-
-      <div data-kendi-metnim style={{ background: S.kart, border: "1px solid rgba(232,163,61,0.22)", borderRadius: 16, padding: 14, marginTop: 14, marginBottom: 18 }}>
-        <div style={{ color: S.vurgu, fontSize: 12, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase" }}>Kendi metnimi okuma moduna al</div>
-        <div style={{ color: S.soluk, fontSize: 12, lineHeight: 1.45, marginTop: 6 }}>TXT veya kopyala-yapıştır metin; disleksi, DEHB, biyonik okuma ve odak ayarlarıyla açılır. PDF desteği güvenli metin çıkarma katmanına alınacak.</div>
-        <input value={kendiBaslik} onChange={(e) => setKendiBaslik(e.target.value)} aria-label="Kendi metnim başlık" style={{ width: "100%", boxSizing: "border-box", marginTop: 10, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "9px 10px", fontFamily: "inherit" }} />
-        <textarea value={kendiMetin} onChange={(e) => setKendiMetin(e.target.value)} placeholder="Metni buraya yapıştır..." aria-label="Kendi metnim" style={{ width: "100%", boxSizing: "border-box", minHeight: 78, marginTop: 8, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "10px", fontFamily: "inherit", resize: "vertical" }} />
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
-          <button onClick={() => kendiMetniAc(kendiMetin, kendiBaslik)} style={{ background: S.vurgu, color: "#14181F", border: "none", borderRadius: 10, padding: "9px 12px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}>Okuma moduna al</button>
-          <label style={{ background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "9px 12px", cursor: "pointer", fontSize: 13 }}>TXT/PDF seç
-            <input type="file" accept=".txt,text/plain,.pdf,application/pdf" onChange={dosyaMetniYukle} style={{ display: "none" }} />
-          </label>
-        </div>
-        {kendiMetinMesaji && <div style={{ color: S.soluk, fontSize: 12, marginTop: 8 }}>{kendiMetinMesaji}</div>}
-      </div>
-
-      <div data-terms style={{ color: S.soluk, fontSize: 11, lineHeight: 1.45, margin: "-4px 0 14px", opacity: 0.9 }}>
-        Kullanıcı kendi yüklediği içeriklerin telif haklarından sorumludur. Okurio bu metinleri kişisel kullanım ve erişilebilir okuma desteği amacıyla işler; yayınlama veya dağıtım hakkı sağlamaz.
-      </div>
       {uyumluRaflar.map((raf) => (
-        <div key={raf.ad} style={{ marginTop: 28 }}>
+        <div key={raf.ad} data-content-shelf style={{ marginTop: 28 }}>
           <div style={{ ...baslikStil, fontSize: 19, marginBottom: 14 }}>{raf.ad} <span style={{ fontFamily: "Inter, system-ui, sans-serif", color: S.soluk, fontSize: 12, fontWeight: 500 }}>· {raf.ids.length > 0 ? `${raf.ids.length} içerik` : "hazırlanıyor"}</span></div>
           {raf.ids.length === 0 ? (
             <div data-bos-raf style={{ background: S.kart, color: S.soluk, borderRadius: 14, padding: 14, fontSize: 13 }}>
@@ -2483,7 +2550,47 @@ export default function DinletiApp() {
           )}
         </div>
       ))}
-    </div>
+      <div data-kendi-metnim style={{ marginTop: 32, marginBottom: 18 }}>
+        <button onClick={() => setKendiMetinPaneliAcik(true)} aria-haspopup="dialog" aria-expanded={kendiMetinPaneliAcik} style={{ width: "100%", minHeight: 56, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: S.kart, border: "1px solid rgba(232,163,61,0.22)", borderRadius: 16, padding: "12px 14px", color: S.metin, cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
+          <span>
+            <strong style={{ display: "block", color: S.vurgu, fontSize: 14 }}>Kendi metnini oku</strong>
+            <span style={{ display: "block", color: S.soluk, fontSize: 12, marginTop: 2 }}>Kopyala-yapıştır veya TXT</span>
+          </span>
+          <span aria-hidden="true" style={{ color: S.vurgu, fontSize: 22 }}>＋</span>
+        </button>
+        {kendiMetinPaneliAcik && (
+          <div data-kendi-metin-backdrop style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "flex-end", justifyContent: "center", background: "rgba(10,12,16,0.82)" }}>
+            <section role="dialog" aria-modal="true" aria-labelledby="kendi-metin-basligi" data-kendi-metin-dialog style={{ width: "min(720px, 100%)", maxHeight: "min(860px, 96dvh)", display: "flex", flexDirection: "column", background: S.kart, border: "1px solid rgba(255,255,255,0.08)", borderRadius: "22px 22px 0 0", padding: "18px", boxSizing: "border-box", boxShadow: "0 -24px 70px rgba(0,0,0,0.52)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexShrink: 0 }}>
+                <div>
+                  <h2 id="kendi-metin-basligi" style={{ ...baslikStil, fontSize: 24, margin: 0 }}>Kendi metnini oku</h2>
+                  <div style={{ color: S.soluk, fontSize: 13, lineHeight: 1.45, marginTop: 4 }}>Metni yalnızca bu cihazda okuma görünümüne hazırlar.</div>
+                </div>
+                <button onClick={() => setKendiMetinPaneliAcik(false)} aria-label="Kendi metin panelini kapat" style={{ width: 44, height: 44, flexShrink: 0, background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 12, color: S.metin, fontSize: 22, cursor: "pointer" }}>×</button>
+              </div>
+              <input value={kendiBaslik} onChange={(e) => setKendiBaslik(e.target.value)} aria-label="Kendi metnim başlık" style={{ width: "100%", boxSizing: "border-box", marginTop: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "12px", fontSize: 16, fontFamily: "inherit", flexShrink: 0 }} />
+              <textarea value={kendiMetin} onChange={(e) => setKendiMetin(e.target.value)} placeholder="Metni buraya yapıştır..." aria-label="Kendi metnim" style={{ width: "100%", boxSizing: "border-box", minHeight: "min(48dvh, 420px)", flex: "1 1 auto", marginTop: 10, borderRadius: 12, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "14px", fontSize: 16, lineHeight: 1.55, fontFamily: "inherit", resize: "none" }} />
+              {kendiMetinMesaji && <div aria-live="polite" style={{ color: S.soluk, fontSize: 12, marginTop: 8 }}>{kendiMetinMesaji}</div>}
+              <div data-kendi-metin-actions style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", marginTop: 12, flexShrink: 0 }}>
+                <label style={{ minHeight: 44, display: "flex", alignItems: "center", background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "0 12px", cursor: "pointer", fontSize: 13 }}>TXT seç
+                  <input type="file" accept=".txt,text/plain" onChange={dosyaMetniYukle} style={{ display: "none" }} />
+                </label>
+                <button onClick={() => kendiMetniAc(kendiMetin, kendiBaslik)} style={{ minHeight: 48, background: S.vurgu, color: "#14181F", border: "none", borderRadius: 12, padding: "0 18px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}>Okuma moduna al</button>
+              </div>
+              <div data-terms style={{ color: S.soluk, fontSize: 11, lineHeight: 1.45, marginTop: 10, opacity: 0.9 }}>
+                Yüklediğin içeriğin haklarından sen sorumlusun. Okurio metni kişisel erişilebilir okuma desteği için işler; yayınlamaz veya dağıtmaz.
+              </div>
+            </section>
+          </div>
+        )}
+      </div>
+      <details data-audit-ozet style={{ background: "rgba(255,255,255,0.035)", border: `1px solid ${S.kart2}`, borderRadius: 12, padding: "10px 12px", marginTop: 10 }}>
+        <summary style={{ color: S.soluk, fontSize: 12, cursor: "pointer" }}>İçerik durumu</summary>
+        <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>
+          Bu yolda {icerikAuditOzeti.toplam} uygun içerik · {icerikAuditOzeti.englishSayisi} İngilizce içerik · {icerikAuditOzeti.bosRaflar.length} hazırlık rafı
+        </div>
+      </details>
+    </main>
   );
 
   const AramaSayfa = () => {
@@ -2491,7 +2598,7 @@ export default function DinletiApp() {
     const evren = uyumluKatalog;
     const sonuc = q ? evren.filter((k) => (k.baslik + " " + k.yazar + " " + k.kategori + " " + (k.ozet || "")).toLowerCase().includes(q)) : evren;
     return (
-      <div style={{ padding: "24px 20px" }}>
+      <main data-page-shell data-search-page style={{ padding: "24px 20px" }}>
         <div style={{ ...baslikStil, fontSize: 26, marginBottom: 16 }}>Ara</div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, background: S.kart, borderRadius: 12, padding: "12px 14px", marginBottom: 20 }}>
           <Search size={18} color={S.soluk} />
@@ -2500,7 +2607,9 @@ export default function DinletiApp() {
         </div>
         {sonuc.length === 0 && <div style={{ color: S.soluk, fontSize: 14 }}>Sonuç bulunamadı. Başka bir kelime dene.</div>}
         {sonuc.map((k) => (
-          <div key={k.id} onClick={() => setDetayId(k.id)} style={{ display: "flex", gap: 14, padding: "12px 0", cursor: "pointer", borderBottom: "1px solid rgba(255,255,255,0.06)", alignItems: "center" }}>
+          <div key={k.id} role="button" tabIndex={0} onClick={() => setDetayId(k.id)} onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setDetayId(k.id); }
+          }} style={{ display: "flex", gap: 14, padding: "12px 0", cursor: "pointer", borderBottom: "1px solid rgba(255,255,255,0.06)", alignItems: "center" }}>
             <Kapak kitap={k} boyut={52} radius={6} />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600, fontSize: 15 }}>{k.baslik}</div>
@@ -2508,7 +2617,7 @@ export default function DinletiApp() {
             </div>
           </div>
         ))}
-      </div>
+      </main>
     );
   };
 
@@ -2516,14 +2625,16 @@ export default function DinletiApp() {
     const favKitaplar = favoriler.map(kitapBul).filter((k) => k && kitapUyum(k));
     const devamlar = Object.entries(ilerlemeler).filter(([id, v]) => v.pos > 10 && kitapUyum(kitapBul(id))).sort((a, b) => b[1].ts - a[1].ts);
     return (
-      <div style={{ padding: "24px 20px" }}>
+      <main data-page-shell data-library-page style={{ padding: "24px 20px" }}>
         <div style={{ ...baslikStil, fontSize: 26, marginBottom: 20 }}>Kitaplığım</div>
         <div style={{ ...baslikStil, fontSize: 17, marginBottom: 12 }}>Okumaya devam</div>
         {devamlar.length === 0 && <div style={{ color: S.soluk, fontSize: 14, marginBottom: 20 }}>Henüz dinlemeye başlamadın. Ana sayfadan bir kitap seç.</div>}
         {devamlar.map(([id, v]) => {
           const k = kitapBul(id); const oran = v.pos / toplamSn(k);
           return (
-            <div key={id} onClick={() => setDetayId(id)} style={{ display: "flex", gap: 14, padding: "10px 0", cursor: "pointer", alignItems: "center" }}>
+            <div key={id} role="button" tabIndex={0} onClick={() => setDetayId(id)} onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setDetayId(id); }
+            }} style={{ display: "flex", gap: 14, padding: "10px 0", cursor: "pointer", alignItems: "center" }}>
               <Kapak kitap={k} boyut={52} radius={6} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: 15 }}>{k.baslik}</div>
@@ -2540,7 +2651,7 @@ export default function DinletiApp() {
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
           {favKitaplar.map((k) => <KitapKart key={k.id} kitap={k} />)}
         </div>
-      </div>
+      </main>
     );
   };
 
@@ -2551,7 +2662,7 @@ export default function DinletiApp() {
     const p = ilerlemeler[k.id]?.pos || 0;
     const fav = favoriler.includes(k.id);
     return (
-      <div style={{ padding: "16px 20px" }}>
+      <main data-page-shell data-detail-page style={{ padding: "16px 20px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <button onClick={() => setDetayId(null)} aria-label="Geri" style={{ background: S.kart, border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronLeft size={20} /></button>
           <button onClick={() => favoriDegistir(k.id)} aria-label="Favori" style={{ background: S.kart, border: "none", borderRadius: 10, padding: 8, cursor: "pointer" }}>
@@ -2590,7 +2701,9 @@ export default function DinletiApp() {
         {k.bolumler.map((b, i) => {
           const aktifMi = aktifId === k.id && aktifBolumIx === i;
           return (
-            <div key={i} onClick={() => { if (!profilUyumlu) return; oynatKitapBolum(k.id, i); setOynaticiAcik(true); }}
+            <div key={i} role="button" tabIndex={profilUyumlu ? 0 : -1} aria-disabled={!profilUyumlu} onClick={() => { if (!profilUyumlu) return; oynatKitapBolum(k.id, i); setOynaticiAcik(true); }} onKeyDown={(event) => {
+              if (profilUyumlu && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); oynatKitapBolum(k.id, i); setOynaticiAcik(true); }
+            }}
               style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ width: 26, textAlign: "center", color: aktifMi ? S.vurgu : S.soluk, fontSize: 13 }}>{aktifMi ? <Volume2 size={15} /> : i + 1}</div>
@@ -2600,7 +2713,7 @@ export default function DinletiApp() {
             </div>
           );
         })}
-      </div>
+      </main>
     );
   };
 
@@ -2609,7 +2722,9 @@ export default function DinletiApp() {
     if (!aktif || oynaticiAcik) return null;
     const oran = toplam ? pozisyon / toplam : 0;
     return (
-      <div onClick={() => setOynaticiAcik(true)} style={{ position: "fixed", bottom: 64, left: "50%", transform: "translateX(-50%)", width: "min(480px, 100%)", padding: "0 10px", boxSizing: "border-box", cursor: "pointer", zIndex: 20 }}>
+      <div data-mini-player role="button" tabIndex={0} aria-label={`${aktif.baslik} oynatıcısını aç`} onClick={() => setOynaticiAcik(true)} onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setOynaticiAcik(true); }
+      }} style={{ position: "fixed", bottom: 64, left: "50%", transform: "translateX(-50%)", width: "min(1180px, 100%)", padding: "0 10px", boxSizing: "border-box", cursor: "pointer", zIndex: 20 }}>
         <div style={{ background: S.kart2, borderRadius: 14, padding: "10px 12px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 -4px 20px rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", left: 0, bottom: 0, height: 2, width: `${oran * 100}%`, background: S.vurgu }} />
           <Kapak kitap={aktif} boyut={38} radius={5} />
@@ -2633,24 +2748,25 @@ export default function DinletiApp() {
     const oran = toplam ? pozisyon / toplam : 0;
     const b = aktif.bolumler[aktifBolumIx];
     const mobilDar = typeof window !== "undefined" && window.innerWidth <= 430;
-    const mobilKisa = typeof window !== "undefined" && window.innerHeight <= 760;
     const soruHazir = toplam > 0 && pozisyon >= Math.max(0, toplam - 2);
     const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
-      <div style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.6)" }}>
-        <div data-mobile-stability="v2.6.0" data-reader-shell data-story-id={aktif.id} style={{ width: "min(760px, 100%)", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box" }}>
+      <div data-reader-backdrop style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.78)" }}>
+        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.7.0" data-reader-shell data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
 
           {/* Üst çubuk */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+          <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
             <button onClick={() => setOynaticiAcik(false)} aria-label="Kapat" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronDown size={20} /></button>
-            <div style={{ fontSize: 12, color: S.soluk, letterSpacing: "0.08em", textTransform: "uppercase" }}>Şimdi okunuyor</div>
-            <button onClick={() => favoriDegistir(aktif.id)} aria-label="Favori" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, cursor: "pointer" }}>
+            <div data-reader-eyebrow style={{ fontSize: 12, color: S.soluk, letterSpacing: "0.08em", textTransform: "uppercase" }}>Şimdi okunuyor</div>
+            <button data-reader-favorite onClick={() => favoriDegistir(aktif.id)} aria-label="Favori" aria-pressed={favoriler.includes(aktif.id)} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, cursor: "pointer" }}>
               <Heart size={18} color={favoriler.includes(aktif.id) ? S.vurgu : S.metin} fill={favoriler.includes(aktif.id) ? S.vurgu : "none"} />
             </button>
           </div>
 
           {/* Kompakt kitap bilgisi */}
-          <div data-kompakt-baslik onClick={() => setBolumlerAcik(!bolumlerAcik)} style={{ display: "flex", alignItems: "center", gap: mobilDar ? 9 : 12, margin: mobilDar ? "5px 0 5px" : "8px 0 6px", flexShrink: 0, cursor: "pointer" }}>
+          <div data-kompakt-baslik role="button" tabIndex={0} aria-expanded={bolumlerAcik} aria-controls="okurio-bolum-listesi" onClick={() => setBolumlerAcik(!bolumlerAcik)} onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setBolumlerAcik(!bolumlerAcik); }
+          }} style={{ display: "flex", alignItems: "center", gap: mobilDar ? 9 : 12, margin: mobilDar ? "5px 0 5px" : "8px 0 6px", flexShrink: 0, cursor: "pointer" }}>
             <Kapak kitap={aktif} boyut={mobilDar ? 36 : 44} radius={6} />
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ ...baslikStil, fontSize: mobilDar ? 15 : 16, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{aktif.baslik}</div>
@@ -2662,9 +2778,11 @@ export default function DinletiApp() {
 
           {/* Bölüm listesi (katlanır) */}
           {bolumlerAcik && (
-            <div data-bolum-listesi style={{ flexShrink: 0, maxHeight: 180, overflowY: "auto", background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "4px 12px", marginBottom: 10 }}>
+            <div id="okurio-bolum-listesi" data-bolum-listesi style={{ flexShrink: 0, maxHeight: 180, overflowY: "auto", background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "4px 12px", marginBottom: 10 }}>
               {aktif.bolumler.map((bb, i) => (
-                <div key={i} onClick={() => { bolumeGit(i); setBolumlerAcik(false); }} style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: i < aktif.bolumler.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none", cursor: "pointer", fontSize: 13, color: i === aktifBolumIx ? S.vurgu : S.metin, fontWeight: i === aktifBolumIx ? 600 : 400 }}>
+                <div key={i} role="button" tabIndex={0} onClick={() => { bolumeGit(i); setBolumlerAcik(false); }} onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") { event.preventDefault(); bolumeGit(i); setBolumlerAcik(false); }
+                }} style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: i < aktif.bolumler.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none", cursor: "pointer", fontSize: 13, color: i === aktifBolumIx ? S.vurgu : S.metin, fontWeight: i === aktifBolumIx ? 600 : 400 }}>
                   <span>{i + 1}. {bb.ad}</span><span style={{ color: S.soluk, fontSize: 12 }}>{sureYaz(bolumSn(bb))}</span>
                 </div>
               ))}
@@ -2672,13 +2790,19 @@ export default function DinletiApp() {
           )}
 
           {/* OKUMA ALANI: ekranın ana yüzeyi */}
-          <div data-okuma-alani style={{ flex: "1 1 auto", minHeight: mobilDar ? (mobilKisa ? "38dvh" : "44dvh") : 0, overflowY: "auto", WebkitOverflowScrolling: "touch", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: mobilDar ? 10 : 14 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <div data-okuma-alani style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: mobilDar ? 10 : 14, position: "relative" }}>
+            <div data-reader-stage-header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, color: S.soluk, fontSize: 13 }}><BookOpen size={15} /> Okuma görünümü</div>
-              <button onClick={() => setOkumaAcik(!okumaAcik)} aria-label="Okuma görünümünü aç kapat"
-                style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "5px 10px", color: S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
-                {okumaAcik ? "Gizle" : "Göster"}
-              </button>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button data-reader-settings-toggle onClick={() => setAyarPaneliAcik(!ayarPaneliAcik)} aria-expanded={ayarPaneliAcik} aria-controls="okurio-okuma-ayarlari"
+                  style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 10px", color: S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
+                  Aa&nbsp; Ayarlar
+                </button>
+                <button data-reader-visibility-toggle onClick={() => setOkumaAcik(!okumaAcik)} aria-label="Okuma görünümünü aç kapat" aria-expanded={okumaAcik} aria-controls="okurio-okuma-icerigi"
+                  style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 10px", color: S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
+                  {okumaAcik ? "Gizle" : "Göster"}
+                </button>
+              </div>
             </div>
             {okumaAcik && (() => {
               const kelimeler = b.metin.trim().split(/\s+/);
@@ -2689,7 +2813,8 @@ export default function DinletiApp() {
               const gorunecek = ayar.odak ? kelimeler.slice(aktifCumle[0], aktifCumle[1] + 1) : kelimeler;
               const kaydirma = ayar.odak ? aktifCumle[0] : 0;
               return (
-                <>
+                <div id="okurio-okuma-icerigi" data-reader-workspace>
+                  <div data-reading-column>
                   <div data-okuma-metin="1" data-tema={ayar.tema} style={{
                     fontSize: PUNTOLAR[ayar.punto], letterSpacing: `${ARALIKLAR[ayar.aralik]}em`,
                     lineHeight: SATIRLAR[ayar.aralik], wordSpacing: `${ARALIKLAR[ayar.aralik] * 2.2}em`,
@@ -2698,7 +2823,7 @@ export default function DinletiApp() {
                     borderRadius: ayar.tema === "krem" ? 12 : 0,
                     padding: ayar.tema === "krem" ? "14px 16px" : 0,
                     fontFamily: fontAile(ayar.font),
-                    textAlign: "left", minHeight: mobilDar ? (mobilKisa ? "24dvh" : "30dvh") : 60, maxHeight: mobilDar ? (mobilKisa ? "34dvh" : "40dvh") : "none", overflowY: mobilDar ? "auto" : "visible", WebkitOverflowScrolling: "touch",
+                    textAlign: "left", minHeight: 0, height: "100%", maxHeight: "none", overflowY: "auto", WebkitOverflowScrolling: "touch",
                   }}>
                     {gorunecek.map((k, i) => {
                       const gercekIx = i + kaydirma;
@@ -2741,36 +2866,70 @@ export default function DinletiApp() {
                     </div>
                   )}
                   {ayar.odak && <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>Odak modu: cümle {cumleler.indexOf(aktifCumle) + 1} / {cumleler.length}</div>}
-                  <div style={{ marginTop: 12, fontSize: 12, color: S.soluk }}>Bana göre ayarla (birlikte seçilebilir):</div>
+                  </div>
+                  <aside id="okurio-okuma-ayarlari" data-reader-settings data-acik={ayarPaneliAcik ? "1" : "0"} aria-label="Okuma ayarları" aria-hidden={mobilDar && !ayarPaneliAcik ? "true" : undefined}>
+                  <div data-reader-settings-title style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                    <strong style={{ fontSize: 14 }}>Okuma ayarları</strong>
+                    <button data-reader-settings-close onClick={() => setAyarPaneliAcik(false)} aria-label="Okuma ayarlarını kapat" style={{ ...cip(false), minWidth: 44, minHeight: 44, justifyContent: "center" }}>×</button>
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 12, lineHeight: 1.5, color: S.soluk }}>Sunumu kişiselleştirir; tanı koymaz, görme kusurunu düzeltmez veya tedavi etmez.</div>
+                  <div style={{ marginTop: 14, fontSize: 12, color: S.soluk }}>Hazır destekler (birlikte seçilebilir):</div>
                   <div style={{ display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
-                    <button data-profil="dis" onClick={() => profilUygula({ ...profil, dis: !profil.dis })} aria-label="Disleksi profili" style={cip(profil.dis)}>Disleksi</button>
-                    <button data-profil="dehb" onClick={() => profilUygula({ ...profil, dehb: !profil.dehb })} aria-label="DEHB profili" style={cip(profil.dehb)}>DEHB</button>
-                    <button data-profil="gorsel" onClick={() => profilUygula({ ...profil, gorsel: !profil.gorsel })} aria-label="Görsel hassasiyet profili" style={cip(profil.gorsel)}>Görsel hassasiyet</button>
+                    <button data-profil="dis" onClick={() => profilUygula({ ...profil, dis: !profil.dis })} aria-label="Okuma kolaylığı desteği" aria-pressed={profil.dis} style={cip(profil.dis)}>Okuma kolaylığı</button>
+                    <button data-profil="dehb" onClick={() => profilUygula({ ...profil, dehb: !profil.dehb })} aria-label="Dikkat desteği" aria-pressed={profil.dehb} style={cip(profil.dehb)}>Dikkat Desteği</button>
+                    <button data-profil="gorsel" onClick={() => profilUygula({ ...profil, gorsel: !profil.gorsel })} aria-label="Görsel konfor desteği" aria-pressed={profil.gorsel} style={cip(profil.gorsel)}>Görsel Konfor</button>
                   </div>
                   <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                    <button onClick={() => setAyar({ ...ayar, punto: (ayar.punto + 1) % PUNTOLAR.length })} aria-label="Yazı boyutu" style={cip(false)}>
-                      <Type size={13} /> {["Küçük", "Orta", "Büyük"][ayar.punto]}
+                    <button onClick={() => setAyar({ ...ayar, punto: (ayar.punto + 1) % PUNTOLAR.length })} aria-label={`Yazı boyutu: ${PUNTOLAR[ayar.punto]} piksel`} style={cip(false)}>
+                      <Type size={13} /> {PUNTOLAR[ayar.punto]} px
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, aralik: (ayar.aralik + 1) % ARALIKLAR.length })} aria-label="Harf aralığı" style={cip(false)}>
-                      <AlignJustify size={13} /> Aralık: {["Normal", "Geniş", "Ekstra"][ayar.aralik]}
+                    <button onClick={() => setAyar({ ...ayar, aralik: (ayar.aralik + 1) % ARALIKLAR.length })} aria-label={`Harf ve satır aralığı: ${["Sıkı", "Rahat", "Geniş", "Ekstra geniş"][ayar.aralik]}`} style={cip(false)}>
+                      <AlignJustify size={13} /> Aralık: {["Sıkı", "Rahat", "Geniş", "Ekstra"][ayar.aralik]}
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, odak: !ayar.odak })} aria-label="Odak modu" style={cip(ayar.odak)}>
+                    <button onClick={() => setAyar({ ...ayar, odak: !ayar.odak })} aria-label="Odak modu" aria-pressed={ayar.odak} style={cip(ayar.odak)}>
                       <Focus size={13} /> Odak modu
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, vurgu: !ayar.vurgu })} aria-label="Kelime vurgusu" style={cip(ayar.vurgu)}>
+                    <button onClick={() => setAyar({ ...ayar, vurgu: !ayar.vurgu })} aria-label="Kelime vurgusu" aria-pressed={ayar.vurgu} style={cip(ayar.vurgu)}>
                       Kelime vurgusu
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, tema: ayar.tema === "krem" ? "koyu" : "krem" })} aria-label="Zemin" style={cip(false)}>
+                    <button onClick={() => setAyar({ ...ayar, tema: ayar.tema === "krem" ? "koyu" : "krem" })} aria-label={`Zemin: ${ayar.tema === "krem" ? "Krem" : "Koyu"}`} aria-pressed={ayar.tema === "krem"} style={cip(ayar.tema === "krem")}>
                       Zemin: {ayar.tema === "krem" ? "Krem" : "Koyu"}
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, biyonik: !ayar.biyonik })} aria-label="Biyonik okuma" style={cip(ayar.biyonik)}>
-                      Biyonik okuma
+                    <button onClick={() => setAyar({ ...ayar, biyonik: !ayar.biyonik })} aria-label="Biyonik vurgu, deneysel" aria-pressed={ayar.biyonik} style={cip(ayar.biyonik)}>
+                      Biyonik vurgu · deneysel
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, font: sonrakiFont(ayar.font) })} aria-label="Yazı tipi" style={cip(ayar.font === "opendyslexic")}>
+                    <button onClick={() => setAyar({ ...ayar, font: sonrakiFont(ayar.font) })} aria-label={`Yazı tipi: ${fontAd(ayar.font)}`} style={cip(ayar.font === "lexend")}>
                       Yazı: {fontAd(ayar.font)}
                     </button>
                   </div>
-                </>
+                  <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: 12, color: S.soluk }}>Okuma ve ses kontrolleri</div>
+                  <div data-okuma-modu-kompakt style={{ display: "flex", marginTop: 8 }}>
+                    <button onClick={() => setModPaneliAcik((acik) => !acik)} aria-expanded={modPaneliAcik} aria-controls="okurio-okuma-modlari" aria-label={`Okuma modu: ${okumaModuAyar.ad}`} style={{ ...cip(true), width: "100%", minHeight: 44, justifyContent: "center" }}>
+                      Mod: {okumaModuAyar.ad} ▾
+                    </button>
+                  </div>
+                  {modPaneliAcik && (
+                    <div id="okurio-okuma-modlari" data-okuma-modlari style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                      {OKUMA_MODLARI.map((m) => (
+                        <button key={m.id} data-okuma-modu={m.id} onClick={() => okumaModuDegistir(m.id)} aria-pressed={okumaModu === m.id} title={m.aciklama} style={{ ...cip(okumaModu === m.id), minHeight: 44 }}>
+                          {m.ad}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <div data-okuma-modu-ipucu style={{ marginTop: 7, color: S.soluk, fontSize: 11, lineHeight: 1.45 }}>{okumaModuAyar.aciklama}</div>
+                  {okumaModu === "kendim" && (
+                    <div data-kelime-yardimi="1" role="note" style={{ marginTop: 7, color: S.vurgu, fontSize: 11, lineHeight: 1.45 }}>
+                      Altı çizili hedef kelimeye dokunarak kısa anlamını aç.
+                    </div>
+                  )}
+                  <div data-alt-araclar style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
+                    <button onClick={hizDegistir} style={{ ...cip(false), minHeight: 44, padding: "6px 9px" }}><Gauge size={13} /> {hiz}x</button>
+                    <button onClick={sesTonuDegistir} title={sesTonuAyar.aciklama} style={{ ...cip(etkinSeslendirme), minHeight: 44, padding: "6px 9px" }}><Volume2 size={13} /> Ses: {etkinSeslendirme ? sesTonuAyar.kisa : "Kapalı"}</button>
+                    <button onClick={uykuDegistir} style={{ ...cip(uyku > 0), minHeight: 44, padding: "6px 9px" }}><Moon size={13} /> {uyku > 0 ? sureYaz(uyku) : "Uyku"}</button>
+                  </div>
+                  </aside>
+                </div>
               );
             })()}
           </div>
@@ -2778,28 +2937,31 @@ export default function DinletiApp() {
 
           {(() => {
             const soru = kitapSorusu(aktif);
-            if (!soru || !soruHazir) return null;
+            if (!soru || !soruHazir || soruKapali) return null;
             return (
-              <div data-birlikte-dusunelim data-soru-zamani="bolum-sonu" style={{ flexShrink: 0, marginTop: mobilDar ? 8 : 10, background: "rgba(232,163,61,0.10)", border: "1px solid rgba(232,163,61,0.22)", borderRadius: 14, padding: mobilDar ? "8px 10px" : "10px 12px" }}>
+              <div role="dialog" aria-label="Birlikte düşünelim" data-birlikte-dusunelim data-soru-zamani="bolum-sonu" style={{ background: S.kart2, border: "1px solid rgba(232,163,61,0.38)", borderRadius: 16, padding: mobilDar ? "14px" : "16px" }}>
                 <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>Birlikte Düşünelim</div>
                 <div style={{ fontSize: 14, color: S.metin, fontWeight: 600, marginBottom: 8 }}>{soru.soru}</div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {soru.secenekler.map((secenek) => {
                     const secildi = soruCevabi === secenek;
-                    const dogru = secenek === soru.cevap;
                     return (
-                      <button key={secenek} onClick={() => { setSoruCevabi(secenek); window.setTimeout(() => anaSayfayaDon(setOynaticiAcik, setSekme, setDetayId), 950); }}
-                        style={{ background: secildi ? (dogru ? "rgba(120,168,120,0.25)" : "rgba(232,163,61,0.16)") : "rgba(255,255,255,0.08)", border: secildi ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "8px 10px", color: S.metin, cursor: "pointer", fontFamily: "inherit", fontSize: 12 }}>
+                      <button key={secenek} onClick={() => setSoruCevabi(secenek)} aria-pressed={secildi}
+                        style={{ background: secildi ? "rgba(232,163,61,0.20)" : "rgba(255,255,255,0.08)", border: secildi ? "1px solid rgba(232,163,61,0.52)" : "1px solid rgba(255,255,255,0.08)", borderRadius: 10, minHeight: 44, padding: "8px 10px", color: S.metin, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>
                         {secenek}
                       </button>
                     );
                   })}
                 </div>
                 {soruCevabi && (
-                  <div data-soru-geri-bildirim style={{ marginTop: 8, fontSize: 12, color: soruCevabi === soru.cevap ? "#BFE3B8" : "rgba(242,236,223,0.78)", lineHeight: 1.45 }}>
-                    {soruCevabi === soru.cevap ? `Evet. ${soru.destek} Bir küçük adım daha tamamlandı. Ana sayfaya dönüyorum.` : `Bir daha birlikte bakalım. ${soru.destek} Ana sayfaya dönüyorum.`}
+                  <div data-soru-geri-bildirim aria-live="polite" style={{ marginTop: 10, fontSize: 13, color: "rgba(242,236,223,0.84)", lineHeight: 1.5 }}>
+                    Seçimini gördüm. {soru.destek} Burada puan yok; metne kendi yorumunla dönebilirsin.
                   </div>
                 )}
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                  <button onClick={() => setSoruKapali(true)} style={{ ...cip(false), minHeight: 44 }}>Metne dön</button>
+                  <button onClick={() => anaSayfayaDon(setOynaticiAcik, setSekme, setDetayId)} style={{ ...cip(true), minHeight: 44 }}>Okumayı bitir</button>
+                </div>
               </div>
             );
           })()}
@@ -2826,15 +2988,17 @@ export default function DinletiApp() {
                   if (event.key === "Home") { event.preventDefault(); oranaSar(0); }
                   if (event.key === "End") { event.preventDefault(); oranaSar(1); }
                 }}
-                style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,0.12)", cursor: "pointer", overflow: "hidden" }}
+                style={{ height: 44, display: "flex", alignItems: "center", cursor: "pointer", touchAction: "manipulation" }}
               >
-                <div style={{ width: `${oran * 100}%`, height: "100%", background: S.vurgu }} />
+                <div data-progress-track style={{ width: "100%", height: 8, borderRadius: 999, background: "rgba(255,255,255,0.12)", overflow: "hidden" }}>
+                  <div style={{ width: `${oran * 100}%`, height: "100%", background: S.vurgu }} />
+                </div>
               </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: S.soluk, marginTop: 4 }}>
+            <div data-progress-time style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: S.soluk, marginTop: -8 }}>
               <span>{sureYaz(pozisyon)}</span><span>-{sureYaz(toplam - pozisyon)}</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: mobilDar ? 18 : 22, marginTop: mobilDar ? 6 : 8 }}>
+            <div data-transport-controls style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: mobilDar ? 18 : 22, marginTop: mobilDar ? 6 : 8 }}>
               <button onClick={() => sar(-15)} aria-label="15 saniye geri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                 <RotateCcw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>15</span>
               </button>
@@ -2845,31 +3009,6 @@ export default function DinletiApp() {
               <button onClick={() => sar(30)} aria-label="30 saniye ileri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                 <RotateCw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>30</span>
               </button>
-            </div>
-            <div data-okuma-modu-kompakt style={{ display: "flex", justifyContent: "center", marginTop: 7 }}>
-              <button onClick={() => setModPaneliAcik((acik) => !acik)} aria-expanded={modPaneliAcik} aria-controls="okurio-okuma-modlari" aria-label={`Okuma modu: ${okumaModuAyar.ad}`} style={{ ...cip(true), minWidth: 190, minHeight: 44, justifyContent: "center" }}>
-                Mod: {okumaModuAyar.ad} ▾
-              </button>
-            </div>
-            {modPaneliAcik && (
-              <div id="okurio-okuma-modlari" data-okuma-modlari style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                {OKUMA_MODLARI.map((m) => (
-                  <button key={m.id} data-okuma-modu={m.id} onClick={() => okumaModuDegistir(m.id)} title={m.aciklama} style={{ ...cip(okumaModu === m.id), minHeight: 44 }}>
-                    {m.ad}
-                  </button>
-                ))}
-              </div>
-            )}
-            <div data-okuma-modu-ipucu style={{ margin: "5px auto 0", maxWidth: 520, color: S.soluk, fontSize: 11, lineHeight: 1.35, textAlign: "center" }}>{okumaModuAyar.ad}: {okumaModuAyar.aciklama}</div>
-            {okumaModu === "kendim" && (
-              <div data-kelime-yardimi="1" role="note" style={{ margin: "6px auto 0", color: S.vurgu, fontSize: 11, textAlign: "center" }}>
-                Altı çizili hedef kelimeye dokunarak yaşına uygun kısa anlamını aç.
-              </div>
-            )}
-            <div data-alt-araclar style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 6, flexWrap: "wrap" }}>
-              <button onClick={hizDegistir} style={{ ...cip(false), minHeight: 44, padding: "6px 9px" }}><Gauge size={13} /> {hiz}x</button>
-              <button onClick={sesTonuDegistir} title={sesTonuAyar.aciklama} style={{ ...cip(etkinSeslendirme), minHeight: 44, padding: "6px 9px" }}><Volume2 size={13} /> Ses: {etkinSeslendirme ? sesTonuAyar.kisa : "Kapalı"}</button>
-              <button onClick={uykuDegistir} style={{ ...cip(uyku > 0), minHeight: 44, padding: "6px 9px" }}><Moon size={13} /> {uyku > 0 ? sureYaz(uyku) : "Uyku"}</button>
             </div>
           </div>
         </div>
@@ -2884,7 +3023,7 @@ export default function DinletiApp() {
       setTaslak((e) => ({ ...e, destekler: e.destekler.includes(id) ? e.destekler.filter((x) => x !== id) : [...e.destekler, id] }));
     };
     return (
-      <div style={{ padding: "26px 20px 110px" }}>
+      <main data-page-shell data-onboarding-page style={{ padding: "26px 20px 110px" }}>
         <div style={{ ...baslikStil, fontSize: 30, marginBottom: 6 }}>Okuma yolunu seç</div>
         <div style={{ color: S.soluk, fontSize: 14, lineHeight: 1.55, marginBottom: 18 }}>
           Yaş tek başına yeterli değil. Okurio, yaş bandını okuma evresi, destek ihtiyacı ve okuma moduyla birlikte kullanır.
@@ -2917,6 +3056,7 @@ export default function DinletiApp() {
             const secili = taslak.destekler.includes(d.id);
             return (
               <button key={d.id} onClick={() => toggleDestek(d.id)}
+                aria-pressed={secili}
                 style={{ background: secili ? "rgba(232,163,61,0.17)" : S.kart, border: secili ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 999, padding: "9px 12px", color: secili ? S.vurgu : S.soluk, cursor: "pointer", fontFamily: "inherit", fontSize: 12 }}>
                 {secili ? "✓ " : ""}{d.ad}
               </button>
@@ -2936,27 +3076,28 @@ export default function DinletiApp() {
           style={{ width: "100%", background: S.vurgu, color: "#14181F", border: "none", borderRadius: 15, padding: "14px 0", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
           Okuma yolumu başlat
         </button>
-      </div>
+      </main>
     );
   };
 
   const AltMenu = () => (
-    <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "min(480px, 100%)", background: "rgba(20,24,31,0.96)", backdropFilter: "blur(10px)", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", zIndex: 30 }}>
+    <nav data-bottom-nav aria-label="Ana gezinme" style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "min(1180px, 100%)", background: "rgba(20,24,31,0.96)", backdropFilter: "blur(10px)", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", zIndex: 30 }}>
       {[
         { id: "ana", ad: "Ana Sayfa", Ico: Home },
         { id: "ara", ad: "Ara", Ico: Search },
         { id: "kitaplik", ad: "Kitaplığım", Ico: Library },
       ].map(({ id, ad, Ico }) => (
         <button key={id} onClick={() => { setSekme(id); setDetayId(null); }}
+          aria-current={sekme === id && !detayId ? "page" : undefined}
           style={{ flex: 1, background: "none", border: "none", padding: "10px 0 14px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: sekme === id && !detayId ? S.vurgu : S.soluk, fontFamily: "inherit" }}>
           <Ico size={20} /><span style={{ fontSize: 10 }}>{ad}</span>
         </button>
       ))}
-    </div>
+    </nav>
   );
 
   return (
-    <div style={govde}>
+    <div data-app-shell style={govde}>
       {onboardingAcik ? <OnboardingSayfa /> : detayId ? <DetaySayfa /> : sekme === "ana" ? <AnaSayfa /> : sekme === "ara" ? <AramaSayfa /> : <KitaplikSayfa />}
       {!onboardingAcik && <MiniOynatici />}
       {!onboardingAcik && <TamOynatici />}

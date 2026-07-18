@@ -4,7 +4,7 @@ const TEST_OKUMA_YOLU = {
   secildi: true,
   yolId: "okuma_guveni_8_10",
   evreId: "paragraf",
-  destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin", "kisa_hedef"],
+  destekler: ["kelime_takibi", "genis_aralik", "yumusak_zemin", "kisa_hedef"],
 };
 
 const oynatici = (page) => page.locator("[data-mobile-stability]");
@@ -22,6 +22,7 @@ async function onboardingTamamla(page) {
 
 async function kendiMetniniAc(page, text) {
   await onboardingTamamla(page);
+  await page.getByRole("button", { name: /Kendi metnini oku/i }).click();
   const input = page.getByLabel("Kendi metnim", { exact: true });
   await input.scrollIntoViewIfNeeded();
   await input.fill(text);
@@ -37,6 +38,10 @@ async function kendiMetniniAc(page, text) {
 async function modaGec(page, id, ipucu) {
   const compact = oynatici(page).locator("[data-okuma-modu-kompakt] button");
   const button = modButonu(page, id);
+  if (!(await compact.isVisible())) {
+    await oynatici(page).locator("[data-reader-settings-toggle]").click();
+    await expect(compact).toBeVisible();
+  }
   if (!(await button.isVisible())) await compact.click();
   await expect(button).toBeVisible();
   await button.click();
@@ -134,6 +139,9 @@ test.describe("3. Uzun süre ve mutation fırtınası", () => {
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await kendiMetniniAc(page, uzunMetin());
+    if (!(await oynatici(page).locator("[data-okuma-modu-kompakt] button").isVisible())) {
+      await oynatici(page).locator("[data-reader-settings-toggle]").click();
+    }
     const ids = ["dinliyorum", "birlikte", "kendim"];
     for (let i = 0; i < 12; i += 1) {
       const id = ids[i % ids.length];
