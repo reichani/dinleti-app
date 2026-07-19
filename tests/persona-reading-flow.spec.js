@@ -44,6 +44,58 @@ const personaMetni = Array.from(
 ).join(" ");
 
 test.describe("Persona bazlı okuma akışı", () => {
+  test("tek saat sözleşmesi: manuel mod ilerlemez, birlikte okuma geçişi aynı kelimede takılmaz", async ({ page }) => {
+    await page.addInitScript(() => {
+      class FakeUtterance {
+        constructor(text) { this.text = text; }
+      }
+      const spoken = [];
+      Object.defineProperty(window, "SpeechSynthesisUtterance", { configurable: true, value: FakeUtterance });
+      Object.defineProperty(window, "speechSynthesis", {
+        configurable: true,
+        value: {
+          speaking: true,
+          paused: false,
+          cancel() {},
+          getVoices() { return []; },
+          addEventListener() {},
+          removeEventListener() {},
+          speak(utterance) {
+            spoken.push(utterance.text);
+            window.setTimeout(() => utterance.onboundary?.({ name: "word", charIndex: 0 }), 40);
+            window.setTimeout(() => utterance.onboundary?.({ name: "word", charIndex: 7 }), 120);
+            window.setTimeout(() => utterance.onboundary?.({ name: "word", charIndex: 13 }), 200);
+          },
+        },
+      });
+      window.__okurioSpoken = spoken;
+    });
+
+    await kendiMetniniAc(page, personaMetni);
+    const player = page.locator("[data-mobile-stability]");
+    await player.locator("[data-okuma-modu-kompakt] button").click();
+    await player.locator('[data-okuma-modu="kendim"]').click();
+    await player.getByRole("button", { name: "Oynat", exact: true }).click();
+    await page.waitForTimeout(500);
+
+    const manual = await player.locator("[data-okuma-metin]").evaluate((element) => ({
+      activeIndex: [...element.querySelectorAll("span")].findIndex((span) => span.dataset.aktif === "1"),
+      spoken: window.__okurioSpoken.length,
+    }));
+    expect(manual.activeIndex).toBe(0);
+    expect(manual.spoken).toBe(0);
+
+    await player.locator("[data-okuma-modu-kompakt] button").click();
+    await player.locator('[data-okuma-modu="birlikte"]').click();
+    await page.waitForTimeout(500);
+    const together = await player.locator("[data-okuma-metin]").evaluate((element) => ({
+      activeIndex: [...element.querySelectorAll("span")].findIndex((span) => span.dataset.aktif === "1"),
+      spoken: window.__okurioSpoken.length,
+    }));
+    expect(together.spoken).toBeGreaterThan(0);
+    expect(together.activeIndex).toBeGreaterThan(0);
+  });
+
   test("okul öncesi dinleyici: otomatik kaydırma sık ve büyük adımlar atmaz", async ({ page }) => {
     await page.goto("/");
     await page.waitForFunction(() => Boolean(window.__okurioReadingFixes));
