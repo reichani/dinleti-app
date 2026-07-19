@@ -73,6 +73,7 @@ test.describe("Persona bazlı okuma akışı", () => {
 
     await kendiMetniniAc(page, personaMetni);
     const player = page.locator("[data-mobile-stability]");
+    await ayarlariAc(page);
     await player.locator("[data-okuma-modu-kompakt] button").click();
     await player.locator('[data-okuma-modu="kendim"]').click();
     await player.getByRole("button", { name: "Oynat", exact: true }).click();
