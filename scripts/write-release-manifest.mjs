@@ -11,7 +11,7 @@ function gitCommit() {
 
 const manifest = {
   product: "Okurio",
-  version: "2.7.2",
+  version: "2.7.3",
   commit: process.env.GITHUB_SHA || process.env.CF_PAGES_COMMIT_SHA || gitCommit(),
   builtAt: new Date().toISOString(),
   channel: process.env.CF_PAGES_BRANCH === "main" || process.env.GITHUB_REF_NAME === "main" ? "production" : "candidate",

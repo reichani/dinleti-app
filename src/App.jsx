@@ -9,7 +9,7 @@ import { classifyContent, estimateStorySeconds } from "./content/contentIntegrit
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.7.2";
+const SURUM = "2.7.3";
 
 const KATALOG = mergePilotStories([
 
@@ -2058,8 +2058,8 @@ export default function DinletiApp() {
   const sonSinir = useRef(0);          // son onboundary olayının zamanı (uyarlanabilir kapı)
   const kalibrasyon = useRef(1);       // gerçek TTS temposu / tahmin (bölüm sonunda güncellenir)
   const konusmayiBaslatRef = useRef(null);
-  const konusmayiBaslat = useCallback((kitap, bolumIx, kelimeBas = 0) => {
-    if (!etkinSeslendirme || !window.speechSynthesis) return;
+  const konusmayiBaslat = useCallback((kitap, bolumIx, kelimeBas = 0, modAyar = okumaModuAyar, zorla = false) => {
+    if ((!zorla && !etkinSeslendirme) || !modAyar.sesli || !window.speechSynthesis) return;
     konusmayiDurdur();
     sonSinir.current = 0;
     const benimNo = zincirNo.current;
@@ -2079,7 +2079,7 @@ export default function DinletiApp() {
 
       const sesAta = (u) => {
         u.lang = dil;
-        u.rate = Math.max(0.55, Math.min(1.8, hiz * sesTonuAyar.rate * okumaModuAyar.rateCarpan));
+        u.rate = Math.max(0.55, Math.min(1.8, hiz * sesTonuAyar.rate * modAyar.rateCarpan));
         u.pitch = sesTonuAyar.pitch;
         u.volume = 1;
         let liste = seslerRef.current;
@@ -2114,15 +2114,41 @@ export default function DinletiApp() {
         const basIx = ilkKelimeIx != null ? Math.max(a, ilkKelimeIx) : a;
         const parca = kelimeler.slice(basIx, z + 1).join(" ");
         const u = new SpeechSynthesisUtterance(parca);
+        let syncMode = "pending";
+        let syncTimer = null;
+        let fallbackIx = basIx;
+        const timeriDurdur = () => {
+          if (syncTimer) window.clearTimeout(syncTimer);
+          syncTimer = null;
+        };
+        const fallbackAdimi = () => {
+          if (zincirNo.current !== benimNo || syncMode === "boundary") return;
+          syncMode = "fallback";
+          fallbackIx = Math.min(z, fallbackIx + 1);
+          setKelimeIx(fallbackIx);
+          if (fallbackIx < z) syncTimer = window.setTimeout(fallbackAdimi, kelimeSure(kelimeler[fallbackIx], hiz));
+        };
+        const fallbackBeklet = () => {
+          timeriDurdur();
+          syncTimer = window.setTimeout(fallbackAdimi, 1800);
+        };
         sesAta(u);
         u.onboundary = (e) => {
           if (e.name && e.name !== "word") return;
+          syncMode = "boundary";
+          timeriDurdur();
           sonSinir.current = Date.now();
           const onceki = parca.slice(0, e.charIndex || 0).trim();
           const idx = basIx + (onceki ? onceki.split(/\s+/).length : 0);
+          fallbackIx = Math.min(idx, z);
           setKelimeIx(Math.min(idx, z));
+          // Bazı Android motorları boundary göndermeyi yarıda keser. Yeni bir
+          // boundary gelmezse fallback kaldığı kelimeden tek sahip olarak sürer.
+          syncMode = "pending";
+          fallbackBeklet();
         };
         u.onend = () => {
+          timeriDurdur();
           if (zincirNo.current !== benimNo) return;
           const sonKelime = kelimeler[z] || "";
           const duraklama = /[.!?…]$/.test(sonKelime) ? sesTonuAyar.noktaMs : (/[,;:]$/.test(sonKelime) ? sesTonuAyar.virgulMs : 140);
@@ -2132,7 +2158,9 @@ export default function DinletiApp() {
             konusCumle(ci + 1, null);
           }, duraklama);
         };
+        u.onerror = timeriDurdur;
         konusmaRef.current = u;
+        fallbackBeklet();
         window.speechSynthesis.speak(u);
       };
 
@@ -2171,34 +2199,6 @@ export default function DinletiApp() {
 
   /* Kelime vurgusu: bölüm/kitap değişince başa dön */
   useEffect(() => { setKelimeIx(0); setSoruCevabi(null); }, [aktifId, aktifBolumIx]);
-
-  /* Kelime vurgusu: uyarlanabilir tahmin motoru.
-     onboundary olayları geliyorsa gerçek senkron onları kullanır; gelmiyorsa
-     (mobil tarayıcıların çoğu göndermez) kelime uzunluğu ağırlıklı zamanlayıcı sürer. */
-  useEffect(() => {
-    if (!caliyor || !aktif || !okumaAcik) return;
-    const kelimeler = aktif.bolumler[aktifBolumIx].metin.trim().split(/\s+/);
-    let zaman = null, iptal = false;
-    const en = aktif.dil === "en";
-    const sure = (k) => {
-      let ms = (en ? 190 + 48 * k.length : 240 + 62 * k.length) / hiz; // dil temposu
-      if (/[.!?…]$/.test(k)) ms += (en ? 260 : 320) / hiz;             // cümle sonu duraklaması
-      else if (/[,;:]$/.test(k)) ms += 140 / hiz;
-      return Math.max(110, ms);
-    };
-    const adim = () => {
-      if (iptal) return;
-      setKelimeIx((i) => {
-        if (iptal) return i; // temizlik ile güncelleyici arasındaki yarışı kapat
-        const ttsSuruyor = Date.now() - sonSinir.current < 1500; // gerçek sınır olayları canlı
-        const yeni = ttsSuruyor ? i : Math.min(kelimeler.length - 1, i + 1);
-        zaman = setTimeout(adim, sure(kelimeler[Math.min(yeni, kelimeler.length - 1)]));
-        return yeni;
-      });
-    };
-    zaman = setTimeout(adim, 400);
-    return () => { iptal = true; if (zaman) clearTimeout(zaman); };
-  }, [caliyor, aktif, aktifBolumIx, hiz, okumaAcik, seslendirme]);
 
   /* İlerlemeyi 5 sn'de bir kaydet */
   useEffect(() => {
@@ -2374,7 +2374,7 @@ export default function DinletiApp() {
     const m = okumaModuBul(yeni);
     setSeslendirme(m.sesli);
     if (!m.sesli) konusmayiDurdur();
-    else if (caliyor && aktif) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx);
+    else if (caliyor && aktif) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx, m, true);
     (async () => { try { await window.storage.set(OKUMA_MODU_ANAHTAR, yeni); } catch {} })();
   };
 
@@ -2823,7 +2823,7 @@ export default function DinletiApp() {
     const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
       <div data-reader-backdrop style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.78)" }}>
-        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.7.2" data-reader-shell data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
+        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.7.3" data-reader-shell data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
 
           {/* Üst çubuk */}
           <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
