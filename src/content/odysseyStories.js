@@ -44,12 +44,36 @@ export const ODYSSEY_STORIES = [
       sureDk: 4,
       ozet: "Odysseus'un savaştan sonra İthaka'ya dönme umuduyla denize açılışı.",
       bolumler: [
-        { ad: "Sönen Ateşler", dk: 1, metin: "Truva'nın yüksek kuleleri artık sessizdi. Savaşın ateşleri yavaşça sönüyordu. Odysseus uzaktaki denize baktı." },
-        { ad: "İthaka Özlemi", dk: 1, metin: "Onun aklında küçük İthaka adası vardı. Penelope ile Telemakhos orada bekliyordu. Eve dönüş düşüncesi kalbini ısıttı." },
-        { ad: "Gemiler Hazırlanıyor", dk: 1, metin: "Denizciler sağlam halatları dikkatle bağladı. Kürekler gemilerin yanlarına yerleştirildi. Ambarlara su ve yiyecek kondu." },
-        { ad: "Bilge Bir Uyarı", dk: 1, metin: "Odysseus yolculuğun kolay olmayacağını biliyordu. Deniz bazen dostça, bazen hırçın davranırdı. Bu yüzden herkesi dikkatli olmaya çağırdı." },
-        { ad: "İlk Yelken", dk: 1, metin: "Sabah rüzgârı beyaz yelkenleri doldurdu. Gemiler kıyıdan ağır ağır uzaklaştı. Truva ufukta küçücük kaldı." },
-        { ad: "Yeni Bir Yol", dk: 1, metin: "Deniz önlerinde mavi bir bilmeceydi. Her dalga yeni bir haber taşıyordu. Odysseus gözlerini eve giden yola çevirdi." },
+        {
+          ad: "Sönen Ateşler",
+          dk: 1,
+          metin: "Truva'nın yüksek kuleleri artık sessizdi. Savaşın ateşleri yavaşça sönüyordu. Odysseus uzaktaki denize baktı.",
+        },
+        {
+          ad: "İthaka Özlemi",
+          dk: 1,
+          metin: "Onun aklında küçük İthaka adası vardı. Penelope ile Telemakhos orada bekliyordu. Eve dönüş düşüncesi kalbini ısıttı.",
+        },
+        {
+          ad: "Gemiler Hazırlanıyor",
+          dk: 1,
+          metin: "Denizciler sağlam halatları dikkatle bağladı. Kürekler gemilerin yanlarına yerleştirildi. Ambarlara su ve yiyecek kondu.",
+        },
+        {
+          ad: "Bilge Bir Uyarı",
+          dk: 1,
+          metin: "Odysseus yolculuğun kolay olmayacağını biliyordu. Deniz bazen dostça, bazen hırçın davranırdı. Bu yüzden herkesi dikkatli olmaya çağırdı.",
+        },
+        {
+          ad: "İlk Yelken",
+          dk: 1,
+          metin: "Sabah rüzgârı beyaz yelkenleri doldurdu. Gemiler kıyıdan ağır ağır uzaklaştı. Truva ufukta küçücük kaldı.",
+        },
+        {
+          ad: "Yeni Bir Yol",
+          dk: 1,
+          metin: "Deniz önlerinde mavi bir bilmeceydi. Her dalga yeni bir haber taşıyordu. Odysseus gözlerini eve giden yola çevirdi.",
+        },
       ],
     },
     metadata: {
@@ -95,13 +119,41 @@ export const ODYSSEY_STORIES = [
       sureDk: 5,
       ozet: "Odysseus zaferin ardından eve dönüşün yeni sınavlarını düşünür.",
       bolumler: [
-        { ad: "Zaferin Sessizliği", dk: 1, metin: "Truva düşmüş, savaşın gürültüsü geride kalmıştı. Fakat zafer, beklenen huzuru hemen getirmedi. Yorgun askerler evlerini düşünüyordu." },
-        { ad: "Komutanın Bakışı", dk: 1, metin: "Odysseus kıyıda duran gemileri inceledi. Her tekne uzun yol için hazırlanmalıydı. Küçük bir ihmal büyük sonuçlar doğurabilirdi." },
-        { ad: "İthaka'nın Çağrısı", dk: 1, metin: "İthaka onun için yalnızca bir ada değildi. Orada ailesi, geçmişi ve sorumlulukları bulunuyordu. Dönüş, kendi kimliğine yeniden kavuşmaktı." },
-        { ad: "Denizin İhtimalleri", dk: 1, metin: "Deniz açık, fakat geleceği kapalıydı. Rüzgâr yön değiştirebilir, kıyılar tehlike saklayabilirdi. Odysseus ihtimalleri sessizce tarttı." },
-        { ad: "Hazırlık ve Disiplin", dk: 1, metin: "Mürettebat halatları ve kürekleri denetledi. Erzaklar da dikkatle kontrol edildi. Herkes kendi görevini yeniden öğrendi. Düzen, belirsizlik karşısındaki ilk savunmaydı." },
-        { ad: "Ayrılış", dk: 1, metin: "Şafakla birlikte yelkenler rüzgârı yakaladı. Gemiler Truva kıyılarından ağır ağır ayrıldı. Geride zafer, ileride sınavlar vardı." },
-        { ad: "İlk Karar", dk: 1, metin: "Odysseus rotasını eve çevirdi. Yol yalnız haritalarla bulunamazdı. Sabır ve ortak dayanışma gerekecekti." },
+        {
+          ad: "Zaferin Sessizliği",
+          dk: 1,
+          metin: "Truva düşmüş, savaşın gürültüsü geride kalmıştı. Fakat zafer, beklenen huzuru hemen getirmedi. Yorgun askerler evlerini düşünüyordu.",
+        },
+        {
+          ad: "Komutanın Bakışı",
+          dk: 1,
+          metin: "Odysseus kıyıda duran gemileri inceledi. Her tekne uzun yol için hazırlanmalıydı. Küçük bir ihmal büyük sonuçlar doğurabilirdi.",
+        },
+        {
+          ad: "İthaka'nın Çağrısı",
+          dk: 1,
+          metin: "İthaka onun için yalnızca bir ada değildi. Orada ailesi, geçmişi ve sorumlulukları bulunuyordu. Dönüş, kendi kimliğine yeniden kavuşmaktı.",
+        },
+        {
+          ad: "Denizin İhtimalleri",
+          dk: 1,
+          metin: "Deniz açık, fakat geleceği kapalıydı. Rüzgâr yön değiştirebilir, kıyılar tehlike saklayabilirdi. Odysseus ihtimalleri sessizce tarttı.",
+        },
+        {
+          ad: "Hazırlık ve Disiplin",
+          dk: 1,
+          metin: "Mürettebat halatları ve kürekleri denetledi. Erzaklar da dikkatle kontrol edildi. Herkes kendi görevini yeniden öğrendi. Düzen, belirsizlik karşısındaki ilk savunmaydı.",
+        },
+        {
+          ad: "Ayrılış",
+          dk: 1,
+          metin: "Şafakla birlikte yelkenler rüzgârı yakaladı. Gemiler Truva kıyılarından ağır ağır ayrıldı. Geride zafer, ileride sınavlar vardı.",
+        },
+        {
+          ad: "İlk Karar",
+          dk: 1,
+          metin: "Odysseus rotasını eve çevirdi. Yol yalnız haritalarla bulunamazdı. Sabır ve ortak dayanışma gerekecekti.",
+        },
       ],
     },
     metadata: {
@@ -147,14 +199,46 @@ export const ODYSSEY_STORIES = [
       sureDk: 5,
       ozet: "Zaferin gölgesinde başlayan dönüş, aidiyet ve irade üzerine edebî anlatı.",
       bolumler: [
-        { ad: "Küllerin Ardından", dk: 1, metin: "Truva'nın dumanı göğe ağır bir perde çekiyordu. Zafer, küller arasında parlaklığını yitirmişti. Sessizlik savaşın son hükmü gibiydi." },
-        { ad: "Dönüş Fikri", dk: 1, metin: "Odysseus gözlerini denizin karanlık mavisine çevirdi. İthaka artık bir mekândan fazlasıydı. Orası hafızasının ve aidiyetinin merkeziydi." },
-        { ad: "Zaferin Bedeli", dk: 1, metin: "On yıl süren mücadele herkesi değiştirmişti. Dönüşen insan, bıraktığı eve aynı kişi dönemezdi. Odysseus bu hakikati sezdi." },
-        { ad: "Feraset", dk: 1, metin: "Komutan gemileri tek tek denetledi. Feraset, görünmeyen tehlikeyi önceden tartmayı gerektirirdi. Deniz dikkatsizliği kolayca cezalandırabilirdi." },
-        { ad: "Ortak İrade", dk: 1, metin: "Mürettebat yorgundu, fakat eve dönmeye kararlıydı. Ortak irade dağınık korkuları bir araya topladı. Her emergency görev yolculuğun kaderine bağlandı." },
-        { ad: "Şafağın Eşiği", dk: 1, metin: "Şafak, kıyının üzerine solgun ışık bıraktı. Yelkenler rüzgârla ilk kez gerildi. Gemiler ağır bir vedayla açıldı." },
-        { ad: "Ufkun Vaadi", dk: 1, metin: "Ufuk hem vaat, hem tehdit taşıyordu. Eve giden yol düz bir çizgi değildi. İnsan bazen dolanarak kendi merkezine ulaşırdı." },
-        { ad: "Metanet", dk: 1, metin: "Odysseus yolculuğun metanet isteyeceğini biliyordu. Akıl tek başına her fırtınayı dindiremezdi. Sabır, aklın zamana karşı dayanışıydı." },
+        {
+          ad: "Küllerin Ardından",
+          dk: 1,
+          metin: "Truva'nın dumanı göğe ağır bir perde çekiyordu. Zafer, küller arasında parlaklığını yitirmişti. Sessizlik savaşın son hükmü gibiydi.",
+        },
+        {
+          ad: "Dönüş Fikri",
+          dk: 1,
+          metin: "Odysseus gözlerini denizin karanlık mavisine çevirdi. İthaka artık bir mekândan fazlasıydı. Orası hafızasının ve aidiyetinin merkeziydi.",
+        },
+        {
+          ad: "Zaferin Bedeli",
+          dk: 1,
+          metin: "On yıl süren mücadele herkesi değiştirmişti. Dönüşen insan, bıraktığı eve aynı kişi dönemezdi. Odysseus bu hakikati sezdi.",
+        },
+        {
+          ad: "Feraset",
+          dk: 1,
+          metin: "Komutan gemileri tek tek denetledi. Feraset, görünmeyen tehlikeyi önceden tartmayı gerektirirdi. Deniz dikkatsizliği kolayca cezalandırabilirdi.",
+        },
+        {
+          ad: "Ortak İrade",
+          dk: 1,
+          metin: "Mürettebat yorgundu, fakat eve dönmeye kararlıydı. Ortak irade dağınık korkuları bir araya topladı. Her görev yolculuğun kaderine bağlandı.",
+        },
+        {
+          ad: "Şafağın Eşiği",
+          dk: 1,
+          metin: "Şafak, kıyının üzerine solgun ışık bıraktı. Yelkenler rüzgârla ilk kez gerildi. Gemiler ağır bir vedayla açıldı.",
+        },
+        {
+          ad: "Ufkun Vaadi",
+          dk: 1,
+          metin: "Ufuk hem vaat, hem tehdit taşıyordu. Eve giden yol düz bir çizgi değildi. İnsan bazen dolanarak kendi merkezine ulaşırdı.",
+        },
+        {
+          ad: "Metanet",
+          dk: 1,
+          metin: "Odysseus yolculuğun metanet isteyeceğini biliyordu. Akıl tek başına her fırtınayı dindiremezdi. Sabır, aklın zamana karşı dayanışıydı.",
+        },
       ],
     },
     metadata: {
