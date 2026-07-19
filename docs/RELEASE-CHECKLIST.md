@@ -98,14 +98,26 @@ For each new or updated pilot story:
 - [ ] Product Owner approved
 - [ ] Original Okurio content
 - [ ] Character roles are consistent
-- [ ] Two to five minutes
+- [ ] Duration is generated from the body word count at 155 words per minute
+- [ ] Declared and calculated duration differ by no more than 15%
 - [ ] Age band defined
+- [ ] Age-band word target is met: 3–4 (150–300), 5–6 (200–400), 6–7 (250–500), 7–8 (350–650), 8–10 (500–900), 10–12 (700–1,200), 12–14 (900–1,600), 14–16 (1,200–2,000), 16–18 (1,500–2,500), 18+ (1,800–3,500)
+- [ ] Three to eight meaningful sections form a complete narrative arc
+- [ ] Every section advances the scene, event or emotional flow
 - [ ] Content track defined
 - [ ] Primary developmental theme defined
 - [ ] Three to eight glossary words supplied
 - [ ] TTS and highlighting reviewed
 - [ ] Copyright status confirmed
 - [ ] `clinicalBoundaryChecked` recorded
+- [ ] `contentQualityReview.status` is `approved`
+- [ ] Human reviewer name, review date and concrete notes are recorded
+- [ ] Narrative arc, age fit, continuity, character consistency, language, factual accuracy, originality/rights and accessibility tone are all approved
+- [ ] `releaseReady=true` only after the complete human quality review
+
+`structuralValid` and `releaseReady` are separate decisions. Automated checks may
+set or report structural validity. They must never invent a reviewer, write an
+`approved` status or bypass the human content-quality gate.
 
 ## Analytics
 
