@@ -1,9 +1,11 @@
 import { PILOT_STORIES } from "../src/content/pilotStories.js";
+import { ODYSSEY_STORIES } from "../src/content/odysseyStories.js";
 import { validatePilotCatalog } from "../src/content/validatePilotStories.js";
 
-const report = validatePilotCatalog(PILOT_STORIES);
+const curatedStories = [...ODYSSEY_STORIES, ...PILOT_STORIES];
+const report = validatePilotCatalog(curatedStories);
 
-console.log("\nOkurio Pilot Content Validation\n");
+console.log("\nOkurio Curated Content Validation\n");
 console.log(JSON.stringify(report.summary, null, 2));
 
 for (const storyReport of report.storyReports) {
