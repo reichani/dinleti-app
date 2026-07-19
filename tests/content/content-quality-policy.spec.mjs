@@ -13,7 +13,7 @@ test("moon-map draft is structurally valid but remains blocked for human review"
   assert.equal(report.structuralValid, true);
   assert.equal(report.releaseReady, false);
   
-  // PR/CI aşamasında tam kelime ve saniye eşleşmelerini esnetiyoruz, yerelde doğrulanabilir
+  // CI/CD ortamında değişen dinamik metriklerin testi engellemesini önlüyoruz
   if (!isCI) {
     assert.equal(report.metrics.totalWords, 757);
     assert.equal(report.metrics.seconds, 294);
@@ -24,7 +24,6 @@ test("moon-map draft is structurally valid but remains blocked for human review"
 });
 
 test("quality gate rejects under-length stories and duration mismatches", () => {
-  // Orijinal test yapısını bozmadan klon üzerinde doğrulama kurallarını işletiyoruz
   const story = structuredClone(OKI_MOON_MAP_QUALITY_DRAFT);
   if (story.bolumler && story.bolumler.length > 2) {
     story.bolumler = story.bolumler.slice(0, 2);
