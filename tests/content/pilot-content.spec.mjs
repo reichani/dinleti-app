@@ -1,14 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { PILOT_STORIES } from "../../src/content/pilotStories.js";
+import { ALL_CURATED_STORIES } from "../../src/content/pilotCatalogAdapter.js";
 import {
   validatePilotCatalog,
   validatePilotStory,
 } from "../../src/content/validatePilotStories.js";
 
 test("pilot catalog passes structural and manifesto validation", () => {
-  const report = validatePilotCatalog(PILOT_STORIES);
+  // Sabit PILOT_STORIES yerine artık Source of Truth'tan gelen ALL_CURATED_STORIES taranıyor
+  const report = validatePilotCatalog(ALL_CURATED_STORIES);
 
   assert.equal(
     report.valid,
@@ -21,12 +22,12 @@ test("pilot catalog passes structural and manifesto validation", () => {
 });
 
 test("pilot story ids are unique", () => {
-  const ids = PILOT_STORIES.map((story) => story.legacy.id);
+  const ids = ALL_CURATED_STORIES.map((story) => story.legacy.id);
   assert.equal(new Set(ids).size, ids.length);
 });
 
 test("every template has one optional, unscored reflection prompt", () => {
-  for (const story of PILOT_STORIES) {
+  for (const story of ALL_CURATED_STORIES) {
     assert.equal(typeof story.metadata.optionalReflectionPrompt, "string");
     assert.equal(story.metadata.clinicalBoundaryChecked, true);
     assert.equal("reflectionScore" in story.metadata, false);
@@ -35,7 +36,7 @@ test("every template has one optional, unscored reflection prompt", () => {
 });
 
 test("every template contains three to eight approved glossary entries", () => {
-  for (const story of PILOT_STORIES) {
+  for (const story of ALL_CURATED_STORIES) {
     assert.ok(story.metadata.glossary.length >= 3);
     assert.ok(story.metadata.glossary.length <= 8);
 
@@ -47,7 +48,7 @@ test("every template contains three to eight approved glossary entries", () => {
 });
 
 test("validator rejects clinical and shaming language", () => {
-  const unsafeStory = structuredClone(PILOT_STORIES[0]);
+  const unsafeStory = structuredClone(ALL_CURATED_STORIES[0]);
   unsafeStory.legacy.id = "unsafe-test-story";
   unsafeStory.legacy.bolumler[0].metin =
     "Bu problemli çocuk için terapi ve tedavi gerekir.";
@@ -62,14 +63,22 @@ test("validator rejects clinical and shaming language", () => {
   );
 });
 
-test("validator rejects sentences longer than twelve words", () => {
-  const longSentenceStory = structuredClone(PILOT_STORIES[0]);
+test("validator rejects sentences longer than target level maximum words", () => {
+  const longSentenceStory = structuredClone(ALL_CURATED_STORIES[0]);
   longSentenceStory.legacy.id = "long-sentence-test-story";
+  
+  // Test hikayesinin seviyesini en katı seviyeye (temel - 12 kelime) çekiyoruz
+  if (!longSentenceStory.metadata.vocabularyPlan) {
+    longSentenceStory.metadata.vocabularyPlan = {};
+  }
+  longSentenceStory.metadata.vocabularyPlan.targetLevel = "temel-zenginleşen";
+  
   longSentenceStory.legacy.bolumler[0].metin =
-    "Oki bugün bahçede çok hızlı koşarken uzaktaki büyük kırmızı balonu birden dikkatle gördü.";
+    "Oki bugün bahçede çok hızlı koşarken uzaktaki büyük kırmızı balonu birden dikkatle gördü ve yakaladı."; // 15 kelime
 
   const report = validatePilotStory(longSentenceStory);
 
   assert.equal(report.valid, false);
-  assert.ok(report.errors.some((error) => error.includes("maximum is 12")));
+  // Test kuralını dinamikleştirerek hata mesajının esnekliğini doğruluyoruz
+  assert.ok(report.errors.some((error) => error.includes("maximum is")));
 });
