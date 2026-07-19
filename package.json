@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/write-release-manifest.mjs",
     "preview": "vite preview",
     "validate:content": "node scripts/validate-pilot-content.mjs",
     "test:content": "node --test tests/content/*.spec.mjs",

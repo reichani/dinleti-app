@@ -75,32 +75,15 @@ export function scrollActiveWord(
   return true;
 }
 
-function focusSentenceIndicator(root = document) {
-  return [...root.querySelectorAll('[data-mobile-stability] div')]
-    .find((element) => /Odak modu:\s*cümle/i.test(normalizedLabel(element)));
-}
-
-function focusToggle(root = document) {
-  return root.querySelector('[data-mobile-stability] button[aria-label="Odak modu"]');
-}
-
 export function ensureCalmReadingFlow(root = document) {
   const player = root.querySelector('[data-mobile-stability]');
   if (!(player instanceof HTMLElement)) return false;
 
-  const indicator = focusSentenceIndicator(root);
-  const toggle = focusToggle(root);
-  if (indicator && toggle instanceof HTMLButtonElement) {
-    player.dataset.personaFlow = 'calm-pending';
-    toggle.click();
-    return true;
-  }
-
   const manualMode = player.querySelector('[data-okuma-modu="kendim"]');
-  const manualSelected = manualMode instanceof HTMLElement
+  const manualSelected = (manualMode instanceof HTMLElement
     && (manualMode.getAttribute('aria-pressed') === 'true'
       || /rgba\(232,\s*163,\s*61/i.test(manualMode.getAttribute('style') || '')
-      || /Kendim Okuyorum:/i.test(normalizedLabel(player)));
+    )) || /Kendim Okuyorum:/i.test(normalizedLabel(player));
 
   const readingText = player.querySelector('[data-okuma-metin]');
   if (manualSelected && readingText instanceof HTMLElement) {
@@ -124,11 +107,6 @@ function scheduleCalmFlowGuard() {
 export function markInteractiveControls(root = document) {
   root.querySelectorAll('button').forEach((button) => {
     const label = normalizedLabel(button);
-
-    if (label.includes('Takıldım') || label.includes('Bana oku')) {
-      button.dataset.yardimOku = '1';
-      button.setAttribute('aria-label', 'Takıldım, bana oku');
-    }
 
     if (label.endsWith('Dinliyorum')) button.dataset.okumaModu = 'dinliyorum';
     if (label.endsWith('Birlikte Okuyorum')) button.dataset.okumaModu = 'birlikte';

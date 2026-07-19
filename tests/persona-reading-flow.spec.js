@@ -20,11 +20,22 @@ async function uygulamayiHazirla(page) {
 
 async function kendiMetniniAc(page, text) {
   await uygulamayiHazirla(page);
+  await page.getByRole("button", { name: /Kendi metnini oku/i }).click();
   const input = page.getByLabel("Kendi metnim", { exact: true });
   await input.fill(text);
   await page.getByRole("button", { name: "Okuma moduna al", exact: true }).click();
   await expect(page.locator("[data-mobile-stability]")).toBeVisible();
   await page.waitForFunction(() => Boolean(window.__okurioReadingFixes));
+}
+
+async function ayarlariAc(page) {
+  const player = page.locator("[data-mobile-stability]");
+  const panel = player.locator("[data-reader-settings]");
+  if (!(await panel.isVisible())) {
+    await player.locator("[data-reader-settings-toggle]").click();
+    await expect(panel).toBeVisible();
+  }
+  return panel;
 }
 
 const personaMetni = Array.from(
@@ -84,16 +95,17 @@ test.describe("Persona bazlı okuma akışı", () => {
     expect(result.config.comfortBottomRatio).toBeGreaterThanOrEqual(0.8);
   });
 
-  test("DEHB personası: profil seçilince tek cümleye kilitlenmez", async ({ page }) => {
+  test("dikkat desteği: kullanıcı seçince odak görünümü açık ve biyonik vurgu kapalı kalır", async ({ page }) => {
     await kendiMetniniAc(page, personaMetni);
     const player = page.locator("[data-mobile-stability]");
-    await player.getByRole("button", { name: "DEHB profili" }).click();
+    const panel = await ayarlariAc(page);
+    await panel.getByRole("button", { name: "Dikkat desteği", exact: true }).click();
 
-    await expect(player.getByText(/Odak modu:\s*cümle/i)).toHaveCount(0, { timeout: 5000 });
+    await expect(player.getByText(/Odak modu:\s*cümle/i)).toBeVisible();
+    await expect(panel.getByRole("button", { name: "Biyonik vurgu, deneysel" })).toHaveAttribute("aria-pressed", "false");
     const readingText = player.locator("[data-okuma-metin]");
     await expect(readingText).toContainText("Cümle 1");
-    await expect(readingText).toContainText("Cümle 9");
-    await expect(readingText).not.toContainText("Cümle 10");
+    await expect(readingText).not.toContainText("Cümle 9");
     await expect(player).toHaveAttribute("data-persona-flow", "calm");
   });
 
@@ -101,7 +113,10 @@ test.describe("Persona bazlı okuma akışı", () => {
     await kendiMetniniAc(page, personaMetni);
     const player = page.locator("[data-mobile-stability]");
 
-    await player.getByRole("button", { name: "DEHB profili" }).click();
+    const panel = await ayarlariAc(page);
+    await panel.getByRole("button", { name: "Dikkat desteği", exact: true }).click();
+    await panel.getByRole("button", { name: "Odak modu", exact: true }).click();
+    await player.locator("[data-okuma-modu-kompakt] button").click();
     await player.locator('[data-okuma-modu="kendim"]').click();
 
     const readingText = player.locator("[data-okuma-metin]");
@@ -127,7 +142,8 @@ test.describe("Persona bazlı okuma akışı", () => {
     const longToken = "https://okurio.example.com/cok-uzun-bosluksuz-baglanti-1234567890";
     await kendiMetniniAc(page, `Oki bağlantıyı sakin okur. ${longToken} Son cümle de görünür kalır.`);
     const player = page.locator("[data-mobile-stability]");
-    await player.getByRole("button", { name: "Disleksi profili" }).click();
+    const panel = await ayarlariAc(page);
+    await panel.getByRole("button", { name: "Okuma kolaylığı desteği" }).click();
 
     const readingText = player.locator("[data-okuma-metin]");
     await expect(readingText.locator('[data-uzun-token="1"]').first()).toBeVisible();

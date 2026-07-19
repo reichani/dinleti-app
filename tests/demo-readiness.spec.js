@@ -4,7 +4,7 @@ const TEST_OKUMA_YOLU = {
   secildi: true,
   yolId: "okuma_guveni_8_10",
   evreId: "paragraf",
-  destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin", "kisa_hedef"],
+  destekler: ["kelime_takibi", "genis_aralik", "yumusak_zemin", "kisa_hedef"],
 };
 
 const oynatici = (page) => page.locator("[data-mobile-stability]");
@@ -22,6 +22,7 @@ async function onboardingTamamla(page) {
 
 async function kendiMetniniAc(page, text) {
   await onboardingTamamla(page);
+  await page.getByRole("button", { name: /Kendi metnini oku/i }).click();
   const input = page.getByLabel("Kendi metnim", { exact: true });
   await input.scrollIntoViewIfNeeded();
   await input.fill(text);
@@ -35,7 +36,13 @@ async function kendiMetniniAc(page, text) {
 }
 
 async function modaGec(page, id, ipucu) {
+  const compact = oynatici(page).locator("[data-okuma-modu-kompakt] button");
   const button = modButonu(page, id);
+  if (!(await compact.isVisible())) {
+    await oynatici(page).locator("[data-reader-settings-toggle]").click();
+    await expect(compact).toBeVisible();
+  }
+  if (!(await button.isVisible())) await compact.click();
   await expect(button).toBeVisible();
   await button.click();
   await expect(oynatici(page).locator("[data-okuma-modu-ipucu]")).toContainText(ipucu);
@@ -50,10 +57,9 @@ function uzunMetin() {
 test.describe("1. Mod geçişleri ve kullanıcı durumu", () => {
   test("Dinliyorum → Birlikte → Kendim akışı ses durumunu ve yardımı doğru günceller", async ({ page }) => {
     await kendiMetniniAc(page, "Oki bu metni sakin ve anlaşılır biçimde okur. Kullanıcı üç okuma modunu sırayla dener.");
-    await expect(modButonu(page, "dinliyorum")).toBeVisible();
-    await modaGec(page, "birlikte", "Birlikte Okuyorum");
-    await modaGec(page, "kendim", "Kendim Okuyorum");
-    await expect(oynatici(page).locator('[data-yardim-oku="1"]')).toBeVisible();
+    await modaGec(page, "birlikte", "Ses daha yavaş akar, ben eşlik ederim.");
+    await modaGec(page, "kendim", "Ses kapanır; takıldığım yerde yardım alırım.");
+    await expect(oynatici(page).locator('[data-kelime-yardimi="1"]')).toBeVisible();
     await expect(oynatici(page).getByRole("button", { name: /Ses: Kapalı/i })).toBeVisible();
   });
 });
@@ -132,10 +138,14 @@ test.describe("3. Uzun süre ve mutation fırtınası", () => {
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await kendiMetniniAc(page, uzunMetin());
+    if (!(await oynatici(page).locator("[data-okuma-modu-kompakt] button").isVisible())) {
+      await oynatici(page).locator("[data-reader-settings-toggle]").click();
+    }
     const ids = ["dinliyorum", "birlikte", "kendim"];
     for (let i = 0; i < 12; i += 1) {
       const id = ids[i % ids.length];
       const button = modButonu(page, id);
+      if (!(await button.isVisible())) await oynatici(page).locator("[data-okuma-modu-kompakt] button").click();
       await expect(button).toBeVisible();
       await button.click();
       await expect(oynatici(page).locator("[data-okuma-metin]")).toHaveCount(1);
@@ -155,9 +165,10 @@ test.describe("4. Görsel ve geometrik stabilite", () => {
       return { left: rect.left, right: rect.right, top: rect.top, height: rect.height, scrollLeft: element.scrollLeft, viewport: window.innerWidth };
     });
     const before = await readMetrics();
-    await modaGec(page, "birlikte", "Birlikte Okuyorum");
+    expect(before.height).toBeGreaterThanOrEqual(220);
+    await modaGec(page, "birlikte", "Ses daha yavaş akar, ben eşlik ederim.");
     const together = await readMetrics();
-    await modaGec(page, "kendim", "Kendim Okuyorum");
+    await modaGec(page, "kendim", "Ses kapanır; takıldığım yerde yardım alırım.");
     const self = await readMetrics();
     for (const metrics of [before, together, self]) {
       expect(metrics.left).toBeGreaterThanOrEqual(0);
@@ -174,12 +185,16 @@ test.describe("5. Erişilebilirlik ve dokunma hedefleri", () => {
   test("temel okuma kontrolleri erişilebilir ada ve en az 40px dokunma alanına sahiptir", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name === "desktop-chrome", "Mobil dokunma hedefi sözleşmesi");
     await kendiMetniniAc(page, "Kısa bir erişilebilirlik testi metni.");
-    await modaGec(page, "kendim", "Kendim Okuyorum");
+    await modaGec(page, "kendim", "Ses kapanır; takıldığım yerde yardım alırım.");
+    const settings = oynatici(page).locator("[data-reader-settings]");
+    if (!(await settings.isVisible())) {
+      await oynatici(page).locator("[data-reader-settings-toggle]").click();
+      await expect(settings).toBeVisible();
+    }
     const controls = [
-      modButonu(page, "dinliyorum"),
-      modButonu(page, "birlikte"),
-      modButonu(page, "kendim"),
-      oynatici(page).locator('[data-yardim-oku="1"]'),
+      oynatici(page).locator("[data-reader-settings-toggle]"),
+      oynatici(page).locator("[data-okuma-modu-kompakt] button"),
+      oynatici(page).locator("[data-alt-araclar] button").first(),
     ];
     for (const control of controls) {
       await expect(control).toBeVisible();
@@ -238,5 +253,24 @@ test.describe("9. Deployment ve yenileme smoke testi", () => {
     await page.reload();
     await expect(page.locator("#root")).not.toBeEmpty();
     expect(errors).toEqual([]);
+  });
+});
+
+test.describe("10. Reader-first içerik güvenliği", () => {
+  test("iki dakikanın altındaki pilot hikâye ayrıntıda hazırlanıyor görünür ve başlatılamaz", async ({ page }) => {
+    await onboardingTamamla(page);
+    const pilotCard = page.getByRole("button", { name: /Mino Neden Üzüldü\? ayrıntılarını aç/ });
+    await pilotCard.scrollIntoViewIfNeeded();
+    await pilotCard.click();
+    await expect(page.locator("[data-content-preparing]")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Hazırlanıyor", exact: true })).toBeDisabled();
+    await expect(oynatici(page)).toHaveCount(0);
+  });
+
+  test("masaüstü okuyucu dar uygulama sütunuyla sınırlı kalmaz", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop-chrome", "Masaüstü genişlik sözleşmesi");
+    await kendiMetniniAc(page, uzunMetin());
+    const width = await oynatici(page).evaluate((element) => element.getBoundingClientRect().width);
+    expect(width).toBeGreaterThanOrEqual(700);
   });
 });
