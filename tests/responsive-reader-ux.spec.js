@@ -34,13 +34,13 @@ test.describe("Responsive reader UX sözleşmesi", () => {
     await uygulamayiHazirla(page);
     await expect(page.locator("[data-surum]")).toContainText("v2.7.2");
 
-    const kisaMasal = page.locator('[data-story-id="andersen-masallari"]');
+    const kisaMasal = page.locator('[data-story-id="andersen-masallari"]').first();
     await expect(kisaMasal).toBeVisible();
     await expect(kisaMasal.locator("[data-content-scope]")).toHaveText("Hazırlanıyor");
     await expect(kisaMasal.locator("[data-actual-duration]")).toContainText(/0:\d{2}/);
     await expect(kisaMasal).toHaveAttribute("data-reading-enabled", "false");
 
-    const tamMetin = page.locator('[data-story-id="peter-rabbit-en"]');
+    const tamMetin = page.locator('[data-story-id="peter-rabbit-en"]').first();
     await expect(tamMetin).toBeVisible();
     await expect(tamMetin.locator("[data-content-scope]")).toHaveText("Tam metin");
     await expect(tamMetin).toHaveAttribute("data-reading-enabled", "true");
