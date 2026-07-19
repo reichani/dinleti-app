@@ -37,7 +37,7 @@ export const OKI_MOON_MAP_QUALITY_DRAFT = {
         "Oki, ilk haritada tarihi yazmadığını sonunda fark etti. Bu eksik bilgi iki çizimi karşılaştırmayı zorlaştırmıştı. Haritasına tarih ve gözlem saati ekledi.",
         "Toto gözlemevine gelirken kırmızı bir fener getirdi. Parlak ışık gözlerini rahatsız edebilirdi. Bu yüzden feneri masadan uzağa koydular.",
         "Toto, kraterleri uzay şehirleri sanmıştı. Oki ona hemen yanlış demedi. Birlikte fotoğraftaki açıklamaları yeniden okudular.",
-        "Açıklamalar kraterlerin çarpma izleri olduğunu gösteriyordu. Ay'da rüzgâr ve sıvı su etkisi azdı. Bu nedenle eski izler uzun süre korunabiliyordu.",
+        "Açıklamalar kraterlerin çarpma izleri olduğunu gösteriyordu. Ay yüzeyinde rüzgâr ve sıvı su aşınması yoktur. Bu nedenle eski izler uzun süre korunabiliyordu.",
         "Toto, tahminiyle kanıt arasındaki farkı anladı. Haritaya soru işaretli bir kutu ekledi. Doğrulanmayan fikirler bu kutuda bekleyecekti.",
         "Kutudaki ilk soru koyu alanlarla ilgiliydi. Oki bunların neden farklı göründüğünü merak etti. Nana bazalt yüzeylerin ışığı farklı yansıttığını açıkladı.",
         "İkinci soru kraterlerin yaşını soruyordu. Kaynak bütün kraterlere aynı yaş vermiyordu. Arkadaşlar kesin olmayan sayıları haritaya yazmadı.",
@@ -98,10 +98,10 @@ export const OKI_MOON_MAP_QUALITY_DRAFT = {
     ],
     optionalReflectionPrompt: "Oki hangi bilgisini değiştirince haritası gelişti?",
     contentQualityReview: {
-      status: "pending",
-      reviewerName: "",
-      reviewedAt: null,
-      reviewNotes: "",
+      status: "changes_requested",
+      reviewerName: "Reyhan Açar",
+      reviewedAt: "2026-07-19",
+      reviewNotes: "Ay yüzeyindeki aşınma açıklaması, “Ay yüzeyinde rüzgâr ve sıvı su aşınması yoktur.” olarak düzeltilmeli.",
       checklist: {
         narrativeArc: false,
         ageFit: false,
