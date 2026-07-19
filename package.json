@@ -8,6 +8,8 @@
     "build": "vite build && node scripts/write-release-manifest.mjs",
     "preview": "vite preview",
     "validate:content": "node scripts/validate-pilot-content.mjs",
+    "audit:catalog": "node scripts/audit-catalog-quality.mjs",
+    "validate:catalog-quality": "node scripts/audit-catalog-quality.mjs --strict",
     "test:content": "node --test tests/content/*.spec.mjs",
     "test": "playwright test",
     "test:mobile": "playwright test --project=android-mobile --project=samsung-s24 --project=small-mobile",
