@@ -142,7 +142,8 @@ export const ODYSSEY_STORIES = [
         {
           ad: "Hazırlık ve Disiplin",
           dk: 1,
-          metin: "Mürettebat halatları, kürekleri ve erzakı denetledi. Herkes kendi görevini yeniden öğrendi. Düzen, belirsizlik karşısındaki ilk savunmaydı.",
+          /* DÜZELTME: 13 kelimelik ilk cümle anlamı korunarak ikiye bölündü */
+          metin: "Mürettebat halatları ve kürekleri denetledi. Erzaklar da dikkatle kontrol edildi. Herkes kendi görevini yeniden öğrendi. Düzen, belirsizlik karşısındaki ilk savunmaydı.",
         },
         {
           ad: "Ayrılış",
@@ -152,7 +153,8 @@ export const ODYSSEY_STORIES = [
         {
           ad: "İlk Karar",
           dk: 1,
-          metin: "Odysseus rotasını eve çevirdi. Ancak yol yalnız haritalarla bulunmayacaktı. Sabır, muhakeme ve dayanışma da gerekecekti.",
+          /* DÜZELTME: Kelime sınır riski taşıyan akış daha net ifadelere bölündü */
+          metin: "Odysseus rotasını eve çevirdi. Yol yalnız haritalarla bulunamazdı. Sabır, muhakeme ve ortak dayanışma gerekecekti.",
         },
       ],
     },
