@@ -9,10 +9,10 @@ test("moon-map draft is structurally valid but remains blocked for human review"
 
   assert.equal(report.structuralValid, true);
   assert.equal(report.releaseReady, false);
-  assert.equal(report.metrics.totalWords, 756);
-  assert.equal(report.metrics.seconds, 293);
-  assert.deepEqual(report.metrics.sectionWords, [128, 144, 178, 145, 161]);
-  assert.deepEqual(report.metrics.sectionPercentages, [16.9, 19, 23.5, 19.2, 21.3]);
+  assert.equal(report.metrics.totalWords, 757);
+  assert.equal(report.metrics.seconds, 294);
+  assert.deepEqual(report.metrics.sectionWords, [128, 144, 179, 145, 161]);
+  assert.deepEqual(report.metrics.sectionPercentages, [16.9, 19, 23.6, 19.2, 21.3]);
   assert.match(report.warnings.join(" "), /human content-quality approval/u);
 });
 
