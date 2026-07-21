@@ -38,6 +38,15 @@ async function ayarlariAc(page) {
   return panel;
 }
 
+async function ayarlariKapat(page) {
+  const player = page.locator("[data-mobile-stability]");
+  const panel = player.locator("[data-reader-settings]");
+  if (await panel.isVisible()) {
+    await panel.locator("[data-reader-settings-close]").click();
+    await expect(panel).toBeHidden();
+  }
+}
+
 const personaMetni = Array.from(
   { length: 18 },
   (_, i) => `Cümle ${i + 1} sakin biçimde okunur ve çocuk bir sonraki satıra hazırlanır.`
@@ -73,10 +82,13 @@ test.describe("Persona bazlı okuma akışı", () => {
 
     await kendiMetniniAc(page, personaMetni);
     const player = page.locator("[data-mobile-stability]");
-    await ayarlariAc(page);
+    await ayarlariKapat(page);
     await player.locator("[data-okuma-modu-kompakt] button").click();
     await player.locator('[data-okuma-modu="kendim"]').click();
-    await player.getByRole("button", { name: "Oynat", exact: true }).click();
+    const playButton = player.getByRole("button", { name: "Oynat", exact: true });
+    await expect(playButton).toBeVisible();
+    await expect(playButton).toBeEnabled();
+    await playButton.click();
     await page.waitForTimeout(500);
 
     const manual = await player.locator("[data-okuma-metin]").evaluate((element) => ({
@@ -169,6 +181,7 @@ test.describe("Persona bazlı okuma akışı", () => {
     const panel = await ayarlariAc(page);
     await panel.getByRole("button", { name: "Dikkat desteği", exact: true }).click();
     await panel.getByRole("button", { name: "Odak modu", exact: true }).click();
+    await ayarlariKapat(page);
     await player.locator("[data-okuma-modu-kompakt] button").click();
     await player.locator('[data-okuma-modu="kendim"]').click();
 
