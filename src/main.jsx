@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import "./mobile-reading.css";
+import "./mobile-settings-hotfix.css";
 import { installReadingMobileFixes } from "./reading-mobile-fixes.js";
 
 // Claude artifact ortamindaki window.storage API'sini localStorage ile kopruler.
