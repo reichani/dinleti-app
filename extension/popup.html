@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Okurio Okuma Katmanı</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">OKURIO</p>
+        <h1>Okuma Katmanı</h1>
+      </div>
+      <label class="switch" aria-label="Okuma katmanını aç veya kapat">
+        <input id="enabled" type="checkbox" />
+        <span></span>
+      </label>
+    </header>
+
+    <section>
+      <label for="fontFamily">Yazı tipi</label>
+      <select id="fontFamily">
+        <option value="system">Sistem yazı tipi</option>
+        <option value="arial">Arial</option>
+        <option value="verdana">Verdana</option>
+        <option value="georgia">Georgia</option>
+      </select>
+    </section>
+
+    <section class="two-col">
+      <div>
+        <label for="fontSize">Yazı boyutu</label>
+        <input id="fontSize" type="range" min="16" max="30" step="1" />
+        <output id="fontSizeValue"></output>
+      </div>
+      <div>
+        <label for="lineHeight">Satır aralığı</label>
+        <input id="lineHeight" type="range" min="1.4" max="2.2" step="0.1" />
+        <output id="lineHeightValue"></output>
+      </div>
+    </section>
+
+    <section>
+      <label for="letterSpacing">Harf aralığı</label>
+      <input id="letterSpacing" type="range" min="0" max="0.14" step="0.01" />
+      <output id="letterSpacingValue"></output>
+    </section>
+
+    <section>
+      <span class="label">Arka plan</span>
+      <div class="themes" role="radiogroup" aria-label="Arka plan teması">
+        <button type="button" data-theme="paper">Kâğıt</button>
+        <button type="button" data-theme="cream">Krem</button>
+        <button type="button" data-theme="soft">Yumuşak</button>
+        <button type="button" data-theme="dark">Koyu</button>
+      </div>
+    </section>
+
+    <section class="toggles">
+      <label><input id="focusLine" type="checkbox" /> Okuma cetveli</label>
+      <label><input id="simplify" type="checkbox" /> Dikkat dağıtıcıları azalt</label>
+    </section>
+
+    <button id="reset" class="secondary" type="button">Ayarları sıfırla</button>
+    <p class="note">Ayarlar bu tarayıcıda saklanır. Sayfayı yenilemeden uygulanır.</p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
