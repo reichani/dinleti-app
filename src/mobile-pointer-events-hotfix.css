@@ -1,20 +1,40 @@
-/* Prevent the mobile reading canvas from extending over the transport controls.
- * The compact workspace previously used block-size: 100% below a fixed header,
- * making its interactive word buttons overlap the Oynat button. */
+/* Mobile reader hit-target containment.
+ * The reading canvas must never extend its clickable descendants over the
+ * transport controls. Keep the visual and pointer hit-testing boundaries equal. */
 
 [data-okuma-alani] {
+  position: relative;
   isolation: isolate;
+  contain: layout paint;
+  clip-path: inset(0 round 16px);
 }
 
 [data-reader-stage-header] {
   position: relative;
   z-index: 2;
+  flex: 0 0 auto;
+}
+
+[data-reader-workspace],
+[data-reading-column],
+[data-okuma-metin] {
+  min-width: 0;
+  min-height: 0;
 }
 
 [data-alt-kontrol] {
   position: relative;
-  z-index: 30;
+  z-index: 50;
   isolation: isolate;
+  flex: 0 0 auto;
+  pointer-events: auto;
+}
+
+[data-transport-controls],
+[data-transport-controls] button {
+  position: relative;
+  z-index: 51;
+  pointer-events: auto;
 }
 
 @container (max-width: 819px) {
@@ -25,24 +45,37 @@
     min-block-size: 0 !important;
     max-block-size: 100% !important;
     overflow: hidden !important;
+    contain: layout paint;
   }
 
   [data-reading-column] {
     block-size: auto !important;
     height: 100% !important;
     min-block-size: 0 !important;
+    max-block-size: 100% !important;
     overflow: hidden !important;
+    contain: layout paint;
   }
 
   [data-okuma-metin] {
     position: relative;
     z-index: 1;
+    block-size: auto !important;
+    height: 100% !important;
     min-block-size: 0 !important;
+    max-block-size: 100% !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
   }
 }
 
 @media (max-width: 430px) {
+  [data-okuma-alani] {
+    clip-path: inset(0 round 12px);
+  }
+
   [data-alt-kontrol] {
-    z-index: 30;
+    z-index: 50;
+    background: #14181f;
   }
 }
