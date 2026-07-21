@@ -1,0 +1,12 @@
+/* Okurio v2.7.4 Mobile UX Hotfix — accessible reader settings bottom sheet */
+
+@container (max-width: 819px) {
+  [data-reader-settings] {
+    position: fixed !important;
+    z-index: 80 !important;
+    inset-inline: 0 !important;
+    inset-block: auto 0 !important;
+    inline-size: 100% !important;
+    max-inline-size: 720px !important;
+    block-size: auto !important;
+    max-block
