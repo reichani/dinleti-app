@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Okurio Okuma Katmanı",
+  "version": "0.1.0",
+  "description": "Web sayfalarını daha rahat, odaklı ve kişiselleştirilmiş okumaya yardımcı olur.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "action": {
+    "default_title": "Okurio Okuma Katmanı",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
