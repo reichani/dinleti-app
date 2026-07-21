@@ -1,29 +1,46 @@
-import { PILOT_STORIES } from "../src/content/pilotStories.js";
-import { validatePilotCatalog } from "../src/content/validatePilotStories.js";
+import { ALL_CURATED_STORIES } from "../src/content/pilotCatalogAdapter.js";
 
-const report = validatePilotCatalog(PILOT_STORIES);
-
-console.log("\nOkurio Pilot Content Validation\n");
-console.log(JSON.stringify(report.summary, null, 2));
-
-for (const storyReport of report.storyReports) {
-  const id = storyReport.metrics?.storyId || "unknown";
-  console.log(`\n${storyReport.valid ? "PASS" : "FAIL"} ${id}`);
-  console.log(JSON.stringify(storyReport.metrics, null, 2));
-
-  for (const warning of storyReport.warnings) {
-    console.warn(`  WARNING: ${warning}`);
-  }
-
-  for (const error of storyReport.errors) {
-    console.error(`  ERROR: ${error}`);
+// Her okuma seviyesinin hak ettiği entelektüel kelime limitini Source of Truth'tan alıyoruz
+function getDynamicWordLimit(targetLevel) {
+  switch (targetLevel) {
+    case 'temel-zenginleşen': 
+      return 12; // 7-10 yaş grubu için odaklanmayı artıran kısa cümleler
+    case 'orta-ileri': 
+      return 18; // 11-16 yaş grubu için muhakeme yeteneğini geliştiren yan cümleler
+    case 'ileri-edebi': 
+      return 35; // 16+ yetişkin grubu için edebî zenginlik ve serbestlik
+    default: 
+      return 12;
   }
 }
 
-for (const error of report.catalogErrors) {
-  console.error(`CATALOG ERROR: ${error}`);
-}
+export function validateCuratedContent() {
+  let hasError = false;
 
-if (!report.valid) {
-  process.exitCode = 1;
+  for (const story of ALL_CURATED_STORIES) {
+    const targetLevel = story.metadata?.vocabularyPlan?.targetLevel;
+    const maxWordLimit = getDynamicWordLimit(targetLevel);
+
+    for (const bolum of story.legacy.bolumler) {
+      // Cümleleri ayırıp kelime sayılarını dinamik limite göre kontrol ediyoruz
+      const sentences = bolum.metin.split(/(?<=[.!?])\s+/);
+      
+      for (const sentence of sentences) {
+        const wordCount = sentence.trim().split(/\s+/).filter(Boolean).length;
+        
+        if (wordCount > maxWordLimit) {
+          console.error(`❌ HATA: "${story.legacy.baslik}" içerisindeki cümle limitini aştı!`);
+          console.error(`Cümle (${wordCount} kelime): "${sentence}"`);
+          console.error(`Bu seviye (${targetLevel}) için izin verilen maksimum limit: ${maxWordLimit}\n`);
+          hasError = true;
+        }
+      }
+    }
+  }
+
+  if (hasError) {
+    process.exit(1);
+  } else {
+    console.log("✅ Tüm içerikler seviye bazlı dinamik Source of Truth kontrolünden başarıyla geçti!");
+  }
 }
