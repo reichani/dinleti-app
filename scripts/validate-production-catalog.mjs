@@ -1,17 +1,16 @@
 import { ALL_CURATED_STORIES } from "../src/content/pilotCatalogAdapter.js";
 
-const WORDS_PER_MINUTE = 155;
-
 const AGE_BANDS = [
-  { id: "3-5", pattern: /\b(3|4|5)(?:\s*-\s*(4|5))?\s*yas\b/u, minimumSeconds: 120 },
-  { id: "6-7", pattern: /\b6\s*-\s*7\s*yas\b/u, minimumSeconds: 180 },
-  { id: "8-10", pattern: /\b8\s*-\s*10\s*yas\b/u, minimumSeconds: 240 },
-  { id: "11-13", pattern: /\b11\s*-\s*13\s*yas\b/u, minimumSeconds: 300 },
-  { id: "14-17", pattern: /\b14\s*-\s*17\s*yas\b/u, minimumSeconds: 360 },
-  { id: "18+", pattern: /\b(18\+|yetiskin|16\+)\b/u, minimumSeconds: 360 },
+  { id: "3-5", pattern: /\b(3|4|5)(?:\s*-\s*(4|5))?\s*yas\b/u, minimumSeconds: 120, wordsPerMinute: 110 },
+  { id: "6-7", pattern: /\b6\s*-\s*7\s*yas\b/u, minimumSeconds: 180, wordsPerMinute: 125 },
+  { id: "8-10", pattern: /\b8\s*-\s*10\s*yas\b/u, minimumSeconds: 240, wordsPerMinute: 140 },
+  { id: "11-13", pattern: /\b11\s*-\s*13\s*yas\b/u, minimumSeconds: 300, wordsPerMinute: 150 },
+  { id: "14-17", pattern: /\b14\s*-\s*17\s*yas\b/u, minimumSeconds: 360, wordsPerMinute: 155 },
+  { id: "18+", pattern: /\b(18\+|yetiskin|16\+)\b/u, minimumSeconds: 360, wordsPerMinute: 155 },
 ];
 
 const DEFAULT_MINIMUM_SECONDS = 120;
+const DEFAULT_WORDS_PER_MINUTE = 155;
 
 const normalize = (value) =>
   String(value ?? "")
@@ -42,6 +41,7 @@ const resolveAgeBand = (story) => {
     ageLabel: source.yas ?? metadata.ageBand ?? metadata.ageGroup ?? "belirsiz",
     ageBand: band?.id ?? "belirsiz",
     minimumSeconds: band?.minimumSeconds ?? DEFAULT_MINIMUM_SECONDS,
+    wordsPerMinute: band?.wordsPerMinute ?? DEFAULT_WORDS_PER_MINUTE,
   };
 };
 
@@ -75,16 +75,16 @@ const isMicroExercise = (story) => {
 const reports = ALL_CURATED_STORIES.map((story) => {
   const source = story?.legacy ?? story ?? {};
   const wordCount = countWords(storyText(story));
-  const seconds = wordCount === 0 ? 0 : Math.ceil((wordCount * 60) / WORDS_PER_MINUTE);
   const preparing = isPreparing(story);
   const microExercise = isMicroExercise(story);
-  const { ageLabel, ageBand, minimumSeconds } = resolveAgeBand(story);
+  const { ageLabel, ageBand, minimumSeconds, wordsPerMinute } = resolveAgeBand(story);
+  const seconds = wordCount === 0 ? 0 : Math.ceil((wordCount * 60) / wordsPerMinute);
   const blockers = [];
 
   if (preparing) blockers.push("Hazırlanıyor/boş içerik aktif katalogda.");
   if (!preparing && !microExercise && seconds < minimumSeconds) {
     blockers.push(
-      `Yaş grubu ${ageBand} için tam okuma ${seconds} sn; minimum ${minimumSeconds} sn.`,
+      `Yaş grubu ${ageBand} için tam okuma ${seconds} sn; minimum ${minimumSeconds} sn (${wordsPerMinute} kelime/dk).`,
     );
   }
 
@@ -94,6 +94,7 @@ const reports = ALL_CURATED_STORIES.map((story) => {
     ageLabel,
     ageBand,
     wordCount,
+    wordsPerMinute,
     seconds,
     minimumSeconds,
     preparing,
@@ -105,11 +106,12 @@ const reports = ALL_CURATED_STORIES.map((story) => {
 const blocked = reports.filter((report) => report.blockers.length > 0);
 console.table(
   reports.map(
-    ({ id, title, ageBand, wordCount, seconds, minimumSeconds, preparing, microExercise, blockers }) => ({
+    ({ id, title, ageBand, wordCount, wordsPerMinute, seconds, minimumSeconds, preparing, microExercise, blockers }) => ({
       id,
       title,
       ageBand,
       wordCount,
+      wordsPerMinute,
       seconds,
       minimumSeconds,
       preparing,
