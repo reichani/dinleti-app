@@ -1,12 +1,18 @@
 /* Okurio v2.7.4 Mobile UX Hotfix — accessible reader settings bottom sheet */
 
-/* Some legacy reader variants do not expose data-acik on the settings panel.
- * The close control must therefore be visible whenever the panel itself is rendered. */
-[data-reader-settings] {
+/* Closed state is the primary source of truth on every viewport. */
+[data-reader-settings][data-acik="0"] {
+  display: none !important;
+}
+
+/* Some legacy reader variants do not expose data-acik while open.
+ * Keep the close control available whenever the panel is rendered, but never
+ * override the explicit closed state above. */
+[data-reader-settings]:not([data-acik="0"]) {
   position: relative;
 }
 
-[data-reader-settings] [data-reader-settings-close] {
+[data-reader-settings]:not([data-acik="0"]) [data-reader-settings-close] {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -25,7 +31,7 @@
 }
 
 @media (max-width: 819px) {
-  [data-reader-settings] {
+  [data-reader-settings]:not([data-acik="0"]) {
     position: fixed !important;
     z-index: 80 !important;
     left: 50% !important;
@@ -48,10 +54,6 @@
     box-shadow: 0 -14px 42px rgba(0, 0, 0, 0.48) !important;
   }
 
-  [data-reader-settings][data-acik="0"] {
-    display: none !important;
-  }
-
   [data-reader-settings][data-acik="1"] {
     display: block !important;
   }
@@ -66,7 +68,7 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
   }
 
-  [data-reader-settings] [data-reader-settings-close] {
+  [data-reader-settings]:not([data-acik="0"]) [data-reader-settings-close] {
     top: 6px !important;
     flex: 0 0 44px !important;
   }
@@ -83,7 +85,7 @@
 }
 
 @media (max-width: 430px) {
-  [data-reader-settings] {
+  [data-reader-settings]:not([data-acik="0"]) {
     max-height: min(90dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 12px)) !important;
     padding-inline: 12px !important;
   }
