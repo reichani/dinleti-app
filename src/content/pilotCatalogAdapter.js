@@ -11,17 +11,31 @@ const ALL_CURATED_STORY_METADATA = Object.fromEntries(
   ALL_CURATED_STORIES.map(({ legacy, metadata }) => [legacy.id, metadata]),
 );
 
+const RETIRED_PRODUCTION_TITLES = new Set([
+  "Mino Neden Üzüldü?",
+  "Toto Bir An Durdu",
+]);
+
+function isRetiredProductionStory(story) {
+  return RETIRED_PRODUCTION_TITLES.has(String(story?.baslik || "").trim());
+}
+
 /**
  * Safely merges curated stories into the existing catalog without mutating the
  * original array or replacing an existing story with the same id.
+ * Retired or incomplete production cards are removed before the catalog is
+ * exposed to any user-facing surface.
  */
 export function mergePilotStories(existingCatalog = []) {
-  const existingIds = new Set(existingCatalog.map((story) => story.id));
+  const productionSafeCatalog = existingCatalog.filter(
+    (story) => !isRetiredProductionStory(story),
+  );
+  const existingIds = new Set(productionSafeCatalog.map((story) => story.id));
   const newStories = ALL_CURATED_STORIES_LEGACY.filter(
-    (story) => !existingIds.has(story.id),
+    (story) => !existingIds.has(story.id) && !isRetiredProductionStory(story),
   );
 
-  return [...newStories, ...existingCatalog];
+  return [...newStories, ...productionSafeCatalog];
 }
 
 /**
@@ -31,6 +45,8 @@ export function mergePilotStories(existingCatalog = []) {
  */
 export function getPilotEligibleCatalog(catalog = []) {
   return catalog.filter((story) => {
+    if (isRetiredProductionStory(story)) return false;
+
     const metadata = ALL_CURATED_STORY_METADATA[story.id];
 
     if (metadata) {
@@ -89,4 +105,5 @@ export {
   ALL_CURATED_STORY_METADATA,
   PILOT_STORIES_LEGACY,
   PILOT_STORY_METADATA,
+  RETIRED_PRODUCTION_TITLES,
 };
