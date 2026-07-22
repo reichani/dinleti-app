@@ -257,13 +257,16 @@ test.describe("9. Deployment ve yenileme smoke testi", () => {
 });
 
 test.describe("10. Reader-first içerik güvenliği", () => {
-  test("iki dakikanın altındaki pilot hikâye ayrıntıda hazırlanıyor görünür ve başlatılamaz", async ({ page }) => {
+  test("onaysız ve aşırı kısa pilot hikâyeler production kataloğunda görünmez", async ({ page }) => {
     await onboardingTamamla(page);
-    const pilotCard = page.getByRole("button", { name: /Mino Neden Üzüldü\? ayrıntılarını aç/ });
-    await pilotCard.scrollIntoViewIfNeeded();
-    await pilotCard.click();
-    await expect(page.locator("[data-content-preparing]")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Hazırlanıyor", exact: true })).toBeDisabled();
+
+    await expect(
+      page.getByRole("button", { name: /Mino Neden Üzüldü\? ayrıntılarını aç/ }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: /Toto Bir An Durdu ayrıntılarını aç/ }),
+    ).toHaveCount(0);
+    await expect(page.locator("[data-content-preparing]")).toHaveCount(0);
     await expect(oynatici(page)).toHaveCount(0);
   });
 
