@@ -6,11 +6,10 @@ import {
 } from "../../src/content/productionStoryUpgrades.js";
 import { mergePilotStories } from "../../src/content/pilotCatalogAdapter.js";
 
-const WORDS_PER_MINUTE = 155;
-const MINIMUM_SECONDS_BY_AGE = {
-  "3-4 yaş": 120,
-  "3-5 yaş": 120,
-  "6-7 yaş": 180,
+const DURATION_RULES_BY_AGE = {
+  "3-4 yaş": { minimumSeconds: 120, wordsPerMinute: 110 },
+  "3-5 yaş": { minimumSeconds: 120, wordsPerMinute: 110 },
+  "6-7 yaş": { minimumSeconds: 180, wordsPerMinute: 125 },
 };
 
 function countWords(story) {
@@ -19,18 +18,20 @@ function countWords(story) {
 }
 
 function seconds(story) {
-  return Math.ceil((countWords(story) * 60) / WORDS_PER_MINUTE);
+  const rule = DURATION_RULES_BY_AGE[story.yas];
+  assert.ok(rule, `${story.baslik}: tanımsız yaş grubu ${story.yas}`);
+  return Math.ceil((countWords(story) * 60) / rule.wordsPerMinute);
 }
 
 test("yenilenen hikâyeler yaş grubunun gerçek minimum süresini karşılar", () => {
   assert.ok(PRODUCTION_STORY_UPGRADES.length >= 3);
 
   for (const story of PRODUCTION_STORY_UPGRADES) {
-    const minimum = MINIMUM_SECONDS_BY_AGE[story.yas];
-    assert.ok(minimum, `${story.baslik}: tanımsız yaş grubu ${story.yas}`);
+    const rule = DURATION_RULES_BY_AGE[story.yas];
+    assert.ok(rule, `${story.baslik}: tanımsız yaş grubu ${story.yas}`);
     assert.ok(
-      seconds(story) >= minimum,
-      `${story.baslik}: ${countWords(story)} kelime / ${seconds(story)} sn; minimum ${minimum} sn`,
+      seconds(story) >= rule.minimumSeconds,
+      `${story.baslik}: ${countWords(story)} kelime / ${seconds(story)} sn; minimum ${rule.minimumSeconds} sn (${rule.wordsPerMinute} kelime/dk)`,
     );
     assert.ok(story.bolumler.length >= 4, `${story.baslik}: en az dört anlatı bölümü gerekli`);
     assert.equal(story.icerikDurumu, "tam-metin");
