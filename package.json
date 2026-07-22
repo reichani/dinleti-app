@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/write-release-manifest.mjs",
+    "build": "npm run validate:production-catalog && vite build && node scripts/write-release-manifest.mjs",
     "preview": "vite preview",
     "validate:content": "node scripts/validate-pilot-content.mjs",
+    "validate:production-catalog": "node scripts/validate-production-catalog.mjs",
     "test:content": "node --test tests/content/*.spec.mjs",
     "test": "playwright test",
     "test:mobile": "playwright test --project=android-mobile --project=samsung-s24 --project=small-mobile",
