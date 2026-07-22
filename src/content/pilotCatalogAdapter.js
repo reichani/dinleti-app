@@ -4,6 +4,7 @@ import {
   PILOT_STORY_METADATA,
 } from "./pilotStories.js";
 import { ODYSSEY_STORIES } from "./odysseyStories.js";
+import { PRODUCTION_STORY_UPGRADES_BY_ID } from "./productionStoryUpgrades.js";
 
 const ALL_CURATED_STORIES = [...ODYSSEY_STORIES, ...PILOT_STORIES];
 const ALL_CURATED_STORIES_LEGACY = ALL_CURATED_STORIES.map(({ legacy }) => legacy);
@@ -13,15 +14,19 @@ const ALL_CURATED_STORY_METADATA = Object.fromEntries(
 
 /**
  * Safely merges curated stories into the existing catalog without mutating the
- * original array or replacing an existing story with the same id.
+ * original array. Approved production upgrades replace matching legacy story
+ * ids so short placeholders can be renewed without editing the monolithic App.
  */
 export function mergePilotStories(existingCatalog = []) {
-  const existingIds = new Set(existingCatalog.map((story) => story.id));
+  const upgradedCatalog = existingCatalog.map(
+    (story) => PRODUCTION_STORY_UPGRADES_BY_ID[story.id] ?? story,
+  );
+  const existingIds = new Set(upgradedCatalog.map((story) => story.id));
   const newStories = ALL_CURATED_STORIES_LEGACY.filter(
     (story) => !existingIds.has(story.id),
   );
 
-  return [...newStories, ...existingCatalog];
+  return [...newStories, ...upgradedCatalog];
 }
 
 /**
