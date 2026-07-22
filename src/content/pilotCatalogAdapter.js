@@ -11,6 +11,8 @@ const BLOCKED_STORY_IDS = new Set([
   "toto-bir-an-durdu",
   "mino-neden-uzuldu-v2",
   "toto-bir-an-durdu-v2",
+  "oe-01-mino-neden-uzuldu",
+  "os-01-toto-bir-an-durdu",
 ]);
 
 const ALL_CURATED_STORIES = [...ODYSSEY_STORIES, ...PILOT_STORIES];
