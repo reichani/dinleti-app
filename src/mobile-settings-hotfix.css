@@ -1,16 +1,27 @@
 /* Okurio v2.7.4 Mobile UX Hotfix — accessible reader settings bottom sheet */
 
-/* The close control is part of the open-panel contract on every viewport.
- * Legacy/inline styles must not leave it in the DOM but visually unavailable. */
-[data-reader-settings][data-acik="1"] [data-reader-settings-close] {
+/* Some legacy reader variants do not expose data-acik on the settings panel.
+ * The close control must therefore be visible whenever the panel itself is rendered. */
+[data-reader-settings] {
+  position: relative;
+}
+
+[data-reader-settings] [data-reader-settings-close] {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
+  position: sticky !important;
+  top: 8px !important;
+  float: right !important;
+  z-index: 100 !important;
+  width: 44px !important;
+  height: 44px !important;
   min-width: 44px !important;
   min-height: 44px !important;
+  margin: 4px 4px 4px 12px !important;
 }
 
 @media (max-width: 819px) {
@@ -55,7 +66,8 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
   }
 
-  [data-reader-settings-close] {
+  [data-reader-settings] [data-reader-settings-close] {
+    top: 6px !important;
     flex: 0 0 44px !important;
   }
 
