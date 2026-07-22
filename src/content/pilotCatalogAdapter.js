@@ -14,6 +14,9 @@ const BLOCKED_STORY_IDS = new Set([
 ]);
 
 const ALL_CURATED_STORIES = [...ODYSSEY_STORIES, ...PILOT_STORIES];
+const PRODUCTION_VISIBLE_CURATED_STORIES = ALL_CURATED_STORIES.filter(
+  ({ legacy }) => !BLOCKED_STORY_IDS.has(legacy.id),
+);
 const ALL_CURATED_STORIES_LEGACY = ALL_CURATED_STORIES.map(({ legacy }) => legacy);
 const ALL_CURATED_STORY_METADATA = Object.fromEntries(
   ALL_CURATED_STORIES.map(({ legacy, metadata }) => [legacy.id, metadata]),
@@ -31,11 +34,20 @@ export function mergePilotStories(existingCatalog = []) {
     .filter((story) => !BLOCKED_STORY_IDS.has(story.id));
 
   const existingIds = new Set(upgradedCatalog.map((story) => story.id));
-  const newStories = ALL_CURATED_STORIES_LEGACY.filter(
-    (story) => !existingIds.has(story.id) && !BLOCKED_STORY_IDS.has(story.id),
+  const newStories = PRODUCTION_VISIBLE_CURATED_STORIES.map(({ legacy }) => legacy).filter(
+    (story) => !existingIds.has(story.id),
   );
 
   return [...newStories, ...upgradedCatalog];
+}
+
+/**
+ * Returns exactly the curated records eligible for production validation.
+ * Draft and rewrite-queue records are excluded by the same source-of-truth set
+ * used by catalog merge, preventing build gates from validating hidden content.
+ */
+export function getProductionVisibleCuratedStories() {
+  return PRODUCTION_VISIBLE_CURATED_STORIES;
 }
 
 /**
@@ -93,13 +105,14 @@ export function getPilotIntegrationSnapshot(existingCatalog = []) {
   return {
     mergedCatalog,
     pilotCatalog,
-    newStoryCount: ALL_CURATED_STORIES.length,
+    newStoryCount: PRODUCTION_VISIBLE_CURATED_STORIES.length,
     pilotStoryIds: pilotCatalog.map((story) => story.id),
   };
 }
 
 export {
   ALL_CURATED_STORIES,
+  PRODUCTION_VISIBLE_CURATED_STORIES,
   ALL_CURATED_STORIES_LEGACY,
   ALL_CURATED_STORY_METADATA,
   PILOT_STORIES_LEGACY,
