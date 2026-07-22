@@ -1,0 +1,60 @@
+export const MINO_MIYAV_QUALITY_DRAFT = Object.freeze({
+  id: "mino-miyav-dedi-quality-draft-v1",
+  title: "Mino'nun Yumuşak Miyavı",
+  ageBand: "3-4",
+  readingMode: "listening",
+  contentStatus: "draft",
+  targetWordRange: Object.freeze({ min: 150, max: 300 }),
+  wordsPerMinute: 155,
+  theme: "Dikkatle dinlemek, küçük bir arkadaşlık çağrısını duyurur.",
+  sections: Object.freeze([
+    Object.freeze({
+      title: "Bahçedeki Ses",
+      text: "Lili güneşli sabah bahçeye neşeyle çıktı. Yeşil çimenlerin üstünde küçük damlalar parlıyordu. Bir yerden yumuşak ve tanıdık bir ses geldi. Ses incecik bir kedi miyavı gibiydi. Lili hemen durdu ve sessizce çevresini dinledi. Mino görünmüyordu, ama tatlı sesi çok yakındı.",
+    }),
+    Object.freeze({
+      title: "Minik İzler",
+      text: "Lili büyük taşların yanında minik izler gördü. İzler, ıslak toprağa küçük patilerle basılmıştı. Her izin yanında parlak sarı yaprak vardı. Lili yaprakları merakla ve yavaşça takip etmeye başladı. Yeşil çalıların arkasından yine miyav sesi geldi. Bu kez tanıdık ses biraz daha açıktı.",
+    }),
+    Object.freeze({
+      title: "Saklanan Mino",
+      text: "Mino, devrilmiş küçük sepetin içinde sessizce bekliyordu. Sepetin hafif kapağı ön patisine takılmıştı. Lili kapağı iki eliyle yavaşça yana doğru itti. Mino hemen dışarı çıktı ve uzun uzun gerindi. Sonra Lili'nin ayağına sevgiyle ve neşeyle sürtündü. Lili, minik arkadaşını bulduğu için çok sevindi.",
+    }),
+    Object.freeze({
+      title: "Birlikte Gelen Ses",
+      text: "Lili küçük sepeti sağlam yerine dikkatle koydu. Mino bu kez neşeyle yüksek bir miyav dedi. İkisi renkli bahçede yan yana yürüdü. Kuşlar ötünce birlikte durup onları sakince dinlediler. Yapraklar esince yumuşak ve tatlı bir ses çıkardı. Küçük sesler bütün bahçeyi güzelce doldurdu. Lili artık çevredeki her sesi merakla dinliyordu.",
+    }),
+  ]),
+  glossary: Object.freeze([
+    Object.freeze({ word: "çimen", definition: "Bahçede büyüyen kısa, yeşil ottur." }),
+    Object.freeze({ word: "iz", definition: "Bir şeyin geçtiğini gösteren işarettir." }),
+    Object.freeze({ word: "çalı", definition: "Dalları yere yakın küçük bitkidir." }),
+    Object.freeze({ word: "sepet", definition: "Eşya taşımaya yarayan hafif kaptır." }),
+  ]),
+  optionalReflectionPrompt: "Lili, Mino'yu bulmak için hangi sesleri dinledi?",
+  sourceTruth: Object.freeze({
+    type: "original-fiction",
+    scope: "Okurio için yazılmış özgün çocuk hikâyesi taslağıdır.",
+    externalSourcesUsed: false,
+    factualReviewStatus: "pending_human_review",
+    originalityRightsStatus: "pending_human_review",
+  }),
+  contentQualityReview: Object.freeze({
+    status: "pending",
+    reviewerName: "",
+    reviewedAt: "",
+    reviewNotes: "",
+    checklist: Object.freeze({
+      narrativeArc: "pending",
+      ageFit: "pending",
+      sectionContinuity: "pending",
+      characterConsistency: "pending",
+      languageQuality: "pending",
+      factualAccuracy: "pending",
+      originalityRights: "pending",
+      accessibilityTone: "pending",
+    }),
+  }),
+  structuralValid: true,
+  releaseReady: false,
+});
