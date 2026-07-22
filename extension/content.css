@@ -1,0 +1,37 @@
+html.okurio-enabled body,
+html.okurio-enabled body :is(p, li, blockquote, article, main, section, h1, h2, h3, h4, h5, h6, span, a) {
+  font-family: var(--okurio-font-family) !important;
+  letter-spacing: var(--okurio-letter-spacing) !important;
+}
+
+html.okurio-enabled body :is(p, li, blockquote, article, main, section) {
+  font-size: var(--okurio-font-size) !important;
+  line-height: var(--okurio-line-height) !important;
+}
+
+html.okurio-enabled[data-okurio-theme="paper"] body { background: #ffffff !important; color: #171717 !important; }
+html.okurio-enabled[data-okurio-theme="cream"] body { background: #fff8e8 !important; color: #242018 !important; }
+html.okurio-enabled[data-okurio-theme="soft"] body { background: #eef6f1 !important; color: #16241c !important; }
+html.okurio-enabled[data-okurio-theme="dark"] body { background: #1f2421 !important; color: #f5f2e9 !important; }
+html.okurio-enabled[data-okurio-theme="dark"] body :is(p, li, blockquote, article, main, section, h1, h2, h3, h4, h5, h6, span) { color: #f5f2e9 !important; }
+html.okurio-enabled[data-okurio-theme="dark"] body a { color: #9fd7ff !important; }
+
+html.okurio-simplify body :is(aside, [role="banner"], [role="complementary"], iframe, .advertisement, .ads, .ad, [class*="advert"], [id*="advert"]) {
+  display: none !important;
+}
+
+html.okurio-simplify body > * { max-width: 980px; margin-left: auto !important; margin-right: auto !important; }
+
+#okurio-reading-ruler {
+  position: fixed;
+  z-index: 2147483647;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 44px;
+  pointer-events: none;
+  border-top: 2px solid rgba(46, 139, 104, .72);
+  border-bottom: 2px solid rgba(46, 139, 104, .72);
+  background: rgba(255, 248, 232, .12);
+  box-shadow: 0 -100vh 0 100vh rgba(10, 18, 14, .22);
+}
