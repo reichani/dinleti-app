@@ -24,6 +24,22 @@ function normalizedLabel(element) {
   return (element?.textContent || '').replace(/\s+/g, ' ').trim();
 }
 
+export function syncReaderSettingsVisibility(root = document) {
+  root.querySelectorAll('[data-reader-settings]').forEach((panel) => {
+    if (!(panel instanceof HTMLElement)) return;
+
+    const open = panel.dataset.acik === '1';
+    panel.hidden = !open;
+    panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+
+    if (open) {
+      panel.removeAttribute('inert');
+    } else {
+      panel.setAttribute('inert', '');
+    }
+  });
+}
+
 export function markReadingTokens(root = document) {
   root.querySelectorAll('[data-okuma-metin] span').forEach((span) => {
     if (isLongToken(span.textContent)) span.dataset.uzunToken = '1';
@@ -124,6 +140,7 @@ function scheduleRefresh({ forceScroll = false } = {}) {
   if (frame) cancelAnimationFrame(frame);
   frame = requestAnimationFrame(() => {
     frame = 0;
+    syncReaderSettingsVisibility();
     markInteractiveControls();
     ensureCalmReadingFlow();
     scrollActiveWord(undefined, { force: forceScroll });
@@ -131,12 +148,15 @@ function scheduleRefresh({ forceScroll = false } = {}) {
 }
 
 export function installReadingMobileFixes() {
+  syncReaderSettingsVisibility();
   markInteractiveControls();
   ensureCalmReadingFlow();
 
   const observer = new MutationObserver((mutations) => {
     const relevant = mutations.some((mutation) => {
-      if (mutation.type === 'attributes') return mutation.attributeName === 'data-aktif';
+      if (mutation.type === 'attributes') {
+        return mutation.attributeName === 'data-aktif' || mutation.attributeName === 'data-acik';
+      }
       return mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0;
     });
     if (relevant) scheduleRefresh();
@@ -146,7 +166,7 @@ export function installReadingMobileFixes() {
     subtree: true,
     childList: true,
     attributes: true,
-    attributeFilter: ['data-aktif'],
+    attributeFilter: ['data-aktif', 'data-acik'],
   });
 
   const refreshLayout = () => scheduleRefresh({ forceScroll: true });
@@ -158,6 +178,7 @@ export function installReadingMobileFixes() {
     markInteractiveControls,
     markReadingTokens,
     ensureCalmReadingFlow,
+    syncReaderSettingsVisibility,
     refresh: scheduleRefresh,
     speechIsActuallyRunning,
     config: {
