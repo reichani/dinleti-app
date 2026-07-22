@@ -1,4 +1,4 @@
-import { ALL_CURATED_STORIES } from "../src/content/pilotCatalogAdapter.js";
+import { getProductionVisibleCuratedStories } from "../src/content/pilotCatalogAdapter.js";
 
 const AGE_BANDS = [
   { id: "3-5", pattern: /\b(3|4|5)(?:\s*-\s*(4|5))?\s*yas\b/u, minimumSeconds: 120, wordsPerMinute: 110 },
@@ -72,7 +72,8 @@ const isMicroExercise = (story) => {
   return /\b(mikro alistirma|micro exercise|harf|hece|kelime karti|word card|bilmece|tekerleme|ritim oyunu)\b/u.test(value);
 };
 
-const reports = ALL_CURATED_STORIES.map((story) => {
+const productionStories = getProductionVisibleCuratedStories();
+const reports = productionStories.map((story) => {
   const source = story?.legacy ?? story ?? {};
   const wordCount = countWords(storyText(story));
   const preparing = isPreparing(story);
