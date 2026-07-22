@@ -4,6 +4,7 @@ import {
   PILOT_STORY_METADATA,
 } from "./pilotStories.js";
 import { ODYSSEY_STORIES } from "./odysseyStories.js";
+import { classifyContent, CONTENT_STATUS } from "./contentIntegrity.js";
 
 const ALL_CURATED_STORIES = [...ODYSSEY_STORIES, ...PILOT_STORIES];
 const ALL_CURATED_STORIES_LEGACY = ALL_CURATED_STORIES.map(({ legacy }) => legacy);
@@ -12,8 +13,26 @@ const ALL_CURATED_STORY_METADATA = Object.fromEntries(
 );
 
 /**
+ * Keep genuine micro exercises, complete readings and explicit placeholders.
+ * Short narrative excerpts are hidden from reader-facing catalog surfaces until
+ * the content team expands them to at least two real minutes of body text.
+ */
+export function getDeployableReaderCatalog(catalog = []) {
+  return catalog.filter((story) => {
+    const metadata = ALL_CURATED_STORY_METADATA[story.id] ?? {};
+    const report = classifyContent(story, metadata);
+
+    if (report.status === CONTENT_STATUS.MICRO_EXERCISE) return true;
+    if (report.status === CONTENT_STATUS.PREPARING) return false;
+    return report.deployable;
+  });
+}
+
+/**
  * Safely merges curated stories into the existing catalog without mutating the
- * original array or replacing an existing story with the same id.
+ * original array or replacing an existing story with the same id. Reader-facing
+ * output is quality-gated so 20-second narrative fragments cannot appear as a
+ * finished story.
  */
 export function mergePilotStories(existingCatalog = []) {
   const existingIds = new Set(existingCatalog.map((story) => story.id));
@@ -21,26 +40,27 @@ export function mergePilotStories(existingCatalog = []) {
     (story) => !existingIds.has(story.id),
   );
 
-  return [...newStories, ...existingCatalog];
+  return getDeployableReaderCatalog([...newStories, ...existingCatalog]);
 }
 
 /**
- * Pilot surfaces should only show short, explicitly eligible Okurio content.
- * Existing short Okurio stories remain visible during migration even before
- * their full metadata has been extracted from App.jsx.
+ * Pilot surfaces should only show explicitly eligible Okurio content that also
+ * passes the content integrity gate. Micro exercises may stay short by design;
+ * narratives must contain at least two real minutes of reading body.
  */
 export function getPilotEligibleCatalog(catalog = []) {
-  return catalog.filter((story) => {
+  return getDeployableReaderCatalog(catalog).filter((story) => {
     const metadata = ALL_CURATED_STORY_METADATA[story.id];
+    const report = classifyContent(story, metadata ?? {});
 
     if (metadata) {
-      return metadata.pilotEligible === true && story.sureDk <= 5;
+      return metadata.pilotEligible === true && report.minutes <= 5;
     }
 
     const isExistingOkurioContent =
       typeof story.yazar === "string" && story.yazar.startsWith("Okurio");
 
-    return isExistingOkurioContent && story.sureDk <= 5;
+    return isExistingOkurioContent && report.minutes <= 5;
   });
 }
 
