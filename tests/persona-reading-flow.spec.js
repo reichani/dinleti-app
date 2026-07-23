@@ -41,8 +41,9 @@ async function ayarlariAc(page) {
 async function ayarlariKapat(page) {
   const player = page.locator("[data-mobile-stability]");
   const panel = player.locator("[data-reader-settings]");
-  if (await panel.isVisible()) {
-    await panel.locator("[data-reader-settings-close]").click();
+  const closeButton = panel.locator("[data-reader-settings-close]");
+  if (await closeButton.isVisible()) {
+    await closeButton.click();
     await expect(panel).toBeHidden();
   }
 }
