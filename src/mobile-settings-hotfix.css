@@ -15,6 +15,8 @@
   min-height: 44px !important;
 }
 
+/* Mobile-first closed state. Desktop overrides this as an always-visible
+ * inline settings pane because the wide reader has room for both columns. */
 [data-reader-settings][data-acik="0"] {
   display: none !important;
   pointer-events: none !important;
@@ -91,12 +93,50 @@
 }
 
 @media (min-width: 820px) {
+  /* Desktop is not a modal: the settings pane is part of the reader layout and
+   * remains visible in either React state. This keeps wide-screen controls
+   * discoverable without introducing a backdrop or interaction lock. */
+  [data-reader-settings][data-acik="0"],
   [data-reader-settings][data-acik="1"] {
-    bottom: 24px !important;
-    width: min(680px, calc(100% - 48px)) !important;
-    border-radius: 20px !important;
-    max-height: calc(100dvh - 48px) !important;
-    clip-path: inset(-100vmax);
+    display: block !important;
+    position: static !important;
+    z-index: auto !important;
+    inset: auto !important;
+    transform: none !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: 100% !important;
+    overflow-y: auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    clip-path: none !important;
+    pointer-events: auto !important;
+  }
+
+  [data-reader-settings-title] {
+    position: static !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border-bottom: 0 !important;
+  }
+
+  [data-reader-settings-close] {
+    display: none !important;
+  }
+
+  /* Modal interaction locking is mobile-only. */
+  [data-reader-shell]:has([data-reader-settings][data-acik="1"]) [data-reader-topbar],
+  [data-reader-shell]:has([data-reader-settings][data-acik="1"]) [data-kompakt-baslik],
+  [data-reader-shell]:has([data-reader-settings][data-acik="1"]) [data-bolum-listesi],
+  [data-reader-shell]:has([data-reader-settings][data-acik="1"]) [data-reader-stage-header],
+  [data-reader-shell]:has([data-reader-settings][data-acik="1"]) [data-reading-column],
+  [data-reader-shell]:has([data-reader-settings][data-acik="1"]) [data-alt-kontrol],
+  [data-reader-shell]:has([data-reader-settings][data-acik="1"]) [data-birlikte-dusunelim] {
+    pointer-events: auto !important;
   }
 }
 
