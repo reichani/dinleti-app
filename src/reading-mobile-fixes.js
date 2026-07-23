@@ -24,9 +24,25 @@ function normalizedLabel(element) {
   return (element?.textContent || '').replace(/\s+/g, ' ').trim();
 }
 
+function isMobileReaderViewport() {
+  if (typeof window.matchMedia === 'function') {
+    return window.matchMedia('(max-width: 819px)').matches;
+  }
+  return window.innerWidth <= 819;
+}
+
 export function syncReaderSettingsVisibility(root = document) {
+  const mobileViewport = isMobileReaderViewport();
+
   root.querySelectorAll('[data-reader-settings]').forEach((panel) => {
     if (!(panel instanceof HTMLElement)) return;
+
+    if (!mobileViewport) {
+      panel.hidden = false;
+      panel.setAttribute('aria-hidden', 'false');
+      panel.removeAttribute('inert');
+      return;
+    }
 
     const open = panel.dataset.acik === '1';
     panel.hidden = !open;
