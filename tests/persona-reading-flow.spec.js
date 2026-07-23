@@ -38,6 +38,16 @@ async function ayarlariAc(page) {
   return panel;
 }
 
+async function ayarlariKapat(page) {
+  const player = page.locator("[data-mobile-stability]");
+  const panel = player.locator("[data-reader-settings]");
+  const closeButton = panel.locator("[data-reader-settings-close]");
+  if (await closeButton.isVisible()) {
+    await closeButton.click();
+    await expect(panel).toBeHidden();
+  }
+}
+
 const personaMetni = Array.from(
   { length: 18 },
   (_, i) => `Cümle ${i + 1} sakin biçimde okunur ve çocuk bir sonraki satıra hazırlanır.`
@@ -76,6 +86,7 @@ test.describe("Persona bazlı okuma akışı", () => {
     await ayarlariAc(page);
     await player.locator("[data-okuma-modu-kompakt] button").click();
     await player.locator('[data-okuma-modu="kendim"]').click();
+    await ayarlariKapat(page);
     await player.getByRole("button", { name: "Oynat", exact: true }).click();
     await page.waitForTimeout(500);
 
@@ -86,8 +97,10 @@ test.describe("Persona bazlı okuma akışı", () => {
     expect(manual.activeIndex).toBe(0);
     expect(manual.spoken).toBe(0);
 
+    await ayarlariAc(page);
     await player.locator("[data-okuma-modu-kompakt] button").click();
     await player.locator('[data-okuma-modu="birlikte"]').click();
+    await ayarlariKapat(page);
     await page.waitForTimeout(500);
     const together = await player.locator("[data-okuma-metin]").evaluate((element) => ({
       activeIndex: [...element.querySelectorAll("span")].findIndex((span) => span.dataset.aktif === "1"),

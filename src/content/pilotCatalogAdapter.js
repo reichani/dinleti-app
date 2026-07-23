@@ -4,8 +4,21 @@ import {
   PILOT_STORY_METADATA,
 } from "./pilotStories.js";
 import { ODYSSEY_STORIES } from "./odysseyStories.js";
+import { PRODUCTION_STORY_UPGRADES_BY_ID } from "./productionStoryUpgrades.js";
+
+const BLOCKED_STORY_IDS = new Set([
+  "mino-neden-uzuldu",
+  "toto-bir-an-durdu",
+  "mino-neden-uzuldu-v2",
+  "toto-bir-an-durdu-v2",
+  "oe-01-mino-neden-uzuldu",
+  "os-01-toto-bir-an-durdu",
+]);
 
 const ALL_CURATED_STORIES = [...ODYSSEY_STORIES, ...PILOT_STORIES];
+const PRODUCTION_VISIBLE_CURATED_STORIES = ALL_CURATED_STORIES.filter(
+  ({ legacy }) => !BLOCKED_STORY_IDS.has(legacy.id),
+);
 const ALL_CURATED_STORIES_LEGACY = ALL_CURATED_STORIES.map(({ legacy }) => legacy);
 const ALL_CURATED_STORY_METADATA = Object.fromEntries(
   ALL_CURATED_STORIES.map(({ legacy, metadata }) => [legacy.id, metadata]),
@@ -13,24 +26,40 @@ const ALL_CURATED_STORY_METADATA = Object.fromEntries(
 
 /**
  * Safely merges curated stories into the existing catalog without mutating the
- * original array or replacing an existing story with the same id.
+ * original array. Approved production upgrades replace matching legacy story
+ * ids so short placeholders can be renewed without editing the monolithic App.
+ * Draft/rewrite-queue ids remain hidden until their human sign-off gate closes.
  */
 export function mergePilotStories(existingCatalog = []) {
-  const existingIds = new Set(existingCatalog.map((story) => story.id));
-  const newStories = ALL_CURATED_STORIES_LEGACY.filter(
+  const upgradedCatalog = existingCatalog
+    .map((story) => PRODUCTION_STORY_UPGRADES_BY_ID[story.id] ?? story)
+    .filter((story) => !BLOCKED_STORY_IDS.has(story.id));
+
+  const existingIds = new Set(upgradedCatalog.map((story) => story.id));
+  const newStories = PRODUCTION_VISIBLE_CURATED_STORIES.map(({ legacy }) => legacy).filter(
     (story) => !existingIds.has(story.id),
   );
 
-  return [...newStories, ...existingCatalog];
+  return [...newStories, ...upgradedCatalog];
+}
+
+/**
+ * Returns exactly the curated records eligible for production validation.
+ * Draft and rewrite-queue records are excluded by the same source-of-truth set
+ * used by catalog merge, preventing build gates from validating hidden content.
+ */
+export function getProductionVisibleCuratedStories() {
+  return PRODUCTION_VISIBLE_CURATED_STORIES;
 }
 
 /**
  * Pilot surfaces should only show short, explicitly eligible Okurio content.
- * Existing short Okurio stories remain visible during migration even before
- * their full metadata has been extracted from App.jsx.
+ * Blocked draft content must never appear even if legacy metadata is present.
  */
 export function getPilotEligibleCatalog(catalog = []) {
   return catalog.filter((story) => {
+    if (BLOCKED_STORY_IDS.has(story.id)) return false;
+
     const metadata = ALL_CURATED_STORY_METADATA[story.id];
 
     if (metadata) {
@@ -78,13 +107,14 @@ export function getPilotIntegrationSnapshot(existingCatalog = []) {
   return {
     mergedCatalog,
     pilotCatalog,
-    newStoryCount: ALL_CURATED_STORIES.length,
+    newStoryCount: PRODUCTION_VISIBLE_CURATED_STORIES.length,
     pilotStoryIds: pilotCatalog.map((story) => story.id),
   };
 }
 
 export {
   ALL_CURATED_STORIES,
+  PRODUCTION_VISIBLE_CURATED_STORIES,
   ALL_CURATED_STORIES_LEGACY,
   ALL_CURATED_STORY_METADATA,
   PILOT_STORIES_LEGACY,

@@ -1,0 +1,44 @@
+/* Okurio v2.7.5 — spoken-position visibility hotfix.
+   The active word must remain unmistakable even when bionic reading is enabled. */
+
+[data-okuma-metin="1"] [data-aktif="1"] {
+  position: relative;
+  display: inline;
+  padding: 0.08em 0.22em !important;
+  margin-inline: 0.03em;
+  border-radius: 0.28em !important;
+  background: #f2ad3f !important;
+  color: #171a1f !important;
+  box-shadow:
+    0 0 0 2px rgba(255, 244, 211, 0.96),
+    0 0 0 5px rgba(242, 173, 63, 0.28),
+    0 5px 16px rgba(0, 0, 0, 0.34) !important;
+  text-decoration: none !important;
+  font-weight: 800 !important;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+[data-okuma-metin="1"][data-tema="krem"] [data-aktif="1"] {
+  background: #9a5a12 !important;
+  color: #fff8e8 !important;
+  box-shadow:
+    0 0 0 2px #fff8e8,
+    0 0 0 5px rgba(154, 90, 18, 0.25),
+    0 5px 14px rgba(45, 29, 14, 0.25) !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-okuma-metin="1"] [data-aktif="1"] {
+    transition: background-color 100ms linear, color 100ms linear, box-shadow 100ms linear;
+  }
+}
+
+@media (forced-colors: active) {
+  [data-okuma-metin="1"] [data-aktif="1"] {
+    outline: 3px solid Highlight !important;
+    background: Highlight !important;
+    color: HighlightText !important;
+    box-shadow: none !important;
+  }
+}
