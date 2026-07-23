@@ -24,6 +24,9 @@ test("reader settings becomes a bounded mobile bottom sheet", () => {
 
 test("closed settings use the hidden and inert accessibility contract", () => {
   assert.match(css, /\[data-reader-settings\]\[hidden\][\s\S]*display:\s*none\s*!important/);
+  assert.match(visibilitySource, /isMobileReaderViewport\(\)/);
+  assert.match(visibilitySource, /if \(!mobileViewport\)/);
+  assert.match(visibilitySource, /panel\.hidden\s*=\s*false/);
   assert.match(visibilitySource, /panel\.hidden\s*=\s*!open/);
   assert.match(visibilitySource, /panel\.setAttribute\('aria-hidden',\s*open\s*\?\s*'false'\s*:\s*'true'\)/);
   assert.match(visibilitySource, /panel\.setAttribute\('inert',\s*''\)/);
