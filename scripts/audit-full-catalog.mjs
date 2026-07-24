@@ -72,19 +72,28 @@ const sentenceList = (text) =>
     .filter(Boolean);
 
 const isMicroExercise = (story) => {
-  const value = [
-    story?.id,
-    story?.baslik,
-    story?.kategori,
-    story?.icerikTuru,
-    story?.icerikDurumu,
-    ...(story?.bolumler ?? []).map((section) => section?.ad),
-  ]
+  const id = String(story?.id ?? "").toLocaleLowerCase("tr-TR");
+  const title = String(story?.baslik ?? "").toLocaleLowerCase("tr-TR");
+  const category = String(story?.kategori ?? "").toLocaleLowerCase("tr-TR");
+  const declaredType = String(
+    story?.icerikTuru ?? story?.icerikDurumu ?? "",
+  ).toLocaleLowerCase("tr-TR");
+  const sectionNames = (story?.bolumler ?? [])
+    .map((section) => section?.ad ?? "")
     .join(" ")
     .toLocaleLowerCase("tr-TR");
 
-  return /(?:\bsesi\b|\bharf\b|\bhece\b|kelime kart|word card|english card|bilmece|tekerleme|ritim oyunu)/u.test(
-    value,
+  return (
+    /(?:^|-)oki-ses-(?:[a-z0-9]+)(?:-|$)/u.test(id) ||
+    /(?:heceler|kelimeler|word-card|words-card)/u.test(id) ||
+    /^[a-zçğıöşü] sesi$/u.test(title) ||
+    /(?:kelime kart|word card|english card|bilmece|tekerleme|ritim oyunu)/u.test(
+      category,
+    ) ||
+    /(?:mikro alıştırma|micro exercise|kelime kart|word card|harf kart|hece kart)/u.test(
+      declaredType,
+    ) ||
+    /(?:hece kartları|kelime kartları|harf ve hece|heceye geç)/u.test(sectionNames)
   );
 };
 
