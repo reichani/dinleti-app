@@ -30,8 +30,8 @@ jobs:
       - name: Scan tracked files for secrets
         run: node scripts/security-scan.mjs
 
-      - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=high
+      - name: Audit all dependencies
+        run: npm audit --audit-level=high
 
       - name: Validate production build
         run: npm run build
