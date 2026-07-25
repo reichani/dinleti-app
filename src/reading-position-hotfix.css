@@ -28,6 +28,34 @@
     0 5px 14px rgba(45, 29, 14, 0.25) !important;
 }
 
+/* P0 mobile reader layout repair.
+   The compact reader previously forced the workspace, reading column and text
+   canvas to 100% of an already constrained flex track. Transport controls then
+   consumed that track and collapsed the readable text area to roughly one line.
+   Keep the text canvas in normal flow and give it a bounded, scrollable viewport. */
+@media (max-width: 819px) {
+  [data-okuma-alani] {
+    overflow-y: auto !important;
+  }
+
+  [data-reader-workspace],
+  [data-reading-column] {
+    block-size: auto !important;
+    min-block-size: 0 !important;
+    overflow: visible !important;
+  }
+
+  [data-okuma-metin="1"] {
+    block-size: auto !important;
+    height: auto !important;
+    min-block-size: clamp(260px, 42dvh, 520px) !important;
+    min-height: clamp(260px, 42dvh, 520px) !important;
+    max-block-size: 60dvh !important;
+    max-height: 60dvh !important;
+    overflow-y: auto !important;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   [data-okuma-metin="1"] [data-aktif="1"] {
     transition: background-color 100ms linear, color 100ms linear, box-shadow 100ms linear;
