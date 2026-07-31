@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { KUTUP_TILKISININ_YOLCULUGU_DRAFT } from "./2026-07-31-kutup-tilkisinin-yolculugu.js";
+import { KUTUP_TILKISININ_YOLCULUGU_DRAFT } from "../../src/content/drafts/2026-07-31-kutup-tilkisinin-yolculugu.js";
 
 const story = KUTUP_TILKISININ_YOLCULUGU_DRAFT;
 const countWords = (text) =>
