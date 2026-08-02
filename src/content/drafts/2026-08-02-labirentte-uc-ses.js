@@ -30,6 +30,7 @@ export const LABIRENTTE_UC_SES_DRAFT = {
   contentTrack: "piyes-mitoloji",
   primaryTheme: "Bir grup, farklı gözlemleri dinleyip ortak bir yol bulabilir",
   contentStatus: "draft",
+  structuralValid: true,
   releaseReady: false,
   estimatedWordsPerMinute: 155,
   wordCount: 702,
