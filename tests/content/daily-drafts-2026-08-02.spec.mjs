@@ -39,6 +39,7 @@ test("Labirentte Üç Ses: dil, paragraf, sözlük ve anlatı sözleşmesi", () 
 test("Labirentte Üç Ses: kaynak ve insan onayı olmadan yayımlanamaz", () => {
   const review = story.contentQualityReview;
   assert.equal(story.contentStatus, "draft");
+  assert.equal(story.structuralValid, true);
   assert.equal(story.releaseReady, false);
   assert.equal(story.sourceTruth.sourceType, "original-mythology-inspired-role-play");
   assert.equal(story.sourceTruth.adaptationStatus, "not-a-retelling");
