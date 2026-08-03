@@ -41,12 +41,9 @@ function isManualMode(player = getPlayer()) {
 function playerIsRunning(player = getPlayer()) {
   if (!(player instanceof HTMLElement)) return false;
   if (speechIsActuallyRunning()) return true;
-
-  const pauseControl = [...player.querySelectorAll('button')].find((button) => {
-    const label = `${button.getAttribute('aria-label') || ''} ${normalizedLabel(button)}`;
-    return /duraklat|pause/i.test(label);
-  });
-  return Boolean(pauseControl);
+  return [...player.querySelectorAll('button')].some((button) =>
+    /duraklat|pause/i.test(`${button.getAttribute('aria-label') || ''} ${normalizedLabel(button)}`),
+  );
 }
 
 function isLongToken(text) {
@@ -61,12 +58,20 @@ export function markReadingTokens(root = document) {
   });
 }
 
+function clearSentenceFocus(readingText) {
+  readingText.querySelectorAll('[data-aktif-cumle]').forEach((token) => delete token.dataset.aktifCumle);
+  delete readingText.dataset.cumleTakibi;
+}
+
 export function markActiveSentence(root = document) {
   const readingText = root.querySelector?.('[data-okuma-metin]') || root.closest?.('[data-okuma-metin]');
   if (!(readingText instanceof HTMLElement)) return false;
 
+  const player = readingText.closest('[data-mobile-stability]') || getPlayer();
+  clearSentenceFocus(readingText);
+  if (isManualMode(player) || !speechIsActuallyRunning()) return false;
+
   const tokens = [...readingText.querySelectorAll(':scope > span')];
-  tokens.forEach((token) => delete token.dataset.aktifCumle);
   const activeIndex = tokens.findIndex((token) => token.dataset.aktif === '1');
   if (activeIndex < 0) return false;
 
@@ -99,14 +104,14 @@ export function scrollActiveWord(
   { force = false, now = Date.now() } = {},
 ) {
   if (!(activeWord instanceof HTMLElement)) return false;
-
   const readingText = activeWord.closest('[data-okuma-metin]');
   if (!(readingText instanceof HTMLElement)) return false;
   bindReadingViewport(readingText);
 
   const player = activeWord.closest('[data-mobile-stability]') || getPlayer();
-  const pacedManualReading = isManualMode(player) && playerIsRunning(player);
-  if (!force && !speechIsActuallyRunning() && !pacedManualReading) return false;
+  // Kendim Okuyorum is deliberately manual: no synthetic clock, no auto-follow.
+  if (isManualMode(player)) return false;
+  if (!speechIsActuallyRunning()) return false;
   if (!force && now < manualScrollUntil) return false;
   if (!force && now - lastScrollAt < MIN_SCROLL_INTERVAL_MS) return false;
 
@@ -126,7 +131,6 @@ export function scrollActiveWord(
   const rawDelta = wordCenter - targetY;
   const maxStep = Math.max(48, containerRect.height * MAX_SCROLL_VIEWPORT_RATIO);
   const delta = Math.max(-maxStep, Math.min(maxStep, rawDelta));
-
   if (Math.abs(delta) < 2) return true;
 
   const maxTop = Math.max(0, readingText.scrollHeight - readingText.clientHeight);
@@ -149,13 +153,15 @@ export function ensureCalmReadingFlow(root = document) {
   const readingText = player.querySelector('[data-okuma-metin]');
   if (readingText instanceof HTMLElement) {
     bindReadingViewport(readingText);
+    const manual = isManualMode(player);
     readingText.dataset.kullaniciKaydirma = '1';
-    readingText.dataset.akilliTakip = isManualMode(player) ? 'kendim' : 'sesli';
+    readingText.dataset.akilliTakip = manual ? 'kendim' : 'sesli';
     readingText.style.overflowY = 'auto';
     readingText.style.touchAction = 'pan-y';
     readingText.style.overscrollBehavior = 'contain';
     readingText.style.scrollbarGutter = 'stable';
-    markActiveSentence(readingText);
+    if (manual) clearSentenceFocus(readingText);
+    else markActiveSentence(readingText);
   }
 
   player.dataset.personaFlow = 'calm';
@@ -167,14 +173,14 @@ function scheduleCalmFlowGuard() {
   calmFlowFrame = requestAnimationFrame(() => {
     calmFlowFrame = 0;
     ensureCalmReadingFlow();
-    window.setTimeout(() => scrollActiveWord(undefined, { force: true }), 80);
+    const player = getPlayer();
+    if (!isManualMode(player)) window.setTimeout(() => scrollActiveWord(undefined, { force: true }), 80);
   });
 }
 
 export function markInteractiveControls(root = document) {
   root.querySelectorAll('button').forEach((button) => {
     const label = normalizedLabel(button);
-
     if (label.endsWith('Dinliyorum')) button.dataset.okumaModu = 'dinliyorum';
     if (label.endsWith('Birlikte Okuyorum')) button.dataset.okumaModu = 'birlikte';
     if (label.endsWith('Kendim Okuyorum')) button.dataset.okumaModu = 'kendim';
@@ -194,6 +200,8 @@ function scheduleRefresh({ forceScroll = false } = {}) {
     frame = 0;
     markInteractiveControls();
     ensureCalmReadingFlow();
+    const player = getPlayer();
+    if (isManualMode(player)) return;
     const activeWord = document.querySelector(ACTIVE_SELECTOR);
     const activeChanged = activeWord !== lastActiveWord;
     scrollActiveWord(activeWord, { force: forceScroll || activeChanged });
@@ -237,14 +245,6 @@ export function installReadingMobileFixes() {
     speechIsActuallyRunning,
     isManualMode,
     playerIsRunning,
-    config: {
-      minScrollIntervalMs: MIN_SCROLL_INTERVAL_MS,
-      comfortTopRatio: COMFORT_TOP_RATIO,
-      comfortBottomRatio: COMFORT_BOTTOM_RATIO,
-      targetRatio: TARGET_RATIO,
-      manualScrollPauseMs: MANUAL_SCROLL_PAUSE_MS,
-      maxScrollViewportRatio: MAX_SCROLL_VIEWPORT_RATIO,
-    },
   };
 
   return () => {
