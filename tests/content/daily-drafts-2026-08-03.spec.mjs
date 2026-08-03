@@ -47,7 +47,8 @@ test("English science draft meets sentence and metadata gates", () => {
   assert.ok(sentenceWords.every((value) => value <= 12));
   assert.ok(average >= 6 && average <= 10, `average sentence length ${average.toFixed(2)}`);
   assert.ok(story.metadata.glossary.length >= 3 && story.metadata.glossary.length <= 8);
-  assert.ok(story.metadata.sourceUrls.length >= 1);
+  assert.ok(story.metadata.sourceUrls.length >= 5);
+  assert.equal(story.metadata.englishProficiencyTarget, "CEFR B1");
   assert.equal(story.metadata.contentQualityReview.status, "pending");
   assert.equal(story.metadata.contentQualityReview.reviewerName, "");
   assert.equal(story.metadata.contentQualityReview.reviewedAt, "");
