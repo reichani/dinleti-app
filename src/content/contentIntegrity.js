@@ -39,13 +39,11 @@ const storyText = (story) => {
   return source.metin ?? source.text ?? source.content ?? "";
 };
 
-/** Count only the words a reader will actually encounter in the reading body. */
 export function countStoryWords(story) {
   const matches = storyText(story).match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu);
   return matches?.length ?? 0;
 }
 
-/** Estimate spoken/read-aloud duration from the body word count, never from sureDk. */
 export function estimateStorySeconds(story, wpm = DEFAULT_WORDS_PER_MINUTE) {
   if (!Number.isFinite(wpm) || wpm <= 0) {
     throw new TypeError("wpm must be a positive finite number.");
@@ -113,8 +111,6 @@ const isMicroExercise = (source, metadata) => {
       .join(" "),
   );
 
-  // These are exercises by product intent, even when their duration is under two minutes.
-  // Short narrative content is deliberately not inferred as an exercise from duration alone.
   return (
     includesAny(id, [
       /(^| )oki ses [a-z0-9]+($| )/u,
@@ -142,12 +138,16 @@ const isMicroExercise = (source, metadata) => {
   );
 };
 
+const isBrowserRuntime = () =>
+  typeof window !== "undefined" && typeof document !== "undefined";
+
 /**
  * Classify catalog content without trusting hand-authored duration fields.
  *
- * Full readings shorter than two real minutes are retained as full readings but
- * marked non-deployable. This prevents a short excerpt from escaping the gate by
- * being silently reclassified as a micro exercise.
+ * Node-based validation remains strict: normal readings under the minimum are
+ * reported as blockers. The reader runtime does not convert already-published,
+ * non-empty legacy catalog items into disabled "Hazırlanıyor" cards. Explicit
+ * preparing/placeholder records and empty content remain blocked everywhere.
  */
 export function classifyContent(story, metadata = {}) {
   const source = unwrapStory(story);
@@ -165,7 +165,9 @@ export function classifyContent(story, metadata = {}) {
   }
 
   const blockers = [];
+  const enforceDurationGate = metadata.enforceDurationGate === true || !isBrowserRuntime();
   if (
+    enforceDurationGate &&
     status === CONTENT_STATUS.FULL_READING &&
     seconds < minimumFullReadingSeconds
   ) {
@@ -185,11 +187,6 @@ export function classifyContent(story, metadata = {}) {
   };
 }
 
-/**
- * Throw when a normal reading is too short for deployment.
- * Preparing placeholders and genuine letter/syllable/card exercises may coexist
- * with the catalog and do not weaken the normal-reading gate.
- */
 export function assertDeployableCatalog(stories, metadataById = {}) {
   if (!Array.isArray(stories)) {
     throw new TypeError("stories must be an array.");
@@ -201,7 +198,7 @@ export function assertDeployableCatalog(stories, metadataById = {}) {
     return {
       id: source.id ?? null,
       title: source.baslik ?? source.title ?? null,
-      ...classifyContent(story, metadata),
+      ...classifyContent(story, { ...metadata, enforceDurationGate: true }),
     };
   });
   const blockers = reports.flatMap((report) =>
@@ -238,4 +235,3 @@ export function assertDeployableCatalog(stories, metadataById = {}) {
 
   return result;
 }
-
