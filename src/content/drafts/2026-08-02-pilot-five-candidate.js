@@ -44,11 +44,7 @@ const paragraphs = (parts, ...values) => {
   const sentences = sourceSentences.reduce((merged, sentence) => {
     const words = (value) => value.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
     const previous = merged.at(-1);
-    if (previous && words(previous) + words(sentence) <= 12) {
-      merged[merged.length - 1] = `${previous}; ${sentence}`;
-    } else {
-      merged.push(sentence);
-    }
+    merged.push(sentence);
     return merged;
   }, []).map((sentence) => `${sentence}.`);
   return sentences
@@ -78,37 +74,37 @@ export const PILOT_STORIES = [
         {
           ad: "Açılan Bahçe Kapısı",
           dk: 1,
-          metin: paragraphs`Oki sabah Ses Bahçesi'ne geldi. Kapıda büyük bir a vardı. Harf, altın bir yaprakta parlıyordu. Oki yaprağa dikkatle baktı. Nana, bugünün sesini bulacaklarını söyledi.
+          metin: paragraphs`Oki sabah Ses Bahçesi'ne geldiğinde kapıda büyük bir a vardı. Parlayan altın yaprağa dikkatle baktı. Nana, bugünün sesini bulacaklarını söyledi.
 
-Oki ağzını rahatça açtı. A sesini yavaşça söyledi. Ses kısa başladı, sonra uzadı. Bahçedeki küçük çan hafifçe sallandı. Oki ilk ipucunu böyle aldı. Bu başlangıç Oki'nin merakını daha güçlü ve canlı tuttu.`,
+Oki ağzını rahatça açarak A sesini yavaşça söyledi. Ses kısa başlayıp sonra uzadı. Bahçedeki küçük çan hafifçe sallandı. Oki ilk ipucunu böyle aldı. Bu başlangıç Oki'nin merakını daha güçlü ve canlı tuttu.`,
         },
         {
           ad: "Ağacın Altındaki Kartlar",
           dk: 1,
-          metin: paragraphs`İlk yol büyük ağaca gidiyordu. Ağacın altında üç kart duruyordu. Kartlarda arı, elma ve top vardı. Oki her resmi sırayla adlandırdı. Arı sözcüğü a sesiyle başladı.
+          metin: paragraphs`İlk yol, altında üç kart duran büyük ağaca gidiyordu. Kartlarda arı, elma ve top vardı. Oki her resmi sırayla adlandırdı. Arı sözcüğü a sesiyle başladı.
 
-Elma sözcüğünde a sesi sondaydı. Top sözcüğünde a sesi yoktu. Oki kartları iki ayrı sıraya koydu. Lili seçimin nedenini dikkatle dinledi. Sonra arı kartını birlikte gösterdiler. İki arkadaş her kartın sesini yeniden dikkatle karşılaştırdı.`,
+Elma sözcüğünde a sesi sondayken top sözcüğünde yoktu. Oki kartları iki ayrı sıraya koydu. Lili seçimin nedenini dikkatle dinledi. Sonra arı kartını birlikte gösterdiler. İki arkadaş her kartın sesini yeniden dikkatle karşılaştırdı.`,
         },
         {
           ad: "Rüzgârın Getirdiği Sözcükler",
           dk: 1,
-          metin: paragraphs`Hafif rüzgâr yeni kartları uçurdu. Oki kartları çitin yanında yakaladı. Birinde at, birinde ay yazıyordu. Son kartta ev sözcüğü vardı. Oki harfleri parmağıyla izledi.
+          metin: paragraphs`Hafif rüzgâr kartları uçurunca Oki onları çitin yanında yakaladı. Birinde at, birinde ay yazıyordu. Son kartta ev sözcüğü vardı. Oki harfleri parmağıyla izleyerek sesleri aradı.
 
 At ve ay aynı sesle başlıyordu. Ev başka bir sesle başlıyordu. Oki iki doğru kartı sepete bıraktı. Fakat ay kartı yeniden uçtu. Lili kartı taşın yanında buldu. Buldukları her sözcük sonraki ipucunu biraz daha kolaylaştırdı.`,
         },
         {
           ad: "Eksik Harfin Yeri",
           dk: 1,
-          metin: paragraphs`Taşın altında yarım bir sözcük vardı. Kartta yalnızca _raba yazıyordu. Oki boşluğu uzun süre inceledi. Araba resmini görünce cevabı anladı. Baştaki boşluğa a harfi gelmeliydi.
+          metin: paragraphs`Taşın altında yarım bir sözcük vardı. Kartta yalnızca _raba yazıyordu. Oki boşluğu incelerken araba resminde cevabı buldu. Baştaki boşluğa a harfi gelmeliydi.
 
-Oki harfi yerine dikkatle koydu. Sözcüğü önce parçalara ayırdı. Sonra bütün sözcüğü yeniden okudu. Araba sözcüğündeki iki a sesini duydu. Bu buluş onu çok sevindirdi. Artık boşlukların da önemli bir ipucu taşıdığını biliyordu.`,
+Oki harfi yerine koyup sözcüğü önce parçalara ayırdı. Sonra bütün sözcüğü yeniden okudu. Araba sözcüğündeki iki a sesini duydu. Bu buluş onu çok sevindirdi. Artık boşlukların da önemli bir ipucu taşıdığını biliyordu.`,
         },
         {
           ad: "Ses Sepetinin Sonu",
           dk: 1,
-          metin: paragraphs`Bahçenin sonunda boş bir sepet bekliyordu. Oki bulduğu kartları içine yerleştirdi. Arı, at, ay ve araba oradaydı. Her sözcükte a sesini yeniden aradı. Ses bazen başta duyuluyordu.
+          metin: paragraphs`Bahçenin sonunda boş bir sepet bekliyordu. Oki bulduğu kartları sırayla içine dikkatle yerleştirdi. Arı, at, ay ve araba oradaydı. Her sözcükte a sesini yeniden aradı. Ses bazen başta duyuluyordu.
 
-Bazen sözcüğün ortasında veya sonunda kalıyordu. Oki artık yalnız ilk harfe bakmıyordu. Sözcüğü dinliyor, sonra karar veriyordu. Nana bütün kartları masaya yaydı. Oki sevdiği kart olarak arabayı seçti.
+Bazen sözcüğün ortasında veya sonunda kalıyordu. Oki artık yalnız ilk harfe bakmıyordu. Sözcüğü dikkatle dinliyor, sonra kendi kararını veriyordu. Nana bütün kartları masaya yaydı. Oki sevdiği kart olarak arabayı seçti.
 
 Lili de ay kartını seçti. İkisi a sesini birlikte söyledi. Bahçe kapısı yeniden parladı. Oki aradığı sesi sonunda bulmuştu. Yeni sözcüklerde aynı sesi aramaya devam etmek istiyordu.`,
         },
@@ -245,28 +241,28 @@ Mino haritanın boş kalan köşesini gösterdi. Orada henüz tanımadıkları s
         {
           ad: "Bahçedeki Boş Yer",
           dk: 1,
-          metin: paragraphs`Mino öğleden sonra bahçeye çıktı. Arkadaşları büyük masanın çevresindeydi. Masada renkli kâğıtlar ve kalemler vardı. Mino için ayrılan sandalye boş görünüyordu. Fakat kimse ona seslenmedi.
+          metin: paragraphs`Mino öğleden sonra çıkınca arkadaşlarını büyük masanın çevresinde gördü. Masada renkli kâğıtlar ve kalemler vardı. Mino için ayrılan sandalye boş görünüyordu. Fakat kimse ona seslenmedi.
 
-Mino oyuna çağrılmadığını düşündü. Göğsünde ağır bir üzüntü hissetti. Kuyruğu yavaşça yere doğru indi. Sessiz köşedeki mindere oturdu. Masaya yeniden bakmak istemedi.`,
+Mino çağrılmadığını düşününce göğsünde ağır bir üzüntü hissetti. Kuyruğu yavaşça yere doğru indi. Sessiz köşedeki mindere oturdu. Masaya yeniden bakmak istemedi.`,
         },
         {
           ad: "Oki'nin Fark Ettiği İşaret",
           dk: 1,
-          metin: paragraphs`Oki kalem almak için kalktı. Mino'nun tek başına oturduğunu gördü. Hemen neşelenmesini söylemedi. Yanındaki mindere izin isteyerek oturdu. Bir süre sessizce bekledi.
+          metin: paragraphs`Oki kalem almaya kalkınca Mino'nun tek başına oturduğunu gördü. Hemen neşelenmesini söylemedi. Yanındaki mindere izin isteyerek oturdu. Bir süre sessizce bekledi.
 
-Sonra Mino'nun nasıl olduğunu sordu. Mino, unutulduğunu düşündüğünü açıkladı. Bunu söylerken sesi oldukça kısıktı. Oki sözünü bölmeden dinledi. Mino anlatınca biraz rahatladı.`,
+Sonra Mino'nun nasıl olduğunu sordu. Mino, unutulduğunu düşündüğünü kısık sesle açıkladı. Oki sözünü bölmeden dinledi. Mino anlatınca biraz rahatladı.`,
         },
         {
           ad: "Masadaki Eksik Bilgi",
           dk: 1,
-          metin: paragraphs`Oki masada neler olduğunu bilmiyordu. Birlikte gidip sormayı önerdi. Mino önce yerinde kalmak istedi. Sonra cevabı öğrenmenin yardımcı olabileceğini düşündü. İkisi masaya doğru yürüdü.
+          metin: paragraphs`Oki masadaki durumu bilmediği için birlikte sormayı önerdi. Mino önce yerinde kalmak istedi. Sonra cevabı öğrenmenin yardımcı olabileceğini düşündü. İkisi masaya doğru yürüdü.
 
 Lili onları görünce boş sandalyeyi gösterdi. Sandalyenin önünde Mino'nun adı yazıyordu. Toto davet kartını götürmek için ayrılmıştı. Fakat yanlış patikaya gitmişti. Kimse Mino'yu dışarıda bırakmak istememişti.`,
         },
         {
           ad: "Dönen Davet Kartı",
           dk: 1,
-          metin: paragraphs`Tam o sırada Toto koşmadan bahçeye döndü. Elinde Mino'nun davet kartı vardı. Yanlış köşede beklediğini anlattı. Mino hâlâ biraz üzgün olduğunu söyledi. Çünkü beklerken gerçekten yalnız hissetmişti.
+          metin: paragraphs`Tam o sırada Toto, Mino'nun kartıyla koşmadan bahçeye döndü. Yanlış köşede beklediğini anlattı. Mino hâlâ biraz üzgün olduğunu söyledi. Çünkü beklerken gerçekten yalnız hissetmişti.
 
 Toto onu dinledi ve özür diledi. Sonra kartı Mino'ya uzattı. Lili masadaki görevi açıkladı. Herkes ortak bir gökyüzü resmi yapacaktı. Mino isterse bulutları çizebilirdi.`,
         },
@@ -277,9 +273,14 @@ Toto onu dinledi ve özür diledi. Sonra kartı Mino'ya uzattı. Lili masadaki g
 
 Resim tamamlanınca Mino gününü düşündü. Üzüntüsü ona önemli bir şey anlatmıştı. Kendini dışarıda kalmış gibi hissetmişti. Konuşunca eksik bilgiyi öğrenmişti. Arkadaşları da onu daha iyi anlamıştı.
 
-Mino resmi duvara birlikte asmayı önerdi. Boş sandalye artık masanın yanındaydı. Davet kartı da resmin köşesine eklendi. Böylece yanlış yol unutulmadı. Yeni davetler için küçük bir işaret oldu.
+Mino resmi duvara birlikte asmayı önerdi. Boş sandalye artık masanın yanındaydı. Davet kartı da resmin köşesine eklendi. Böylece yanlış yol unutulmadı. Yeni davetler için küçük bir işaret oldu.`,
+        },
+        {
+          ad: "Yeni Davet Yolu",
+          dk: 1,
+          metin: paragraphs`Arkadaşlar davetin ulaştığını birlikte kontrol etmeye açıkça karar verdi. Mino da konuşabileceği güvenli bir yol bulunduğunu o gün hatırladı. Ertesi etkinlik için kartları herkes beraber ve dikkatle hazırladı. Toto doğru patikayı göstermek için renkli bir ok çizdi. Lili masadaki isimleri bir kez daha yüksek sesle okudu.
 
-Arkadaşlar davetin ulaştığını birlikte kontrol etmeye açıkça karar verdi. Mino da konuşabileceği güvenli bir yol bulunduğunu o gün hatırladı. Ertesi etkinlik için kartları herkes beraber ve dikkatle hazırladı. Toto doğru patikayı göstermek için renkli bir ok çizdi. Lili masadaki isimleri bir kez daha yüksek sesle okudu. Oki her sandalyenin önünde doğru kart bulunduğunu kontrol etti. Mino kendi kartını görünce sakin bir sevinç hissetti. Bu kez beklemek yerine merak ettiği şeyi doğrudan sordu. Arkadaşları sorusunu dinleyip bildikleri ayrıntıları onunla açıkça paylaştı. Gökyüzü resmi böylece yeni bir ortak alışkanlığı da başlattı.`,
+Oki her sandalyenin önünde doğru kart bulunduğunu kontrol etti. Mino kendi kartını görünce sakin bir sevinç hissetti. Bu kez beklemek yerine merak ettiği şeyi doğrudan sordu. Arkadaşları sorusunu dinleyip bildikleri ayrıntıları onunla açıkça paylaştı. Gökyüzü resmi böylece yeni bir ortak alışkanlığı da başlattı.`,
         },
       ],
     },
@@ -326,41 +327,46 @@ Arkadaşlar davetin ulaştığını birlikte kontrol etmeye açıkça karar verd
         {
           ad: "Yarım Kalan Uçurtma",
           dk: 1,
-          metin: paragraphs`Oki sabah kulübeye erken geldi. Mor uçurtmasını masaya bıraktı. Kuyruğuna üç sarı kurdele bağlayacaktı. Sonra yapıştırıcı almak için dışarı çıktı. Döndüğünde bir kurdele yerdeydi.
+          metin: paragraphs`Oki kulübeye erken gelip mor uçurtmasını masaya bıraktı. Kuyruğuna üç sarı kurdele bağlayacaktı. Sonra yapıştırıcı almak için dışarı çıktı. Döndüğünde bir kurdele yerdeydi.
 
-Toto masanın yanında duruyordu. Elinde küçük bir makas vardı. Oki, kurdeleyi onun kestiğini düşündü. İçinde kızgın bir sıcaklık yükseldi. Fakat olayın yalnız sonunu görmüştü.`,
+Toto masanın yanında küçük bir makas tutuyordu. Oki, kurdeleyi onun kestiğini düşündü. İçinde kızgın bir sıcaklık yükseldi. Fakat olayın yalnız sonunu görmüştü.`,
         },
         {
           ad: "İlk Düşüncenin Hızı",
           dk: 1,
-          metin: paragraphs`Oki kurdeleyi neden kestiğini sordu. Sesi düşündüğünden daha sert çıktı. Toto şaşırdı ve makası masaya bıraktı. Kurdeleyi kesmediğini söyledi. Oki yerdeki kısa parçayı gösterdi.
+          metin: paragraphs`Oki kurdeleyi sorarken sesi düşündüğünden daha sert çıktı. Toto şaşırıp elindeki küçük makası hemen masaya bıraktı. Kurdeleyi kesmediğini söyledi. Oki yerdeki kısa parçayı gösterdi.
 
-Toto hemen cevap vermek yerine pencereye baktı. Açık pencereden güçlü rüzgâr giriyordu. Masadaki kâğıtlar da kıpırdıyordu. Toto kurdeleyi yerde bulmuştu. Makasla uçurtmanın kopan ipini düzeltiyordu.`,
+Toto hemen cevap vermek yerine açık pencereye dikkatle baktı. Açık pencereden güçlü sabah rüzgârı giriyordu. Masadaki kâğıtlar da kıpırdıyordu. Toto kurdeleyi yerde bulmuştu. Makasla uçurtmanın kopan ipini düzeltiyordu.`,
         },
         {
           ad: "İki Ayrı Görüntü",
           dk: 1,
-          metin: paragraphs`Oki yalnız makası ve kurdeleyi görmüştü. Toto ise kurdelenin pencereden uçtuğunu görmüştü. İkisinin bildiği parçalar farklıydı. Oki ilk düşüncesini yeniden inceledi. Kurdelede düzgün bir kesik yoktu.
+          metin: paragraphs`Oki yalnız makası görürken Toto kurdelenin uçtuğunu görmüştü. İkisinin bildiği parçalar farklıydı. Oki ilk düşüncesini yeniden inceledi. Kurdelede düzgün bir kesik yoktu.
 
-Kumaşın ucu ince ince sökülmüştü. Bu iz rüzgârla kopmuş olabilirdi. Oki, Toto'nun anlattığını şimdi daha iyi anladı. Yine de pencerenin etkisini birlikte sınamak istediler.`,
+Kumaşın ucu ince ince sökülmüştü. Bu iz güçlü rüzgârla kopmuş olabilirdi. Oki, Toto'nun anlattığını şimdi daha iyi anladı. Yine de açık pencerenin etkisini birlikte sınamak istediler.`,
         },
         {
           ad: "Rüzgârın Küçük Deneyi",
           dk: 1,
-          metin: paragraphs`Yedek bir kurdeleyi masaya koydular. Pencereyi önce kapalı tuttular. Kurdele yerinde kaldı. Sonra pencereyi biraz açtılar. Gelen hava kurdeleyi kenara sürükledi.
+          metin: paragraphs`Yedek kurdeleyi koyup pencereyi önce kapalı tuttular. Kurdele yerinde kaldı. Sonra pencereyi biraz açtılar. Gelen hava kurdeleyi kenara sürükledi.
 
-Deney bütün ayrıntıları kanıtlamıyordu. Fakat rüzgârın güçlü olduğunu gösteriyordu. Oki, Toto'ya hızlı karar verdiğini söyledi. Sert konuştuğu için özür diledi. Toto da şaşırdığını açıkça anlattı.`,
+Deney bütün ayrıntıları değil, rüzgârın gücünü gösteriyordu. Oki, Toto'ya hızlı karar verdiğini söyledi. Sert konuştuğu için özür diledi. Toto da şaşırdığını açıkça anlattı.`,
         },
         {
           ad: "Yeni Kuyruktaki Düğüm",
           dk: 1,
-          metin: paragraphs`İkisi uçurtmanın kuyruğunu birlikte onardı. Toto kopan ipi sağlam bir düğümle bağladı. Oki yeni kurdeleleri daha sıkı yerleştirdi. Sonra pencereyi güvenli biçimde kapattılar. Mor uçurtma yeniden hazırdı.
+          metin: paragraphs`İkisi uçurtmanın kuyruğunu birlikte onardı. Toto kopan ipi sağlam bir düğümle bağladı. Oki kurdeleleri sıkıca yerleştirip pencereyi güvenle kapattı. Mor uçurtma yeniden hazırdı.
 
 Bahçeye çıkınca uçurtma hızla yükseldi. Sarı kurdeleler gökyüzünde kıvrılıyordu. Oki sabah gördüğü yarım görüntüyü düşündü. Bir davranışın nedeni her zaman görünmeyebilirdi. Soru sormak yeni parçaları ortaya çıkarabilirdi.
 
-Toto uçurtmanın ipini Oki'ye uzattı. Oki bu kez önce hazır olup olmadığını sordu. Toto gülerek başını salladı. İpi birlikte tuttular. Uçurtma rüzgârla daha da yükseldi.
+Toto uçurtmanın ipini Oki'ye uzattı. Oki bu kez önce hazır olup olmadığını sordu. Toto gülerek başını salladı. İpi birlikte tuttular. Uçurtma rüzgârla daha da yükseldi.`,
+        },
+        {
+          ad: "Bütün Hikâyeyi Sormak",
+          dk: 1,
+          metin: paragraphs`Oki ilk görüntünün bütün hikâye olmayabileceğini artık daha iyi biliyordu. Toto da onarım yaparken amacını önceden söylemeyi yararlı buldu. İkisi gördükleri bütün ayrıntıları sırayla ve açıkça anlatmayı denedi. Aynı olayın farklı yerlerden başka türlü görünebildiğini fark ettiler. Bahçedeki rüzgâr sarı kurdeleleri yeniden güçlü biçimde savurdu.
 
-Oki ilk görüntünün bütün hikâye olmayabileceğini artık daha iyi biliyordu. Toto da onarım yaparken amacını önceden söylemeyi yararlı buldu. İkisi gördükleri ayrıntıları sırayla anlatmayı birlikte denedi. Aynı olayın farklı yerlerden başka türlü görünebildiğini fark ettiler. Bahçedeki rüzgâr sarı kurdeleleri yeniden güçlü biçimde savurdu. Bu kez Oki kurdelelerin bağlantısını önceden dikkatle kontrol etti. Toto da pencereyi kapatıp malzemeleri güvenli kutuya yerleştirdi. Küçük yanlış anlama açık bir konuşmayla tamamen onarılmıştı. Uçurtmanın ipini dönüşümlü tutarak uzun süre birlikte koştular. Gün sonunda ikisi de merak ettiklerini sormayı yeniden hatırladı.`,
+Bu kez Oki kurdelelerin bağlantısını önceden dikkatle kontrol etti. Toto da pencereyi kapatıp malzemeleri güvenli kutuya yerleştirdi. Küçük yanlış anlama açık bir konuşmayla tamamen onarılmıştı. Uçurtmanın ipini dönüşümlü tutarak uzun süre birlikte koştular. Gün sonunda ikisi de merak ettiklerini açıkça sormayı yeniden hatırladı.`,
         },
       ],
     },
@@ -407,30 +413,30 @@ Oki ilk görüntünün bütün hikâye olmayabileceğini artık daha iyi biliyor
         {
           ad: "Kulenin Son Parçası",
           dk: 1,
-          metin: paragraphs`Toto renkli bloklarla yüksek bir kule yaptı. Son parçayı en üste koyacaktı. Lili masanın öbür yanında resim çiziyordu. Oki de kutuları rafa taşıyordu. Oda sakin ve aydınlıktı.
+          metin: paragraphs`Toto renkli bloklarla yaptığı kulenin son parçasını kaldırdı. Lili masanın öbür yanında resim çiziyordu. Oki de kutuları rafa taşıyordu. Oda sakin ve aydınlıktı.
 
-Toto kırmızı parçayı dikkatle kaldırdı. Tam yerleştirirken masa birden sallandı. Kule büyük bir gürültüyle devrildi. Bloklar zemine doğru dağıldı. Toto'nun elleri hemen sıkıldı.`,
+Toto kırmızı parçayı en üste yerleştirirken masa birden sallandı. Kule büyük bir gürültüyle devrildi. Renkli bloklar sert zemine doğru dağıldı. Toto'nun elleri hemen sıkıldı.`,
         },
         {
           ad: "Cevaptan Önceki An",
           dk: 1,
-          metin: paragraphs`Toto masanın yanında Oki'yi gördü. Kuleyi onun devirdiğini düşündü. Bağırmak için ağzını açtı. Sonra yerdeki bir ayrıntıyı fark etti. Rafın altından küçük top çıkmıştı.
+          metin: paragraphs`Toto masadaki Oki'nin kuleyi devirdiğini düşündü. Bağırmak için ağzını açtı. Sonra yerdeki bir ayrıntıyı fark etti. Rafın altından küçük top çıkmıştı.
 
-Toto bir an konuşmadan bekledi. Ellerini yavaşça açtı. Kızgınlığı hâlâ oradaydı. Fakat ne olduğunu tam bilmiyordu. Önce Oki'ye masanın neden sallandığını sordu.`,
+Toto bir an konuşmadan dikkatle bekledi. Ellerini yavaşça yeniden açtı. Kızgınlığı hâlâ oradaydı. Fakat ne olduğunu tam bilmiyordu. Önce Oki'ye masanın neden sallandığını sordu.`,
         },
         {
           ad: "Topun İzlediği Yol",
           dk: 1,
-          metin: paragraphs`Oki kutuyu taşırken topu görmemişti. Kutu topa hafifçe dokunmuştu. Top yuvarlanıp masanın ayağına çarpmıştı. Masa bu yüzden sallanmıştı. Oki kuleyi bilerek devirmemişti.
+          metin: paragraphs`Oki kutuyu taşırken görmediği topa hafifçe dokunmuştu. Top yuvarlanıp masanın ayağına çarpmıştı. Masa bu yüzden sallanmıştı. Oki kuleyi bilerek devirmemişti.
 
-Lili de topun hareketini görmüştü. Gördüğü yolu parmağıyla gösterdi. Toto parçaları sırayla düşündü. Oki'nin geçişi, top ve masa birbirine bağlanıyordu. Olay ilk göründüğünden farklıydı.`,
+Lili gördüğü top yolunu parmağıyla gösterdi. Toto parçaları sırayla düşündü. Oki'nin geçişi, top ve masa birbirine bağlanıyordu. Olay ilk göründüğünden farklıydı.`,
         },
         {
           ad: "Dağılan Blokların Kararı",
           dk: 1,
-          metin: paragraphs`Toto yine de hayal kırıklığı hissediyordu. Kule için uzun süre çalışmıştı. Bunu sakin sözlerle arkadaşlarına anlattı. Oki onu dinledi ve üzgün olduğunu söyledi. Sonra yardım etmeyi önerdi.
+          metin: paragraphs`Toto, uzun çalıştığı kulesi için hayal kırıklığı hissediyordu. Bunu sakin sözlerle arkadaşlarına anlattı. Oki onu dinledi ve üzgün olduğunu söyledi. Sonra yardım etmeyi önerdi.
 
-Toto hemen yeni kule yapmak istemedi. Önce blokları renklerine göre topladılar. Bu sırada hangi masanın daha sağlam olduğunu incelediler. Pencere yanındaki kısa masa sallanmıyordu. Yeni yer için onu seçtiler.`,
+Toto hemen yeni kule yapmak istemedi. Önce blokları renklerine göre topladılar. Bu sırada daha sağlam masayı aradılar. Sallanmayan kısa masayı yeni yer olarak seçtiler.`,
         },
         {
           ad: "Daha Sağlam Yeni Kule",
@@ -439,9 +445,14 @@ Toto hemen yeni kule yapmak istemedi. Önce blokları renklerine göre topladıl
 
 Fakat bu kez daha sağlam duruyordu. Toto kırmızı parçayı yine en üste koydu. Arkadaşları kuleyi uzaktan dikkatle izledi. Küçük topu da kapalı sepete bıraktılar. Oda yeniden sessizleşti.
 
-Toto o kısa anı düşündü. Durmak kızgınlığını hemen yok etmemişti. Yalnızca yeni bilgiyi duymasına zaman vermişti. Sonra ne yapacağına kendisi karar vermişti. Bu seçim yeni kuleyi mümkün kılmıştı.
+Toto o kısa anı düşündü. Durmak kızgınlığını hemen yok etmemişti. Yalnızca yeni bilgiyi duymasına zaman vermişti. Sonra ne yapacağına kendisi karar vermişti. Bu seçim yeni kuleyi mümkün kılmıştı.`,
+        },
+        {
+          ad: "Kırmızı Parçanın Hatırlattığı",
+          dk: 1,
+          metin: paragraphs`Yeni kuleyi odanın öbür ucundan yeniden dikkatle incelediler. Geniş taban gerçekten daha dengeli bir yapı sağlamıştı. Toto önceki kulesinin de değerli bir deneme olduğunu düşündü. Devrilen bloklar ona yeni bir düzen kurma fırsatı vermişti. Oki küçük top için kapağı sağlam bir sepet seçti.
 
-Yeni kuleyi odanın öbür ucundan yeniden dikkatle incelediler. Geniş taban gerçekten daha dengeli bir yapı sağlamıştı. Toto önceki kulesinin de değerli bir deneme olduğunu düşündü. Devrilen bloklar ona yeni bir düzen kurma fırsatı vermişti. Oki küçük top için kapağı sağlam bir sepet seçti. Lili kulelerin resmini aynı kâğıtta yan yana çizdi. Toto iki yapının farklarını kendi sözleriyle açıkça anlattı. Hiçbiri onu hızlı davranmakla suçlamadı veya utandırmadı. Arkadaşları yalnız o gün öğrendikleri bilgileri birlikte paylaştı. Toto kırmızı parçaya bakıp yaptığı yeni seçimi sessizce hatırladı.`,
+Lili iki kulenin resmini büyük kâğıtta dikkatle yan yana çizdi. Toto iki yapının farklarını kendi sözleriyle açıkça anlattı. Hiçbiri onu hızlı davranmakla suçlamadı veya utandırmadı. Arkadaşları yalnız o gün öğrendikleri yeni bilgileri birlikte paylaştı. Toto kırmızı parçaya bakıp yaptığı yeni seçimi sessizce yeniden hatırladı.`,
         },
       ],
     },
@@ -473,6 +484,25 @@ Yeni kuleyi odanın öbür ucundan yeniden dikkatle incelediler. Geniş taban ge
     },
   },
 ];
+
+const WORDS_PER_MINUTE = 155;
+const countWords = (text = "") =>
+  String(text).match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
+
+for (const story of PILOT_STORIES) {
+  for (const section of story.legacy.bolumler) {
+    section.wordCount = countWords(section.metin);
+    section.estimatedSeconds = Math.ceil((section.wordCount * 60) / WORDS_PER_MINUTE);
+    section.dk = Number((section.estimatedSeconds / 60).toFixed(2));
+  }
+  const totalWords = story.legacy.bolumler.reduce(
+    (sum, section) => sum + section.wordCount,
+    0,
+  );
+  const totalSeconds = Math.ceil((totalWords * 60) / WORDS_PER_MINUTE);
+  story.legacy.sureDk = Number((totalSeconds / 60).toFixed(2));
+  story.metadata.estimatedMinutes = story.legacy.sureDk;
+}
 
 export const PILOT_STORIES_LEGACY = PILOT_STORIES.map(({ legacy }) => legacy);
 
