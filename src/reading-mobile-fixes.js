@@ -1,11 +1,15 @@
 const ACTIVE_SELECTOR = '[data-okuma-metin] [data-aktif="1"]';
-const MIN_SCROLL_INTERVAL_MS = 1400;
-const COMFORT_TOP_RATIO = 0.12;
-const COMFORT_BOTTOM_RATIO = 0.82;
-const MAX_SCROLL_LINE_MULTIPLIER = 1.25;
+const MIN_SCROLL_INTERVAL_MS = 320;
+const COMFORT_TOP_RATIO = 0.28;
+const COMFORT_BOTTOM_RATIO = 0.68;
+const TARGET_RATIO = 0.42;
+const MANUAL_SCROLL_PAUSE_MS = 4200;
+const MAX_SCROLL_VIEWPORT_RATIO = 0.45;
 let lastScrollAt = 0;
+let manualScrollUntil = 0;
 let frame = 0;
 let calmFlowFrame = 0;
+let lastActiveWord = null;
 
 function speechIsActuallyRunning() {
   try {
@@ -15,13 +19,39 @@ function speechIsActuallyRunning() {
   }
 }
 
+function normalizedLabel(element) {
+  return (element?.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
+function getPlayer(root = document) {
+  return root.querySelector('[data-mobile-stability]');
+}
+
+function isManualMode(player = getPlayer()) {
+  if (!(player instanceof HTMLElement)) return false;
+  const manualMode = player.querySelector('[data-okuma-modu="kendim"]');
+  return Boolean(
+    (manualMode instanceof HTMLElement
+      && (manualMode.getAttribute('aria-pressed') === 'true'
+        || /rgba\(232,\s*163,\s*61/i.test(manualMode.getAttribute('style') || '')))
+      || /Kendim Okuyorum:/i.test(normalizedLabel(player)),
+  );
+}
+
+function playerIsRunning(player = getPlayer()) {
+  if (!(player instanceof HTMLElement)) return false;
+  if (speechIsActuallyRunning()) return true;
+
+  const pauseControl = [...player.querySelectorAll('button')].find((button) => {
+    const label = `${button.getAttribute('aria-label') || ''} ${normalizedLabel(button)}`;
+    return /duraklat|pause/i.test(label);
+  });
+  return Boolean(pauseControl);
+}
+
 function isLongToken(text) {
   const value = (text || '').trim();
   return value.length > 24 || /^https?:\/\//i.test(value) || /\S+@\S+\.\S+/.test(value);
-}
-
-function normalizedLabel(element) {
-  return (element?.textContent || '').replace(/\s+/g, ' ').trim();
 }
 
 export function markReadingTokens(root = document) {
@@ -29,6 +59,19 @@ export function markReadingTokens(root = document) {
     if (isLongToken(span.textContent)) span.dataset.uzunToken = '1';
     else delete span.dataset.uzunToken;
   });
+}
+
+function noteManualInteraction(event) {
+  if (!event.isTrusted) return;
+  manualScrollUntil = Date.now() + MANUAL_SCROLL_PAUSE_MS;
+}
+
+function bindReadingViewport(readingText) {
+  if (!(readingText instanceof HTMLElement) || readingText.dataset.readerUxBound === '1') return;
+  readingText.dataset.readerUxBound = '1';
+  readingText.addEventListener('touchstart', noteManualInteraction, { passive: true });
+  readingText.addEventListener('pointerdown', noteManualInteraction, { passive: true });
+  readingText.addEventListener('wheel', noteManualInteraction, { passive: true });
 }
 
 export function scrollActiveWord(
@@ -39,8 +82,12 @@ export function scrollActiveWord(
 
   const readingText = activeWord.closest('[data-okuma-metin]');
   if (!(readingText instanceof HTMLElement)) return false;
+  bindReadingViewport(readingText);
 
-  if (!force && !speechIsActuallyRunning()) return false;
+  const player = activeWord.closest('[data-mobile-stability]') || getPlayer();
+  const pacedManualReading = isManualMode(player) && playerIsRunning(player);
+  if (!force && !speechIsActuallyRunning() && !pacedManualReading) return false;
+  if (!force && now < manualScrollUntil) return false;
   if (!force && now - lastScrollAt < MIN_SCROLL_INTERVAL_MS) return false;
 
   const containerRect = readingText.getBoundingClientRect();
@@ -50,50 +97,48 @@ export function scrollActiveWord(
 
   if (wordRect.top >= comfortTop && wordRect.bottom <= comfortBottom) {
     if (readingText.scrollLeft !== 0) readingText.scrollLeft = 0;
+    lastActiveWord = activeWord;
     return true;
   }
 
-  const style = window.getComputedStyle(readingText);
-  const parsedLineHeight = Number.parseFloat(style.lineHeight);
-  const parsedFontSize = Number.parseFloat(style.fontSize) || 18;
-  const lineHeight = Number.isFinite(parsedLineHeight) ? parsedLineHeight : parsedFontSize * 1.8;
-  const maxStep = lineHeight * MAX_SCROLL_LINE_MULTIPLIER;
-
-  let delta = 0;
-  if (wordRect.bottom > comfortBottom) {
-    delta = Math.min(maxStep, wordRect.bottom - comfortBottom + lineHeight * 0.25);
-  } else if (wordRect.top < comfortTop) {
-    delta = -Math.min(maxStep, comfortTop - wordRect.top + lineHeight * 0.25);
-  }
+  const targetY = containerRect.top + containerRect.height * TARGET_RATIO;
+  const wordCenter = wordRect.top + wordRect.height / 2;
+  const rawDelta = wordCenter - targetY;
+  const maxStep = Math.max(48, containerRect.height * MAX_SCROLL_VIEWPORT_RATIO);
+  const delta = Math.max(-maxStep, Math.min(maxStep, rawDelta));
 
   if (Math.abs(delta) < 2) return true;
 
   const maxTop = Math.max(0, readingText.scrollHeight - readingText.clientHeight);
   const targetTop = Math.max(0, Math.min(maxTop, readingText.scrollTop + delta));
-  readingText.scrollTo({ top: targetTop, left: 0, behavior: 'auto' });
+  const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  readingText.scrollTo({
+    top: targetTop,
+    left: 0,
+    behavior: prefersReducedMotion || force ? 'auto' : 'smooth',
+  });
   lastScrollAt = now;
+  lastActiveWord = activeWord;
   return true;
 }
 
 export function ensureCalmReadingFlow(root = document) {
-  const player = root.querySelector('[data-mobile-stability]');
+  const player = getPlayer(root);
   if (!(player instanceof HTMLElement)) return false;
 
-  const manualMode = player.querySelector('[data-okuma-modu="kendim"]');
-  const manualSelected = (manualMode instanceof HTMLElement
-    && (manualMode.getAttribute('aria-pressed') === 'true'
-      || /rgba\(232,\s*163,\s*61/i.test(manualMode.getAttribute('style') || '')
-    )) || /Kendim Okuyorum:/i.test(normalizedLabel(player));
-
   const readingText = player.querySelector('[data-okuma-metin]');
-  if (manualSelected && readingText instanceof HTMLElement) {
+  if (readingText instanceof HTMLElement) {
+    bindReadingViewport(readingText);
     readingText.dataset.kullaniciKaydirma = '1';
+    readingText.dataset.akilliTakip = isManualMode(player) ? 'kendim' : 'sesli';
     readingText.style.overflowY = 'auto';
     readingText.style.touchAction = 'pan-y';
+    readingText.style.overscrollBehavior = 'contain';
+    readingText.style.scrollbarGutter = 'stable';
   }
 
   player.dataset.personaFlow = 'calm';
-  return false;
+  return true;
 }
 
 function scheduleCalmFlowGuard() {
@@ -101,6 +146,7 @@ function scheduleCalmFlowGuard() {
   calmFlowFrame = requestAnimationFrame(() => {
     calmFlowFrame = 0;
     ensureCalmReadingFlow();
+    window.setTimeout(() => scrollActiveWord(undefined, { force: true }), 80);
   });
 }
 
@@ -126,7 +172,9 @@ function scheduleRefresh({ forceScroll = false } = {}) {
     frame = 0;
     markInteractiveControls();
     ensureCalmReadingFlow();
-    scrollActiveWord(undefined, { force: forceScroll });
+    const activeWord = document.querySelector(ACTIVE_SELECTOR);
+    const activeChanged = activeWord !== lastActiveWord;
+    scrollActiveWord(activeWord, { force: forceScroll || activeChanged });
   });
 }
 
@@ -136,7 +184,11 @@ export function installReadingMobileFixes() {
 
   const observer = new MutationObserver((mutations) => {
     const relevant = mutations.some((mutation) => {
-      if (mutation.type === 'attributes') return mutation.attributeName === 'data-aktif';
+      if (mutation.type === 'attributes') {
+        return mutation.attributeName === 'data-aktif'
+          || mutation.attributeName === 'aria-pressed'
+          || mutation.attributeName === 'style';
+      }
       return mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0;
     });
     if (relevant) scheduleRefresh();
@@ -146,7 +198,7 @@ export function installReadingMobileFixes() {
     subtree: true,
     childList: true,
     attributes: true,
-    attributeFilter: ['data-aktif'],
+    attributeFilter: ['data-aktif', 'aria-pressed', 'style'],
   });
 
   const refreshLayout = () => scheduleRefresh({ forceScroll: true });
@@ -160,11 +212,15 @@ export function installReadingMobileFixes() {
     ensureCalmReadingFlow,
     refresh: scheduleRefresh,
     speechIsActuallyRunning,
+    isManualMode,
+    playerIsRunning,
     config: {
       minScrollIntervalMs: MIN_SCROLL_INTERVAL_MS,
       comfortTopRatio: COMFORT_TOP_RATIO,
       comfortBottomRatio: COMFORT_BOTTOM_RATIO,
-      maxScrollLineMultiplier: MAX_SCROLL_LINE_MULTIPLIER,
+      targetRatio: TARGET_RATIO,
+      manualScrollPauseMs: MANUAL_SCROLL_PAUSE_MS,
+      maxScrollViewportRatio: MAX_SCROLL_VIEWPORT_RATIO,
     },
   };
 
