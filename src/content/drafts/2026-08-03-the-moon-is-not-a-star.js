@@ -41,7 +41,7 @@ export const THE_MOON_IS_NOT_A_STAR_DRAFT = {
     yas: "10-12 yaş",
     renk: ["#172B4D", "#A8C7FA"],
     puan: 5,
-    sureDk: 4.72,
+    sureDk: 4.78,
     ozet: "Mira tests a bright-sky guess and discovers how moonlight works.",
     bolumler: [
       {
@@ -55,7 +55,7 @@ He asked how they could test that idea. Mira opened their observation notebook. 
 
 She marked the bright point with one dot. The shapes clearly looked different.
 
-Shape alone could not settle the question. Planets can look like bright points too. Mira needed evidence about light and motion.
+Shape alone could not settle the question. Distant objects can look like bright points. Mira needed evidence about light and motion.
 
 She wrote one careful question below her drawing. Does the Moon make its own light? That question guided their next observation.
 
@@ -80,14 +80,14 @@ Their model was simple, not a perfect Moon. Still, it tested the light claim cle
       },
       {
         ad: "Why the Shape Seems to Change",
-        estimatedSeconds: 47,
+        estimatedSeconds: 48,
         metin: `The next evening showed a curved crescent. Mira compared it with yesterday's drawing. The Moon had not lost a piece.
 
 The Sun still lit half its surface. Their viewing angle had changed.
 
 The Moon travels around Earth. We see different amounts of its sunlit half. These views are called lunar phases.
 
-A complete cycle takes about twenty-nine days. The pattern then begins again.
+A complete cycle takes about twenty-nine and a half days. The pattern then begins again.
 
 Mira arranged eight phase cards in order. Leon checked them against a NASA diagram. The cards moved from new Moon onward.
 
@@ -108,13 +108,13 @@ It has rock, dust, plains, and many craters. It does not produce starlight insid
 
 Distance can hide important size differences. Faraway stars appear as tiny points. The much closer Moon shows a round disk.
 
-A telescope can reveal lunar surface details. Yet the telescope does not change the evidence. Reflected light still reaches Mira's eyes.
+Closer images can reveal lunar surface details. Those details do not change the evidence. Reflected light still reaches Mira's eyes.
 
 Leon wrote star and satellite in separate columns. Their properties now had clear boundaries.`,
       },
       {
         ad: "Two Common Traps",
-        estimatedSeconds: 46,
+        estimatedSeconds: 45,
         metin: `Mira found two confusing claims online. One said phases came from Earth's shadow. Another said the far side stayed dark.
 
 Neither claim matched their model.
@@ -127,14 +127,14 @@ The far side also receives sunlight. It has days and nights like other regions. 
 
 It is not permanently dark. Mira added both corrections to the notebook. She labeled them claims needing stronger evidence.
 
-The corrections improved their answer without blaming anyone. Better evidence simply changed the explanation.`,
+The corrections improved the notebook's explanation. Mira marked which evidence supported each change.`,
       },
       {
-        ad: "The Answer in the Morning Sky",
-        estimatedSeconds: 51,
-        metin: `One week later, Mira saw the Moon again. This time it crossed the morning sky. Daylight had not erased it.
+        ad: "The Answer in the Evening Sky",
+        estimatedSeconds: 54,
+        metin: `One week later, Mira saw the Moon again. This time it stood higher after sunset. Its bright portion had grown.
 
-The Moon simply shared the sky with sunlight.
+The sequence matched the phase cards in their notebook.
 
 Mira reviewed every step in their investigation. Shape had started the question. A model explained reflected light.
 
@@ -144,17 +144,18 @@ She wrote their final answer carefully. The Moon is not a star. It reflects sunl
 
 Its changing appearance follows a predictable viewing pattern. Mira left space beneath that answer. Tomorrow's sky might bring another useful question.
 
-Leon added the date and weather beside her last drawing.
+Leon added the date and weather beside her last drawing. The bright point remained unidentified.
 
-They had replaced one quick label with evidence. Their notebook preserved every step of that change.`,
+They needed more evidence before naming that object. Their notebook preserved every step of the Moon investigation.`,
       },
     ],
   },
   metadata: {
     ageBand: "10-12",
-    estimatedSeconds: 283,
-    estimatedMinutes: 4.72,
+    estimatedSeconds: 287,
+    estimatedMinutes: 4.78,
     contentTrack: "english-science",
+    englishProficiencyTarget: "CEFR B1",
     primaryTheme: "testing-claims-with-evidence",
     contentStatus: "content-quality-review",
     structuralValid: true,
@@ -166,6 +167,7 @@ They had replaced one quick label with evidence. Their notebook preserved every 
       "https://science.nasa.gov/moon/top-moon-questions/",
       "https://science.nasa.gov/moon/eclipses/",
       "https://science.nasa.gov/moon/lunar-craters/",
+      "https://science.nasa.gov/sun/facts/",
     ],
     factualReviewStatus: "pending-human-review",
     originalityRightsReviewStatus: "pending-human-review",
@@ -176,7 +178,7 @@ They had replaced one quick label with evidence. Their notebook preserved every 
       { word: "lunar phase", definition: "A view of the Moon's sunlit portion." },
       { word: "crescent", definition: "A thin, curved shape of visible moonlight." },
       { word: "gibbous", definition: "A Moon view larger than half, but not full." },
-      { word: "eclipse", definition: "An event when one object enters another object's shadow." },
+      { word: "lunar eclipse", definition: "An event when the Moon moves through Earth's shadow." },
       { word: "evidence", definition: "Information used to test an idea or claim." },
     ],
     optionalReflectionPrompt: "Which observation best showed that the Moon is not a star?",
