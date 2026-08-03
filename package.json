@@ -16,7 +16,8 @@
     "test:desktop": "playwright test --project=desktop-chrome",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "audit:full-catalog": "node scripts/audit-full-catalog.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.23.0",
