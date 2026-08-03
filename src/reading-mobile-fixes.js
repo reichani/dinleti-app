@@ -61,6 +61,26 @@ export function markReadingTokens(root = document) {
   });
 }
 
+export function markActiveSentence(root = document) {
+  const readingText = root.querySelector?.('[data-okuma-metin]') || root.closest?.('[data-okuma-metin]');
+  if (!(readingText instanceof HTMLElement)) return false;
+
+  const tokens = [...readingText.querySelectorAll(':scope > span')];
+  tokens.forEach((token) => delete token.dataset.aktifCumle);
+  const activeIndex = tokens.findIndex((token) => token.dataset.aktif === '1');
+  if (activeIndex < 0) return false;
+
+  let start = activeIndex;
+  while (start > 0 && !/[.!?…][”"')\]]?\s*$/u.test(tokens[start - 1].textContent || '')) start -= 1;
+
+  let end = activeIndex;
+  while (end < tokens.length - 1 && !/[.!?…][”"')\]]?\s*$/u.test(tokens[end].textContent || '')) end += 1;
+
+  for (let index = start; index <= end; index += 1) tokens[index].dataset.aktifCumle = '1';
+  readingText.dataset.cumleTakibi = '1';
+  return true;
+}
+
 function noteManualInteraction(event) {
   if (!event.isTrusted) return;
   manualScrollUntil = Date.now() + MANUAL_SCROLL_PAUSE_MS;
@@ -135,6 +155,7 @@ export function ensureCalmReadingFlow(root = document) {
     readingText.style.touchAction = 'pan-y';
     readingText.style.overscrollBehavior = 'contain';
     readingText.style.scrollbarGutter = 'stable';
+    markActiveSentence(readingText);
   }
 
   player.dataset.personaFlow = 'calm';
@@ -164,6 +185,7 @@ export function markInteractiveControls(root = document) {
     }
   });
   markReadingTokens(root);
+  markActiveSentence(root);
 }
 
 function scheduleRefresh({ forceScroll = false } = {}) {
@@ -209,6 +231,7 @@ export function installReadingMobileFixes() {
     scrollActiveWord,
     markInteractiveControls,
     markReadingTokens,
+    markActiveSentence,
     ensureCalmReadingFlow,
     refresh: scheduleRefresh,
     speechIsActuallyRunning,
