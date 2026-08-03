@@ -108,15 +108,42 @@ test("every pilot story meets age, duration, section and readability gates", () 
       totalWords >= target[0] && totalWords <= target[1],
       `${label}: ${totalWords} words is outside ${metadata.ageBand} target ${target[0]}–${target[1]}`,
     );
+    assert.equal(
+      fullText.includes(";"),
+      false,
+      `${label}: semicolon joins are not allowed in narrated pilot text`,
+    );
 
     for (const [sectionIndex, section] of legacy.bolumler.entries()) {
       const text = sectionText(section);
       const words = countWords(text);
       const sectionSentences = splitSentences(text);
+      const calculatedSectionSeconds = Math.ceil((words * 60) / WORDS_PER_MINUTE);
+      const declaredSectionSeconds = Number(section.dk) * 60;
+      const sectionDurationVariance =
+        Math.abs(declaredSectionSeconds - calculatedSectionSeconds) / calculatedSectionSeconds;
       assert.ok(words >= 30, `${label}: section ${sectionIndex + 1} has only ${words} words`);
       assert.ok(
         sectionSentences.length >= 2,
         `${label}: section ${sectionIndex + 1} has fewer than two sentences`,
+      );
+      assert.equal(
+        section.wordCount,
+        words,
+        `${label}: section ${sectionIndex + 1} wordCount must be derived from text`,
+      );
+      assert.equal(
+        section.estimatedSeconds,
+        calculatedSectionSeconds,
+        `${label}: section ${sectionIndex + 1} estimatedSeconds must use 155 WPM`,
+      );
+      assert.ok(
+        sectionDurationVariance <= 0.15,
+        `${label}: section ${sectionIndex + 1} duration differs by ${(sectionDurationVariance * 100).toFixed(1)}%`,
+      );
+      assert.ok(
+        words / totalWords <= 0.35,
+        `${label}: section ${sectionIndex + 1} carries more than 35% of the story`,
       );
 
       for (const [paragraphIndex, paragraph] of sectionParagraphs(section).entries()) {
