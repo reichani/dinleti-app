@@ -41,6 +41,21 @@
     0 5px 14px rgba(45, 29, 14, 0.25) !important;
 }
 
+/* Demo-safe contract: Kendim Okuyorum has no synthetic position tracking.
+   Any stale active state retained by React is visually neutralized so the user
+   controls the reading position manually, like a conventional ebook reader. */
+[data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif="1"],
+[data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif-cumle="1"] {
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  box-shadow: none !important;
+  font-weight: inherit !important;
+  outline: none !important;
+}
+
 @media (max-width: 819px) {
   [data-okuma-alani] {
     overflow-y: auto !important;
@@ -64,8 +79,6 @@
     scroll-padding-block: 28% 42%;
   }
 
-  /* The end spacer lets the final sentence reach the same calm target line as
-     the middle of a chapter instead of getting pinned to the bottom edge. */
   [data-okuma-metin="1"]::after {
     content: "";
     display: block;
