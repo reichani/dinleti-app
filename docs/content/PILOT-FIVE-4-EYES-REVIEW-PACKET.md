@@ -8,11 +8,11 @@ Bu paket beş pilot hikâyenin yapısal olarak insan incelemesine hazır adaylar
 
 | ID | Başlık | Yaş | Kelime | 155 kelime/dk süre | Bölümler |
 |---|---|---:|---:|---:|---|
-| OR-01 | Oki A Sesini Buluyor | 6–7 | 315 | 122 sn — 2:02 | 56 / 60 / 59 / 58 / 82 |
+| OR-01 | Oki A Sesini Buluyor | 6–7 | 309 | 120 sn — 2:00 | 52 / 57 / 60 / 54 / 86 |
 | OF-01 | Sessiz Ormandaki Ses | 8–10 | 567 | 220 sn — 3:40 | 110 / 107 / 106 / 110 / 134 |
-| OE-01 | Mino Neden Üzüldü? | 7–8 | 363 | 141 sn — 2:21 | 47 / 44 / 50 / 51 / 171 |
-| OP-01 | Oki Yanlış Anladı | 7–8 | 357 | 139 sn — 2:19 | 48 / 49 / 50 / 46 / 164 |
-| OS-01 | Toto Bir An Durdu | 7–8 | 363 | 141 sn — 2:21 | 50 / 46 / 46 / 56 / 165 |
+| OE-01 | Mino Neden Üzüldü? | 7–8 | 354 | 138 sn — 2:18 | 46 / 40 / 49 / 48 / 82 / 89 |
+| OP-01 | Oki Yanlış Anladı | 7–8 | 350 | 136 sn — 2:16 | 45 / 52 / 48 / 42 / 75 / 88 |
+| OS-01 | Toto Bir An Durdu | 7–8 | 350 | 136 sn — 2:16 | 47 / 45 / 41 / 48 / 82 / 87 |
 
 ## Otomatik kanıt
 
@@ -22,6 +22,9 @@ Bu paket beş pilot hikâyenin yapısal olarak insan incelemesine hazır adaylar
 - 3–8 anlamlı bölüm; bölüm başına en az 30 kelime ve iki cümle
 - Cümle başına en fazla 12; hedef ortalama 6–10 kelime
 - Görünür paragraf başına en fazla üç cümle
+- Bölüm süreleri bölüm kelime sayısından türetilir; sapma en fazla %15'tir
+- Hiçbir bölüm toplamın %35'inden fazlasını taşımaz
+- TTS ritmini bozan otomatik noktalı virgül birleştirmesi yoktur
 - Hikâye başına 4–5 sözlük girdisi
 - İsteğe bağlı ve puansız düşünme sorusu
 - Boş insan reviewer alanları ve `releaseReady=false` kapısı
