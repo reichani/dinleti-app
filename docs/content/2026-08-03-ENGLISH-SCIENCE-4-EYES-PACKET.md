@@ -19,13 +19,14 @@ The narrative, characters, dialogue, sequence, and ending are original Okurio ma
 - NASA Top Moon Questions: https://science.nasa.gov/moon/top-moon-questions/
 - NASA Eclipses and the Moon: https://science.nasa.gov/moon/eclipses/
 - NASA Lunar Craters: https://science.nasa.gov/moon/lunar-craters/
+- NASA Sun Facts: https://science.nasa.gov/sun/facts/
 
 ## Human review lanes
 
 Each lane must be completed by a named human, with a date and concrete notes:
 
 1. Content quality: narrative arc, continuity, character consistency, and ending.
-2. English language and age fit: vocabulary, grammar, rhythm, and 10–12 suitability.
+2. English language and age fit: CEFR B1 vocabulary, grammar, rhythm, and 10–12 suitability.
 3. Science factual review: reflected sunlight, phases, eclipses, and lunar surface claims.
 4. Accessibility: dyslexia, ADHD, screen-reader, TTS, and paragraph rhythm.
 5. Originality and rights: source scope, independent expression, and legal suitability.
