@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run validate:production-catalog && vite build && node scripts/write-release-manifest.mjs",
+    "build": "npm run validate:production-catalog && npm run validate:ai-quality && vite build && node scripts/write-release-manifest.mjs",
     "preview": "vite preview",
     "validate:content": "node scripts/validate-pilot-content.mjs",
     "validate:production-catalog": "node scripts/validate-production-catalog.mjs",
+    "validate:ai-quality": "node --test tests/content/ai-quality-gate.spec.mjs",
     "audit:content-by-age": "node scripts/validate-production-catalog.mjs",
     "test:content": "node --test tests/content/*.spec.mjs",
     "test": "playwright test",
