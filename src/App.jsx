@@ -5,7 +5,7 @@ import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdap
 import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
 import { COMPLETE_OKURIO_SESSIONS } from "./content/completeOkurioSessions.js";
 import { classifyContent, estimateStorySeconds } from "./content/contentIntegrity.js";
-import { cursorFromPosition, positionFromCursor, readingProgressSnapshot } from "./reader-core.js";
+import { cursorFromPosition, positionFromCursor, readingProgressSnapshot, monotonicBoundaryWord } from "./reader-core.js";
 
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
@@ -2136,20 +2136,29 @@ export default function DinletiApp() {
         };
         const fallbackBeklet = () => {
           timeriDurdur();
-          syncTimer = window.setTimeout(fallbackAdimi, 1800);
+          const wordDelay = kelimeSure(kelimeler[fallbackIx] || "", hiz);
+          const watchdogDelay = Math.max(700, Math.min(1400, Math.round(wordDelay * 1.8)));
+          syncTimer = window.setTimeout(fallbackAdimi, watchdogDelay);
         };
         sesAta(u);
         u.onboundary = (e) => {
           if (e.name && e.name !== "word") return;
+          const idx = monotonicBoundaryWord({
+            utteranceText: parca,
+            charIndex: Number(e.charIndex),
+            baseIndex: basIx,
+            currentIndex: fallbackIx,
+            endIndex: z,
+          });
+          // Samsung/Android motorları bazen charIndex=0 değerini veya geriye
+          // giden boundary olaylarını tekrarlar. Bunlar watchdog'u sıfırlamaz.
+          if (idx == null) return;
           syncMode = "boundary";
           timeriDurdur();
           sonSinir.current = Date.now();
-          const onceki = parca.slice(0, e.charIndex || 0).trim();
-          const idx = basIx + (onceki ? onceki.split(/\s+/).length : 0);
-          fallbackIx = Math.min(idx, z);
-          konumuYaz(Math.min(idx, z));
-          // Bazı Android motorları boundary göndermeyi yarıda keser. Yeni bir
-          // boundary gelmezse fallback kaldığı kelimeden tek sahip olarak sürer.
+          fallbackIx = idx;
+          konumuYaz(idx);
+          // Geçerli boundary akışı kesilirse watchdog son doğru kelimeden sürer.
           syncMode = "pending";
           fallbackBeklet();
         };
