@@ -5,6 +5,7 @@ import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdap
 import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
 import { COMPLETE_OKURIO_SESSIONS } from "./content/completeOkurioSessions.js";
 import { classifyContent, estimateStorySeconds } from "./content/contentIntegrity.js";
+import { cursorFromPosition, positionFromCursor, readingProgressSnapshot } from "./reader-core.js";
 
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
@@ -2076,6 +2077,11 @@ export default function DinletiApp() {
       const hedef = kitap.dil === "en" ? "en" : "tr";
       const bolumBaslangic = Date.now();
       const tahminMs = kelimeler.slice(basKelime).reduce((t, k) => t + kelimeSure(k, hiz), 0);
+      const konumuYaz = (wordIndex) => {
+        const safeWord = Math.max(0, Math.min(kelimeler.length - 1, wordIndex));
+        setKelimeIx(safeWord);
+        setPozisyon(positionFromCursor(kitap.bolumler, bolumIx, safeWord, bolumSn));
+      };
 
       const sesAta = (u) => {
         u.lang = dil;
@@ -2125,7 +2131,7 @@ export default function DinletiApp() {
           if (zincirNo.current !== benimNo || syncMode === "boundary") return;
           syncMode = "fallback";
           fallbackIx = Math.min(z, fallbackIx + 1);
-          setKelimeIx(fallbackIx);
+          konumuYaz(fallbackIx);
           if (fallbackIx < z) syncTimer = window.setTimeout(fallbackAdimi, kelimeSure(kelimeler[fallbackIx], hiz));
         };
         const fallbackBeklet = () => {
@@ -2141,7 +2147,7 @@ export default function DinletiApp() {
           const onceki = parca.slice(0, e.charIndex || 0).trim();
           const idx = basIx + (onceki ? onceki.split(/\s+/).length : 0);
           fallbackIx = Math.min(idx, z);
-          setKelimeIx(Math.min(idx, z));
+          konumuYaz(Math.min(idx, z));
           // Bazı Android motorları boundary göndermeyi yarıda keser. Yeni bir
           // boundary gelmezse fallback kaldığı kelimeden tek sahip olarak sürer.
           syncMode = "pending";
@@ -2154,7 +2160,7 @@ export default function DinletiApp() {
           const duraklama = /[.!?…]$/.test(sonKelime) ? sesTonuAyar.noktaMs : (/[,;:]$/.test(sonKelime) ? sesTonuAyar.virgulMs : 140);
           window.setTimeout(() => {
             if (zincirNo.current !== benimNo) return;
-            if (ci + 1 < cumleler.length) { setKelimeIx(cumleler[ci + 1][0]); sonSinir.current = Date.now(); }
+            if (ci + 1 < cumleler.length) { konumuYaz(cumleler[ci + 1][0]); sonSinir.current = Date.now(); }
             konusCumle(ci + 1, null);
           }, duraklama);
         };
@@ -2176,29 +2182,24 @@ export default function DinletiApp() {
   }, [etkinSeslendirme, hiz, sesTonuAyar, okumaModuAyar]);
   useEffect(() => { konusmayiBaslatRef.current = konusmayiBaslat; }, [konusmayiBaslat]);
 
-  /* Zaman ilerletici */
+  /* Tek okuma saati: ilerleme gerçek kelime boundary/fallback olaylarından gelir.
+     Manuel modda tahmini bir saat çalıştırılmaz; yalnız uyku sayacı ilerler. */
   useEffect(() => {
-    if (!caliyor || !aktif) return;
+    if (!caliyor || !aktif || uyku <= 0) return;
     const int = setInterval(() => {
-      setPozisyon((p) => {
-        const yeni = Math.min(toplam, p + hiz);
-        if (yeni >= toplam) setCaliyor(false);
-        return yeni;
-      });
       setUyku((u) => {
-        if (u <= 0) return 0;
         if (u <= 1) { setCaliyor(false); return 0; }
         return u - 1;
       });
     }, 1000);
     return () => clearInterval(int);
-  }, [caliyor, aktif, hiz, toplam]);
+  }, [caliyor, aktif, uyku]);
 
   /* Uyku dolunca konuşmayı da kes */
   useEffect(() => { if (!caliyor) konusmayiDurdur(); }, [caliyor]);
 
   /* Kelime vurgusu: bölüm/kitap değişince başa dön */
-  useEffect(() => { setKelimeIx(0); setSoruCevabi(null); }, [aktifId, aktifBolumIx]);
+  useEffect(() => { setSoruCevabi(null); }, [aktifId, aktifBolumIx]);
 
   /* İlerlemeyi 5 sn'de bir kaydet */
   useEffect(() => {
@@ -2207,7 +2208,7 @@ export default function DinletiApp() {
     if (simdi - sonKayit.current < 5000 && caliyor) return;
     sonKayit.current = simdi;
     setIlerlemeler((eski) => {
-      const yeni = { ...eski, [aktifId]: { pos: pozisyon, ts: simdi } };
+      const yeni = { ...eski, [aktifId]: readingProgressSnapshot({ storyId: aktifId, sections: aktif.bolumler, sectionIndex: aktifBolumIx, wordIndex: kelimeIx, durationForSection: bolumSn, now: simdi }) };
       durumYaz({ favoriler, ilerlemeler: yeni, hiz, sonKitap: aktifId });
       return yeni;
     });
@@ -2278,13 +2279,16 @@ export default function DinletiApp() {
       konusmayiDurdur();
       setAktifId(id);
       const p = ilerlemeler[id]?.pos || 0;
+      const k = kitapBul(id);
+      const kayitli = ilerlemeler[id];
+      const cursor = kayitli?.version === 2
+        ? { sectionIndex: kayitli.sectionIndex || 0, wordIndex: kayitli.wordIndex || 0 }
+        : cursorFromPosition(k.bolumler, p, bolumSn);
       setPozisyon(p);
+      setKelimeIx(cursor.wordIndex);
       setCaliyor(true);
       seriGuncelle();
-      const k = kitapBul(id);
-      let ix = 0, t = 0;
-      for (let i = 0; i < k.bolumler.length; i++) { t += bolumSn(k.bolumler[i]); if (p < t) { ix = i; break; } }
-      if (etkinSeslendirme) konusmayiBaslat(k, ix, 0);
+      if (etkinSeslendirme) konusmayiBaslat(k, cursor.sectionIndex, cursor.wordIndex);
       return;
     }
     if (caliyor) {
@@ -2295,23 +2299,15 @@ export default function DinletiApp() {
         return yeni;
       });
     }
-    else { setCaliyor(true); seriGuncelle(); if (etkinSeslendirme) konusmayiBaslat(aktif, aktifBolumIx, 0); }
+    else { setCaliyor(true); seriGuncelle(); if (etkinSeslendirme) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx); }
   };
 
   const vurguHizala = (poz, konusmayiYenile = false) => {
     if (!aktif) return;
-    let t = 0;
-    for (let i = 0; i < aktif.bolumler.length; i++) {
-      const s = bolumSn(aktif.bolumler[i]);
-      if (poz < t + s) {
-        const oran = (poz - t) / s;
-        const ks = aktif.bolumler[i].metin.trim().split(/\s+/).length;
-        const kelime = Math.min(ks - 1, Math.max(0, Math.floor(oran * ks)));
-        setKelimeIx(kelime);
-        if (konusmayiYenile && caliyor && etkinSeslendirme) konusmayiBaslat(aktif, i, kelime);
-        return;
-      }
-      t += s;
+    const cursor = cursorFromPosition(aktif.bolumler, poz, bolumSn);
+    setKelimeIx(cursor.wordIndex);
+    if (konusmayiYenile && caliyor && etkinSeslendirme) {
+      konusmayiBaslat(aktif, cursor.sectionIndex, cursor.wordIndex);
     }
   };
   const sar = (sn) => {
