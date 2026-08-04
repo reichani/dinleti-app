@@ -2294,7 +2294,8 @@ export default function DinletiApp() {
     if (caliyor) {
       setCaliyor(false); konusmayiDurdur();
       setIlerlemeler((eski) => {
-        const yeni = { ...eski, [id]: { pos: pozisyon, ts: Date.now() } };
+        const simdi = Date.now();
+        const yeni = { ...eski, [id]: readingProgressSnapshot({ storyId: id, sections: aktif.bolumler, sectionIndex: aktifBolumIx, wordIndex: kelimeIx, durationForSection: bolumSn, now: simdi }) };
         durumYaz({ favoriler, ilerlemeler: yeni, hiz, sonKitap: id });
         return yeni;
       });
