@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from "react";
 import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus, Flame } from "lucide-react";
 import GlossaryCard from "./components/GlossaryCard.jsx";
+import OkurioProvenanceStamp from "./components/OkurioProvenanceStamp.jsx";
 import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdapter.js";
 import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
 import { COMPLETE_OKURIO_SESSIONS } from "./content/completeOkurioSessions.js";
@@ -2469,6 +2470,7 @@ export default function DinletiApp() {
         </div>
         <div data-icerik-yolu style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{meta.icerikTuru.replace(/_/g, " ")}</div>
         <div data-content-scope style={{ fontSize: 11, color: sunum.deployable ? S.vurgu : "#D7B778", fontWeight: 700, marginTop: 4 }}>{sunum.label}</div>
+        <OkurioProvenanceStamp stamp={kitap.provenanceStamp} compact />
         <div data-actual-duration style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{sureYaz(sunum.seconds)} · {kalite.toplamKelime} kelime</div>
         <div data-oql style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>OQL-{kalite.oql} · ort. cümle {kalite.ortCumle.toFixed(1)}</div>
       </div>
@@ -2755,6 +2757,7 @@ export default function DinletiApp() {
             <><strong>Hazırlanıyor.</strong> Bu kısa kayıt tam eser veya tamamlanmış hikâye değildir ve henüz başlatılamaz.</>
           )}
         </div>
+        <OkurioProvenanceStamp stamp={k.provenanceStamp} />
         <div data-kalite-karti style={{ marginTop: 14, fontSize: 12, color: S.soluk, background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "8px 12px" }}>
           Okuma seviyesi: OQL-{icerikKalitesi(k).oql} · {icerikKalitesi(k).ad}{kitapMeta(k).cefr ? ` · CEFR ${kitapMeta(k).cefr}` : ""} · {icerikKalitesi(k).toplamKelime} kelime · gerçek süre {sureYaz(sunum.seconds)} · ort. cümle {icerikKalitesi(k).ortCumle.toFixed(1)} kelime
         </div>
