@@ -249,7 +249,7 @@ export const PRODUCTION_STORY_UPGRADES = [
         `),
       },
     ],
-  },,
+  },
   uzayKulubuPiyesiProduction
 ];
 
