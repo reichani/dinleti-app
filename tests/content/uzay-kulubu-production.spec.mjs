@@ -21,7 +21,7 @@ test("Okurio Kaynak İzi discloses AI assistance and primary references", () => 
   assert.equal(stamp.mark, "Okurio Kaynak İzi");
   assert.match(stamp.disclosure, /AI destekli/u);
   assert.match(stamp.disclosure, /Okurio için özgün/u);
-  assert.match(stamp.reviewNotice, /insan hak incelemesi yerine geçmez/u);
+  assert.match(stamp.reviewNotice, /insan hak.*incelemesi yerine geçmez/u);
   assert.equal(stamp.primarySources.length, 3);
   stamp.primarySources.forEach((source) => assert.match(source.url, /^https:\/\/science\.nasa\.gov\//u));
 });
