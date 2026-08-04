@@ -167,7 +167,7 @@ Kulüp ertesi hafta için yeni bir soru seçti. Kuyruklu yıldızların izleri n
       reviewerKind: "ai",
       agentName: "okurio-independent-ai-quality-auditor",
       reviewedAt: "2026-08-04T09:15:00Z",
-      reviewedCommit: "394b5c43f87fa508d0b5054551bb27035e732474",
+      reviewedCommit: "9390d6599da34b11aa4716b69bcfe1ecd0a09e69",
       humanApproval: false,
       summary: "İçerik çekirdeği geçti; production okuyucuya bağlı ses, vurgu, kaydırma, mobil ve insan hak kanıtları tamamlanmadı.",
       checks: {
