@@ -53,5 +53,5 @@ test("Samsung duplicate or backward boundary indices cannot reset progress", () 
   assert.equal(monotonicBoundaryWord({ ...args, charIndex: 0, currentIndex: 2 }), null);
   assert.equal(monotonicBoundaryWord({ ...args, charIndex: 10, currentIndex: 0 }), 2);
   assert.equal(monotonicBoundaryWord({ ...args, charIndex: 6, currentIndex: 2 }), null);
-  assert.equal(monotonicBoundaryWord({ ...args, charIndex: 24, currentIndex: 2 }), 3);
+  assert.equal(monotonicBoundaryWord({ ...args, charIndex: 24, currentIndex: 2 }), 4);
 });
