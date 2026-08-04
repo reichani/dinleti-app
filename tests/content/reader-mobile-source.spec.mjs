@@ -4,10 +4,10 @@ import test from "node:test";
 
 const source = await readFile(new URL("../../src/reading-mobile-fixes.js", import.meta.url), "utf8");
 
-test("self-reading mode can follow the active word without speech synthesis", () => {
-  assert.match(source, /pacedManualReading\s*=\s*isManualMode\(player\)\s*&&\s*playerIsRunning\(player\)/u);
-  assert.match(source, /!speechIsActuallyRunning\(\)\s*&&\s*!pacedManualReading/u);
-  assert.match(source, /data-okuma-modu=\\?"kendim\\?"/u);
+test("self-reading mode disables automatic word following", () => {
+  assert.match(source, /if\s*\(isManualMode\(player\)\)\s*return false/u);
+  assert.match(source, /if\s*\(!speechIsActuallyRunning\(\)\)\s*return false/u);
+  assert.doesNotMatch(source, /pacedManualReading/u);
 });
 
 test("reader keeps the active token in a stable comfort band", () => {
