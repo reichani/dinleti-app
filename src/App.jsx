@@ -1852,6 +1852,8 @@ export default function DinletiApp() {
   }, [kendiMetniAc]);
 
   const konusmaRef = useRef(null);
+  const okumaMetinRef = useRef(null);
+  const otomatikTakipAskidaRef = useRef(0);
   const sonKayit = useRef(0);
   const seslerRef = useRef([]);
 
@@ -2194,6 +2196,30 @@ export default function DinletiApp() {
 
   /* Kelime vurgusu: bölüm/kitap değişince başa dön */
   useEffect(() => { setSoruCevabi(null); }, [aktifId, aktifBolumIx]);
+
+  /* Sesli/birlikte okumada aktif kelimeyi yalnız metin panelinin güvenli
+     görüş alanında tut. Sayfayı kaydırma; manuel okumaya müdahale etme. */
+  useLayoutEffect(() => {
+    if (!caliyor || !etkinSeslendirme || okumaModu === "kendim") return undefined;
+    if (Date.now() < otomatikTakipAskidaRef.current) return undefined;
+    const panel = okumaMetinRef.current;
+    if (!(panel instanceof HTMLElement)) return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      const aktifKelime = panel.querySelector('[data-aktif="1"]');
+      if (!(aktifKelime instanceof HTMLElement)) return;
+      const panelRect = panel.getBoundingClientRect();
+      const kelimeRect = aktifKelime.getBoundingClientRect();
+      const guvenliUst = panelRect.top + panel.clientHeight * 0.24;
+      const guvenliAlt = panelRect.top + panel.clientHeight * 0.68;
+      if (kelimeRect.top >= guvenliUst && kelimeRect.bottom <= guvenliAlt) return;
+      const hedefDelta = kelimeRect.top - (panelRect.top + panel.clientHeight * 0.42);
+      panel.scrollTo({
+        top: Math.max(0, panel.scrollTop + hedefDelta),
+        behavior: "smooth",
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [kelimeIx, aktifBolumIx, caliyor, etkinSeslendirme, okumaModu, ayar.odak]);
 
   /* İlerlemeyi 5 sn'de bir kaydet */
   useEffect(() => {
@@ -2883,7 +2909,7 @@ export default function DinletiApp() {
               return (
                 <div id="okurio-okuma-icerigi" data-reader-workspace>
                   <div data-reading-column>
-                  <div data-okuma-metin="1" data-tema={ayar.tema} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} style={{
+                  <div ref={okumaMetinRef} data-okuma-metin="1" data-tema={ayar.tema} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} onTouchStart={() => { otomatikTakipAskidaRef.current = Date.now() + 2500; }} onWheel={() => { otomatikTakipAskidaRef.current = Date.now() + 2500; }} style={{
                     fontSize: PUNTOLAR[ayar.punto], letterSpacing: `${ARALIKLAR[ayar.aralik]}em`,
                     lineHeight: SATIRLAR[ayar.aralik], wordSpacing: `${ARALIKLAR[ayar.aralik] * 2.2}em`,
                     color: ayar.tema === "krem" ? "#2A2622" : "rgba(242,236,223,0.92)",
