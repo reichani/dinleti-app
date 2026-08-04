@@ -51,3 +51,19 @@ export function readingProgressSnapshot({
     version: 2,
   };
 }
+
+export function monotonicBoundaryWord({
+  utteranceText,
+  charIndex,
+  baseIndex,
+  currentIndex,
+  endIndex,
+}) {
+  if (!Number.isFinite(charIndex) || charIndex < 0) return null;
+  const prefix = String(utteranceText || "").slice(0, charIndex).trim();
+  const candidate = Math.min(
+    Math.max(baseIndex, endIndex),
+    baseIndex + (prefix ? prefix.split(/\s+/u).length : 0),
+  );
+  return candidate > currentIndex ? candidate : null;
+}
