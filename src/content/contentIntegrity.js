@@ -138,16 +138,12 @@ const isMicroExercise = (source, metadata) => {
   );
 };
 
-const isBrowserRuntime = () =>
-  typeof window !== "undefined" && typeof document !== "undefined";
-
 /**
  * Classify catalog content without trusting hand-authored duration fields.
  *
- * Node-based validation remains strict: normal readings under the minimum are
- * reported as blockers. The reader runtime does not convert already-published,
- * non-empty legacy catalog items into disabled "Hazırlanıyor" cards. Explicit
- * preparing/placeholder records and empty content remain blocked everywhere.
+ * The same duration gate applies in validation and in the browser. A legacy
+ * catalog record cannot bypass release policy merely because it was published
+ * before the validator existed.
  */
 export function classifyContent(story, metadata = {}) {
   const source = unwrapStory(story);
@@ -165,9 +161,7 @@ export function classifyContent(story, metadata = {}) {
   }
 
   const blockers = [];
-  const enforceDurationGate = metadata.enforceDurationGate === true || !isBrowserRuntime();
   if (
-    enforceDurationGate &&
     status === CONTENT_STATUS.FULL_READING &&
     seconds < minimumFullReadingSeconds
   ) {
