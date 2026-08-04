@@ -106,7 +106,7 @@ test.describe("2. Zaman ve ses senkronu", () => {
     });
     expect(result.moved).toBe(true);
     expect(result.options.left).toBe(0);
-    expect(result.options.behavior).toBe("auto");
+    expect(result.options.behavior).toBe("smooth");
   });
 });
 
