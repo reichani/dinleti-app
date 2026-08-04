@@ -8,6 +8,10 @@ test.describe("Sprint 4 mobil okuma stabilitesi", () => {
 
   test("aktif kelime yalnızca metin kartının içinde merkeze kaydırılır", async ({ page }) => {
     const result = await page.evaluate(() => {
+      Object.defineProperty(window, "speechSynthesis", {
+        configurable: true,
+        value: { speaking: true, paused: false },
+      });
       const area = document.createElement("div");
       area.setAttribute("data-okuma-metin", "1");
       area.style.height = "120px";
