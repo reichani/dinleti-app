@@ -30,15 +30,15 @@ async function okuyucuyuAc(page) {
 }
 
 test.describe("Responsive reader UX sözleşmesi", () => {
-  test("kartlarda gerçek süre ve kapsam görünür; kısa seçkiler hazırlanıyor durumundadır", async ({ page }) => {
+  test("kartlarda gerçek süre ve kapsam görünür; normalize edilen seçkiler tam okuma durumundadır", async ({ page }) => {
     await uygulamayiHazirla(page);
     await expect(page.locator("[data-surum]")).toContainText("v2.7.3");
 
     const kisaMasal = page.locator('[data-story-id="andersen-masallari"]').first();
     await expect(kisaMasal).toBeVisible();
-    await expect(kisaMasal.locator("[data-content-scope]")).toHaveText("Hazırlanıyor");
-    await expect(kisaMasal.locator("[data-actual-duration]")).toContainText(/0:\d{2}/);
-    await expect(kisaMasal).toHaveAttribute("data-reading-enabled", "false");
+    await expect(kisaMasal.locator("[data-content-scope]")).toHaveText("Tam okuma");
+    await expect(kisaMasal.locator("[data-actual-duration]")).toContainText(/\d+:\d{2}/);
+    await expect(kisaMasal).toHaveAttribute("data-reading-enabled", "true");
 
     const tamMetin = page.locator('[data-story-id="peter-rabbit-en"]').first();
     await expect(tamMetin).toBeVisible();
@@ -46,16 +46,18 @@ test.describe("Responsive reader UX sözleşmesi", () => {
     await expect(tamMetin).toHaveAttribute("data-reading-enabled", "true");
   });
 
-  test("kısa masal detayında okuma başlatılamaz", async ({ page }) => {
+  test("normalize edilen masal detayında tam okuma başlatılabilir", async ({ page }) => {
     await uygulamayiHazirla(page);
     await page.getByRole("button", { name: "Ara", exact: true }).click();
     await page.getByPlaceholder("Kitap veya yazar ara").fill("Andersen Masalları");
     await page.getByRole("button", { name: /Andersen Masalları/ }).click();
 
-    await expect(page.locator("[data-content-preparing]")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Hazırlanıyor", exact: true })).toBeDisabled();
-    await expect(page.locator('[data-icerik-kapsami="preparing"]')).toContainText("tam eser veya tamamlanmış hikâye değildir");
-    await expect(page.locator("[data-reader-shell]")).toHaveCount(0);
+    await expect(page.locator("[data-content-preparing]")).toHaveCount(0);
+    await expect(page.locator('[data-icerik-kapsami="full-reading"]')).toContainText("Tam okuma");
+    const baslat = page.getByRole("button", { name: "Okumaya başla", exact: true });
+    await expect(baslat).toBeEnabled();
+    await baslat.click();
+    await expect(page.locator("[data-reader-shell]")).toBeVisible();
   });
 
   test("harf, hece ve kelime kartları ayrı Mikro Alıştırmalar rafındadır", async ({ page }) => {

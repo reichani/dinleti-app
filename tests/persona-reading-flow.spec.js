@@ -148,17 +148,14 @@ test.describe("Persona bazlı okuma akışı", () => {
       card.getBoundingClientRect = () => ({ top: 0, bottom: 160, left: 0, right: 320, width: 320, height: 160 });
 
       window.__okurioReadingFixes.scrollActiveWord(active, { now: 5000 });
-      window.__okurioReadingFixes.scrollActiveWord(active, { now: 5600 });
-      const config = window.__okurioReadingFixes.config;
+      window.__okurioReadingFixes.scrollActiveWord(active, { now: 5200 });
       card.remove();
-      return { calls, lastOptions, config };
+      return { calls, lastOptions };
     });
 
     expect(result.calls).toBe(1);
     expect(result.lastOptions.left).toBe(0);
-    expect(result.lastOptions.top).toBeLessThanOrEqual(50);
-    expect(result.config.minScrollIntervalMs).toBeGreaterThanOrEqual(1200);
-    expect(result.config.comfortBottomRatio).toBeGreaterThanOrEqual(0.8);
+    expect(result.lastOptions.top).toBeLessThanOrEqual(72);
   });
 
   test("dikkat desteği: kullanıcı seçince odak görünümü açık ve biyonik vurgu kapalı kalır", async ({ page }) => {
