@@ -30,14 +30,14 @@ async function okuyucuyuAc(page) {
 }
 
 test.describe("Responsive reader UX sözleşmesi", () => {
-  test("kartlarda gerçek süre ve kapsam görünür; normalize edilen seçkiler tam okuma durumundadır", async ({ page }) => {
+  test("kartlarda gerçek süre ve kapsam görünür; genişletilen Andersen tam okuma durumundadır", async ({ page }) => {
     await uygulamayiHazirla(page);
     await expect(page.locator("[data-surum]")).toContainText("v2.7.3");
 
     const kisaMasal = page.locator('[data-story-id="andersen-masallari"]').first();
     await expect(kisaMasal).toBeVisible();
     await expect(kisaMasal.locator("[data-content-scope]")).toHaveText("Tam okuma");
-    await expect(kisaMasal.locator("[data-actual-duration]")).toContainText(/\d+:\d{2}/);
+    await expect(kisaMasal.locator("[data-actual-duration]")).toContainText(/4:\d{2}/);
     await expect(kisaMasal).toHaveAttribute("data-reading-enabled", "true");
 
     const tamMetin = page.locator('[data-story-id="peter-rabbit-en"]').first();
@@ -46,7 +46,7 @@ test.describe("Responsive reader UX sözleşmesi", () => {
     await expect(tamMetin).toHaveAttribute("data-reading-enabled", "true");
   });
 
-  test("normalize edilen masal detayında tam okuma başlatılabilir", async ({ page }) => {
+  test("genişletilen Andersen tam okuma olarak başlatılabilir", async ({ page }) => {
     await uygulamayiHazirla(page);
     await page.getByRole("button", { name: "Ara", exact: true }).click();
     await page.getByPlaceholder("Kitap veya yazar ara").fill("Andersen Masalları");
