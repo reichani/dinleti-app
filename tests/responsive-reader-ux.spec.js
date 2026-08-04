@@ -36,9 +36,9 @@ test.describe("Responsive reader UX sözleşmesi", () => {
 
     const kisaMasal = page.locator('[data-story-id="andersen-masallari"]').first();
     await expect(kisaMasal).toBeVisible();
-    await expect(kisaMasal.locator("[data-content-scope]")).toHaveText("Hazırlanıyor");
-    await expect(kisaMasal.locator("[data-actual-duration]")).toContainText(/0:\d{2}/);
-    await expect(kisaMasal).toHaveAttribute("data-reading-enabled", "false");
+    await expect(kisaMasal.locator("[data-content-scope]")).toHaveText("Tam okuma");
+    await expect(kisaMasal.locator("[data-actual-duration]")).toContainText(/\d+:\d{2}/);
+    await expect(kisaMasal).toHaveAttribute("data-reading-enabled", "true");
 
     const tamMetin = page.locator('[data-story-id="peter-rabbit-en"]').first();
     await expect(tamMetin).toBeVisible();
