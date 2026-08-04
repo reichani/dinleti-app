@@ -2364,8 +2364,14 @@ export default function DinletiApp() {
     setSeciliSozluk(null);
     const m = okumaModuBul(yeni);
     setSeslendirme(m.sesli);
-    if (!m.sesli) konusmayiDurdur();
-    else if (caliyor && aktif) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx, m, true);
+    if (!m.sesli) {
+      // Manuel okuma TTS oturumu değildir. Son sesli kelimeyi ekranda
+      // "donmuş takip" gibi bırakma ve oynatıcıyı çalışıyor gösterme.
+      konusmayiDurdur();
+      setCaliyor(false);
+    } else if (caliyor && aktif) {
+      konusmayiBaslat(aktif, aktifBolumIx, kelimeIx, m, true);
+    }
     (async () => { try { await window.storage.set(OKUMA_MODU_ANAHTAR, yeni); } catch {} })();
   };
 
@@ -2889,7 +2895,7 @@ export default function DinletiApp() {
                   }}>
                     {gorunecek.map((k, i) => {
                       const gercekIx = i + kaydirma;
-                      const aktifMi = ayar.vurgu && gercekIx === kelimeIx;
+                      const aktifMi = ayar.vurgu && etkinSeslendirme && caliyor && gercekIx === kelimeIx;
                       const temiz = k.replace(/[.,!?…;:]+$/u, "");
                       const son = k.slice(temiz.length);
                       const n = Math.max(1, Math.ceil(temiz.length * 0.45));
