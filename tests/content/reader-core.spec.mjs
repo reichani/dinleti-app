@@ -4,6 +4,7 @@ import {
   cursorFromPosition,
   positionFromCursor,
   readingProgressSnapshot,
+  monotonicBoundaryWord,
 } from "../../src/reader-core.js";
 
 const sections = [
@@ -40,4 +41,17 @@ test("persisted progress carries a versioned word anchor", () => {
     ts: 1234,
     version: 2,
   });
+});
+
+test("Samsung duplicate or backward boundary indices cannot reset progress", () => {
+  const args = {
+    utteranceText: "Yılın son gecesiymiş kar lapa lapa yağıyormuş",
+    baseIndex: 0,
+    endIndex: 6,
+  };
+  assert.equal(monotonicBoundaryWord({ ...args, charIndex: 0, currentIndex: 0 }), null);
+  assert.equal(monotonicBoundaryWord({ ...args, charIndex: 0, currentIndex: 2 }), null);
+  assert.equal(monotonicBoundaryWord({ ...args, charIndex: 10, currentIndex: 0 }), 2);
+  assert.equal(monotonicBoundaryWord({ ...args, charIndex: 6, currentIndex: 2 }), null);
+  assert.equal(monotonicBoundaryWord({ ...args, charIndex: 24, currentIndex: 2 }), 3);
 });
