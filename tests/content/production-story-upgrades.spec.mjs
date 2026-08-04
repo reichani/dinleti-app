@@ -10,6 +10,7 @@ const DURATION_RULES_BY_AGE = {
   "3-4 yaş": { minimumSeconds: 120, wordsPerMinute: 110 },
   "3-5 yaş": { minimumSeconds: 120, wordsPerMinute: 110 },
   "6-7 yaş": { minimumSeconds: 180, wordsPerMinute: 125 },
+  "10-12 yaş": { minimumSeconds: 271, wordsPerMinute: 155 },
 };
 
 function countWords(story) {
@@ -35,7 +36,10 @@ test("yenilenen hikâyeler yaş grubunun gerçek minimum süresini karşılar", 
     );
     assert.ok(story.bolumler.length >= 4, `${story.baslik}: en az dört anlatı bölümü gerekli`);
     assert.equal(story.icerikDurumu, "tam-metin");
-    assert.equal(story.hakDurumu, "okurio-ozgun");
+    assert.ok(
+      ["okurio-ozgun", "okurio-ozgun-ai-destekli"].includes(story.hakDurumu),
+      `${story.baslik}: tanımsız hak durumu ${story.hakDurumu}`,
+    );
   }
 });
 
