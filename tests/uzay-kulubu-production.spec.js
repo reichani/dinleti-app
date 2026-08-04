@@ -4,12 +4,14 @@ async function uygulamayiHazirla(page) {
   await page.addInitScript(() => {
     localStorage.clear();
     localStorage.setItem("dinleti:dinleti-mod-v1", "cocuk");
-    localStorage.setItem("okurio-okuma-yolu-v1", JSON.stringify({
+    const path = {
       secildi: true,
       yolId: "akici_okuma_10_12",
       evreId: "paragraf",
       destekler: ["kelime_takibi", "genis_aralik", "yumusak_zemin"],
-    }));
+    };
+    localStorage.setItem("okurio-okuma-yolu-v1", JSON.stringify(path));
+    localStorage.setItem("dinleti:okurio-okuma-yolu-v1", JSON.stringify(path));
   });
   await page.goto("/");
 }
