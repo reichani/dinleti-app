@@ -6,6 +6,15 @@
     <meta name="theme-color" content="#14181F" />
     <title>Dinleti - Sesli Kitap ve Masal</title>
     <meta name="description" content="Telifsiz Turk klasikleri ve masallar; disleksi ve DEHB dostu senkron okuma gorunumu." />
+    <link rel="manifest" href="/manifest.json" />
+    <!-- iOS/iPad "Ana Ekrana Ekle": iOS, manifest.json'daki icons/share_target'i
+         desteklemiyor (Web Share Target API iOS Safari'de yok), bu yüzden ayrı
+         apple- meta etiketleri ve apple-touch-icon gerekiyor. TÜSEB demosu iPad
+         üzerinde olacağı için bu, PWA share_target'tan daha kritik. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Dinleti" />
   </head>
   <body>
     <div id="root"></div>
