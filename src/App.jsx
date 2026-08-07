@@ -480,7 +480,7 @@ const KATALOG = mergePilotStories([
     renk: ["#5A3A5E", "#9A6AA0"],
     puan: 4.6,
     sureDk: 1.8,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Üç fabl (kamu malı Ezop anlatıları — Okurio'nun özgün yeniden anlatımı) tek paragraflık özetten tam anlatıya genişletildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    contentQualityReview: { status: "approved", note: "2026-08-06: Üç fabl (kamu malı Ezop anlatıları — Okurio'nun özgün yeniden anlatımı) tek paragraflık özetten tam anlatıya genişletildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor. 2026-08-07: Reyhan Açar tarafından içerik kalitesi onaylandı." },
     ozet: "Binlerce yıldır anlatılan Ezop bilgeliği: yalancı çoban, aslan ile fare ve altın yumurtlayan tavuk. Üç fablın Okurio uyarlaması.",
     bolumler: [
       { ad: "Yalancı Çoban", dk: 1, metin: "Bir çoban, köylülere şaka yapmayı çok severmiş. Her gün sürüsünü otlatmaya götürürmüş ama sıkılırmış. Bir gün eğlenmek için Kurt geliyor diye bağırmış. Köylüler koşarak gelmiş ama ortada kurt yokmuş. Çoban kahkahalarla gülmüş, köylüler kızarak geri dönmüş. Ertesi gün yine aynı şakayı yapmış, köylüler yine koşmuş. Bu birkaç kez tekrarlanmış, köylüler artık ona inanmaz olmuş. Sonunda gerçekten bir kurt gelmiş ve sürüye saldırmış. Çoban var gücüyle bağırmış, Kurt geliyor, gerçekten geliyor! Ama köylüler bu sefer gelmemiş, yine şaka sanmışlar. Kurt bütün sürüyü kaçırmış, çoban çok pişman olmuş. Yalan söylemek, bir gün gerçeği söylediğinde bile inanılmamasına yol açarmış." },
@@ -498,7 +498,7 @@ const KATALOG = mergePilotStories([
     renk: ["#4A1E2A", "#8C4A5A"],
     puan: 4.7,
     sureDk: 2.3,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Üç masal (kamu malı Grimm derlemeleri — Okurio'nun özgün yeniden anlatımı) tek paragraflık özetten tam anlatıya genişletildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    contentQualityReview: { status: "approved", note: "2026-08-06: Üç masal (kamu malı Grimm derlemeleri — Okurio'nun özgün yeniden anlatımı) tek paragraflık özetten tam anlatıya genişletildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor. 2026-08-07: Reyhan Açar tarafından içerik kalitesi onaylandı." },
     ozet: "Bremen mızıkacıları, Hansel ile Gretel ve kurbağa prens. Grimm Kardeşler'in derlediği üç ölümsüz masalın Okurio uyarlaması.",
     bolumler: [
       { ad: "Bremen Mızıkacıları", dk: 1, metin: "Yaşlanan bir eşek, sahibinin kendisini artık istemediğini fark etmiş. Ben Bremen'e gider, mızıkacı olurum demiş ve yola çıkmış. Yolda yaşlı bir köpekle karşılaşmış, o da sahibinden kaçmış. İkisi birlikte yürümeye devam etmiş ve bir kedi görmüşler. Kedi de artık fare tutamadığı için evden kovulmuş. Üçü birlikte yola koyulmuş, derken bir horoz da onlara katılmış. Horoz da kesilmekten korkup kaçmış. Dört arkadaş akşam olunca bir ormanda ışık görmüşler. Yaklaşınca bir haydut çetesinin evi olduğunu anlamışlar. Eşek pencereye, köpek eşeğin sırtına, kedi köpeğin sırtına, horoz da kedinin üstüne çıkmış. Hep birlikte var güçleriyle bağırmışlar. Haydutlar korkunç bir canavar geldiğini sanıp kaçmışlar. Dört arkadaş eve yerleşmiş ve orada mutlu yaşamışlar. Hiçbiri Bremen'e gitmese de birbirlerini bulmuşlar." },
@@ -703,7 +703,7 @@ const KATALOG = mergePilotStories([
     renk: ["#7A2E38", "#C4606B"],
     puan: 4.7,
     sureDk: 2.3,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Üç masal (kamu malı Japon halk anlatıları — Okurio'nun özgün yeniden anlatımı) tek paragraflık özetten tam anlatıya genişletildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    contentQualityReview: { status: "approved", note: "2026-08-06: Üç masal (kamu malı Japon halk anlatıları — Okurio'nun özgün yeniden anlatımı) tek paragraflık özetten tam anlatıya genişletildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor. 2026-08-07: Reyhan Açar tarafından içerik kalitesi onaylandı." },
     ozet: "Şeftali çocuk Momotaro, denizin dibindeki saray ve ay prensesi Kaguya. Japonya'nın en sevilen üç halk masalının Okurio uyarlaması.",
     bolumler: [
       { ad: "Momotaro, Şeftali Çocuk", dk: 1, metin: "Bir zamanlar Japonya'da yaşlı bir çift yaşarmış, çocukları yokmuş. Bir gün dere kenarında kocaman bir şeftali bulmuşlar. Şeftaliyi eve götürüp açtıklarında içinden gülen bir bebek çıkmış. Adını Momotaro, yani şeftali çocuk koymuşlar. Momotaro çok hızlı büyümüş, güçlü ve cesur bir delikanlı olmuş. Bir gün köye kötülük yapan devler olduğunu duymuş. Anne babasına, ben bu devleri durduracağım, demiş. Yanına pirinç köftesi almış ve yola çıkmış. Yolda bir köpek, bir maymun ve bir sülünle karşılaşmış. Onlara köftesinden paylaşmış, üçü de ona arkadaş olmuş. Birlikte devlerin adasına gitmişler. Momotaro ve arkadaşları cesaretle devleri durdurmuş. Devler özür dilemiş ve bir daha köye zarar vermeyeceklerine söz vermiş. Momotaro, hazineleriyle köyüne dönmüş ve herkesle paylaşmış." },
@@ -721,7 +721,7 @@ const KATALOG = mergePilotStories([
     renk: ["#6B4A1E", "#B08A3D"],
     puan: 4.6,
     sureDk: 2.3,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Üç masal (kamu malı Çin halk anlatıları — Okurio'nun özgün yeniden anlatımı) tek paragraflık özetten tam anlatıya genişletildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    contentQualityReview: { status: "approved", note: "2026-08-06: Üç masal (kamu malı Çin halk anlatıları — Okurio'nun özgün yeniden anlatımı) tek paragraflık özetten tam anlatıya genişletildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor. 2026-08-07: Reyhan Açar tarafından içerik kalitesi onaylandı." },
     ozet: "Gökyüzünde buluşan iki sevgili yıldız, dağları taşımaya karar veren ihtiyar ve doğuşuyla ünlenen Maymun Kral. Çin'in binlerce yıllık üç anlatısının Okurio uyarlaması.",
     bolumler: [
       { ad: "Çoban ile Dokumacı Kız", dk: 1, metin: "Gökyüzünde, Samanyolu'nun iki yakasında iki yıldız yaşarmış. Biri çalışkan bir çoban, öteki bulutları dokuyan usta bir dokumacı kızmış. Bir gün ikisi karşılaşmış ve birbirlerine âşık olmuşlar. Evlenmişler ve çok mutlu bir hayat sürmüşler. Ama işlerini ihmal etmişler, çoban sürüsüne bakmaz, kız dokumasını dokumaz olmuş. Gökyüzünün kraliçesi buna kızmış ve ikisini Samanyolu'nun iki ayrı yakasına ayırmış. Çoban ve dokumacı kız çok üzülmüş, birbirlerini her gün özlemişler. Kraliçe onlara acımış ve yılda bir kez buluşmalarına izin vermiş. Her yıl aynı gecede, dünyadaki bütün saksağanlar gökyüzüne uçarmış. Kanatlarını açıp Samanyolu üzerinde bir köprü kurarlarmış. Çoban ve dokumacı kız bu köprüden geçip birbirlerine kavuşurmuş. O gece yağan yağmurun, sevinç gözyaşları olduğuna inanılırmış." },
@@ -853,7 +853,7 @@ const KATALOG = mergePilotStories([
     renk: ["#3D4D32", "#93B66A"],
     puan: 4.9,
     sureDk: 2.3,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Kısa taslaktan 6 sahneye genişletildi (asgari yaş-bandı kelime hedefini karşılamak için). Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    contentQualityReview: { status: "approved", note: "2026-08-06: Kısa taslaktan 6 sahneye genişletildi (asgari yaş-bandı kelime hedefini karşılamak için). Yayın öncesi Reyhan Açar redaksiyonu bekliyor. 2026-08-07: Reyhan Açar tarafından içerik kalitesi onaylandı." },
     ozet: "İki karakterli kısa piyes; çocuk rol seçerek kısa repliklerle okuma güveni kazanır. Oki ve Lili, kaybolan Mino'yu izlerini takip ederek bulur, sonra Nana ile birlikte tohum eker.",
     bolumler: [
       { ad: "Sahne 1 — Bahçe Kapısı", dk: 2, metin: "Anlatıcı: Oki bahçe kapısını açtı, sabah güneşi yapraklara vuruyordu. Oki: Lili, bugün bahçede oynayalım mı? Lili: Olur, önce ellerimi yıkayayım. Oki: Mino'yu da çağıralım, o da bizimle gelsin. Lili: Mino nerede acaba, sabahtan beri görmedim. Anlatıcı: İki arkadaş bahçeye birlikte girdi. Oki: Belki çiçeklerin arasında saklanıyordur. Lili: Ya da ağacın gölgesinde uyuyordur." },
@@ -874,7 +874,7 @@ const KATALOG = mergePilotStories([
     renk: ["#5A3A24", "#D08A4A"],
     puan: 4.8,
     sureDk: 3.2,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Kısa taslaktan 9 sahnelik bir kule-inşası ve bahçe-sulama kurgusuna genişletildi (asgari yaş-bandı kelime hedefi için). Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    contentQualityReview: { status: "approved", note: "2026-08-06: Kısa taslaktan 9 sahnelik bir kule-inşası ve bahçe-sulama kurgusuna genişletildi (asgari yaş-bandı kelime hedefi için). Yayın öncesi Reyhan Açar redaksiyonu bekliyor. 2026-08-07: Reyhan Açar tarafından içerik kalitesi onaylandı." },
     ozet: "DEHB dostu piyes; acele etmek, durmak ve yeniden denemek üzerine rol okuma. Toto ve arkadaşları bahçede bir kule kurarken ve çiçek sularken sabrı öğrenir.",
     bolumler: [
       { ad: "Çok Hızlı Plan", dk: 2, metin: "Anlatıcı: Toto çok hızlı koştu, elinde bir kâğıt vardı. Toto: Planım hazır, hemen başlayalım! Oki: Önce dinleyelim Toto, planın ne? Lili: Bir adım duralım, acele etmeden anlat. Toto: Tamam, derin nefes alıyorum. Anlatıcı: Toto durdu ve nefes aldı. Toto: Bugün bahçede bir kule yapacağız. Oki: Güzel fikir, ama nasıl başlayacağız? Lili: Önce malzemeleri toplayalım, sonra planlarız." },
@@ -897,7 +897,7 @@ const KATALOG = mergePilotStories([
     renk: ["#253A5F", "#6FA7D9"],
     puan: 4.8,
     sureDk: 4.5,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Kısa taslaktan 10 sahneye genişletildi, bilimsel içerik (krater, yıldız/gezegen farkı, gezegenler, halkalar, gökada) derinleştirildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    contentQualityReview: { status: "approved", note: "2026-08-06: Kısa taslaktan 10 sahneye genişletildi, bilimsel içerik (krater, yıldız/gezegen farkı, gezegenler, halkalar, gökada) derinleştirildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor. 2026-08-07: Reyhan Açar tarafından içerik kalitesi onaylandı." },
     ozet: "Gökyüzü konusu ile rol okuma birleşir; çocuk bilim repliklerini seslendirerek aktif okuma yapar. Uzay Kulübü, yıldız-gezegen farkından gökadalara uzanan bir keşif dizisi yaşar.",
     bolumler: [
       { ad: "Kulüp Toplandı", dk: 2, metin: "Anlatıcı: Uzay Kulübü masanın etrafında toplandı, herkesin elinde bir defter vardı. Oki: Ay haritasını getirdim, dün gece çizdim. Lili: Kraterleri işaretledim, her biri farklı büyüklükte. Toto: Ben de roket çizdim, üç kat yakıt deposu var. Mino: Miyav, yıldızları saydım! Anlatıcı: Herkes güldü, Mino'nun sayımı gerçek değildi ama şirindi. Oki: Bugün gökyüzünü daha yakından inceleyelim mi? Lili: Olur, önce bir soru listesi yapalım." },
@@ -1161,7 +1161,7 @@ const KATALOG = mergePilotStories([
     renk: ["#5B3A2E", "#C89065"],
     puan: 4.8,
     sureDk: 2.3,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Kısa taslaktan 7 sahneye genişletildi (saklambaç oyunu kurgusu tamamlandı). Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    contentQualityReview: { status: "approved", note: "2026-08-06: Kısa taslaktan 7 sahneye genişletildi (saklambaç oyunu kurgusu tamamlandı). Yayın öncesi Reyhan Açar redaksiyonu bekliyor. 2026-08-07: Reyhan Açar tarafından içerik kalitesi onaylandı." },
     ozet: "Kısa repliklerle rol alarak okuma pratiği. Oki, Lili ve Toto, saklambaçta saklanan Mino'yu ipuçlarını takip ederek bulur, sonra sıra değişerek oyun sürer.",
     bolumler: [
       { ad: "Sahne 1 — Saklambaç Başlıyor", dk: 2, metin: "Anlatıcı: Oki, Lili ve Toto salonun ortasında toplandı. Oki: Hadi saklambaç oynayalım, ilk saklanan Mino olsun. Lili: Ben sayarım, sen de saklan Mino. Toto: Ben de on'a kadar sayabilirim, yardım ederim. Anlatıcı: Lili gözlerini kapadı ve saymaya başladı. Lili: Bir, iki, üç... Oki: Mino, çabuk saklan, geliyoruz!" },
@@ -1183,7 +1183,7 @@ const KATALOG = mergePilotStories([
     renk: ["#4D365F", "#9B7BB8"],
     puan: 4.8,
     sureDk: 4.5,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Kısa taslaktan 11 sahneye genişletildi, ip/sabır motifi bilmece-bekçi-hazine kurgusuyla tamamlandı. Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    contentQualityReview: { status: "approved", note: "2026-08-06: Kısa taslaktan 11 sahneye genişletildi, ip/sabır motifi bilmece-bekçi-hazine kurgusuyla tamamlandı. Yayın öncesi Reyhan Açar redaksiyonu bekliyor. 2026-08-07: Reyhan Açar tarafından içerik kalitesi onaylandı." },
     ozet: "Mitoloji ve rol okuma birleşimi: Oki, Lili ve Toto, elde ettikleri bir ipi kullanarak labirenti anlamaya, bir bilmeceyi çözmeye ve çıkışı bulmaya çalışır.",
     bolumler: [
       { ad: "İpin Başında", dk: 2, metin: "Anlatıcı: Oki haritaya baktı, çizgiler birbirine karışıyordu. Oki: Labirent çok karışık, nereden başlayacağız? Lili: O zaman bir işaret bırakmalıyız, yoksa kayboluruz. Toto: İp kullanabiliriz, girişte bir ucunu bağlarız! Anlatıcı: Toto çantasından uzun bir yumak ip çıkardı. Oki: Harika fikir, eski hikâyelerde de böyle yapılırmış. Lili: Hangi hikâyede? Oki: Bir kahraman, labirentten çıkmak için ip kullanmış." },
