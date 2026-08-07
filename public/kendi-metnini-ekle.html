@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#14181F" />
+    <title>Dinleti — Herhangi Bir Sayfayı Oku (Bookmarklet)</title>
+    <style>
+      body {
+        margin: 0;
+        background: #14181F;
+        color: #F2ECDF;
+        font-family: -apple-system, "Inter", system-ui, sans-serif;
+        display: flex;
+        justify-content: center;
+        padding: 32px 20px 64px;
+        box-sizing: border-box;
+      }
+      main { max-width: 640px; width: 100%; }
+      h1 {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 26px;
+        color: #F2ECDF;
+        margin: 0 0 8px;
+      }
+      p { line-height: 1.6; color: #C7CDD9; font-size: 15px; }
+      .adim { background: #1C222D; border: 1px solid rgba(232,163,61,0.22); border-radius: 14px; padding: 18px; margin: 18px 0; }
+      .adim h2 { font-size: 15px; color: #E8A33D; margin: 0 0 8px; }
+      .bookmarklet {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #E8A33D;
+        color: #14181F;
+        font-weight: 800;
+        padding: 12px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        cursor: grab;
+        font-size: 15px;
+        user-select: none;
+      }
+      code {
+        display: block;
+        background: rgba(255,255,255,0.06);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 12px;
+        color: #C7CDD9;
+        overflow-wrap: anywhere;
+        margin-top: 10px;
+      }
+      .not { font-size: 13px; color: #8B94A7; margin-top: 26px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Okurio ile herhangi bir sayfayı oku</h1>
+      <p>
+        Bu bookmarklet, üzerinde bulunduğun herhangi bir web sayfasındaki seçili metni tek
+        tıkla Dinleti'nin (Okurio) erişilebilir okuma görünümüne gönderir. Kurulum
+        gerektirmez, mağaza onayı beklemez — iPad dahil her tarayıcıda çalışır.
+      </p>
+
+      <div class="adim">
+        <h2>1. Adım — Sürükle ve bırak</h2>
+        <p>Aşağıdaki düğmeyi tarayıcının yer imleri (favoriler) çubuğuna sürükle.</p>
+        <a class="bookmarklet" href="javascript:(function(){var s=window.getSelection?window.getSelection().toString():'';var t=(s&&s.trim().length>20)?s.trim():(document.body?document.body.innerText:'');t=t.slice(0,6000);var b=document.title||'Paylaşılan Metin';var u='https://dinleti-app.pages.dev/#oku='+encodeURIComponent(t)+'&baslik='+encodeURIComponent(b);window.open(u,'_blank');})();">📖 Okurio'da Oku</a>
+        <p style="font-size:12px;color:#8B94A7;margin-top:10px;">
+          iPad/Safari'de sürükleme çalışmazsa: düğmeye uzun bas → "Bağlantıyı Kopyala",
+          sonra yeni bir yer imi oluşturup adresini bu kopyaladığın metinle değiştir.
+        </p>
+      </div>
+
+      <div class="adim">
+        <h2>2. Adım — Kullan</h2>
+        <p>
+          Okumak istediğin sayfada metni seç (seçmezsen sayfanın tamamı denenir), sonra
+          yer imleri çubuğundaki "Okurio'da Oku"ya tıkla. Dinleti yeni bir sekmede açılır,
+          "Kendi metnini oku" paneli seçtiğin metinle dolu gelir — sen onaylayıp "Okuma
+          moduna al"a basınca erişilebilir okuma görünümüne geçer.
+        </p>
+      </div>
+
+      <div class="not">
+        Gizlilik: metin yalnızca tarayıcı adres satırı üzerinden (URL parçası olarak) bu
+        cihazdan Dinleti'ye taşınır, herhangi bir sunucuya kaydedilmez veya başka
+        kullanıcılarla paylaşılmaz. Aynı gizlilik ilkesi "Kendi metnini oku" panelinde de
+        geçerlidir.
+      </div>
+    </main>
+  </body>
+</html>
