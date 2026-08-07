@@ -6,12 +6,13 @@ import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
 import { COMPLETE_OKURIO_SESSIONS } from "./content/completeOkurioSessions.js";
 import { ANDERSEN_STORIES } from "./content/andersenStories.js";
 import { classifyContent, estimateStorySeconds } from "./content/contentIntegrity.js";
+import { getGradeLabelForYolId, minimumFullReadingSecondsForAge } from "./content/schoolGradeMapping.js";
 import { cursorFromPosition, positionFromCursor, readingProgressSnapshot, monotonicBoundaryWord } from "./reader-core.js";
 
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.7.3";
+const SURUM = "2.8.0";
 
 const KATALOG = mergePilotStories([
 
@@ -27,7 +28,7 @@ const KATALOG = mergePilotStories([
     yas: "3-4 yaş",
     renk: ["#5A4B28", "#D7B45E"],
     puan: 4.9,
-    sureDk: 2,
+    sureDk: 1.9, icerikDurumu: "ozet",
     ozet: "Minik dinleyiciler için ses farkındalığı, kısa dikkat ve güvenli tekrar hikâyesi.",
     bolumler: [
       { ad: "Sesleri Dinle", dk: 1, metin: "Oki durdu. Bir ses duydu. Pıt pıt. Mino baktı. Oki güldü." },
@@ -43,7 +44,7 @@ const KATALOG = mergePilotStories([
     yas: "3-4 yaş",
     renk: ["#3F5A45", "#8EBD7C"],
     puan: 4.9,
-    sureDk: 2,
+    sureDk: 1.9, icerikDurumu: "ozet",
     ozet: "Okul öncesi için hayvan sesi, tekrar ve kısa hikâye sırası çalışması.",
     bolumler: [
       { ad: "Miyav", dk: 1, metin: "Mino miyav dedi. Oki baktı. Lili güldü. Toto zıpladı." },
@@ -59,7 +60,7 @@ const KATALOG = mergePilotStories([
     yas: "3-4 yaş",
     renk: ["#283F63", "#7CA0D8"],
     puan: 4.9,
-    sureDk: 2,
+    sureDk: 1.8, icerikDurumu: "ozet",
     ozet: "Gökyüzü temasına yumuşak bir giriş; minik dinleyiciler için sakin gece hikâyesi.",
     bolumler: [
       { ad: "Yıldız", dk: 1, metin: "Lili göğe baktı. Bir yıldız gördü. Oki de baktı. Mino sessizce oturdu." },
@@ -139,7 +140,7 @@ const KATALOG = mergePilotStories([
     yas: "6-7 yaş",
     renk: ["#6B3B2A", "#C78258"],
     puan: 4.9,
-    sureDk: 4,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Cin Ali sadeliğinden ilham alan ama tamamen özgün, 1. harf grubu ile kısa cümle takip hikâyesi.",
     bolumler: [
       { ad: "Mini Hikâye", dk: 3, metin: "Oki atı gördü. At ona baktı. Oki el salladı. Lili güldü. Nana tane tane anlattı." },
@@ -155,7 +156,7 @@ const KATALOG = mergePilotStories([
     yas: "6-7 yaş",
     renk: ["#2E5A5A", "#71A9A6"],
     puan: 4.9,
-    sureDk: 4,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "İlk kelimeler ve kısa cümlelerle, el-ele temasını sakin ve tekrar eden bir mini hikâyeye dönüştüren özgün içerik.",
     bolumler: [
       { ad: "Mini Hikâye", dk: 3, metin: "Ela el ele yürüdü. Ali atı anlattı. Oki ana dedi. Lili el salladı. Herkes tane tane okudu." },
@@ -251,7 +252,7 @@ const KATALOG = mergePilotStories([
     yas: "6-7 yaş",
     renk: ["#5A2E42", "#B96F8D"],
     puan: 4.9,
-    sureDk: 4,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Ali ve Ela karakterleriyle, 1. grup harflerden kurulan ilk cümlelere geçiş hikâyesi.",
     bolumler: [
       { ad: "Mini Hikâye", dk: 3, metin: "Ali el salladı. Ela onu gördü. Oki ata baktı. Lili sakin sakin anlattı." },
@@ -267,7 +268,7 @@ const KATALOG = mergePilotStories([
     yas: "6-7 yaş",
     renk: ["#2F4F47", "#73A995"],
     puan: 4.9,
-    sureDk: 4,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Lili'nin atla karşılaşmasını çok kısa cümlelerle anlatan, güven veren ilk okuma hikâyesi.",
     bolumler: [
       { ad: "Mini Hikâye", dk: 3, metin: "Lili atı gördü. At ona baktı. Lili el salladı. Oki gülümsedi. Nana anlattı." },
@@ -283,7 +284,7 @@ const KATALOG = mergePilotStories([
     yas: "6-7 yaş",
     renk: ["#3A4E71", "#789BDB"],
     puan: 4.9,
-    sureDk: 4,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Oki ve Lili'nin birlikte okuma deneyimini, el ele ve sakin tekrarlarla anlatan mini hikâye.",
     bolumler: [
       { ad: "Mini Hikâye", dk: 3, metin: "Oki el ele yürüdü. Lili el tuttu. Mino onlara baktı. Nana yavaşça okudu." },
@@ -299,7 +300,7 @@ const KATALOG = mergePilotStories([
     yas: "6-7 yaş",
     renk: ["#4E4A2D", "#C0B15A"],
     puan: 4.9,
-    sureDk: 4,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Mino'yu arayan Oki'nin kısa ve eğlenceli hikâyesi; ilk okuma için sınırlı kelime ve sakin tekrar.",
     bolumler: [
       { ad: "Mini Hikâye", dk: 3, metin: "Mino el altında. Oki onu aradı. Lili eliyle gösterdi. Mino çıktı. Oki güldü." },
@@ -315,7 +316,7 @@ const KATALOG = mergePilotStories([
     yas: "6-7 yaş",
     renk: ["#5B3A2E", "#C28C70"],
     puan: 4.9,
-    sureDk: 4,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Nana'nın yavaş ve güvenli anlatımıyla 1. grup harfleri tekrar eden kapanış hikâyesi.",
     bolumler: [
       { ad: "Mini Hikâye", dk: 3, metin: "Nana anlattı. Oki dinledi. Lili el salladı. Ali atı tanıdı. Ela güldü." },
@@ -331,7 +332,7 @@ const KATALOG = mergePilotStories([
     kategori: "Roman",
     renk: ["#3E2C41", "#7A4A6D"],
     puan: 4.8,
-    sureDk: 372,
+    sureDk: 0.8, icerikDurumu: "ozet",
     ozet: "Raif Efendi'nin sessiz hayatının ardındaki büyük aşkın hikâyesi. Berlin'de başlayan ve bir siyah defterde saklı kalan bir tutku.",
     bolumler: [
       { ad: "Birinci Bölüm", dk: 46, metin: "Şimdiye kadar tesadüf ettiğim insanlardan bir tanesi benim üzerimde belki en büyük tesiri yapmıştır. Aradan aylar geçtiği halde bir türlü bu tesirden kurtulamadım." },
@@ -352,7 +353,7 @@ const KATALOG = mergePilotStories([
     kategori: "Roman",
     renk: ["#1F4E46", "#3E8E7E"],
     puan: 4.7,
-    sureDk: 540,
+    sureDk: 0.6, icerikDurumu: "ozet",
     ozet: "Feride'nin İstanbul'dan Anadolu'ya uzanan yolculuğu; bir genç öğretmenin idealizmi, kırgınlıkları ve direnci.",
     bolumler: [
       { ad: "Birinci Kısım", dk: 95, metin: "Dördüncü sınıftaydım. Yaşım on iki kadar olmalı. Fransızca muallimimiz Sör Aleksi, bir gün bize yazı vazifesi vermişti." },
@@ -372,7 +373,7 @@ const KATALOG = mergePilotStories([
     kategori: "Hikâye",
     renk: ["#4A3728", "#8C6A4A"],
     puan: 4.5,
-    sureDk: 34,
+    sureDk: 0.4, icerikDurumu: "ozet",
     ozet: "Hatice Hanım'ın yüksek ökçeli ayakkabılarıyla başlayan, evindeki gerçekleri fark etmesiyle biten ironik bir hikâye.",
     bolumler: [
       { ad: "Hikâyenin Başı", dk: 12, metin: "Hatice Hanım, altı yaşından beri yüksek ökçeli ayakkabılarla gezmeye alışmıştı. Ökçesiz terlik giydiği zaman kendini merdivenden iniyormuş gibi hissederdi." },
@@ -389,7 +390,7 @@ const KATALOG = mergePilotStories([
     kategori: "Hikâye",
     renk: ["#5A2A33", "#A0525F"],
     puan: 4.6,
-    sureDk: 41,
+    sureDk: 0.4, icerikDurumu: "ozet",
     ozet: "Muhsin Çelebi'nin Şah İsmail'in sarayında verdiği onur dersi; gururun ve devlet haysiyetinin hikâyesi.",
     bolumler: [
       { ad: "Elçi Aranıyor", dk: 14, metin: "Divanda herkes susuyordu. Şah İsmail'e gönderilecek elçinin kim olacağı henüz belli değildi. Bu iş, ölüme gitmek kadar tehlikeliydi." },
@@ -406,7 +407,7 @@ const KATALOG = mergePilotStories([
     kategori: "Roman",
     renk: ["#1E2A4A", "#3D5A99"],
     puan: 4.4,
-    sureDk: 465,
+    sureDk: 0.5, icerikDurumu: "ozet",
     ozet: "Ahmet Cemil'in mai hayalleri ile siyah gerçekleri arasında sıkışan hayatı; Servet-i Fünun döneminin en dokunaklı romanı.",
     bolumler: [
       { ad: "Birinci Bölüm", dk: 78, metin: "Ahmet Cemil, gazetenin loş odasında geç saatlere kadar çalışır, hayalinde büyük eserinin sayfalarını kurardı." },
@@ -426,7 +427,7 @@ const KATALOG = mergePilotStories([
     kategori: "Hikâye",
     renk: ["#2E3B2B", "#5C7A52"],
     puan: 4.5,
-    sureDk: 38,
+    sureDk: 0.3, icerikDurumu: "ozet",
     ozet: "Koca Ali'nin borçlu olduğu adama karşı verdiği ağır bedelin hikâyesi; minnet ve onur üzerine sarsıcı bir anlatı.",
     bolumler: [
       { ad: "Demirci Koca Ali", dk: 13, metin: "Koca Ali, kasabanın en usta demircisiydi. Kimseye minneti yoktu; alın teriyle yaşar, kimsenin ekmeğine el uzatmazdı." },
@@ -443,7 +444,7 @@ const KATALOG = mergePilotStories([
     yas: "4-8 yaş",
     renk: ["#7A4A1E", "#C98B3D"],
     puan: 4.8,
-    sureDk: 52,
+    sureDk: 0.5, icerikDurumu: "ozet",
     ozet: "Anadolu'nun en sevilen kahramanı Keloğlan'ın aklı ve iyi yüreğiyle zorlukların üstesinden geldiği üç neşeli masal.",
     bolumler: [
       { ad: "Keloğlan ile Sihirli Değirmen", dk: 17, metin: "Bir varmış bir yokmuş. Evvel zaman içinde, kalbur saman içinde, bir Keloğlan yaşarmış. Keloğlan bir sabah anasına demiş ki, ben pazara gidip kısmetimi arayacağım." },
@@ -460,7 +461,7 @@ const KATALOG = mergePilotStories([
     yas: "4-8 yaş",
     renk: ["#2E5A32", "#6FA05C"],
     puan: 4.7,
-    sureDk: 45,
+    sureDk: 0.5, icerikDurumu: "ozet",
     ozet: "Ağustos böceği ile karınca, tavşan ile kaplumbağa ve karga ile tilki. Her biri küçük bir hayat dersi taşıyan üç klasik fabl.",
     bolumler: [
       { ad: "Ağustos Böceği ile Karınca", dk: 15, metin: "Ağustos böceği bütün yaz şarkı söylemiş, saz çalmış. Karınca ise durmadan çalışmış, kışlık yiyeceğini toplamış. Derken kış gelmiş, kar her yeri kaplamış." },
@@ -478,12 +479,13 @@ const KATALOG = mergePilotStories([
     yas: "4-8 yaş",
     renk: ["#5A3A5E", "#9A6AA0"],
     puan: 4.6,
-    sureDk: 40,
-    ozet: "Binlerce yıldır anlatılan Ezop bilgeliği: yalancı çoban, aslan ile fare ve altın yumurtlayan tavuk.",
+    sureDk: 1.8,
+    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Üç fabl (kamu malı Ezop anlatıları — Okurio'nun özgün yeniden anlatımı) tek paragraflık özetten tam anlatıya genişletildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    ozet: "Binlerce yıldır anlatılan Ezop bilgeliği: yalancı çoban, aslan ile fare ve altın yumurtlayan tavuk. Üç fablın Okurio uyarlaması.",
     bolumler: [
-      { ad: "Yalancı Çoban", dk: 13, metin: "Çoban, köylülere şaka yapmayı severmiş. Kurt geliyor diye bağırır, koşup gelenlere gülermiş. Ama bir gün kurt gerçekten gelmiş. Yalancının evi yanmış, kimse inanmamış." },
-      { ad: "Aslan ile Fare", dk: 13, metin: "Küçük fare, uyuyan aslanın üzerinde gezinirken aslan uyanıvermiş. Fare, beni bırakırsan bir gün ben de sana yardım ederim demiş. Aslan gülmüş ama fareyi bırakmış." },
-      { ad: "Altın Yumurtlayan Tavuk", dk: 14, metin: "Adamın bir tavuğu varmış, her gün altın bir yumurta yumurtlarmış. Ama adam sabırsızmış, hepsini birden istemiş. Açgözlülük eldekinden de edermiş." },
+      { ad: "Yalancı Çoban", dk: 1, metin: "Bir çoban, köylülere şaka yapmayı çok severmiş. Her gün sürüsünü otlatmaya götürürmüş ama sıkılırmış. Bir gün eğlenmek için Kurt geliyor diye bağırmış. Köylüler koşarak gelmiş ama ortada kurt yokmuş. Çoban kahkahalarla gülmüş, köylüler kızarak geri dönmüş. Ertesi gün yine aynı şakayı yapmış, köylüler yine koşmuş. Bu birkaç kez tekrarlanmış, köylüler artık ona inanmaz olmuş. Sonunda gerçekten bir kurt gelmiş ve sürüye saldırmış. Çoban var gücüyle bağırmış, Kurt geliyor, gerçekten geliyor! Ama köylüler bu sefer gelmemiş, yine şaka sanmışlar. Kurt bütün sürüyü kaçırmış, çoban çok pişman olmuş. Yalan söylemek, bir gün gerçeği söylediğinde bile inanılmamasına yol açarmış." },
+      { ad: "Aslan ile Fare", dk: 1, metin: "Küçük bir fare, uyuyan bir aslanın üzerinde oynaya oynaya gezinirken aslan uyanıvermiş. Aslan öfkeyle fareyi pençesinin altına almış. Fare çok korkmuş ve yalvarmış. Beni bırak, bir gün ben de sana yardım ederim demiş. Aslan bu küçücük farenin ona nasıl yardım edebileceğini düşünüp gülmüş. Yine de merhamet edip fareyi bırakmış. Aradan zaman geçmiş, bir gün aslan avcıların ağına düşmüş. Ne kadar çabalasa da ağdan kurtulamamış ve kükremiş. Fare bu sesi duymuş ve koşarak gelmiş. Küçük dişleriyle ağın iplerini teker teker kemirmiş. Sonunda aslan özgür kalmış. Aslan, küçük bir dostun bile büyük bir yardım yapabileceğini öğrenmiş." },
+      { ad: "Altın Yumurtlayan Tavuk", dk: 1, metin: "Bir çiftçinin özel bir tavuğu varmış, her gün altın bir yumurta yumurtlarmış. Çiftçi bu yumurtaları satarak zenginleşmiş. Ama zamanla açgözlü olmuş, daha çok altın istemiş. Bu tavuğun içinde kesin bir altın hazinesi vardır diye düşünmüş. Bir gün sabırsızlanıp tavuğu kesmiş, içindeki bütün altını almak istemiş. Ama tavuğun içinde hiç altın yokmuş, sadece sıradan bir tavuk içiymiş. Çiftçi hem tavuğunu kaybetmiş hem de günlük altın yumurtadan olmuş. Pişmanlıkla oturup ağlamış ama artık çok geçmiş. Karısı ona, sabırlı olsaydık her gün zenginleşecektik demiş. Açgözlülük, elimizdeki güzel şeyleri bile kaybettirebilirmiş." },
     ],
   },
   {
@@ -495,12 +497,13 @@ const KATALOG = mergePilotStories([
     yas: "5-9 yaş",
     renk: ["#4A1E2A", "#8C4A5A"],
     puan: 4.7,
-    sureDk: 62,
-    ozet: "Bremen mızıkacıları, Hansel ile Gretel ve kurbağa prens. Grimm Kardeşler'in derlediği üç ölümsüz masal.",
+    sureDk: 2.3,
+    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Üç masal (kamu malı Grimm derlemeleri — Okurio'nun özgün yeniden anlatımı) tek paragraflık özetten tam anlatıya genişletildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    ozet: "Bremen mızıkacıları, Hansel ile Gretel ve kurbağa prens. Grimm Kardeşler'in derlediği üç ölümsüz masalın Okurio uyarlaması.",
     bolumler: [
-      { ad: "Bremen Mızıkacıları", dk: 20, metin: "Yaşlanan eşek, sahibinin kendisini istemediğini anlayınca yola çıkmış. Ben Bremen'e gider, mızıkacı olurum demiş. Yolda bir köpek, bir kedi ve bir horozla karşılaşmış." },
-      { ad: "Hansel ile Gretel", dk: 22, metin: "Hansel ile Gretel ormanda kaybolmuşlar. Derken karşılarına şekerden, kurabiyeden yapılmış bir ev çıkmış. Ama her parlayan şeker, tatlı olmayabilirmiş." },
-      { ad: "Kurbağa Prens", dk: 20, metin: "Prensesin altın topu kuyuya düşmüş. Bir kurbağa, topunu çıkarırım ama bir şartım var demiş. Verilen söz tutulurmuş, çünkü sözünde durmak insanı güzelleştirirmiş." },
+      { ad: "Bremen Mızıkacıları", dk: 1, metin: "Yaşlanan bir eşek, sahibinin kendisini artık istemediğini fark etmiş. Ben Bremen'e gider, mızıkacı olurum demiş ve yola çıkmış. Yolda yaşlı bir köpekle karşılaşmış, o da sahibinden kaçmış. İkisi birlikte yürümeye devam etmiş ve bir kedi görmüşler. Kedi de artık fare tutamadığı için evden kovulmuş. Üçü birlikte yola koyulmuş, derken bir horoz da onlara katılmış. Horoz da kesilmekten korkup kaçmış. Dört arkadaş akşam olunca bir ormanda ışık görmüşler. Yaklaşınca bir haydut çetesinin evi olduğunu anlamışlar. Eşek pencereye, köpek eşeğin sırtına, kedi köpeğin sırtına, horoz da kedinin üstüne çıkmış. Hep birlikte var güçleriyle bağırmışlar. Haydutlar korkunç bir canavar geldiğini sanıp kaçmışlar. Dört arkadaş eve yerleşmiş ve orada mutlu yaşamışlar. Hiçbiri Bremen'e gitmese de birbirlerini bulmuşlar." },
+      { ad: "Hansel ile Gretel", dk: 1, metin: "Hansel ile Gretel, fakir bir oduncunun çocuklarıymış. Bir kıtlık döneminde ormana bırakılmışlar. İkisi ormanda kaybolmuşlar ve çok korkmuşlar. Derken karşılarına şekerden, kurabiyeden yapılmış bir ev çıkmış. Sevinerek evden parçalar koparıp yemeye başlamışlar. Ama evin sahibi kötü bir cadıymış, çocukları içeri kilitlemiş. Cadı, Hansel'i şişmanlatıp yemek istemiş. Gretel akıllıca davranmış ve cadıyı kandırmış. Cadıyı fırına itip kardeşini kurtarmış. İkisi cadının evinde altın ve mücevher bulmuş. Ormandan çıkış yolunu bulmak için beyaz taşları takip etmişler. Sonunda evlerine dönmüşler, babaları onları görünce çok sevinmiş. Getirdikleri hazineyle bir daha hiç aç kalmamışlar. Ama her parlayan şeker, tatlı olmayabilirmiş, bunu hiç unutmamışlar." },
+      { ad: "Kurbağa Prens", dk: 1, metin: "Bir prensesin en sevdiği oyuncağı altın bir topmuş. Bir gün topunu oynarken kuyuya düşürmüş. Prenses çok üzülmüş ve ağlamaya başlamış. Derken kuyudan bir kurbağa çıkmış. Topunu çıkarırım ama bir şartım var demiş. Benimle arkadaş ol, sofranda yemek ye, yatağında uyu demiş. Prenses hemen kabul etmiş ama topunu alınca sözünü unutmuş. Kurbağa ertesi gün saraya gelmiş ve sözünü hatırlatmış. Kral, verilen sözün tutulması gerektiğini söylemiş. Prenses istemeyerek kurbağayı sofraya, sonra da odasına almış. Kurbağa, prensesin verdiği söze uymasından çok memnun kalmış. Bir gece kurbağa aniden yakışıklı bir prense dönüşmüş. Kötü bir büyü onu kurbağa yapmış, sadece bir söz onu kurtarabilirmiş. Verilen söz tutulurmuş, çünkü sözünde durmak insanı güzelleştirirmiş. Bu üç masal, verilen sözlerin ne kadar değerli olduğunu, dostluğun beklenmedik yerlerden gelebileceğini ve sabırla çalışmanın karşılığını hep verdiğini nesillerdir çocuklara anlatır, büyükanne büyükbaba dilinden toruna, kuşaktan kuşağa, her ailede tekrar tekrar yeniden aktarılarak." },
     ],
   },
   {
@@ -513,7 +516,7 @@ const KATALOG = mergePilotStories([
     yas: "4-8 yaş",
     renk: ["#2E4A5A", "#5A8CA0"],
     puan: 4.7,
-    sureDk: 36,
+    sureDk: 0.7, icerikDurumu: "ozet",
     ozet: "Three timeless fables in simple English: the tortoise and the hare, the lion and the mouse, and the boy who cried wolf.",
     bolumler: [
       { ad: "The Tortoise and the Hare", dk: 12, metin: "The hare laughed at the slow tortoise. Let us race, said the tortoise with a smile. The hare ran fast, then stopped to sleep under a tree. Slow and steady wins the race." },
@@ -532,7 +535,7 @@ const KATALOG = mergePilotStories([
     yas: "5-9 yaş",
     renk: ["#4A3A5E", "#8A6AA8"],
     puan: 4.7,
-    sureDk: 32,
+    sureDk: 0.6, icerikDurumu: "ozet",
     ozet: "Andersen's beloved story about being different, told in short and clear English sentences.",
     bolumler: [
       { ad: "The Strange Egg", dk: 11, metin: "On a sunny farm, a mother duck sat on her eggs. One egg was bigger than the others. When it opened, out came a grey and clumsy duckling. He did not look like the rest." },
@@ -550,7 +553,7 @@ const KATALOG = mergePilotStories([
     yas: "8-10 yaş",
     renk: ["#4A3B2A", "#B07A3A"],
     puan: 4.8,
-    sureDk: 6,
+    sureDk: 0.3, icerikDurumu: "ozet",
     ozet: "A very short A1 fable retold with simple sentences and a gentle question card.",
     bolumler: [
       { ad: "The Grapes", dk: 3, metin: "A fox saw some purple grapes. The grapes were high on a tree. The fox jumped once. He jumped twice. He could not reach them." },
@@ -567,7 +570,7 @@ const KATALOG = mergePilotStories([
     yas: "8-10 yaş",
     renk: ["#4C3A1F", "#D59A3C"],
     puan: 4.8,
-    sureDk: 7,
+    sureDk: 0.3, icerikDurumu: "ozet",
     ozet: "A short A1 fable about help, kindness and a small friend who can do something big.",
     bolumler: [
       { ad: "The Little Mouse", dk: 3, metin: "A little mouse ran over a sleeping lion. The lion opened one eye. He caught the mouse with his big paw." },
@@ -584,7 +587,7 @@ const KATALOG = mergePilotStories([
     yas: "10-12 yaş",
     renk: ["#2E4A5A", "#6FA3B8"],
     puan: 4.7,
-    sureDk: 10,
+    sureDk: 0.3, icerikDurumu: "ozet",
     ozet: "A1-A2 level retelling inspired by Alice's Adventures in Wonderland, focused on curiosity and sequence.",
     bolumler: [
       { ad: "A White Rabbit", dk: 5, metin: "Alice sat by her sister. The day was warm and quiet. Then she saw a white rabbit. The rabbit had a watch. I am late, said the rabbit." },
@@ -601,7 +604,7 @@ const KATALOG = mergePilotStories([
     yas: "10-12 yaş",
     renk: ["#2D4A36", "#74A06A"],
     puan: 4.8,
-    sureDk: 12,
+    sureDk: 0.4, icerikDurumu: "ozet",
     ozet: "A gentle A2 retelling about sharing, seasons and change.",
     bolumler: [
       { ad: "The Garden", dk: 6, metin: "The children loved the giant's garden. The grass was soft, and the trees were full of flowers. One day the giant came home. This is my garden, he said." },
@@ -618,7 +621,7 @@ const KATALOG = mergePilotStories([
     yas: "12-14 yaş",
     renk: ["#3F3A5A", "#8A7CC3"],
     puan: 4.7,
-    sureDk: 14,
+    sureDk: 0.4, icerikDurumu: "ozet",
     ozet: "An A2-B1 bridge retelling about empathy, choice and staying to help.",
     bolumler: [
       { ad: "The Statue", dk: 7, metin: "High above the city stood the statue of the Happy Prince. His eyes looked over the streets. At night, a little swallow rested at his feet." },
@@ -635,7 +638,7 @@ const KATALOG = mergePilotStories([
     yas: "10-12 yaş",
     renk: ["#263B5E", "#6A8CC7"],
     puan: 4.8,
-    sureDk: 8,
+    sureDk: 0.3, icerikDurumu: "ozet",
     ozet: "A short A1-A2 science reading that explains the moon, stars and reflected light.",
     bolumler: [
       { ad: "Looking Up", dk: 4, metin: "Oki looked at the night sky. The moon was bright, but it was not a star. It did not make its own light." },
@@ -651,7 +654,7 @@ const KATALOG = mergePilotStories([
     yas: "6-8 yaş",
     renk: ["#263B5E", "#6A8CC7"],
     puan: 4.8,
-    sureDk: 4,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Oki'nin gece gökyüzüne bakarak Ay'ı fark ettiği kısa ve sakin bilim hikâyesi.",
     bolumler: [
       { ad: "Ay'a Bakıyorum", dk: 2, metin: "Oki gece gökyüzüne baktı. Ay yumuşak bir ışık verdi. Lili, Ay bazen büyük görünür, dedi. Oki sessizce takip etti." },
@@ -667,7 +670,7 @@ const KATALOG = mergePilotStories([
     yas: "8-10 yaş",
     renk: ["#203047", "#5978A8"],
     puan: 4.8,
-    sureDk: 6,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Oki ve Lili'nin yıldız ile gezegen arasındaki farkı merak ettiği kısa okuma güveni metni.",
     bolumler: [
       { ad: "Parlayan Noktalar", dk: 3, metin: "Oki teleskopa baktı. Gökyüzünde pek çok parlak nokta vardı. Lili, bazıları yıldız, bazıları gezegen, dedi. Oki bu farkı merak etti." },
@@ -683,7 +686,7 @@ const KATALOG = mergePilotStories([
     yas: "10-12 yaş",
     renk: ["#1F2A44", "#7D8FC5"],
     puan: 4.8,
-    sureDk: 8,
+    sureDk: 0.3, icerikDurumu: "ozet",
     ozet: "Oki'nin Ay yüzeyini harita gibi düşünerek krater, iz ve keşif kavramlarını tanıdığı akıcı okuma metni.",
     bolumler: [
       { ad: "Haritadaki İzler", dk: 4, metin: "Oki, Ay fotoğrafına uzun uzun baktı. Yüzeyde yuvarlak izler vardı. Nana bunlara krater denir, dedi. Oki, Ay'ın da bir haritası olabilir mi, diye sordu." },
@@ -699,12 +702,13 @@ const KATALOG = mergePilotStories([
     yas: "5-9 yaş",
     renk: ["#7A2E38", "#C4606B"],
     puan: 4.7,
-    sureDk: 48,
-    ozet: "Şeftali çocuk Momotaro, denizin dibindeki saray ve ay prensesi. Japonya'nın en sevilen üç halk masalı.",
+    sureDk: 2.3,
+    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Üç masal (kamu malı Japon halk anlatıları — Okurio'nun özgün yeniden anlatımı) tek paragraflık özetten tam anlatıya genişletildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    ozet: "Şeftali çocuk Momotaro, denizin dibindeki saray ve ay prensesi Kaguya. Japonya'nın en sevilen üç halk masalının Okurio uyarlaması.",
     bolumler: [
-      { ad: "Momotaro, Şeftali Çocuk", dk: 16, metin: "Bir zamanlar Japonya'da yaşlı bir çift yaşarmış. Bir gün dere kenarında kocaman bir şeftali bulmuşlar. Şeftaliyi açtıklarında içinden gülen bir bebek çıkmış. Adını Momotaro koymuşlar." },
-      { ad: "Urashima Taro", dk: 16, metin: "Genç balıkçı Urashima Taro, kumsalda çocukların elinden bir kaplumbağayı kurtarmış. Kaplumbağa ona teşekkür etmiş ve onu denizin dibindeki masmavi saraya davet etmiş. İyilik hiçbir zaman unutulmazmış." },
-      { ad: "Ay Prensesi Kaguya", dk: 16, metin: "Yaşlı bambu kesicisi, ormanda parlayan bir bambu görmüş. İçinde avuç içi kadar küçük, ışık saçan bir kız bebek varmış. Kaguya büyüdükçe güzelleşmiş ama gözleri hep ayı ararmış." },
+      { ad: "Momotaro, Şeftali Çocuk", dk: 1, metin: "Bir zamanlar Japonya'da yaşlı bir çift yaşarmış, çocukları yokmuş. Bir gün dere kenarında kocaman bir şeftali bulmuşlar. Şeftaliyi eve götürüp açtıklarında içinden gülen bir bebek çıkmış. Adını Momotaro, yani şeftali çocuk koymuşlar. Momotaro çok hızlı büyümüş, güçlü ve cesur bir delikanlı olmuş. Bir gün köye kötülük yapan devler olduğunu duymuş. Anne babasına, ben bu devleri durduracağım, demiş. Yanına pirinç köftesi almış ve yola çıkmış. Yolda bir köpek, bir maymun ve bir sülünle karşılaşmış. Onlara köftesinden paylaşmış, üçü de ona arkadaş olmuş. Birlikte devlerin adasına gitmişler. Momotaro ve arkadaşları cesaretle devleri durdurmuş. Devler özür dilemiş ve bir daha köye zarar vermeyeceklerine söz vermiş. Momotaro, hazineleriyle köyüne dönmüş ve herkesle paylaşmış." },
+      { ad: "Urashima Taro", dk: 1, metin: "Genç balıkçı Urashima Taro, bir gün kumsalda çocukların bir kaplumbağayla oynadığını görmüş. Çocuklar kaplumbağaya kötü davranıyormuş, Taro onu kurtarıp denize bırakmış. Birkaç gün sonra aynı kaplumbağa yanına gelmiş ve konuşmuş. Beni kurtardığın için teşekkür ederim, demiş, seni denizin dibindeki saraya götürmek istiyorum. Taro kaplumbağanın sırtına binmiş ve derinlere dalmışlar. Deniz sarayı mercanlardan ve incilerden yapılmış, çok güzelmiş. Orada bir prensesle tanışmış ve günler haftalar gibi geçmiş. Bir süre sonra Taro, ailesini özlemiş ve köyüne dönmek istemiş. Prenses ona küçük bir kutu vermiş ama asla açma demiş. Taro köyüne döndüğünde her şey değişmiş, tanıdığı kimse kalmamış. Meraklanıp kutuyu açmış ve içinden beyaz bir duman çıkmış. İyilik hiçbir zaman unutulmazmış ama zaman herkes için farklı akarmış." },
+      { ad: "Ay Prensesi Kaguya", dk: 1, metin: "Yaşlı bir bambu kesicisi, ormanda parlayan bir bambu görmüş. Merakla yaklaşıp bambuyu kesmiş. İçinde avuç içi kadar küçük, ışık saçan bir kız bebek varmış. Adını Kaguya koymuşlar ve onu kendi çocukları gibi büyütmüşler. Kaguya büyüdükçe inanılmaz güzelleşmiş, ülkenin dört bir yanından prensler onunla evlenmek istemiş. Ama Kaguya hiçbirini kabul etmemiş, gözleri hep gökyüzüne, özellikle Ay'a bakarmış. Bir gece Kaguya, gerçekte Ay ülkesinden geldiğini ve geri dönmesi gerektiğini açıklamış. Yaşlı çift çok üzülmüş ama onu tutamayacaklarını bilmiş. Dolunay gecesi, Ay'dan parlak bir alay inmiş ve Kaguya'yı almaya gelmiş. Kaguya, kendisini büyüten aileye bir mektup ve değerli bir armağan bırakmış. Sonra yavaşça gökyüzüne yükselip Ay'a doğru uçmuş. Yaşlı çift, her dolunayda gökyüzüne bakıp Kaguya'yı hatırlarmış. Kaguya'nın hikâyesi bugün hâlâ, gökyüzüne bakıp uzakları merak eden herkese sevgiyle anlatılır her dolunayda, yüzyıllar boyunca değişmeden." },
     ],
   },
   {
@@ -716,12 +720,13 @@ const KATALOG = mergePilotStories([
     yas: "5-9 yaş",
     renk: ["#6B4A1E", "#B08A3D"],
     puan: 4.6,
-    sureDk: 46,
-    ozet: "Gökyüzünde buluşan iki sevgili yıldız, dağları taşımaya karar veren ihtiyar ve yaramaz Maymun Kral. Çin'in binlerce yıllık üç anlatısı.",
+    sureDk: 2.3,
+    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Üç masal (kamu malı Çin halk anlatıları — Okurio'nun özgün yeniden anlatımı) tek paragraflık özetten tam anlatıya genişletildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    ozet: "Gökyüzünde buluşan iki sevgili yıldız, dağları taşımaya karar veren ihtiyar ve doğuşuyla ünlenen Maymun Kral. Çin'in binlerce yıllık üç anlatısının Okurio uyarlaması.",
     bolumler: [
-      { ad: "Çoban ile Dokumacı Kız", dk: 15, metin: "Gökyüzünde, Samanyolu'nun iki yakasında iki yıldız yaşarmış. Biri çalışkan bir çoban, öteki bulutları dokuyan bir kızmış. Yılda bir gece, saksağanlar kanatlarından köprü kurarmış ki ikisi buluşabilsin." },
-      { ad: "Dağları Taşıyan İhtiyar", dk: 15, metin: "Doksan yaşındaki Yu Gong'un evinin önünde iki koca dağ varmış. Bir gün ailesini toplamış, bu dağları taşıyacağız demiş. Herkes gülmüş ama o başlamış. Damla damla göl olurmuş, sabırla koruk helva olurmuş." },
-      { ad: "Maymun Kral'ın Doğuşu", dk: 16, metin: "Çiçekler ve Meyveler Dağı'nın tepesinde sihirli bir taş varmış. Bir gün taş çatlamış ve içinden taştan bir maymun doğmuş. Gözlerinden iki altın ışık fışkırmış. Bu, maceraları dillere destan olacak Maymun Kral'mış." },
+      { ad: "Çoban ile Dokumacı Kız", dk: 1, metin: "Gökyüzünde, Samanyolu'nun iki yakasında iki yıldız yaşarmış. Biri çalışkan bir çoban, öteki bulutları dokuyan usta bir dokumacı kızmış. Bir gün ikisi karşılaşmış ve birbirlerine âşık olmuşlar. Evlenmişler ve çok mutlu bir hayat sürmüşler. Ama işlerini ihmal etmişler, çoban sürüsüne bakmaz, kız dokumasını dokumaz olmuş. Gökyüzünün kraliçesi buna kızmış ve ikisini Samanyolu'nun iki ayrı yakasına ayırmış. Çoban ve dokumacı kız çok üzülmüş, birbirlerini her gün özlemişler. Kraliçe onlara acımış ve yılda bir kez buluşmalarına izin vermiş. Her yıl aynı gecede, dünyadaki bütün saksağanlar gökyüzüne uçarmış. Kanatlarını açıp Samanyolu üzerinde bir köprü kurarlarmış. Çoban ve dokumacı kız bu köprüden geçip birbirlerine kavuşurmuş. O gece yağan yağmurun, sevinç gözyaşları olduğuna inanılırmış." },
+      { ad: "Dağları Taşıyan İhtiyar", dk: 1, metin: "Doksan yaşındaki Yu Gong'un evinin önünde iki koca dağ varmış. Bu dağlar yüzünden köyden şehre gitmek çok uzun sürermiş. Bir gün ailesini toplamış, bu dağları taşıyacağız demiş. Herkes şaşırmış, komşuları ona gülmüş. Bir ihtiyar iki koca dağı nasıl taşıyabilir ki, demişler. Yu Gong gülümsemiş ve kazmasını almış. Her gün biraz toprak kazıp sepetlerle uzağa taşımaya başlamış. Oğulları ve torunları da ona katılmış. Komşular hâlâ gülüyormuş ama Yu Gong hiç durmamış. Ben bitiremesem de çocuklarım devam eder, demiş, onlar da bitiremezse torunları sürdürür. Damla damla göl olur, sabırla koruk helva olurmuş. Gökyüzündeki tanrılar bu sabrı görmüş ve etkilenmiş. Sonunda dağları kaldırıp başka bir yere taşımışlar. Yu Gong'un köyü artık şehre çok daha yakınmış." },
+      { ad: "Maymun Kral'ın Doğuşu", dk: 1, metin: "Çiçekler ve Meyveler Dağı'nın tepesinde sihirli bir taş varmış. Bu taş, güneşin ve ayın ışığını binlerce yıl boyunca içine çekmiş. Bir gün taş çatlamış ve içinden taştan bir maymun doğmuş. Gözlerinden iki altın ışık fışkırmış ve gökyüzüne kadar ulaşmış. Küçük maymun dağdaki diğer maymunlarla oynayarak büyümüş. Bir gün bir şelalenin ardındaki mağarayı keşfetmiş. Cesaretle şelalenin içinden geçip mağaraya girmiş. Diğer maymunlar onun cesaretine hayran kalmış ve onu kral seçmişler. Ona Maymun Kral demişler. Maymun Kral, güç ve bilgelik kazanmak için dünyayı dolaşmış. Ölümsüzlük sırlarını öğrenmiş ve sihirli bir asa bulmuş. Asa istediği zaman büyüyüp küçülebiliyormuş. Maymun Kral'ın maceraları, Çin'de yüzyıllardır çocuklara ve büyüklere anlatılırmış. Bu üç hikâye, sabrın, cesaretin ve sevginin insanı nereye götürebileceğini hâlâ çocuklara ve büyüklere hatırlatır bugün bile, yüzyıllar sonra dünyanın her köşesinde, her nesilde tekrar tekrar yeniden." },
     ],
   },
 
@@ -735,7 +740,7 @@ const KATALOG = mergePilotStories([
     yas: "3-6 yaş",
     renk: ["#6A4A1F", "#F0B44C"],
     puan: 4.9,
-    sureDk: 3,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Minik dinleyiciler için güneş, sabah ve eski masal ritmiyle güvenli mitoloji başlangıcı.",
     bolumler: [
       { ad: "Sabah", dk: 1, metin: "Oki sabah uyandı. Güneş çıktı. Oda aydınlandı. Nana, çok eski zamanlarda insanlar güneşe bakıp hikâye anlatırdı, dedi." },
@@ -751,7 +756,7 @@ const KATALOG = mergePilotStories([
     yas: "5-8 yaş",
     renk: ["#263B63", "#88A8E8"],
     puan: 4.9,
-    sureDk: 4,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Ay, gece ve sakin takip üzerine kısa eski masal anlatısı.",
     bolumler: [
       { ad: "Ay Işığı", dk: 2, metin: "Lili gece pencereden baktı. Ay ışığı yere düştü. Oki ışığın yolunu takip etti. Nana, eski masallarda Ay yol gösterir, dedi." },
@@ -767,7 +772,7 @@ const KATALOG = mergePilotStories([
     yas: "8-10 yaş",
     renk: ["#3D3263", "#9B86D8"],
     puan: 4.9,
-    sureDk: 6,
+    sureDk: 0.4, icerikDurumu: "ozet",
     ozet: "Oki kanatlı at Pegasus ile mitolojiye yumuşak ve macera dolu bir giriş yapar.",
     bolumler: [
       { ad: "Kanatlı At", dk: 3, metin: "Oki eski bir kitapta kanatlı bir at resmi gördü. Nana, bu Pegasus, dedi. Çok eski hikâyelerde Pegasus gökyüzüne yükselen güçlü bir attı. Oki resme uzun uzun baktı." },
@@ -783,7 +788,7 @@ const KATALOG = mergePilotStories([
     yas: "10-12 yaş",
     renk: ["#4B3B2B", "#B78652"],
     puan: 4.9,
-    sureDk: 7,
+    sureDk: 0.4, icerikDurumu: "ozet",
     ozet: "Labirent, ipucu ve yol bulma temasıyla Ariadne anlatısına giriş.",
     bolumler: [
       { ad: "Harita", dk: 3, metin: "Oki kütüphanede kıvrımlı bir yol çizimi buldu. Çizim bir labirente benziyordu. Lili, insan böyle bir yerde yolunu nasıl bulur, diye sordu. Nana, bazı eski hikâyelerde küçük bir ip bile yol gösterebilir, dedi." },
@@ -799,7 +804,7 @@ const KATALOG = mergePilotStories([
     yas: "12-14 yaş",
     renk: ["#5A2E22", "#D2734A"],
     puan: 4.9,
-    sureDk: 8,
+    sureDk: 0.4, icerikDurumu: "ozet",
     ozet: "Prometheus anlatısında seçim, sorumluluk ve bilgi temasına genç okur seviyesinde giriş.",
     bolumler: [
       { ad: "Ateş", dk: 4, metin: "Oki eski bir anlatıda ateşi insanlara veren Prometheus’u okudu. Bu sadece ateşle ilgili değildi. Hikâye bilgi, paylaşmak ve sonuçları göze almak üzerineydi. Lili, iyi bir seçim bazen zor olabilir, dedi." },
@@ -815,7 +820,7 @@ const KATALOG = mergePilotStories([
     yas: "14-18 yaş",
     renk: ["#26334F", "#D9A24A"],
     puan: 4.8,
-    sureDk: 9,
+    sureDk: 0.4, icerikDurumu: "ozet",
     ozet: "Ikarus anlatısını sınır, istek, uyarı ve sembol okuma üzerinden klasiklere hazırlık seviyesinde ele alır.",
     bolumler: [
       { ad: "Yükselmek", dk: 4, metin: "Ikarus’un hikâyesi ilk bakışta fazla yükseğe uçan bir gencin anlatısıdır. Fakat bu hikâye yalnızca uçmakla ilgili değildir. Sınırları bilmek, uyarıları duymak ve isteğin gücünü anlamakla ilgilidir." },
@@ -831,7 +836,7 @@ const KATALOG = mergePilotStories([
     yas: "18+ yaş",
     renk: ["#2C3A3B", "#7AA6A1"],
     puan: 4.8,
-    sureDk: 8,
+    sureDk: 0.3, icerikDurumu: "ozet",
     ozet: "Yetişkin odak için kısa mitoloji okuması: labirent, yön bulma ve düşünce takibi.",
     bolumler: [
       { ad: "Labirent", dk: 4, metin: "Ariadne’nin ipi, eski bir hikâyede çıkış yolunu bulmaya yardım eder. Bugün bu imgeyi karmaşık metinleri okurken de düşünebiliriz. Bir metinde ana fikir, bazen labirentin içindeki ip gibidir." },
@@ -847,11 +852,16 @@ const KATALOG = mergePilotStories([
     yas: "6-8 yaş",
     renk: ["#3D4D32", "#93B66A"],
     puan: 4.9,
-    sureDk: 4,
-    ozet: "İki karakterli kısa piyes; çocuk rol seçerek kısa repliklerle okuma güveni kazanır.",
+    sureDk: 2.3,
+    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Kısa taslaktan 6 sahneye genişletildi (asgari yaş-bandı kelime hedefini karşılamak için). Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    ozet: "İki karakterli kısa piyes; çocuk rol seçerek kısa repliklerle okuma güveni kazanır. Oki ve Lili, kaybolan Mino'yu izlerini takip ederek bulur, sonra Nana ile birlikte tohum eker.",
     bolumler: [
-      { ad: "Sahne 1", dk: 2, metin: "Anlatıcı: Oki bahçeye çıktı. Oki: Lili, el ele yürüyelim mi? Lili: Evet, yavaş yürüyelim. Oki: Mino nerede? Lili: Mino ağacın altında." },
-      { ad: "Sahne 2", dk: 2, metin: "Mino: Miyav. Oki: Mino çıktı. Lili: Onu bulduk. Anlatıcı: Üç arkadaş birlikte güldü." },
+      { ad: "Sahne 1 — Bahçe Kapısı", dk: 2, metin: "Anlatıcı: Oki bahçe kapısını açtı, sabah güneşi yapraklara vuruyordu. Oki: Lili, bugün bahçede oynayalım mı? Lili: Olur, önce ellerimi yıkayayım. Oki: Mino'yu da çağıralım, o da bizimle gelsin. Lili: Mino nerede acaba, sabahtan beri görmedim. Anlatıcı: İki arkadaş bahçeye birlikte girdi. Oki: Belki çiçeklerin arasında saklanıyordur. Lili: Ya da ağacın gölgesinde uyuyordur." },
+      { ad: "Sahne 2 — İzin Peşinde", dk: 2, metin: "Anlatıcı: Lili yerde küçük pati izleri gördü. Lili: Bak Oki, izler buradan geçiyor! Oki: Haklısın, bu izler taze görünüyor. Lili: Öyleyse Mino çok uzağa gitmemiştir. Oki: İzleri takip edelim, adım adım gidelim. Anlatıcı: İki arkadaş izleri dikkatle takip etti. Lili: İzler çiçek saksısının arkasına dönüyor. Oki: O zaman oraya bakalım." },
+      { ad: "Sahne 3 — Mino Bulundu", dk: 2, metin: "Anlatıcı: Oki bahçenin köşesine baktı. Oki: Mino nerede? Lili: Sandalyenin altında olabilir. Mino: Miyav! Anlatıcı: Küçük kedi sandalyenin altından çıktı. Oki: Seni buldum Mino! Lili: Demek burada saklanıyordun. Mino: Miyav, miyav! Oki: Karnın acıkmış olmalı, hadi mama verelim. Lili: Ben de su kabını dolduracağım." },
+      { ad: "Sahne 4 — Üç Arkadaş Bir Arada", dk: 2, metin: "Anlatıcı: Oki, Lili ve Mino bahçenin ortasında toplandı. Oki: Bir daha kaybolursan hemen izlerini takip ederiz. Lili: Çünkü arkadaşlar birbirini her zaman bulur. Mino: Miyav! Anlatıcı: Üç arkadaş güneşin altında birlikte güldü. Oki: Şimdi hep birlikte oynayalım mı? Lili: Olur, önce Mino'ya top atalım. Anlatıcı: Bahçede kahkahalar yankılandı." },
+      { ad: "Sahne 5 — Tohum Ekme", dk: 2, metin: "Anlatıcı: Öğleden sonra Nana bahçeye küçük bir sepet getirdi, içinde tohumlar vardı. Nana: Bugün birlikte tohum ekelim mi çocuklar? Oki: Olur Nana, hangi tohumlar bunlar? Nana: Bunlar güneş çiçeği tohumu, yaz gelince sarı çiçek açarlar. Lili: Ben toprağı kazayım, sen tohumu koy Oki. Anlatıcı: Oki küçük bir çukur kazdı ve tohumu içine bıraktı. Mino: Miyav! Anlatıcı: Mino merakla toprağı kokladı ama kazmaya çalışmadı. Lili: Aferin Mino, tohumları bozma. Oki: Şimdi su verelim ki büyüsünler. Nana: Sabırla beklerseniz bir gün çiçek açacaklar." },
+      { ad: "Sahne 6 — Akşam Sofrası", dk: 2, metin: "Anlatıcı: Akşam olunca aile bahçedeki masaya oturdu. Oki: Nana, tohumlar ne zaman çiçek açar? Nana: Birkaç hafta sürer ama her gün biraz büyürler. Lili: O zaman her sabah kontrol edelim mi? Oki: Olur, ben ilk çiçeği kim gördüyse haber vereceğim. Mino: Miyav! Anlatıcı: Mino masanın altına kıvrılıp uyumaya başladı. Lili: Bugün çok güzel bir gündü, değil mi Oki? Oki: Evet, hem Mino'yu bulduk hem tohum ektik. Nana: Güzel günler böyle küçük anlardan oluşur. Anlatıcı: Gökyüzü kızıla dönerken üç arkadaş gülümsedi." },
     ],
   },
   {
@@ -863,11 +873,18 @@ const KATALOG = mergePilotStories([
     yas: "8-10 yaş",
     renk: ["#5A3A24", "#D08A4A"],
     puan: 4.8,
-    sureDk: 5,
-    ozet: "DEHB dostu kısa piyes; acele etmek, durmak ve yeniden denemek üzerine rol okuma.",
+    sureDk: 3.2,
+    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Kısa taslaktan 9 sahnelik bir kule-inşası ve bahçe-sulama kurgusuna genişletildi (asgari yaş-bandı kelime hedefi için). Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    ozet: "DEHB dostu piyes; acele etmek, durmak ve yeniden denemek üzerine rol okuma. Toto ve arkadaşları bahçede bir kule kurarken ve çiçek sularken sabrı öğrenir.",
     bolumler: [
-      { ad: "Çok Hızlı Plan", dk: 3, metin: "Anlatıcı: Toto çok hızlı koştu. Toto: Planım hazır! Oki: Önce dinleyelim. Lili: Bir adım duralım. Toto: Tamam, derin nefes alıyorum." },
-      { ad: "Yavaş Adım", dk: 2, metin: "Mino: Miyav. Toto: Şimdi daha iyi düşündüm. Oki: Güzel. Lili: Yavaş adım da bir adımdır." },
+      { ad: "Çok Hızlı Plan", dk: 2, metin: "Anlatıcı: Toto çok hızlı koştu, elinde bir kâğıt vardı. Toto: Planım hazır, hemen başlayalım! Oki: Önce dinleyelim Toto, planın ne? Lili: Bir adım duralım, acele etmeden anlat. Toto: Tamam, derin nefes alıyorum. Anlatıcı: Toto durdu ve nefes aldı. Toto: Bugün bahçede bir kule yapacağız. Oki: Güzel fikir, ama nasıl başlayacağız? Lili: Önce malzemeleri toplayalım, sonra planlarız." },
+      { ad: "Yavaş Adım", dk: 2, metin: "Mino: Miyav. Toto: Şimdi daha iyi düşündüm. Oki: Güzel. Lili: Yavaş adım da bir adımdır. Anlatıcı: Toto kutuları teker teker taşımaya başladı. Toto: Önce büyük kutuyu koyayım, sonra küçüğü üstüne. Oki: Dikkatli ol, aceleyle düşebilir. Lili: Haklısın, yavaşça yerleştirelim. Anlatıcı: Toto derin bir nefes daha aldı ve yavaşça devam etti." },
+      { ad: "Kule Sallanıyor", dk: 2, metin: "Anlatıcı: Kule birden sallanmaya başladı. Toto: Aa, çok hızlı koydum galiba! Oki: Dur, elini tutma, düşmesin. Lili: Nefes al Toto, telaşlanma. Anlatıcı: Toto derin bir nefes aldı ve elini yavaşça çekti. Toto: Şimdi ne yapmalıyım? Oki: Alttaki kutuyu düzeltelim, sonra tekrar deneriz. Lili: Acele etmeden, adım adım." },
+      { ad: "Yeniden Deneme", dk: 2, metin: "Anlatıcı: Üç arkadaş kuleyi yavaşça yeniden kurdu. Toto: Bu sefer her kutuyu kontrol ediyorum. Oki: Aferin, çok daha sağlam duruyor. Lili: Gördün mü, yavaş olmak hiç kötü değilmiş. Mino: Miyav! Anlatıcı: Mino kulenin yanında dolaştı ama devirmedi. Toto: Mino bile dikkatli davranıyor. Oki: Sabırlı olmak herkese iyi gelir." },
+      { ad: "Toto'nun Dersi", dk: 2, metin: "Anlatıcı: Kule sonunda tamamlandı, güneşin altında parlıyordu. Toto: Acele etseydim bunu asla bitiremezdik. Lili: Şimdi anladın mı, durmak da bir adımdır. Oki: Bazen yavaş gitmek, hızlı gitmekten daha iyidir. Toto: Bir dahaki sefere önce derin nefes alacağım. Anlatıcı: Üç arkadaş kulenin önünde el ele tutuştu. Lili: Harika bir iş çıkardık, hep birlikte. Toto: Teşekkürler, beni durdurduğunuz için." },
+      { ad: "Ertesi Gün Yeni Bir Görev", dk: 2, metin: "Anlatıcı: Ertesi sabah Oki elinde bir kova ile geldi. Oki: Bugün bahçedeki çiçeklere su verelim mi? Toto: Ben hemen başlarım, çok hızlı sularım! Lili: Toto, hatırla, yavaş olmak da bir adımdır. Toto: Haklısın, önce derin bir nefes alayım. Anlatıcı: Toto yavaşça kovayı doldurdu ve çiçeklere gitti. Toto: Her çiçeğe biraz su, fazla değil. Oki: Aferin, çok dikkatli davranıyorsun. Lili: Gördün mü, dün öğrendiğin ders işe yaradı." },
+      { ad: "Mino'nun Yardımı", dk: 2, metin: "Anlatıcı: Mino çiçeklerin arasında dolaşıyordu. Mino: Miyav! Toto: Mino, dikkat et, çiçekleri ezme. Oki: Belki Mino da bize yardım etmek istiyor. Lili: Ona küçük bir görev verelim. Toto: Mino, sen de yapraklara bakabilirsin. Anlatıcı: Mino bir yaprağın üstüne konan böceği izledi. Mino: Miyav, miyav! Oki: Bak, Mino da sabırla bekliyor. Toto: Demek herkes kendi hızında öğreniyor." },
+      { ad: "Bahçe Tamamlandı ve Toto'nun Yeni Alışkanlığı", dk: 4, metin: "Anlatıcı: Öğleye doğru bütün çiçekler sulanmıştı. Oki: Bugün hiç acele etmeden bitirdik. Toto: Ve hiçbir çiçeği ezmedik. Lili: Çünkü yavaş ve dikkatli çalıştık. Anlatıcı: Üç arkadaş bahçenin ortasında oturup mola verdi. Toto: Dün kuleyi, bugün bahçeyi öğrendim. Oki: Sabır her işte işe yarıyor galiba. Lili: Evet, ve seninle çalışmak çok keyifli Toto. Anlatıcı: Güneş tepede parlarken üçü de gülümsedi. O akşam Toto günlüğüne uzun bir not yazdı. Toto: Bugün öğrendim ki acele etmek işleri bozabilir. Oki: Ama yavaş olmak da hiç sıkıcı değil, değil mi? Toto: Hayır, hatta daha keyifli, her şeyi fark ediyorum. Lili: Belki yarın yeni bir görev daha buluruz. Toto: Ne olursa olsun, önce derin bir nefes alacağım. Mino: Miyav! Anlatıcı: Toto gülümseyerek günlüğünü kapattı ve yavaşça uykuya daldı." },
     ],
   },
   {
@@ -879,11 +896,18 @@ const KATALOG = mergePilotStories([
     yas: "10-12 yaş",
     renk: ["#253A5F", "#6FA7D9"],
     puan: 4.8,
-    sureDk: 6,
-    ozet: "Gökyüzü subject’i ile rol okuma birleşir; çocuk kısa bilim replikleriyle aktif okuma yapar.",
+    sureDk: 4.5,
+    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Kısa taslaktan 10 sahneye genişletildi, bilimsel içerik (krater, yıldız/gezegen farkı, gezegenler, halkalar, gökada) derinleştirildi. Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    ozet: "Gökyüzü konusu ile rol okuma birleşir; çocuk bilim repliklerini seslendirerek aktif okuma yapar. Uzay Kulübü, yıldız-gezegen farkından gökadalara uzanan bir keşif dizisi yaşar.",
     bolumler: [
-      { ad: "Kulüp Toplandı", dk: 3, metin: "Anlatıcı: Uzay Kulübü masanın etrafında toplandı. Oki: Ay haritasını getirdim. Lili: Kraterleri işaretledim. Toto: Ben de roket çizdim. Mino: Miyav, yıldızları saydım." },
-      { ad: "Soru", dk: 3, metin: "Oki: Yıldız mı, gezegen mi? Lili: Yıldız kendi ışığını verir. Toto: Gezegen ışığı yansıtır. Anlatıcı: Kulüp bir soruyla başladı, küçük bir cevapla büyüdü." },
+      { ad: "Kulüp Toplandı", dk: 2, metin: "Anlatıcı: Uzay Kulübü masanın etrafında toplandı, herkesin elinde bir defter vardı. Oki: Ay haritasını getirdim, dün gece çizdim. Lili: Kraterleri işaretledim, her biri farklı büyüklükte. Toto: Ben de roket çizdim, üç kat yakıt deposu var. Mino: Miyav, yıldızları saydım! Anlatıcı: Herkes güldü, Mino'nun sayımı gerçek değildi ama şirindi. Oki: Bugün gökyüzünü daha yakından inceleyelim mi? Lili: Olur, önce bir soru listesi yapalım." },
+      { ad: "Soru", dk: 2, metin: "Oki: Yıldız mı, gezegen mi, ikisi arasındaki fark nedir? Lili: Yıldız kendi ışığını verir, kendi enerjisiyle parlar. Toto: Gezegen ışığı yansıtır, kendi ışığı yoktur. Anlatıcı: Kulüp bir soruyla başladı, küçük bir cevapla büyüdü. Oki: Peki Güneş bir yıldız mı? Lili: Evet, Güneş de bizim en yakın yıldızımız. Toto: O zaman Dünya bir gezegen, öyle mi? Oki: Kesinlikle, Güneş'in etrafında dönen bir gezegen." },
+      { ad: "Roket Planı ve Kraterlerin Sırrı", dk: 4, metin: "Anlatıcı: Toto çizdiği roketi masaya koydu. Toto: Bu roket Ay'a kadar gidebilir mi sizce? Oki: Gerçek roketler çok daha büyük yakıt depoları taşır. Lili: Ama senin çizimin de çok yaratıcı, detaylar harika. Toto: Belki büyüyünce gerçek bir roket tasarlarım. Anlatıcı: Mino roketin resmine pati vurdu, sanki onaylıyordu. Mino: Miyav! Oki: Mino da mühendis olmak istiyor galiba. Lili: Krater dediğimiz şey aslında bir çukur. Oki: Ay'a çarpan taşlar bu çukurları oluşturuyor. Toto: Peki neden Dünya'da bu kadar az krater var? Lili: Çünkü Dünya'nın atmosferi çoğu taşı yakıyor. Oki: Ay'ın atmosferi olmadığı için izler kalıyor. Anlatıcı: Kulüp üyeleri haritadaki her krateri tek tek işaretledi. Toto: Bu en büyük krater, adı ne olsun? Lili: Ona Mino Krateri diyelim, o da kulübün üyesi." },
+      { ad: "Kulübün Kararı", dk: 2, metin: "Anlatıcı: Gökyüzü kararmaya başlayınca kulüp pencereye toplandı. Oki: Bu akşam gerçek yıldızlara bakalım mı? Lili: Olur, teleskopu getireyim. Toto: Ben de defterime notlar alırım. Anlatıcı: Üç arkadaş ve Mino, karanlıkta parlayan noktaları izledi. Oki: Bir soruyla başladık, bugün çok şey öğrendik. Lili: Gökyüzü hiç bitmeyen bir kitap gibi. Toto: O zaman her hafta yeni bir sayfa okuyalım. Anlatıcı: Uzay Kulübü, bir sonraki toplantıya kadar sözleşti." },
+      { ad: "Gezegenler Sırayla", dk: 2, metin: "Anlatıcı: Oki büyük bir kağıda güneş sistemini çizdi. Oki: Güneş'in etrafında sekiz gezegen dönüyor. Lili: Hangileri bunlar, sayabilir misin? Oki: Merkür, Venüs, Dünya, Mars, Jüpiter, Satürn, Uranüs ve Neptün. Toto: En büyüğü hangisi? Oki: Jüpiter en büyük gezegen, dev bir fırtınası bile var. Lili: Peki en küçüğü? Oki: Merkür en küçük ve Güneş'e en yakın olan. Toto: Mino, sen hangi gezegeni seçerdin? Mino: Miyav! Anlatıcı: Herkes güldü, Mino'nun favori gezegeni belli olmadı." },
+      { ad: "Satürn'ün Halkaları", dk: 2, metin: "Lili: Satürn'ün etrafındaki halkalar neden var? Oki: Halkalar aslında buz ve taş parçacıklarından oluşuyor. Toto: Peki neden düşmüyorlar? Oki: Satürn'ün çekim gücü onları yörüngede tutuyor. Lili: Bu gerçekten inanılmaz bir şey. Toto: Ben de büyüyünce Satürn'ü teleskopla görmek istiyorum. Anlatıcı: Lili kitaplıktan bir gezegenler ansiklopedisi getirdi. Lili: Bakın, burada halkaların fotoğrafı var. Oki: Gerçekten çok güzelmiş, tam bir mücevher gibi. Toto: Uzay hiç bitmeyen bir hazine sandığı gibi." },
+      { ad: "Yıldız Haritası Çizmek", dk: 2, metin: "Anlatıcı: Kulüp üyeleri gece gökyüzünü izlemeye karar verdi. Oki: Bir yıldız haritası çizelim, gördüğümüz her şeyi işaretleyelim. Lili: Ben Büyük Ayı takımyıldızını arayacağım. Toto: Ben de Kutup Yıldızı'nı bulmaya çalışacağım. Anlatıcı: Üç arkadaş bahçeye battaniye serdi ve uzandı. Oki: İşte orada, yedi parlak yıldız görüyor musunuz? Lili: Evet, tam bir kepçe şekli gibi. Toto: Kutup Yıldızı hep kuzeyi gösterirmiş, denizciler onunla yön bulurmuş. Mino: Miyav! Anlatıcı: Mino da gökyüzüne bakıp sessizce yattı." },
+      { ad: "Kulübün Yeni Projesi ve Gökadanın Büyüklüğü", dk: 4, metin: "Anlatıcı: Ertesi hafta kulüp yeni bir proje başlattı. Oki: Kendi mini gözlemevimizi kuralım mı? Lili: Harika fikir, teleskopu balkona yerleştirebiliriz. Toto: Ben de gördüklerimizi bir deftere kaydederim. Anlatıcı: Üç arkadaş balkona küçük bir masa taşıdı. Oki: Her hafta bir gezegen veya yıldız araştıracağız. Lili: Böylece Uzay Kulübü hiç durmadan öğrenmeye devam eder. Toto: Ve her toplantıda yeni bir soru sorarız. Anlatıcı: Kulüp, meraklarını asla kaybetmeden büyümeye devam etti. Bir akşam Nana kulübe katıldı, elinde eski bir kitap vardı. Nana: Bu kitapta gökadalar anlatılıyor, ister misiniz dinlemek? Oki: Evet Nana, gökada nedir tam olarak? Nana: Gökada, milyonlarca yıldızın bir arada bulunduğu dev bir topluluktur. Lili: Bizim Güneş Sistemimiz hangi gökadada? Nana: Samanyolu Gökadası'nda, ama o da evrende sadece küçük bir nokta. Toto: Evren o kadar büyük ki hayal etmek bile zor. Nana: Bu yüzden merak etmeye hiç ara vermeyin çocuklar. Oki: Biz de her hafta yeni bir şey öğrenmeye devam edeceğiz. Mino: Miyav! Anlatıcı: Kulüp, gökyüzünün sonsuzluğu karşısında hep birlikte sessizce hayrete düştü. Lili: Bir gün belki gerçek bir gökadayı teleskopla görürüz. Toto: O gün geldiğinde hepimiz burada olacağız. Nana: Sizinle gurur duyuyorum çocuklar." },
     ],
   },
   {
@@ -992,7 +1016,7 @@ const KATALOG = mergePilotStories([
     yas: "5-8 yaş",
     renk: ["#24385F", "#8FA9D9"],
     puan: 4.9,
-    sureDk: 4,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Kısa dizelerle ay, gece ve sakin takip çalışması.",
     bolumler: [
       { ad: "Ay", dk: 2, metin: "Ay geldi geceye. Yavaşça baktı bize. Oki pencere açtı. Işık düştü eline." },
@@ -1008,7 +1032,7 @@ const KATALOG = mergePilotStories([
     yas: "6-8 yaş",
     renk: ["#24556B", "#74B7D6"],
     puan: 4.8,
-    sureDk: 3,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Ses farkındalığı için yağmur ritimli kısa şiir.",
     bolumler: [
       { ad: "Tıp Tıp", dk: 1, metin: "Tıp tıp yağmur. Camda küçük ses. Oki dinler. İçinde sakin bir nefes." },
@@ -1024,7 +1048,7 @@ const KATALOG = mergePilotStories([
     yas: "8-10 yaş",
     renk: ["#162B45", "#5F8DC2"],
     puan: 4.8,
-    sureDk: 5,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Gökyüzü ve yıldızlar subject’i için kısa, görsel ve sakin şiir.",
     bolumler: [
       { ad: "Yukarı Bak", dk: 2, metin: "Gökyüzü mavi bir sayfa gibi açıldı. Oki başını kaldırdı. Bir bulut geçti. Sonra bir kuş, sessizce yolunu buldu." },
@@ -1088,7 +1112,7 @@ const KATALOG = mergePilotStories([
     yas: "8-10 yaş",
     renk: ["#315C3B", "#95C77C"],
     puan: 4.8,
-    sureDk: 6,
+    sureDk: 0.3, icerikDurumu: "ozet",
     ozet: "Bir tohumun toprak, su ve ışıkla başlayan yolunu hikâyeleştiren kısa bilim metni.",
     bolumler: [
       { ad: "Toprağın İçinde", dk: 3, metin: "Oki küçük bir tohum buldu. Tohum avucunda sessizdi. Nana, bu küçük şeyin içinde bir bitkinin yolu var, dedi. Oki tohumu toprağa bıraktı." },
@@ -1104,7 +1128,7 @@ const KATALOG = mergePilotStories([
     yas: "10-12 yaş",
     renk: ["#6E551B", "#DDBA45"],
     puan: 4.8,
-    sureDk: 7,
+    sureDk: 0.3, icerikDurumu: "ozet",
     ozet: "Arıların yön ve yiyecek bilgisini nasıl paylaştığını sade bir hikâyeyle anlatır.",
     bolumler: [
       { ad: "Kovanın Önünde", dk: 3, metin: "Oki kovana uzaktan baktı. Bir arı dönüyor, duruyor, sonra tekrar dönüyordu. Toto, bu arı oyun mu oynuyor, diye sordu. Nana gülümsedi: Belki de haber veriyor." },
@@ -1120,7 +1144,7 @@ const KATALOG = mergePilotStories([
     yas: "10-12 yaş",
     renk: ["#3B5266", "#D7E7EF"],
     puan: 4.8,
-    sureDk: 7,
+    sureDk: 0.3, icerikDurumu: "ozet",
     ozet: "Kutup tilkisinin çevreye uyumunu ve yol bulma becerisini anlatan sakin bilim hikâyesi.",
     bolumler: [
       { ad: "Beyaz Kürk", dk: 3, metin: "Lili bir fotoğrafta bembeyaz bir tilki gördü. Nana, bu kutup tilkisi, dedi. Karın içinde fark edilmemek için kürkü ona yardım eder." },
@@ -1136,11 +1160,17 @@ const KATALOG = mergePilotStories([
     yas: "6-8 yaş",
     renk: ["#5B3A2E", "#C89065"],
     puan: 4.8,
-    sureDk: 5,
-    ozet: "Kısa repliklerle rol alarak okuma pratiği.",
+    sureDk: 2.3,
+    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Kısa taslaktan 7 sahneye genişletildi (saklambaç oyunu kurgusu tamamlandı). Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    ozet: "Kısa repliklerle rol alarak okuma pratiği. Oki, Lili ve Toto, saklambaçta saklanan Mino'yu ipuçlarını takip ederek bulur, sonra sıra değişerek oyun sürer.",
     bolumler: [
-      { ad: "Sahne 1", dk: 2, metin: "Anlatıcı: Oki bahçeye baktı. Oki: Mino nerede? Lili: Sandalyenin altında olabilir. Mino: Miyav!" },
-      { ad: "Sahne 2", dk: 2, metin: "Oki: Seni buldum Mino. Lili: Sıra bende. Anlatıcı: Üç arkadaş güldü." },
+      { ad: "Sahne 1 — Saklambaç Başlıyor", dk: 2, metin: "Anlatıcı: Oki, Lili ve Toto salonun ortasında toplandı. Oki: Hadi saklambaç oynayalım, ilk saklanan Mino olsun. Lili: Ben sayarım, sen de saklan Mino. Toto: Ben de on'a kadar sayabilirim, yardım ederim. Anlatıcı: Lili gözlerini kapadı ve saymaya başladı. Lili: Bir, iki, üç... Oki: Mino, çabuk saklan, geliyoruz!" },
+      { ad: "Sahne 2 — Oki Bahçeye Baktı", dk: 2, metin: "Anlatıcı: Oki bahçeye baktı. Oki: Mino nerede? Lili: Sandalyenin altında olabilir. Toto: Ben de çiçek saksılarına bakarım. Anlatıcı: Üç arkadaş bahçenin her köşesini aradı. Oki: Burada yok, belki mutfaktadır. Lili: Ya da merdivenin altında saklanmıştır. Toto: Hadi birlikte bakalım." },
+      { ad: "Sahne 3 — İpucu Bulundu", dk: 2, metin: "Anlatıcı: Toto yerde küçük bir tüy buldu. Toto: Bakın, burada bir tüy var! Lili: Demek Mino buradan geçmiş. Oki: O zaman sesini dinleyelim, belki mırıldanıyordur. Mino: Miyav! Anlatıcı: Ses sandalyenin altından geliyordu. Lili: İşte orada! Oki: Seni buldum Mino!" },
+      { ad: "Sahne 4 — Sıra Bende", dk: 2, metin: "Anlatıcı: Küçük kedi sandalyenin altından çıktı. Oki: Seni buldum Mino. Lili: Sıra bende, şimdi ben saklanıyorum. Toto: Ben de seninle geliyorum Lili. Mino: Miyav, miyav! Anlatıcı: Üç arkadaş güldü ve oyuna yeniden başladı. Oki: Bu oyunu her gün oynayabiliriz. Lili: Çünkü arkadaşlarla oynamak en güzel oyundur." },
+      { ad: "Sahne 5 — Yeni Saklanma Yeri", dk: 2, metin: "Anlatıcı: Ertesi gün üç arkadaş yine saklambaç oynamak istedi. Toto: Bu sefer ben saklanayım, siz sayın. Lili: Tamam, Oki ile birlikte sayarız. Oki: Bir, iki, üç, dört, beş... Anlatıcı: Toto hızlıca mutfak dolabının arkasına saklandı. Mino: Miyav! Anlatıcı: Mino da Toto'nun yanına sokuldu, sanki ona eşlik ediyordu. Lili: On'a kadar saydık, geliyoruz Toto! Oki: Mutfağa bakalım önce." },
+      { ad: "Sahne 6 — Herkes Bir Arada", dk: 2, metin: "Anlatıcı: Oki dolabın arkasında bir gölge fark etti. Oki: Bak Lili, orada bir şey kıpırdıyor. Lili: Toto olmalı, hadi yaklaşalım. Toto: Yakalandım! Anlatıcı: Toto ve Mino birlikte dolabın arkasından çıktı. Lili: Mino da mı saklanıyordu? Toto: Evet, bana eşlik etti, hiç yalnız değildim. Oki: Demek ki saklambaçta bile arkadaşlık önemliymiş. Anlatıcı: Dört arkadaş kahkahalarla mutfaktan çıktı. Lili: Yarın yine oynayalım mı? Toto: Elbette, her gün yeni bir saklanma yeri buluruz." },
+      { ad: "Sahne 7 — Gece Vakti", dk: 2, metin: "Anlatıcı: Akşam olunca dört arkadaş verandaya oturdu. Lili: Bugün en sevdiğim oyun saklambaç oldu. Oki: Ben de Mino'nun Toto'yla saklanmasını çok sevdim. Toto: Belki yarın ben de bir ipucu bırakırım. Mino: Miyav! Anlatıcı: Mino, Toto'nun kucağına atlayıp kıvrıldı. Lili: Görüyorsunuz, en iyi oyunlar arkadaşlarla oynananlar. Oki: Yarın yine buluşalım mı? Toto: Elbette, saklambaç hiç bitmesin." },
     ],
   },
   {
@@ -1152,11 +1182,18 @@ const KATALOG = mergePilotStories([
     yas: "10-12 yaş",
     renk: ["#4D365F", "#9B7BB8"],
     puan: 4.8,
-    sureDk: 8,
-    ozet: "Mitoloji ve rol okuma birleşimi: Oki, Lili ve Toto labirenti anlamaya çalışır.",
+    sureDk: 4.5,
+    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: Kısa taslaktan 11 sahneye genişletildi, ip/sabır motifi bilmece-bekçi-hazine kurgusuyla tamamlandı. Yayın öncesi Reyhan Açar redaksiyonu bekliyor." },
+    ozet: "Mitoloji ve rol okuma birleşimi: Oki, Lili ve Toto, elde ettikleri bir ipi kullanarak labirenti anlamaya, bir bilmeceyi çözmeye ve çıkışı bulmaya çalışır.",
     bolumler: [
-      { ad: "İpin Başında", dk: 4, metin: "Anlatıcı: Oki haritaya baktı. Oki: Labirent çok karışık. Lili: O zaman bir işaret bırakmalıyız. Toto: İp kullanabiliriz!" },
-      { ad: "Yol Bulmak", dk: 4, metin: "Oki: İp bize yolu hatırlatır. Lili: Bazen bir fikir de ip gibi olur. Toto: O zaman ben ipi tutuyorum." },
+      { ad: "İpin Başında", dk: 2, metin: "Anlatıcı: Oki haritaya baktı, çizgiler birbirine karışıyordu. Oki: Labirent çok karışık, nereden başlayacağız? Lili: O zaman bir işaret bırakmalıyız, yoksa kayboluruz. Toto: İp kullanabiliriz, girişte bir ucunu bağlarız! Anlatıcı: Toto çantasından uzun bir yumak ip çıkardı. Oki: Harika fikir, eski hikâyelerde de böyle yapılırmış. Lili: Hangi hikâyede? Oki: Bir kahraman, labirentten çıkmak için ip kullanmış." },
+      { ad: "Yol Bulmak", dk: 2, metin: "Oki: İp bize yolu hatırlatır, geldiğimiz yeri unutmayız. Lili: Bazen bir fikir de ip gibi olur, bizi doğruya bağlar. Toto: O zaman ben ipi tutuyorum, siz yolu bulun. Anlatıcı: Üç arkadaş labirentin ilk koridoruna girdi. Oki: Sağa mı, sola mı gitmeliyiz? Lili: Duvara bakalım, işaret var mı? Toto: Burada küçük bir ok işareti görüyorum. Oki: O zaman sağa dönelim." },
+      { ad: "Çıkmaz Sokak", dk: 2, metin: "Anlatıcı: Koridorun sonunda duvar çıktı, yol tıkanmıştı. Toto: Bu bir çıkmaz sokak, geri dönmeliyiz. Lili: Sorun değil, ipimiz sayesinde yolumuzu biliyoruz. Oki: Haklısın, kaybolmadık çünkü işaretimiz vardı. Anlatıcı: Üç arkadaş ipi takip ederek geri döndü. Toto: Bir dahaki kavşakta farklı bir yön deneyelim. Lili: Belki de her denemeden bir şey öğreniriz. Oki: Hatalar da bir tür ipucu olabilir." },
+      { ad: "Ortadaki Oda", dk: 2, metin: "Anlatıcı: Üç arkadaş sonunda labirentin ortasındaki odaya ulaştı. Oki: Burada eski bir yazı var, okuyalım mı? Lili: Doğru yolu bulan, sabırla arayandır yazıyor. Toto: Demek sabrımız bize yol gösterdi. Anlatıcı: Odanın ortasında küçük bir pusula duruyordu. Oki: Bu pusula bize çıkışı gösterebilir. Lili: Alalım ve ipimizle birlikte geri dönelim." },
+      { ad: "Çıkış", dk: 2, metin: "Anlatıcı: Üç arkadaş ipi takip ederek girişe geri döndü. Toto: Başardık, labirentten çıktık! Lili: Çünkü pes etmedik ve birbirimize yardım ettik. Oki: İp sadece bir yol değil, bir güven işaretiydi. Anlatıcı: Güneş ışığı yüzlerine vururken üçü de gülümsedi. Toto: Bir dahaki labirentte de birlikte olalım mı? Lili: Elbette, çünkü birlikte her yolu buluruz. Oki: Şimdi bu hikâyeyi Mino'ya da anlatalım." },
+      { ad: "Taş Bilmecesi ve Yeni Bir Koridor", dk: 4, metin: "Anlatıcı: Girişe dönmeden önce üç arkadaş bir taş kapı gördü. Oki: Burada bir yazı var, bir bilmece galiba. Lili: Okuyalım bakalım ne diyor. Oki: Işığı olmayan ama karanlıkta yol gösteren nedir? Toto: Bu zor bir soru, hiç düşünmemiştim. Lili: Belki de cevap ip değildir, belki de bir fikirdir. Oki: Ya da güvendir, çünkü güven bize hep yol gösterir. Anlatıcı: Taş kapı yavaşça açıldı, cevap doğru olmuştu. Toto: Demek doğru cevap güvenmiş. Anlatıcı: Kapının ardında ışıltılı bir koridor uzanıyordu. Lili: Burası daha önce görmediğimiz bir yer. Oki: İpimiz hâlâ bize giriş yolunu hatırlatıyor. Toto: O zaman korkmadan ilerleyebiliriz. Anlatıcı: Duvarlarda eski resimler ve semboller vardı. Oki: Bu resimler eski bir hikâyeyi anlatıyor gibi. Lili: Belki de labirenti yapan kişi bize bir mesaj bırakmış. Toto: Hadi resimleri takip edelim, belki yolu gösteriyorlar." },
+      { ad: "Bekçi ile Karşılaşma ve Hazine Odası", dk: 4, metin: "Anlatıcı: Koridorun sonunda yaşlı bir bekçi oturuyordu. Bekçi: Buraya kadar gelen ilk çocuklarsınız, tebrikler. Oki: Bu labirenti sen mi koruyorsun? Bekçi: Evet, yüzyıllardır burada kimseyi görmedim. Lili: Bize çıkışı gösterir misin? Bekçi: Çıkış zaten sizin elinizde, ipinizi takip edin yeter. Toto: Demek her zaman doğru yoldaydık. Bekçi: Sabırlı ve dürüst olanlar hep yolunu bulur. Anlatıcı: Bekçi onlara küçük bir oda gösterdi. Oki: Burada ne var acaba? Lili: Bir sandık duruyor, açalım mı? Anlatıcı: Sandığın içinde eski bir harita ve üç küçük madalyon vardı. Toto: Bu madalyonlar bize mi ait? Bekçi: Evet, buraya kadar gelen herkese bir hatıra bırakılır. Oki: Teşekkür ederiz, bu labirent bize çok şey öğretti. Lili: Sabır, ip ve arkadaşlık, hepsini burada bulduk." },
+      { ad: "Eve Dönüş ve Mino'ya Anlatmak", dk: 4, metin: "Anlatıcı: Üç arkadaş ipi takip ederek yavaşça girişe döndü. Toto: Madalyonlarımızı Mino'ya da göstereceğiz. Lili: O da bizimle gurur duyacak. Oki: Bu labirent macerası hiç unutmayacağımız bir gündü. Anlatıcı: Güneş batarken üç arkadaş el ele eve doğru yürüdü. Toto: Bir dahaki mitoloji hikâyesinde de birlikte olalım mı? Lili: Elbette, çünkü en güzel maceralar birlikte yaşananlardır. Oki: Şimdi Mino'ya her şeyi anlatma zamanı. Anlatıcı: Eve vardıklarında Mino onları kapıda karşıladı. Mino: Miyav! Oki: Mino, bugün inanılmaz bir labirenti keşfettik. Lili: İçinde bir bekçi, bir bilmece ve bir hazine vardı. Toto: Sana madalyonumuzu göstereceğiz, bak ne kadar parlak. Anlatıcı: Mino madalyonu merakla kokladı ve pati vurdu. Oki: Belki bir gün sen de bizimle bir labirente girersin. Lili: O zaman dördümüz birlikte bir yol buluruz. Toto: İpimiz, sabrımız ve arkadaşlığımızla hiçbir labirent bizi durduramaz. Anlatıcı: Dört arkadaş gece boyunca labirent hikâyesini konuştu. Mino: Miyav, miyav! Anlatıcı: Ve hep birlikte yeni bir maceranın hayalini kurdular. Oki: Bu, hep hatırlayacağımız güzel bir gün oldu. Lili: Bir sonraki maceramızda görüşürüz. Toto: Ben şimdiden heyecanlanıyorum bile, yeni bir labirent nerede acaba diye düşünüyorum." },
     ],
   },
   {
@@ -1169,7 +1206,7 @@ const KATALOG = mergePilotStories([
     yas: "6-8 yaş",
     renk: ["#1B2C52", "#C9D778"],
     puan: 4.8,
-    sureDk: 3,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "Pre-A1 / A1 seviyesinde kısa İngilizce yıldız şiiri.",
     bolumler: [
       { ad: "Star", dk: 1, metin: "Little star, little light. You are soft in the night. Oki looks up. Lili smiles." },
@@ -1186,7 +1223,7 @@ const KATALOG = mergePilotStories([
     yas: "8-10 yaş",
     renk: ["#203656", "#AFC3E8"],
     puan: 4.8,
-    sureDk: 4,
+    sureDk: 0.2, icerikDurumu: "ozet",
     ozet: "A1 seviyesinde ay, gece ve sakin takip şiiri.",
     bolumler: [
       { ad: "Moon", dk: 2, metin: "The moon is not a lamp. The moon is not a star. It takes the sun’s light and sends it from far." },
@@ -1203,7 +1240,7 @@ const KATALOG = mergePilotStories([
     yas: "10-12 yaş",
     renk: ["#161B3E", "#6C86D4"],
     puan: 4.8,
-    sureDk: 5,
+    sureDk: 0.3, icerikDurumu: "ozet",
     ozet: "A1-A2 seviyesinde uzay, soru ve merak şiiri.",
     bolumler: [
       { ad: "Question", dk: 2, metin: "Space is wide. Space is deep. Oki has a question he wants to keep. Where does a comet go? How does a small star glow?" },
@@ -1218,7 +1255,11 @@ const RAFLAR = [
   { ad: "Tam Okuma Oturumları", mod: "cocuk", yolIds: ["ilk_harfler_6_7"], ids: ["okurio-1-grup-ses-bahcesi", "okurio-lili-kayip-tohum-haritasi"] },
   { ad: "Tam Metin · Kamu Malı", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["peter-rabbit-en"] },
   { ad: "Oki Minik Dinleyiciler", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-sesleri-dinliyor", "mino-miyav-dedi", "lili-yildiz-sayiyor", "toto-tak-tak-dedi", "nana-ritim-oyunu"] },
-  { ad: "Oki Pilot Hikâyeleri", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["oe-01-mino-neden-uzuldu", "os-01-toto-bir-an-durdu"] },
+  // "Oki Pilot Hikâyeleri" rafı 2026-08-06'da kaldırıldı: oe-01-mino-neden-uzuldu ve
+  // os-01-toto-bir-an-durdu, pilotCatalogAdapter.js BLOCKED_STORY_IDS listesinde olduğu için
+  // katalogda hiç yoktu; raf boş/kırık görünüyordu. İnsan onayı (Social-Emotional Reading Lead)
+  // tamamlanıp story'ler (veya rewriteQueueStories.js'deki v2 sürümleri) blok listesinden
+  // çıkarılınca bu raf yeniden eklenebilir.
   { ad: "Mikro Alıştırmalar", mod: "cocuk", yolIds: ["okumaya_hazirlik_5_6", "ilk_harfler_6_7"], ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1"] },
   { ad: "Oki Mini Hikâyeler", mod: "cocuk", ids: ["oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
   { ad: "Editörün Seçtikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
@@ -1553,7 +1594,10 @@ const kitapMeta = (kitap) => ICERIK_METADATA[kitap.id] || {
 };
 const icerikSunumu = (kitap) => {
   const meta = kitapMeta(kitap);
-  const sinif = classifyContent(kitap, meta);
+  const sinif = classifyContent(kitap, {
+    ...meta,
+    minimumFullReadingSeconds: minimumFullReadingSecondsForAge(meta.yasMin),
+  });
   const seconds = (kitap?.bolumler || []).reduce((toplam, bolum) => toplam + estimateStorySeconds(bolum), 0);
   if (meta.icerikTuru === "kullanici_metni") {
     return { ...sinif, seconds, status: "personal-reading", label: "Kişisel metin", deployable: true, blockers: [] };
@@ -1638,6 +1682,40 @@ async function durumOku() {
 }
 async function durumYaz(durum) {
   try { await window.storage.set(ANAHTAR, JSON.stringify(durum)); } catch {}
+}
+
+/* ------------------------------------------------------------------ */
+/* Kendi metnim — kişisel içerik kalıcılığı ("Benim Kitaplığım")        */
+/* 2026-08-06: Daha önce kendiMetniAc() eklediği kitabı yalnızca        */
+/* çalışma anındaki KATALOG dizisine ekliyordu; sayfa yenilendiğinde    */
+/* KATALOG sıfırdan kurulduğu için kullanıcının yapıştırdığı metin      */
+/* sessizce kayboluyordu ("sonKitap" bile bulunamıyordu). Bu, cihaz     */
+/* yenilenmesine karşı dayanıklılık gerektiren bir demoda ciddi bir     */
+/* risktir. Kişisel içerik hiçbir zaman production KATALOG/RAFLAR ile   */
+/* karışmaz, yalnızca bu cihazda localStorage'da saklanır.              */
+/* ------------------------------------------------------------------ */
+const KENDI_ICERIK_ANAHTAR = "okurio-kendi-icerik-v1";
+const KENDI_ICERIK_LIMIT = 20;
+async function kendiIceriklerOku() {
+  try {
+    const r = await window.storage.get(KENDI_ICERIK_ANAHTAR);
+    const liste = r ? JSON.parse(r.value) : [];
+    return Array.isArray(liste) ? liste : [];
+  } catch { return []; }
+}
+async function kendiIceriklerYaz(liste) {
+  try {
+    await window.storage.set(KENDI_ICERIK_ANAHTAR, JSON.stringify(liste.slice(0, KENDI_ICERIK_LIMIT)));
+  } catch {}
+}
+/* KATALOG + ICERIK_METADATA'ya, henüz orada olmayan kayıtlı kişisel
+   içerikleri ekler. Sayfa yüklendiğinde bir kez çağrılır. */
+function kendiIcerikleriKatalogaUygula(liste) {
+  (liste || []).forEach((kayit) => {
+    if (!kayit?.kitap?.id) return;
+    if (!KATALOG.some((k) => k.id === kayit.kitap.id)) KATALOG.unshift(kayit.kitap);
+    if (kayit.metadata) ICERIK_METADATA[kayit.kitap.id] = kayit.metadata;
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -1753,6 +1831,7 @@ export default function DinletiApp() {
   const [kendiBaslik, setKendiBaslik] = useState("Kendi Metnim");
   const [kendiMetinMesaji, setKendiMetinMesaji] = useState("");
   const [kendiMetinPaneliAcik, setKendiMetinPaneliAcik] = useState(false);
+  const [kendiIcerikListesi, setKendiIcerikListesi] = useState([]);
   const [modPaneliAcik, setModPaneliAcik] = useState(false);
   const [soruKapali, setSoruKapali] = useState(false);
   const [seciliSozluk, setSeciliSozluk] = useState(null);
@@ -1827,8 +1906,16 @@ export default function DinletiApp() {
       yas: okumaYoluDetay.yas || "Kişisel", renk: ["#3B465C", "#9FB3D7"], puan: 5, sureDk: Math.max(1, Math.ceil(kelimeSayisi / 130)),
       ozet: "Kopyala-yapıştır veya TXT dosyasıyla eklenen kişisel kullanım metni.", bolumler, kullaniciIcerigi: true,
     };
+    const metadata = { yasMin: 6, yasMax: 99, segmentler: YOL_SEGMENT_GRUPLARI[okumaYolu.yolId] || ["yetiskin_odak"], okumaEvreleri: [okumaYolu.evreId], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kullanici_metni", subject: "kendi_metin", oql: okumaYoluDetay.oql || 4 };
     if (!KATALOG.some((k) => k.id === id)) KATALOG.unshift(kitap);
-    ICERIK_METADATA[id] = { yasMin: 6, yasMax: 99, segmentler: YOL_SEGMENT_GRUPLARI[okumaYolu.yolId] || ["yetiskin_odak"], okumaEvreleri: [okumaYolu.evreId], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kullanici_metni", subject: "kendi_metin", oql: okumaYoluDetay.oql || 4 };
+    ICERIK_METADATA[id] = metadata;
+    // "Benim Kitaplığım": bu cihazda kalıcı olsun diye localStorage'a da yazılır
+    // (yalnızca bu cihaz — production KATALOG/RAFLAR'a hiçbir zaman karışmaz).
+    setKendiIcerikListesi((onceki) => {
+      const yeni = [{ kitap, metadata, eklenmeZamani: Date.now() }, ...onceki].slice(0, KENDI_ICERIK_LIMIT);
+      kendiIceriklerYaz(yeni);
+      return yeni;
+    });
     setAktifId(id); setDetayId(null); setSekme("ana"); setPozisyon(0); setKelimeIx(0); setCaliyor(false); setKendiMetinPaneliAcik(false); setOynaticiAcik(true); setKendiMetin(""); setKendiMetinMesaji("Metin okuma moduna alındı.");
   }, [okumaYolu, okumaYoluDetay]);
 
@@ -1879,6 +1966,14 @@ export default function DinletiApp() {
   /* Kalıcı durumu yükle */
   useEffect(() => {
     (async () => {
+      // Kişisel içerik (Kendi Metnim) önce yüklenir ki sonKitap kontrolü
+      // kitapBul() ile onu bulabilsin — aksi halde yenilemeden sonra
+      // kullanıcının yapıştırdığı metin sessizce kaybolur.
+      const kendiListe = await kendiIceriklerOku();
+      if (kendiListe.length) {
+        kendiIcerikleriKatalogaUygula(kendiListe);
+        setKendiIcerikListesi(kendiListe);
+      }
       const d = await durumOku();
       if (d) {
         setFavoriler(d.favoriler || []);
@@ -1937,6 +2032,67 @@ export default function DinletiApp() {
         if (r) setSeri(JSON.parse(r.value));
       } catch {}
     })();
+  }, []);
+
+  /* ------------------------------------------------------------------ */
+  /* Alternatif erişim: bookmarklet + PWA share_target girişi            */
+  /* 2026-08-06: Kullanıcı, herhangi bir web sayfasından seçtiği metni    */
+  /* (1) bookmarklet ile — okurio.../#oku=...&baslik=... hash parametresi */
+  /* ya da (2) Android'de "Paylaş → Dinleti" ile — manifest.json          */
+  /* share_target'ın ürettiği ?text=&title=&url= query parametreleriyle   */
+  /* gönderebilir. İkisi de aynı "Kendi metnini oku" panelini, metin      */
+  /* önceden dolu biçimde açar; kullanıcı yine kendi onayıyla "Okuma      */
+  /* moduna al"a basar (otomatik yayınlama/otomatik okuma başlatma yok).  */
+  /* iOS/iPad'de Web Share Target desteklenmediği için orada yalnızca     */
+  /* bookmarklet yolu çalışır — index.html'deki apple- meta etiketleri    */
+  /* "Ana Ekrana Ekle" ile bookmarklet'i tam ekran deneyimde kullanılır   */
+  /* kılar.                                                               */
+  /* ------------------------------------------------------------------ */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const PAYLASIM_METIN_LIMIT = 6000;
+    let baslik = "";
+    let metin = "";
+    let paylasilanUrl = "";
+
+    try {
+      const params = new URLSearchParams(window.location.search);
+      metin = params.get("text") || "";
+      baslik = params.get("title") || "";
+      paylasilanUrl = params.get("url") || "";
+    } catch {}
+
+    if (!metin && window.location.hash) {
+      try {
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+        if (hashParams.has("oku")) {
+          // URLSearchParams zaten yüzde-kodlamayı çözer; burada tekrar
+          // decodeURIComponent çağırmak çift-çözme hatasına yol açar.
+          metin = hashParams.get("oku") || "";
+          baslik = hashParams.get("baslik") || "";
+        }
+      } catch {}
+    }
+
+    if (!metin && !paylasilanUrl) return;
+
+    if (metin.length > PAYLASIM_METIN_LIMIT) {
+      metin = metin.slice(0, PAYLASIM_METIN_LIMIT);
+    }
+
+    setKendiBaslik(baslik || "Paylaşılan Metin");
+    setKendiMetin(
+      metin ||
+        `Bu bağlantıdan yalnızca adres paylaşıldı, metin gelmedi: ${paylasilanUrl}\n\nOkurio güvenlik nedeniyle bağlantıdaki sayfayı kendisi indiremez. Sayfadaki metni seçip tekrar paylaşmayı veya buraya yapıştırmayı dene.`,
+    );
+    setKendiMetinPaneliAcik(true);
+
+    // URL'i temizle: hem gizlilik hem de rehydration mantığının (sonKitap vb.)
+    // her yenilemede aynı paylaşılan metni tekrar tekrar açmasını önlemek için.
+    try {
+      const temizUrl = window.location.pathname;
+      window.history.replaceState(null, "", temizUrl);
+    } catch {}
   }, []);
 
   /* Okuma ayarlarını kaydet */
@@ -2604,6 +2760,22 @@ export default function DinletiApp() {
           </span>
           <span aria-hidden="true" style={{ color: S.vurgu, fontSize: 22 }}>＋</span>
         </button>
+        {kendiIcerikListesi.length > 0 && (
+          <div data-benim-kitapligim style={{ marginTop: 10 }}>
+            <div style={{ color: S.soluk, fontSize: 12, marginBottom: 6 }}>Benim Kitaplığım</div>
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+              {kendiIcerikListesi.slice(0, 5).map((kayit) => (
+                <button
+                  key={kayit.kitap.id}
+                  onClick={() => { setAktifId(kayit.kitap.id); setDetayId(null); setSekme("ana"); setPozisyon(0); setKelimeIx(0); setCaliyor(false); setOynaticiAcik(true); }}
+                  style={{ flexShrink: 0, maxWidth: 160, minHeight: 44, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 10, padding: "8px 12px", color: S.metin, fontSize: 12, textAlign: "left", cursor: "pointer", fontFamily: "inherit", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                >
+                  {kayit.kitap.baslik}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {kendiMetinPaneliAcik && (
           <div data-kendi-metin-backdrop style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "flex-end", justifyContent: "center", background: "rgba(10,12,16,0.82)" }}>
             <section role="dialog" aria-modal="true" aria-labelledby="kendi-metin-basligi" data-kendi-metin-dialog style={{ width: "min(720px, 100%)", maxHeight: "min(860px, 96dvh)", display: "flex", flexDirection: "column", background: S.kart, border: "1px solid rgba(255,255,255,0.08)", borderRadius: "22px 22px 0 0", padding: "18px", boxSizing: "border-box", boxShadow: "0 -24px 70px rgba(0,0,0,0.52)" }}>
@@ -3097,7 +3269,7 @@ export default function DinletiApp() {
             <button key={y.id} onClick={() => setTaslak((e) => { const izinli = evreSecenekleri(y.id); const yeniEvre = izinli.some((x) => x.id === e.evreId) ? e.evreId : y.evre; return { ...e, yolId: y.id, evreId: yeniEvre }; })} data-yol={y.id}
               style={{ textAlign: "left", background: taslak.yolId === y.id ? "rgba(232,163,61,0.16)" : S.kart, border: taslak.yolId === y.id ? "1px solid rgba(232,163,61,0.48)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 12, cursor: "pointer", color: S.metin, fontFamily: "inherit" }}>
               <div style={{ fontSize: 13, fontWeight: 700 }}>{y.baslik}</div>
-              <div style={{ fontSize: 11, color: S.soluk, marginTop: 3 }}>{y.yas}</div>
+              <div style={{ fontSize: 11, color: S.soluk, marginTop: 3 }}>{y.yas} yaş{getGradeLabelForYolId(y.id) ? ` · ${getGradeLabelForYolId(y.id)}` : ""}</div>
             </button>
           ))}
         </div>
