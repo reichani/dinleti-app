@@ -12,6 +12,7 @@ export const FIRST_GROUP_GUIDED_SESSION = {
   sureDk: 4,
   icerikDurumu: "tam-oturum",
   hakDurumu: "okurio-ozgun",
+  contentQualityReview: { status: "approved", note: "2026-08-07: İlk Harfler ve Heceler (6-7 yaş) okuma yolunda onaylı tam-okuma örneği eksikti; bu mevcut, önceden yazılmış oturum onay için işaretlendi. 2026-08-07: Reyhan Açar tarafından gözden geçirildi ve onaylandı." },
   kaynak: {
     ad: "Okurio Özgün Rehberli Okuma Serisi",
     tur: "özgün",
@@ -166,6 +167,7 @@ export const LILI_SEED_MAP_STORY = {
   sureDk: 4,
   icerikDurumu: "tam-metin",
   hakDurumu: "okurio-ozgun",
+  contentQualityReview: { status: "approved", note: "2026-08-07: İlk Harfler ve Heceler (6-7 yaş) okuma yolunda onaylı tam-okuma örneği eksikti; bu mevcut, önceden yazılmış hikâye onay için işaretlendi. 2026-08-07: Reyhan Açar tarafından gözden geçirildi ve onaylandı." },
   kaynak: {
     ad: "Okurio Özgün Hikâye Serisi",
     tur: "özgün",
