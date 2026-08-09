@@ -12,7 +12,7 @@ import { cursorFromPosition, positionFromCursor, readingProgressSnapshot, monoto
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.8.2";
+const SURUM = "2.8.3";
 
 const KATALOG = mergePilotStories([
 
@@ -2171,14 +2171,24 @@ export default function DinletiApp() {
 
     const containerRect = container.getBoundingClientRect();
     const wordRect = activeWord.getBoundingClientRect();
+    const controls = container.closest("[data-okuma-alani]")?.querySelector("[data-alt-kontrol]");
+    const controlsRect = controls?.getBoundingClientRect();
+    const visualViewportBottom = window.visualViewport?.height ?? window.innerHeight;
+    const occlusionTop = controlsRect && controlsRect.top < containerRect.bottom
+      ? controlsRect.top
+      : Number.POSITIVE_INFINITY;
+    const visibleTop = Math.max(containerRect.top, 0);
+    const visibleBottom = Math.min(containerRect.bottom, visualViewportBottom, occlusionTop);
+    const visibleHeight = Math.max(1, visibleBottom - visibleTop);
     const wordCenter = wordRect.top + wordRect.height / 2;
-    const safeTop = containerRect.top + containerRect.height * 0.40;
-    const safeBottom = containerRect.top + containerRect.height * 0.55;
+    const safeTop = visibleTop + visibleHeight * 0.40;
+    const safeBottom = visibleTop + visibleHeight * 0.55;
+    const wordIsFullyVisible = wordRect.top >= visibleTop && wordRect.bottom <= visibleBottom;
     const immediate = readerFollowImmediateRef.current;
     readerFollowImmediateRef.current = false;
-    if (!immediate && wordCenter >= safeTop && wordCenter <= safeBottom) return;
+    if (!immediate && wordIsFullyVisible && wordCenter >= safeTop && wordCenter <= safeBottom) return;
 
-    const target = containerRect.top + containerRect.height * 0.475;
+    const target = visibleTop + visibleHeight * 0.475;
     const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight);
     const nextTop = Math.max(0, Math.min(maxScroll, container.scrollTop + wordCenter - target));
     container.scrollTo({ top: nextTop, behavior: immediate ? "auto" : "smooth" });
@@ -3056,7 +3066,7 @@ export default function DinletiApp() {
     const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
       <div data-reader-backdrop style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.78)" }}>
-        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.2" data-reader-shell data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
+        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.3" data-reader-shell data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "var(--okurio-visual-viewport-height, 100dvh)", maxHeight: "var(--okurio-visual-viewport-height, 100dvh)", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
 
           {/* Üst çubuk */}
           <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, minHeight: mobilDar ? 44 : undefined }}>
