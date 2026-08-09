@@ -49,7 +49,7 @@ test("dynamic viewport excludes player occlusion from the real active-word area"
   await page.goto("/");
 
   const result = await page.evaluate(async () => {
-    const { getReaderVisibleRect, isActiveWordActuallyVisible } = await import("/src/reading-mobile-fixes.js");
+    const { getReaderVisibleRect, isActiveWordActuallyVisible } = window.__okurioReadingFixes;
     const area = document.createElement("section");
     area.setAttribute("data-okuma-alani", "1");
     const reader = document.createElement("div");
