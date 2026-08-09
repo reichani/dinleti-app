@@ -118,6 +118,17 @@ export function getReaderVisibleRect(readingText) {
   };
 }
 
+export function isActiveWordActuallyVisible(activeWord, readingText = activeWord?.closest?.('[data-okuma-metin]')) {
+  if (!(activeWord instanceof HTMLElement) || !(readingText instanceof HTMLElement)) return false;
+  const visibleRect = getReaderVisibleRect(readingText);
+  if (!visibleRect) return false;
+  const wordRect = activeWord.getBoundingClientRect();
+  return wordRect.top >= visibleRect.top
+    && wordRect.bottom <= visibleRect.bottom
+    && wordRect.left >= readingText.getBoundingClientRect().left
+    && wordRect.right <= readingText.getBoundingClientRect().right;
+}
+
 function syncVisualViewport(root = document) {
   const height = window.visualViewport?.height ?? window.innerHeight;
   root.documentElement?.style.setProperty('--okurio-visual-viewport-height', `${Math.round(height)}px`);
@@ -267,6 +278,7 @@ export function installReadingMobileFixes() {
   window.__okurioReadingFixes = {
     scrollActiveWord,
     getReaderVisibleRect,
+    isActiveWordActuallyVisible,
     syncVisualViewport,
     markInteractiveControls,
     markReadingTokens,
