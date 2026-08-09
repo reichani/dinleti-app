@@ -463,3 +463,47 @@ body,
     border: 1px solid CanvasText;
   }
 }
+
+
+/* v2.8.3 — browser chrome-aware reader viewport and player occlusion contract */
+@media (max-width: 819px), (pointer: coarse), (hover: none) {
+  [data-reader-backdrop] {
+    block-size: var(--okurio-visual-viewport-height, 100dvh) !important;
+    max-block-size: var(--okurio-visual-viewport-height, 100dvh) !important;
+    overflow: hidden !important;
+  }
+
+  [data-mobile-stability] {
+    block-size: var(--okurio-visual-viewport-height, 100dvh) !important;
+    min-block-size: 0 !important;
+    max-block-size: var(--okurio-visual-viewport-height, 100dvh) !important;
+    padding-block-end: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+    overflow: hidden !important;
+  }
+
+  [data-okuma-alani],
+  [data-reader-workspace],
+  [data-reading-column] {
+    min-block-size: 0 !important;
+    overflow: hidden !important;
+  }
+
+  [data-reader-workspace],
+  [data-reading-column] {
+    block-size: 100% !important;
+  }
+
+  [data-okuma-metin="1"] {
+    block-size: 100% !important;
+    min-block-size: 0 !important;
+    max-block-size: none !important;
+    scroll-padding-block: 40% 45% !important;
+    padding-block-end: max(24px, calc(var(--okurio-player-occlusion, 0px) + 24px)) !important;
+  }
+
+  [data-alt-kontrol] {
+    position: relative !important;
+    flex: 0 0 auto !important;
+    z-index: 3 !important;
+  }
+}
