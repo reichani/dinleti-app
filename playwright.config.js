@@ -39,6 +39,14 @@ export default defineConfig({
       }
     },
     {
+      name: "iphone-safari",
+      use: { ...devices["iPhone 15"] }
+    },
+    {
+      name: "ipad-safari",
+      use: { ...devices["iPad Pro 11"] }
+    },
+    {
       name: "small-mobile",
       use: {
         browserName: "chromium",
