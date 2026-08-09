@@ -132,6 +132,7 @@ export function isActiveWordActuallyVisible(activeWord, readingText = activeWord
 function syncVisualViewport(root = document) {
   const height = window.visualViewport?.height ?? window.innerHeight;
   root.documentElement?.style.setProperty('--okurio-visual-viewport-height', `${Math.round(height)}px`);
+  root.documentElement?.style.setProperty('--okurio-reader-min-height', `${Math.round(Math.max(280, height * 0.38))}px`);
 }
 
 export function scrollActiveWord(

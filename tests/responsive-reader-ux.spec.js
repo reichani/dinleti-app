@@ -32,7 +32,7 @@ async function okuyucuyuAc(page) {
 test.describe("Responsive reader UX sözleşmesi", () => {
   test("kartlarda gerçek süre ve kapsam görünür; genişletilen Andersen tam okuma durumundadır", async ({ page }) => {
     await uygulamayiHazirla(page);
-    await expect(page.locator("[data-surum]")).toContainText("v2.8.3");
+    await expect(page.locator("[data-surum]")).toContainText("v2.8.4");
 
     const kisaMasal = page.locator('[data-story-id="andersen-masallari"]').first();
     await expect(kisaMasal).toBeVisible();
@@ -146,7 +146,7 @@ test.describe("Responsive reader UX sözleşmesi", () => {
       const rect = card.getBoundingClientRect();
       return { height: rect.height, left: rect.left, right: rect.right, viewport: innerWidth };
     });
-    expect(metrics.height).toBeGreaterThanOrEqual(220);
+    expect(metrics.height).toBeGreaterThanOrEqual(280);
     expect(metrics.left).toBeGreaterThanOrEqual(0);
     expect(metrics.right).toBeLessThanOrEqual(metrics.viewport + 1);
     const dockHeight = await shell.locator("[data-alt-kontrol]").evaluate((element) => element.getBoundingClientRect().height);

@@ -12,7 +12,7 @@ import { cursorFromPosition, positionFromCursor, readingProgressSnapshot, monoto
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.8.3";
+const SURUM = "2.8.4";
 
 const KATALOG = mergePilotStories([
 
@@ -3066,7 +3066,7 @@ export default function DinletiApp() {
     const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
       <div data-reader-backdrop style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.78)" }}>
-        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.3" data-reader-shell data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "var(--okurio-visual-viewport-height, 100dvh)", maxHeight: "var(--okurio-visual-viewport-height, 100dvh)", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
+        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.4" data-reader-shell data-playing={caliyor ? "1" : "0"} data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "var(--okurio-visual-viewport-height, 100dvh)", maxHeight: "var(--okurio-visual-viewport-height, 100dvh)", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
 
           {/* Üst çubuk */}
           <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, minHeight: mobilDar ? 44 : undefined }}>
@@ -3233,7 +3233,7 @@ export default function DinletiApp() {
                       ))}
                     </div>
                   )}
-                  <div data-okuma-modu-ipucu style={{ marginTop: 7, color: S.soluk, fontSize: 11, lineHeight: 1.45 }}>{okumaModuAyar.aciklama}</div>
+                  {!caliyor && <div data-okuma-modu-ipucu style={{ marginTop: 7, color: S.soluk, fontSize: 11, lineHeight: 1.45 }}>{okumaModuAyar.aciklama}</div>}
                   {okumaModu === "kendim" && (
                     <div data-kelime-yardimi="1" role="note" style={{ marginTop: 7, color: S.vurgu, fontSize: 11, lineHeight: 1.45 }}>
                       Altı çizili hedef kelimeye dokunarak kısa anlamını aç.
@@ -3284,7 +3284,7 @@ export default function DinletiApp() {
 
           {/* ALT KONTROL BLOĞU: sabit */}
           <div data-alt-kontrol style={{ flexShrink: 0, paddingTop: mobilDar ? 6 : 10 }}>
-            <div data-kompakt-ilerleme style={{ marginTop: 4 }}>
+            <div data-kompakt-ilerleme data-player-visual="compact-progress" style={{ marginTop: 4 }}>
               <div
                 role="slider"
                 tabIndex={0}
