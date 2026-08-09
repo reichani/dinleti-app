@@ -32,7 +32,7 @@ async function okuyucuyuAc(page) {
 test.describe("Responsive reader UX sözleşmesi", () => {
   test("kartlarda gerçek süre ve kapsam görünür; genişletilen Andersen tam okuma durumundadır", async ({ page }) => {
     await uygulamayiHazirla(page);
-    await expect(page.locator("[data-surum]")).toContainText("v2.8.1");
+    await expect(page.locator("[data-surum]")).toContainText("v2.8.2");
 
     const kisaMasal = page.locator('[data-story-id="andersen-masallari"]').first();
     await expect(kisaMasal).toBeVisible();
