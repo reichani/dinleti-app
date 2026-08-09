@@ -22,7 +22,8 @@ for (const scenario of ["normal", "repeated-zero", "no-boundary", "silent-stop"]
   });
 }
 
-test("interactive targets remain at least 44px on touch layouts", async ({ page }) => {
+test("interactive targets remain at least 44px on touch layouts", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === "desktop-chrome", "Touch target gate applies to mobile projects.");
   await installSpeechSynthesisMock(page);
   await page.goto("/");
   const undersized = await page.locator("button:visible").evaluateAll((buttons) =>
