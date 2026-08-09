@@ -10,7 +10,13 @@ test("reader exposes stable sync contracts", async () => {
   expect(appSource).toContain("data-aktif-cumle=");
   expect(appSource).toContain("data-okuma-modu={m.id}");
   expect(appSource).toContain("data-ses-tonu={sesTonu}");
-  expect(appSource).toContain('data-mobile-stability="v2.8.1"');
+  expect(appSource).toContain('data-mobile-stability="v2.8.2"');
+  expect(appSource).toContain("readerScrollRef");
+  expect(appSource).toContain("container.scrollTo({ top: nextTop");
+  expect(appSource).toContain("containerRect.height * 0.40");
+  expect(appSource).toContain("containerRect.height * 0.55");
+  expect(appSource).toContain('okumaModu === "kendim"');
+  expect(appSource).not.toContain("scrollIntoView(");
 });
 
 for (const scenario of ["normal", "repeated-zero", "no-boundary", "silent-stop"]) {
