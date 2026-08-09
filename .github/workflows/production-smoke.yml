@@ -1,0 +1,23 @@
+name: Production smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      LIVE_URL: ${{ vars.DINLETI_LIVE_URL || 'https://dinleti-app.pages.dev' }}
+    steps:
+      - name: Verify live app and release manifest
+        run: |
+          curl --fail --show-error --silent --location --retry 4 --retry-all-errors --connect-timeout 10 --max-time 30 "$LIVE_URL/" > /tmp/dinleti.html
+          test -s /tmp/dinleti.html
+          curl --fail --show-error --silent --location --retry 4 --retry-all-errors --connect-timeout 10 --max-time 30 "$LIVE_URL/release.json" > /tmp/release.json
+          grep -q '"version"' /tmp/release.json
