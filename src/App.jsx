@@ -12,7 +12,7 @@ import { cursorFromPosition, positionFromCursor, readingProgressSnapshot, monoto
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.8.1";
+const SURUM = "2.8.2";
 
 const KATALOG = mergePilotStories([
 
@@ -1864,6 +1864,11 @@ export default function DinletiApp() {
   const kendiMetinGeriOdakRef = useRef(null);
   const kendiMetinCtaRef = useRef(null);
   const oncekiOynaticiAcikRef = useRef(false);
+  const readerScrollRef = useRef(null);
+  const readerFollowPauseUntilRef = useRef(0);
+  const readerFollowResumeTimerRef = useRef(null);
+  const readerFollowImmediateRef = useRef(false);
+  const [readerFollowNonce, setReaderFollowNonce] = useState(0);
 
   const okuyucuyuKapatVeOdakla = () => {
     setOynaticiAcik(false);
@@ -1889,6 +1894,23 @@ export default function DinletiApp() {
       : document.querySelector("[data-kendi-metnim] > button");
     if (kaliciCta instanceof HTMLElement) kaliciCta.focus({ preventScroll: true });
   }, [oynaticiAcik]);
+
+  const okuyucuTakibiniGeciciDurdur = useCallback(() => {
+    if (okumaModu === "kendim") return;
+    readerFollowPauseUntilRef.current = Date.now() + 1800;
+    if (readerFollowResumeTimerRef.current) window.clearTimeout(readerFollowResumeTimerRef.current);
+    readerFollowResumeTimerRef.current = window.setTimeout(() => {
+      readerFollowPauseUntilRef.current = 0;
+      setReaderFollowNonce((n) => n + 1);
+    }, 1850);
+  }, [okumaModu]);
+
+  useEffect(() => () => {
+    if (readerFollowResumeTimerRef.current) window.clearTimeout(readerFollowResumeTimerRef.current);
+  }, []);
+
+
+
   const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
   const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
   const etkinSeslendirme = seslendirme && okumaModuAyar.sesli;
@@ -2139,6 +2161,28 @@ export default function DinletiApp() {
     }
     return aktif.bolumler.length - 1;
   }, [aktif, pozisyon]);
+
+  useLayoutEffect(() => {
+    if (!oynaticiAcik || !okumaAcik || okumaModu === "kendim") return;
+    if (Date.now() < readerFollowPauseUntilRef.current) return;
+    const container = readerScrollRef.current;
+    const activeWord = container?.querySelector('[data-kelime-ix="' + kelimeIx + '"]');
+    if (!container || !activeWord) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const wordRect = activeWord.getBoundingClientRect();
+    const wordCenter = wordRect.top + wordRect.height / 2;
+    const safeTop = containerRect.top + containerRect.height * 0.40;
+    const safeBottom = containerRect.top + containerRect.height * 0.55;
+    const immediate = readerFollowImmediateRef.current;
+    readerFollowImmediateRef.current = false;
+    if (!immediate && wordCenter >= safeTop && wordCenter <= safeBottom) return;
+
+    const target = containerRect.top + containerRect.height * 0.475;
+    const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight);
+    const nextTop = Math.max(0, Math.min(maxScroll, container.scrollTop + wordCenter - target));
+    container.scrollTo({ top: nextTop, behavior: immediate ? "auto" : "smooth" });
+  }, [kelimeIx, aktifBolumIx, okumaModu, oynaticiAcik, okumaAcik, ayar.odak, readerFollowNonce]);
 
   useEffect(() => {
     setSoruCevabi(null);
@@ -2479,6 +2523,8 @@ export default function DinletiApp() {
 
   const vurguHizala = (poz, konusmayiYenile = false) => {
     if (!aktif) return;
+    readerFollowImmediateRef.current = true;
+    readerFollowPauseUntilRef.current = 0;
     const cursor = cursorFromPosition(aktif.bolumler, poz, bolumSn);
     setKelimeIx(cursor.wordIndex);
     if (konusmayiYenile && caliyor && etkinSeslendirme) {
@@ -2503,7 +2549,10 @@ export default function DinletiApp() {
     konusmayiDurdur();
     setAktifId(kitapId);
     setPozisyon(bolumBasiSn(k, ix));
+    readerFollowImmediateRef.current = true;
+    readerFollowPauseUntilRef.current = 0;
     setKelimeIx(0);
+    setReaderFollowNonce((n) => n + 1);
     setCaliyor(true);
     seriGuncelle();
     if (etkinSeslendirme) konusmayiBaslat(k, ix, 0);
@@ -3007,12 +3056,12 @@ export default function DinletiApp() {
     const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
       <div data-reader-backdrop style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.78)" }}>
-        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.1" data-reader-shell data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
+        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.2" data-reader-shell data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
 
           {/* Üst çubuk */}
-          <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+          <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, minHeight: mobilDar ? 44 : undefined }}>
             <button onClick={okuyucuyuKapatVeOdakla} aria-label="Kapat" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronDown size={20} /></button>
-            <div data-reader-eyebrow style={{ fontSize: 12, color: S.soluk, letterSpacing: "0.08em", textTransform: "uppercase" }}>Şimdi okunuyor</div>
+            <div data-reader-eyebrow style={{ fontSize: mobilDar ? 10 : 12, color: S.soluk, letterSpacing: mobilDar ? "0.06em" : "0.08em", textTransform: "uppercase" }}>Şimdi okunuyor</div>
             <button data-reader-favorite onClick={() => favoriDegistir(aktif.id)} aria-label="Favori" aria-pressed={favoriler.includes(aktif.id)} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, cursor: "pointer" }}>
               <Heart size={18} color={favoriler.includes(aktif.id) ? S.vurgu : S.metin} fill={favoriler.includes(aktif.id) ? S.vurgu : "none"} />
             </button>
@@ -3021,12 +3070,12 @@ export default function DinletiApp() {
           {/* Kompakt kitap bilgisi */}
           <div data-kompakt-baslik role="button" tabIndex={0} aria-expanded={bolumlerAcik} aria-controls="okurio-bolum-listesi" onClick={() => setBolumlerAcik(!bolumlerAcik)} onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setBolumlerAcik(!bolumlerAcik); }
-          }} style={{ display: "flex", alignItems: "center", gap: mobilDar ? 9 : 12, margin: mobilDar ? "5px 0 5px" : "8px 0 6px", flexShrink: 0, cursor: "pointer" }}>
-            <Kapak kitap={aktif} boyut={mobilDar ? 36 : 44} radius={6} />
+          }} style={{ display: "flex", alignItems: "center", gap: mobilDar ? 7 : 12, margin: mobilDar ? "2px 0 4px" : "8px 0 6px", minHeight: mobilDar ? 54 : undefined, maxHeight: mobilDar ? 60 : undefined, flexShrink: 0, cursor: "pointer" }}>
+            {!mobilDar && <Kapak kitap={aktif} boyut={44} radius={6} />}
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ ...baslikStil, fontSize: mobilDar ? 15 : 16, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{aktif.baslik}</div>
               <div style={{ color: S.soluk, fontSize: mobilDar ? 11 : 12, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.ad} · {aktifBolumIx + 1}/{aktif.bolumler.length} bölüm</div>
-              <div data-ses-tonu style={{ color: S.vurgu, fontSize: 11, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sesTonuAyar.ad}</div>
+              {!mobilDar && <div data-ses-tonu style={{ color: S.vurgu, fontSize: 11, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sesTonuAyar.ad}</div>}
             </div>
             <ListMusic size={17} color={bolumlerAcik ? S.vurgu : S.soluk} />
           </div>
@@ -3046,8 +3095,8 @@ export default function DinletiApp() {
 
           {/* OKUMA ALANI: ekranın ana yüzeyi */}
           <div data-okuma-alani style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: mobilDar ? 10 : 14, position: "relative" }}>
-            <div data-reader-stage-header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, color: S.soluk, fontSize: 13 }}><BookOpen size={15} /> Okuma görünümü</div>
+            <div data-reader-stage-header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginBottom: mobilDar ? 5 : 10, minHeight: mobilDar ? 44 : undefined }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, color: S.soluk, fontSize: mobilDar ? 11 : 13 }}><BookOpen size={mobilDar ? 13 : 15} /> Okuma görünümü</div>
               <div style={{ display: "flex", gap: 6 }}>
                 <button data-reader-settings-toggle onClick={() => setAyarPaneliAcik(!ayarPaneliAcik)} aria-expanded={ayarPaneliAcik} aria-controls="okurio-okuma-ayarlari"
                   style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 10px", color: S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
@@ -3070,7 +3119,7 @@ export default function DinletiApp() {
               return (
                 <div id="okurio-okuma-icerigi" data-reader-workspace>
                   <div data-reading-column>
-                  <div data-okuma-metin="1" data-tema={ayar.tema} data-aktif-cumle={`${aktifCumle[0]}-${aktifCumle[1]}`} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} style={{
+                  <div ref={readerScrollRef} data-okuma-metin="1" data-tema={ayar.tema} data-aktif-cumle={`${aktifCumle[0]}-${aktifCumle[1]}`} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} style={{
                     fontSize: PUNTOLAR[ayar.punto], letterSpacing: `${ARALIKLAR[ayar.aralik]}em`,
                     lineHeight: SATIRLAR[ayar.aralik], wordSpacing: `${ARALIKLAR[ayar.aralik] * 2.2}em`,
                     color: ayar.tema === "krem" ? "#2A2622" : "rgba(242,236,223,0.92)",
@@ -3079,7 +3128,8 @@ export default function DinletiApp() {
                     padding: ayar.tema === "krem" ? "14px 16px" : 0,
                     fontFamily: fontAile(ayar.font),
                     textAlign: "left", minHeight: 0, height: "100%", maxHeight: "none", overflowY: "auto", WebkitOverflowScrolling: "touch", touchAction: "pan-y",
-                  }}>
+                    scrollBehavior: "smooth", overscrollBehavior: "contain",
+                  }} onTouchStart={okuyucuTakibiniGeciciDurdur} onPointerDown={okuyucuTakibiniGeciciDurdur} onWheel={okuyucuTakibiniGeciciDurdur}>
                     {gorunecek.map((k, i) => {
                       const gercekIx = i + kaydirma;
                       const aktifMi = ayar.vurgu && gercekIx === kelimeIx;
@@ -3354,7 +3404,7 @@ export default function DinletiApp() {
 
   return (
     <div data-app-shell style={govde}>
-      <style>{`@media (pointer: coarse), (max-width: 430px) { [data-app-shell] button { min-height: 44px !important; } }`}</style>
+      <style>{`@media (pointer: coarse), (hover: none), (max-width: 430px) { [data-app-shell] button { min-height: 44px !important; } }`}</style>
       {onboardingAcik ? <OnboardingSayfa /> : detayId ? <DetaySayfa /> : sekme === "ana" ? <AnaSayfa /> : sekme === "ara" ? <AramaSayfa /> : <KitaplikSayfa />}
       {!onboardingAcik && <MiniOynatici />}
       {!onboardingAcik && <TamOynatici />}
