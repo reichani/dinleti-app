@@ -5,20 +5,86 @@ import { installSpeechSynthesisMock } from "./fixtures/speech-synthesis.js";
 
 const appSource = fs.readFileSync(path.resolve("src/App.jsx"), "utf8");
 
+const READER_PROFILE = {
+  secildi: true,
+  yolId: "okuma_guveni_8_10",
+  evreId: "paragraf",
+  destekler: ["kelime_takibi", "buyuk_yazi", "genis_aralik", "yumusak_zemin"],
+};
+
+async function openRealContentAndPlay(page) {
+  await installSpeechSynthesisMock(page);
+  await page.addInitScript((profile) => {
+    localStorage.clear();
+    localStorage.setItem("okurio-okuma-yolu-v1", JSON.stringify(profile));
+  }, READER_PROFILE);
+  await page.goto("/");
+  const text = Array.from({ length: 32 }, (_, index) =>
+    `Sakin okuma cümlesi ${index + 1}, aktif kelimenin gerçek ekranda bütünüyle görünmesini doğrular.`
+  ).join(" ");
+  await page.getByRole("button", { name: /Kendi metnini oku/i }).click();
+  await page.getByLabel("Kendi metnim", { exact: true }).fill(text);
+  await page.getByRole("button", { name: "Okuma moduna al", exact: true }).click();
+  const shell = page.locator("[data-reader-shell]");
+  await expect(shell).toBeVisible();
+  const play = shell.getByRole("button", { name: "Oynat", exact: true });
+  if (await play.isVisible()) await play.click();
+  await expect(shell).toHaveAttribute("data-playing", "1");
+  await expect(shell.locator('[data-okuma-metin] [data-aktif="1"]')).toBeVisible();
+  return shell;
+}
+
 test("reader exposes stable sync contracts", async () => {
   expect(appSource).toContain("data-kelime-ix={gercekIx}");
   expect(appSource).toContain("data-aktif-cumle=");
   expect(appSource).toContain("data-okuma-modu={m.id}");
   expect(appSource).toContain("data-ses-tonu={sesTonu}");
-  expect(appSource).toContain('data-mobile-stability="v2.8.3"');
+  expect(appSource).toContain('data-mobile-stability="v2.8.4"');
   expect(appSource).toContain("readerScrollRef");
   expect(appSource).toContain("container.scrollTo({ top: nextTop");
   expect(appSource).toContain("visibleHeight * 0.40");
   expect(appSource).toContain("visibleHeight * 0.55");
   expect(appSource).toContain("wordIsFullyVisible");
   expect(appSource).toContain("visualViewportBottom");
+  expect(appSource).toContain('data-player-visual="compact-progress"');
+  expect(appSource).toContain('data-playing={caliyor ? "1" : "0"}');
   expect(appSource).toContain('okumaModu === "kendim"');
   expect(appSource).not.toContain("scrollIntoView(");
+});
+
+test("real mobile reader reserves text height and keeps the active word clear of controls", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === "desktop-chrome", "Real-device geometry gate applies to touch layouts.");
+  const shell = await openRealContentAndPlay(page);
+  await expect(shell.locator('[data-player-visual="compact-progress"]')).toBeVisible();
+  await expect(shell.locator("[data-okuma-modu-ipucu]")).toHaveCount(0);
+
+  await expect.poll(async () => shell.evaluate((root) => {
+    const reader = root.querySelector("[data-okuma-metin]");
+    const active = reader?.querySelector('[data-aktif="1"]');
+    const controls = root.querySelector("[data-alt-kontrol]");
+    if (!reader || !active || !controls || !window.__okurioReadingFixes) return null;
+    const readerRect = reader.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    const controlsRect = controls.getBoundingClientRect();
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+    return {
+      readerHeight: readerRect.height,
+      requiredHeight: Math.max(280, viewportHeight * 0.35),
+      activeFullyVisible: window.__okurioReadingFixes.isActiveWordActuallyVisible(active, reader),
+      activeAboveControls: activeRect.bottom <= controlsRect.top,
+      readerAboveControls: readerRect.bottom <= controlsRect.top + 1,
+    };
+  })).toMatchObject({
+    activeFullyVisible: true,
+    activeAboveControls: true,
+    readerAboveControls: true,
+  });
+
+  const height = await shell.locator("[data-okuma-metin]").evaluate((reader) => {
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+    return { actual: reader.getBoundingClientRect().height, required: Math.max(280, viewportHeight * 0.35) };
+  });
+  expect(height.actual).toBeGreaterThanOrEqual(height.required - 1);
 });
 
 for (const scenario of ["normal", "repeated-zero", "no-boundary", "silent-stop"]) {

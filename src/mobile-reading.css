@@ -465,7 +465,7 @@ body,
 }
 
 
-/* v2.8.3 — browser chrome-aware reader viewport and player occlusion contract */
+/* v2.8.4 — browser chrome-aware reader viewport and compact player contract */
 @media (max-width: 819px), (pointer: coarse), (hover: none) {
   [data-reader-backdrop] {
     block-size: var(--okurio-visual-viewport-height, 100dvh) !important;
@@ -481,10 +481,20 @@ body,
     overflow: hidden !important;
   }
 
-  [data-okuma-alani],
+  [data-okuma-alani] {
+    flex: 1 0 var(--okurio-reader-min-height, max(280px, 38dvh)) !important;
+    min-block-size: var(--okurio-reader-min-height, max(280px, 38dvh)) !important;
+  }
+
   [data-reader-workspace],
   [data-reading-column] {
     min-block-size: 0 !important;
+    overflow: hidden !important;
+  }
+
+  [data-okuma-alani],
+  [data-reader-workspace],
+  [data-reading-column] {
     overflow: hidden !important;
   }
 
@@ -505,5 +515,15 @@ body,
     position: relative !important;
     flex: 0 0 auto !important;
     z-index: 3 !important;
+  }
+
+  [data-reader-shell][data-playing="1"] [data-okuma-modu-ipucu] {
+    display: none !important;
+  }
+
+  [data-player-visual="compact-progress"] {
+    display: block !important;
+    block-size: 44px !important;
+    overflow: hidden !important;
   }
 }
