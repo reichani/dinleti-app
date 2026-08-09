@@ -12,7 +12,7 @@ import { cursorFromPosition, positionFromCursor, readingProgressSnapshot, monoto
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.8.0";
+const SURUM = "2.8.1";
 
 const KATALOG = mergePilotStories([
 
@@ -3007,7 +3007,7 @@ export default function DinletiApp() {
     const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
       <div data-reader-backdrop style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.78)" }}>
-        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.7.3" data-reader-shell data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
+        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.1" data-reader-shell data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "100dvh", maxHeight: "100dvh", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
 
           {/* Üst çubuk */}
           <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
@@ -3070,7 +3070,7 @@ export default function DinletiApp() {
               return (
                 <div id="okurio-okuma-icerigi" data-reader-workspace>
                   <div data-reading-column>
-                  <div data-okuma-metin="1" data-tema={ayar.tema} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} style={{
+                  <div data-okuma-metin="1" data-tema={ayar.tema} data-aktif-cumle={`${aktifCumle[0]}-${aktifCumle[1]}`} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} style={{
                     fontSize: PUNTOLAR[ayar.punto], letterSpacing: `${ARALIKLAR[ayar.aralik]}em`,
                     lineHeight: SATIRLAR[ayar.aralik], wordSpacing: `${ARALIKLAR[ayar.aralik] * 2.2}em`,
                     color: ayar.tema === "krem" ? "#2A2622" : "rgba(242,236,223,0.92)",
@@ -3089,6 +3089,7 @@ export default function DinletiApp() {
                       const sozluk = findGlossaryEntry(aktif.id, temiz);
                       return <span
                         key={gercekIx}
+                        data-kelime-ix={gercekIx}
                         data-aktif={aktifMi ? "1" : undefined}
                         data-hedef-kelime={sozluk ? temiz.toLocaleLowerCase("tr-TR") : undefined}
                         role={sozluk ? "button" : undefined}
@@ -3180,7 +3181,7 @@ export default function DinletiApp() {
                   )}
                   <div data-alt-araclar style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
                     <button onClick={hizDegistir} style={{ ...cip(false), minHeight: 44, padding: "6px 9px" }}><Gauge size={13} /> {hiz}x</button>
-                    <button onClick={sesTonuDegistir} title={sesTonuAyar.aciklama} style={{ ...cip(etkinSeslendirme), minHeight: 44, padding: "6px 9px" }}><Volume2 size={13} /> Ses: {etkinSeslendirme ? sesTonuAyar.kisa : "Kapalı"}</button>
+                    <button data-ses-tonu={sesTonu} onClick={sesTonuDegistir} title={sesTonuAyar.aciklama} style={{ ...cip(etkinSeslendirme), minHeight: 44, padding: "6px 9px" }}><Volume2 size={13} /> Ses: {etkinSeslendirme ? sesTonuAyar.kisa : "Kapalı"}</button>
                     <button onClick={uykuDegistir} style={{ ...cip(uyku > 0), minHeight: 44, padding: "6px 9px" }}><Moon size={13} /> {uyku > 0 ? sureYaz(uyku) : "Uyku"}</button>
                   </div>
                   </aside>
@@ -3353,6 +3354,7 @@ export default function DinletiApp() {
 
   return (
     <div data-app-shell style={govde}>
+      <style>{`@media (pointer: coarse), (max-width: 430px) { [data-app-shell] button { min-height: 44px !important; } }`}</style>
       {onboardingAcik ? <OnboardingSayfa /> : detayId ? <DetaySayfa /> : sekme === "ana" ? <AnaSayfa /> : sekme === "ara" ? <AramaSayfa /> : <KitaplikSayfa />}
       {!onboardingAcik && <MiniOynatici />}
       {!onboardingAcik && <TamOynatici />}

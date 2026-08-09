@@ -1,0 +1,40 @@
+name: Cross-platform reader regression
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "playwright.config.js"
+      - "package*.json"
+      - ".github/workflows/cross-platform-reader.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reader-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [samsung-s24, iphone-safari, ipad-safari]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - run: CROSS_PLATFORM=1 npx playwright test tests/reader-cross-platform-contract.spec.js --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: reader-${{ matrix.project }}-failure
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
