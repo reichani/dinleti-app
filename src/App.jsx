@@ -1909,27 +1909,7 @@ export default function DinletiApp() {
     if (readerFollowResumeTimerRef.current) window.clearTimeout(readerFollowResumeTimerRef.current);
   }, []);
 
-  useLayoutEffect(() => {
-    if (!oynaticiAcik || !okumaAcik || okumaModu === "kendim") return;
-    if (Date.now() < readerFollowPauseUntilRef.current) return;
-    const container = readerScrollRef.current;
-    const activeWord = container?.querySelector('[data-kelime-ix="' + kelimeIx + '"]');
-    if (!container || !activeWord) return;
 
-    const containerRect = container.getBoundingClientRect();
-    const wordRect = activeWord.getBoundingClientRect();
-    const wordCenter = wordRect.top + wordRect.height / 2;
-    const safeTop = containerRect.top + containerRect.height * 0.40;
-    const safeBottom = containerRect.top + containerRect.height * 0.55;
-    const immediate = readerFollowImmediateRef.current;
-    readerFollowImmediateRef.current = false;
-    if (!immediate && wordCenter >= safeTop && wordCenter <= safeBottom) return;
-
-    const target = containerRect.top + containerRect.height * 0.475;
-    const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight);
-    const nextTop = Math.max(0, Math.min(maxScroll, container.scrollTop + wordCenter - target));
-    container.scrollTo({ top: nextTop, behavior: immediate ? "auto" : "smooth" });
-  }, [kelimeIx, aktifBolumIx, okumaModu, oynaticiAcik, okumaAcik, ayar.odak, readerFollowNonce]);
 
   const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
   const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
@@ -2181,6 +2161,28 @@ export default function DinletiApp() {
     }
     return aktif.bolumler.length - 1;
   }, [aktif, pozisyon]);
+
+  useLayoutEffect(() => {
+    if (!oynaticiAcik || !okumaAcik || okumaModu === "kendim") return;
+    if (Date.now() < readerFollowPauseUntilRef.current) return;
+    const container = readerScrollRef.current;
+    const activeWord = container?.querySelector('[data-kelime-ix="' + kelimeIx + '"]');
+    if (!container || !activeWord) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const wordRect = activeWord.getBoundingClientRect();
+    const wordCenter = wordRect.top + wordRect.height / 2;
+    const safeTop = containerRect.top + containerRect.height * 0.40;
+    const safeBottom = containerRect.top + containerRect.height * 0.55;
+    const immediate = readerFollowImmediateRef.current;
+    readerFollowImmediateRef.current = false;
+    if (!immediate && wordCenter >= safeTop && wordCenter <= safeBottom) return;
+
+    const target = containerRect.top + containerRect.height * 0.475;
+    const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight);
+    const nextTop = Math.max(0, Math.min(maxScroll, container.scrollTop + wordCenter - target));
+    container.scrollTo({ top: nextTop, behavior: immediate ? "auto" : "smooth" });
+  }, [kelimeIx, aktifBolumIx, okumaModu, oynaticiAcik, okumaAcik, ayar.odak, readerFollowNonce]);
 
   useEffect(() => {
     setSoruCevabi(null);
