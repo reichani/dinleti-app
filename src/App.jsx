@@ -3404,7 +3404,7 @@ export default function DinletiApp() {
 
   return (
     <div data-app-shell style={govde}>
-      <style>{`@media (pointer: coarse), (max-width: 430px) { [data-app-shell] button { min-height: 44px !important; } }`}</style>
+      <style>{`@media (pointer: coarse), (hover: none), (max-width: 430px) { [data-app-shell] button { min-height: 44px !important; } }`}</style>
       {onboardingAcik ? <OnboardingSayfa /> : detayId ? <DetaySayfa /> : sekme === "ana" ? <AnaSayfa /> : sekme === "ara" ? <AramaSayfa /> : <KitaplikSayfa />}
       {!onboardingAcik && <MiniOynatici />}
       {!onboardingAcik && <TamOynatici />}
