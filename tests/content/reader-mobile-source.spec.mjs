@@ -11,9 +11,9 @@ test("self-reading mode disables automatic word following", () => {
 });
 
 test("reader keeps the active token in a stable comfort band", () => {
-  assert.match(source, /COMFORT_TOP_RATIO\\s*=\\s*0\\.40/u);
-  assert.match(source, /COMFORT_BOTTOM_RATIO\\s*=\\s*0\\.55/u);
-  assert.match(source, /TARGET_RATIO\\s*=\\s*0\\.475/u);
+  assert.match(source, /COMFORT_TOP_RATIO\s*=\s*0\.40/u);
+  assert.match(source, /COMFORT_BOTTOM_RATIO\s*=\s*0\.55/u);
+  assert.match(source, /TARGET_RATIO\s*=\s*0\.475/u);
   assert.match(source, /behavior:\s*prefersReducedMotion\s*\|\|\s*force\s*\?\s*'auto'\s*:\s*'smooth'/u);
 });
 
