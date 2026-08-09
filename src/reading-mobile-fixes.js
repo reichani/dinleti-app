@@ -1,8 +1,8 @@
 const ACTIVE_SELECTOR = '[data-okuma-metin] [data-aktif="1"]';
 const MIN_SCROLL_INTERVAL_MS = 320;
-const COMFORT_TOP_RATIO = 0.28;
-const COMFORT_BOTTOM_RATIO = 0.68;
-const TARGET_RATIO = 0.42;
+const COMFORT_TOP_RATIO = 0.40;
+const COMFORT_BOTTOM_RATIO = 0.55;
+const TARGET_RATIO = 0.475;
 const MANUAL_SCROLL_PAUSE_MS = 4200;
 const MAX_SCROLL_VIEWPORT_RATIO = 0.45;
 let lastScrollAt = 0;
@@ -99,6 +99,30 @@ function bindReadingViewport(readingText) {
   readingText.addEventListener('wheel', noteManualInteraction, { passive: true });
 }
 
+export function getReaderVisibleRect(readingText) {
+  if (!(readingText instanceof HTMLElement)) return null;
+  const containerRect = readingText.getBoundingClientRect();
+  const controls = readingText.closest('[data-okuma-alani]')?.querySelector('[data-alt-kontrol]');
+  const controlsRect = controls?.getBoundingClientRect();
+  const viewportBottom = window.visualViewport?.height ?? window.innerHeight;
+  const occlusionTop = controlsRect && controlsRect.top < containerRect.bottom
+    ? controlsRect.top
+    : Number.POSITIVE_INFINITY;
+  const top = Math.max(containerRect.top, 0);
+  const bottom = Math.min(containerRect.bottom, viewportBottom, occlusionTop);
+  return {
+    top,
+    bottom,
+    height: Math.max(1, bottom - top),
+    occluded: Math.max(0, containerRect.bottom - bottom),
+  };
+}
+
+function syncVisualViewport(root = document) {
+  const height = window.visualViewport?.height ?? window.innerHeight;
+  root.documentElement?.style.setProperty('--okurio-visual-viewport-height', `${Math.round(height)}px`);
+}
+
 export function scrollActiveWord(
   activeWord = document.querySelector(ACTIVE_SELECTOR),
   { force = false, now = Date.now() } = {},
@@ -116,20 +140,22 @@ export function scrollActiveWord(
   if (!force && now - lastScrollAt < MIN_SCROLL_INTERVAL_MS) return false;
 
   const containerRect = readingText.getBoundingClientRect();
+  const visibleRect = getReaderVisibleRect(readingText);
+  if (!visibleRect) return false;
   const wordRect = activeWord.getBoundingClientRect();
-  const comfortTop = containerRect.top + containerRect.height * COMFORT_TOP_RATIO;
-  const comfortBottom = containerRect.top + containerRect.height * COMFORT_BOTTOM_RATIO;
+  const comfortTop = visibleRect.top + visibleRect.height * COMFORT_TOP_RATIO;
+  const comfortBottom = visibleRect.top + visibleRect.height * COMFORT_BOTTOM_RATIO;
 
-  if (wordRect.top >= comfortTop && wordRect.bottom <= comfortBottom) {
+  if (wordRect.top >= comfortTop && wordRect.bottom <= comfortBottom && wordRect.bottom <= visibleRect.bottom) {
     if (readingText.scrollLeft !== 0) readingText.scrollLeft = 0;
     lastActiveWord = activeWord;
     return true;
   }
 
-  const targetY = containerRect.top + containerRect.height * TARGET_RATIO;
+  const targetY = visibleRect.top + visibleRect.height * TARGET_RATIO;
   const wordCenter = wordRect.top + wordRect.height / 2;
   const rawDelta = wordCenter - targetY;
-  const maxStep = Math.max(48, containerRect.height * MAX_SCROLL_VIEWPORT_RATIO);
+  const maxStep = Math.max(48, visibleRect.height * MAX_SCROLL_VIEWPORT_RATIO);
   const delta = Math.max(-maxStep, Math.min(maxStep, rawDelta));
   if (Math.abs(delta) < 2) return true;
 
@@ -209,6 +235,7 @@ function scheduleRefresh({ forceScroll = false } = {}) {
 }
 
 export function installReadingMobileFixes() {
+  syncVisualViewport();
   markInteractiveControls();
   ensureCalmReadingFlow();
 
@@ -231,12 +258,16 @@ export function installReadingMobileFixes() {
     attributeFilter: ['data-aktif', 'aria-pressed', 'style'],
   });
 
-  const refreshLayout = () => scheduleRefresh({ forceScroll: true });
+  const refreshLayout = () => { syncVisualViewport(); scheduleRefresh({ forceScroll: true }); };
   window.addEventListener('resize', refreshLayout, { passive: true });
+  window.visualViewport?.addEventListener('resize', refreshLayout, { passive: true });
+  window.visualViewport?.addEventListener('scroll', refreshLayout, { passive: true });
   window.addEventListener('orientationchange', refreshLayout, { passive: true });
 
   window.__okurioReadingFixes = {
     scrollActiveWord,
+    getReaderVisibleRect,
+    syncVisualViewport,
     markInteractiveControls,
     markReadingTokens,
     markActiveSentence,
@@ -250,6 +281,8 @@ export function installReadingMobileFixes() {
   return () => {
     observer.disconnect();
     window.removeEventListener('resize', refreshLayout);
+    window.visualViewport?.removeEventListener('resize', refreshLayout);
+    window.visualViewport?.removeEventListener('scroll', refreshLayout);
     window.removeEventListener('orientationchange', refreshLayout);
     if (frame) cancelAnimationFrame(frame);
     if (calmFlowFrame) cancelAnimationFrame(calmFlowFrame);
