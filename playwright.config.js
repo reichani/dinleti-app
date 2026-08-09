@@ -38,14 +38,16 @@ export default defineConfig({
         userAgent: "Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/138 Mobile Safari/537.36"
       }
     },
-    {
-      name: "iphone-safari",
-      use: { ...devices["iPhone 15"] }
-    },
-    {
-      name: "ipad-safari",
-      use: { ...devices["iPad Pro 11"] }
-    },
+    ...(process.env.CROSS_PLATFORM ? [
+      {
+        name: "iphone-safari",
+        use: { ...devices["iPhone 15"] }
+      },
+      {
+        name: "ipad-safari",
+        use: { ...devices["iPad Pro 11"] }
+      }
+    ] : []),
     {
       name: "small-mobile",
       use: {
