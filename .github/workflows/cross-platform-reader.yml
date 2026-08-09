@@ -29,7 +29,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium webkit
-      - run: npx playwright test tests/reader-cross-platform-contract.spec.js --project=${{ matrix.project }}
+      - run: CROSS_PLATFORM=1 npx playwright test tests/reader-cross-platform-contract.spec.js --project=${{ matrix.project }}
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
