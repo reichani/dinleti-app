@@ -35,7 +35,7 @@ export const UZAY_KULUBU_PRODUCTION_CANDIDATE = (() => {
       mark: "Okurio Kaynak İzi",
       shortDisclosure: "Okurio özgün anlatısı · AI destekli · ana kaynakları açık",
       disclosure: "Okurio için özgün olarak geliştirilen bu anlatıda AI destekli editoryal üretim kullanılmıştır. Bilimsel çerçeve aşağıdaki ana kaynaklarla sınırlandırılmıştır.",
-      reviewNotice: "Bu damga kaynak ve üretim şeffaflığı sağlar; insan hak, özgünlük veya hukuki incelemesi yerine geçmez.",
+      reviewNotice: "Bu özgün Okurio anlatısı üçüncü taraf metin veya uyarlama içermez; NASA bağlantıları yalnız bilimsel bilgi kaynaklarıdır.",
       primarySources: [
         { label: "NASA · Sun Facts", url: sourceUrls[0] },
         { label: "NASA · Moon Phases", url: sourceUrls[1] },
