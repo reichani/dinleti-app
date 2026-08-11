@@ -10,7 +10,7 @@ const originalSource = {
 };
 
 
-const uzayKulubuPiyesiProduction = (() => {
+export const UZAY_KULUBU_PRODUCTION_CANDIDATE = (() => {
   const { replacesIdAfterApproval, ...legacy } = UZAY_KULUBU_PIYESI_DRAFT.legacy;
   const sourceUrls = UZAY_KULUBU_PIYESI_DRAFT.metadata.sourceUrls;
   return {
@@ -250,7 +250,12 @@ export const PRODUCTION_STORY_UPGRADES = [
       },
     ],
   },
-  uzayKulubuPiyesiProduction
+  ...(
+    UZAY_KULUBU_PRODUCTION_CANDIDATE.metadata.releaseReady === true
+    && UZAY_KULUBU_PRODUCTION_CANDIDATE.metadata.contentQualityReview?.status === "approved"
+      ? [UZAY_KULUBU_PRODUCTION_CANDIDATE]
+      : []
+  ),
 ];
 
 export const PRODUCTION_STORY_UPGRADES_BY_ID = Object.fromEntries(
