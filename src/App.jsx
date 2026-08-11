@@ -1229,7 +1229,7 @@ const RAFLAR = [
   { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en", "fox-and-grapes-en", "lion-and-mouse-graded-en", "ugly-duckling-en", "moon-poem-en", "space-poem-en"] },
   { ad: "Young English Readers", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en"] },
   { ad: "English Classics Bridge", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en"] },
-  { ad: "Gökyüzü ve Yıldızlar", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-ayi-gordu", "yildiz-mi-gezegen-mi", "oki-ay-haritasi", "uzay-kulubu-piyesi", "ay-bilmecesi", "yildiz-bilmecesi", "gokyuzu-siiri"] },
+  { ad: "Gökyüzü ve Yıldızlar", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-ayi-gordu", "yildiz-mi-gezegen-mi", "oki-ay-haritasi", "ay-bilmecesi", "yildiz-bilmecesi", "gokyuzu-siiri"] },
 
   { ad: "Şiir ve Ritim", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6", "ilk_harfler_6_7", "ilk_cumleler_7_8"], ids: ["toto-tak-tak-dedi", "nana-ritim-oyunu", "oki-hop-hop", "oki-ay-siiri", "yagmur-tip-tip-siiri"] },
   { ad: "Bilmeceler", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["ay-bilmecesi", "yildiz-bilmecesi", "tohum-bilmecesi"] },
