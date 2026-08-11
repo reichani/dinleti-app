@@ -37,6 +37,6 @@ if (!window.storage) {
 
 document.body.style.margin = "0";
 document.body.style.background = "#14181F";
-installDocumentImportAdapter();
 createRoot(document.getElementById("root")).render(<App />);
 installReadingMobileFixes();
+window.requestAnimationFrame(() => installDocumentImportAdapter());
