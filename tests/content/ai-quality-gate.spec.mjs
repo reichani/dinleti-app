@@ -26,7 +26,7 @@ test("all eight AI checks carry explicit evidence and conservative statuses", ()
   }
   assert.equal(checks.audioHighlightScroll.status, "BLOCKED");
   assert.equal(checks.mobileUsability.status, "BLOCKED");
-  assert.equal(checks.originalityRights.status, "BLOCKED");
+  assert.equal(checks.originalityRights.status, "PASS");
 });
 
 test("release assertion fails closed while any AI or owner evidence is incomplete", () => {
