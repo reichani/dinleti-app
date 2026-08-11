@@ -20,16 +20,18 @@ function normalizeExtractedText(value) {
     .slice(0, MAX_TEXT_CHARS);
 }
 
-function xmlText(xml, textTag, paragraphCloseTags = []) {
-  let prepared = String(xml || "");
-  for (const tag of paragraphCloseTags) {
-    prepared = prepared.replace(new RegExp(`</${tag}>`, "gi"), "\n");
-  }
+function xmlParagraphText(xml, paragraphTag, textTag) {
   const parser = new DOMParser();
-  const doc = parser.parseFromString(prepared, "application/xml");
-  const nodes = [...doc.getElementsByTagName(textTag)];
-  if (nodes.length) return nodes.map((node) => node.textContent || "").join(" ");
-  return doc.documentElement?.textContent || "";
+  const doc = parser.parseFromString(String(xml || ""), "application/xml");
+  if (doc.querySelector("parsererror")) throw new Error("Belge XML içeriği okunamadı.");
+  const paragraphs = [...doc.getElementsByTagName(paragraphTag)];
+  if (paragraphs.length) {
+    return paragraphs
+      .map((paragraph) => [...paragraph.getElementsByTagName(textTag)].map((node) => node.textContent || "").join(" ").trim())
+      .filter(Boolean)
+      .join("\n");
+  }
+  return [...doc.getElementsByTagName(textTag)].map((node) => node.textContent || "").join(" ");
 }
 
 async function loadJsZip() {
@@ -43,7 +45,7 @@ async function extractDocx(file) {
   const documentFile = zip.file("word/document.xml");
   if (!documentFile) throw new Error("Word belgesinde document.xml bulunamadı.");
   const xml = await documentFile.async("string");
-  return normalizeExtractedText(xmlText(xml, "w:t", ["w:p", "w:tr"]));
+  return normalizeExtractedText(xmlParagraphText(xml, "w:p", "w:t"));
 }
 
 function slideNumber(path) {
@@ -60,7 +62,7 @@ async function extractPptx(file) {
   const slides = [];
   for (const path of slidePaths) {
     const xml = await zip.file(path).async("string");
-    const text = normalizeExtractedText(xmlText(xml, "a:t", ["a:p"]));
+    const text = normalizeExtractedText(xmlParagraphText(xml, "a:p", "a:t"));
     if (text) slides.push(text);
   }
   return normalizeExtractedText(slides.join("\n\n"));
