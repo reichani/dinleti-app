@@ -113,7 +113,8 @@ function setStatus(input, message) {
 
 function patchImportUi(root = document) {
   const input = root.querySelector('input[type="file"][accept*=".txt"]');
-  if (!input || input.dataset.documentImportEnhanced === "true") return;
+  if (!input) return false;
+  if (input.dataset.documentImportEnhanced === "true") return true;
 
   input.dataset.documentImportEnhanced = "true";
   input.accept = ".txt,.pdf,.docx,.pptx,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation";
@@ -128,6 +129,7 @@ function patchImportUi(root = document) {
     const hint = [...card.querySelectorAll("span")].find((node) => /Kopyala-yapıştır veya TXT/.test(node.textContent || ""));
     if (hint) hint.textContent = "Kopyala-yapıştır veya TXT, PDF, Word, PowerPoint";
   }
+  return true;
 }
 
 async function handleDocumentSelection(event) {
@@ -161,7 +163,9 @@ export function installDocumentImportAdapter() {
   if (typeof document === "undefined" || window.__OKURIO_DOCUMENT_IMPORT_INSTALLED__) return;
   window.__OKURIO_DOCUMENT_IMPORT_INSTALLED__ = true;
   document.addEventListener("change", handleDocumentSelection, true);
-  const observer = new MutationObserver(() => patchImportUi(document));
-  observer.observe(document.documentElement, { childList: true, subtree: true });
-  patchImportUi(document);
+  if (patchImportUi(document)) return;
+  const observer = new MutationObserver(() => {
+    if (patchImportUi(document)) observer.disconnect();
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 }
