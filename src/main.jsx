@@ -5,6 +5,7 @@ import "./mobile-reading.css";
 import "./mobile-settings-hotfix.css";
 import "./reading-position-hotfix.css";
 import { installReadingMobileFixes } from "./reading-mobile-fixes.js";
+import { installDocumentImportAdapter } from "./document-import-adapter.js";
 
 // Claude artifact ortamindaki window.storage API'sini localStorage ile kopruler.
 // Ayni App.jsx dosyasi hem artifact icinde hem Cloudflare Pages'te calisir.
@@ -36,5 +37,6 @@ if (!window.storage) {
 
 document.body.style.margin = "0";
 document.body.style.background = "#14181F";
+installDocumentImportAdapter();
 createRoot(document.getElementById("root")).render(<App />);
 installReadingMobileFixes();
