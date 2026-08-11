@@ -23,23 +23,28 @@ function ensureStatus(dialog) {
 }
 
 function setStatus(dialog, message) {
-  ensureStatus(dialog).textContent = message;
+  const status = ensureStatus(dialog);
+  if (status.textContent !== message) status.textContent = message;
+}
+
+function setTextIfChanged(element, value) {
+  if (element && element.textContent !== value) element.textContent = value;
 }
 
 function enhanceLabels() {
   const card = document.querySelector("[data-kendi-metnim]");
   const cardButton = card?.querySelector(":scope > button");
   const strong = cardButton?.querySelector("strong");
-  if (strong && strong.textContent !== "Kendi İçeriğini Ekle") strong.textContent = "Kendi İçeriğini Ekle";
+  setTextIfChanged(strong, "Kendi İçeriğini Ekle");
   const subtitle = strong?.parentElement?.querySelector("span:not([aria-hidden])");
-  if (subtitle) subtitle.textContent = "Dosya yükle veya metin yapıştır";
+  setTextIfChanged(subtitle, "Dosya yükle veya metin yapıştır");
 
   const dialog = document.querySelector("[data-kendi-metin-dialog]");
   if (!dialog) return;
   const heading = dialog.querySelector("#kendi-metin-basligi");
-  if (heading) heading.textContent = "Kendi İçeriğini Ekle";
+  setTextIfChanged(heading, "Kendi İçeriğini Ekle");
   const intro = heading?.parentElement?.querySelector("div");
-  if (intro) intro.textContent = "Dosyanı veya metnini önce önizle, sonra mevcut Okurio Reader’da aç.";
+  setTextIfChanged(intro, "Dosyanı veya metnini önce önizle, sonra mevcut Okurio Reader’da aç.");
 
   const fileInput = dialog.querySelector('input[type="file"]');
   if (fileInput) {
@@ -48,7 +53,7 @@ function enhanceLabels() {
     if (label) {
       for (const node of label.childNodes) {
         if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-          node.textContent = "Dosya seç ";
+          if (node.textContent !== "Dosya seç ") node.textContent = "Dosya seç ";
           break;
         }
       }
