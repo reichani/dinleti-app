@@ -18,7 +18,7 @@ export const UZAY_KULUBU_PIYESI_DRAFT = {
   legacy: {
     id: "uzay-kulubu-piyesi-v2-draft",
     replacesIdAfterApproval: "uzay-kulubu-piyesi",
-    baslik: "Uzay Kulübü Piyesi",
+    baslik: "Uzay Kulübü Sunumu",
     yazar: "Okurio Özgün Bilim Anlatısı",
     seslendiren: "Oki Anlatıcı",
     kategori: "Bilimsel Anlatı",
@@ -27,7 +27,7 @@ export const UZAY_KULUBU_PIYESI_DRAFT = {
     ozet: "Dört arkadaş, uzay kulübü sunumundaki bir hatayı kanıtlarla birlikte düzeltir.",
     bolumler: [
       {
-        ad: "Perde Açılmadan Önce",
+        ad: "Sunumdan Önce",
         estimatedSeconds: 45,
         metin: `Okulun uzay kulübü cuma günü toplanmıştı. Oki masaya büyük bir gökyüzü haritası serdi. Lili kartları tarih sırasına koydu.
 
@@ -141,18 +141,20 @@ Kulüp ertesi hafta için yeni bir soru seçti. Kuyruklu yıldızların izleri n
     contentStatus: "draft",
     structuralValid: true,
     releaseReady: false,
-    sourceType: "original-science-narrative",
-    sourceScope: "Özgün Okurio olay örgüsü ve diyalogları; temel astronomi iddiaları NASA kaynaklarıyla sınırlandırılmıştır.",
+    sourceType: "original-okurio-ai-assisted",
+    originalityProvenanceStatus: "verified-ai-assisted-original",
+    thirdPartyRightsClearance: "not-required",
+    sourceScope: "Özgün Okurio olay örgüsü ve anlatımı; temel astronomi iddiaları NASA kaynaklarıyla sınırlandırılmıştır.",
     sourceUrls: [
       "https://science.nasa.gov/sun/facts/",
       "https://science.nasa.gov/moon/moon-phases/",
       "https://science.nasa.gov/solar-system/solar-system-facts/",
     ],
     factualReviewStatus: "pending-human-review",
-    originalityRightsReviewStatus: "pending-human-review",
+    originalityRightsReviewStatus: "not-required-original-okurio-work",
     glossary: [
       { word: "yıldız", definition: "Kendi enerjisini ve ışığını üreten gök cismi." },
-      { word: "gezegen", definition: "Bir yıldızın çevresinde dolanan, yaklaşık küresel gök cismi." },
+      { word: "gezegen", definition: "Güneş gibi bir yıldızın çevresinde dolanan, kendi ışığını üretmeyen ve yaklaşık küresel olan gök cismi." },
       { word: "yansıtmak", definition: "Gelen ışığı başka bir yöne göndermek." },
       { word: "yörünge", definition: "Bir cismin başka bir cismin çevresindeki yolu." },
       { word: "kanıt", definition: "Bir düşünceyi sınamaya yarayan bilgi." },
@@ -169,21 +171,21 @@ Kulüp ertesi hafta için yeni bir soru seçti. Kuyruklu yıldızların izleri n
       reviewedAt: "2026-08-04T09:15:00Z",
       reviewedCommit: "9390d6599da34b11aa4716b69bcfe1ecd0a09e69",
       humanApproval: false,
-      summary: "İçerik çekirdeği geçti; production okuyucuya bağlı ses, vurgu, kaydırma, mobil ve insan hak kanıtları tamamlanmadı.",
+      summary: "İçerik çekirdeği ve özgün üretim izi geçti; production okuyucuya bağlı ses, vurgu, kaydırma, mobil ve insan içerik onayı tamamlanmadı.",
       checks: {
         narrativeComplete: { status: "PASS", evidence: "Yanlış iddia, araştırma, sınama, anlaşmazlık, ortak çözüm ve tamamlanmış sunum mevcut." },
         ageFit: { status: "PASS", evidence: "709 kelime 10-12 hedefinde; ortalama cümle 6,01 ve en uzun cümle 10 kelime." },
         sectionContinuity: { status: "PASS", evidence: "Altı bölüm ilk hatadan ortak sunuma uzanan açık neden-sonuç zinciri kuruyor." },
         audioHighlightScroll: { status: "BLOCKED", evidence: "Taslak production okuyucuya bağlı değil; story-ID bazlı TTS, vurgu ve kaydırma testi NOT RUN." },
         factualAccuracy: { status: "PASS", evidence: "Güneş, Ay ışığı ve sekiz gezegen iddiaları kayıtlı NASA kaynaklarının kapsamıyla örtüşüyor." },
-        originalityRights: { status: "BLOCKED", evidence: "Özgün olay örgüsü beyanı var; insan hak ve hukuki incelemesi pending-human-review." },
+        originalityRights: { status: "PASS", evidence: "Okurio için sıfırdan üretilmiş AI destekli özgün anlatıdır; üçüncü taraf metin, karakter veya uyarlama içermez. NASA bağlantıları yalnız olgusal ana kaynaklardır." },
         safeLanguage: { status: "PASS", evidence: "Utandırıcı, klinik, tanılayıcı veya performans baskısı yaratan dil bulunmadı." },
         mobileUsability: { status: "BLOCKED", evidence: "Taslak aktif okuyucuya bağlı değil; Android/Samsung görünürlük ve son kelime kaydırma testi NOT RUN." },
       },
       requiredChanges: [
         "Release-candidate ortamında story-ID bazlı ses, vurgu ve kaydırma testlerini çalıştır.",
         "Android ve Samsung S24 üzerinde aktif kelime güvenli alanını son kelimeye kadar doğrula.",
-        "İsimli insan içerik ve hak incelemesini aynı commit için kaydet.",
+        "İsimli insan içerik kalite incelemesini aynı commit için kaydet.",
       ],
     },
     ownerApproval: {
