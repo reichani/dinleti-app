@@ -16,21 +16,9 @@ async function uygulamayiHazirla(page) {
   await page.goto("/");
 }
 
-test("Uzay Kulübü Piyesi production kataloğunda kaynak damgasıyla açılır", async ({ page }) => {
+test("onaysız Uzay Kulübü Sunumu production aramasında açılmaz", async ({ page }) => {
   await uygulamayiHazirla(page);
   await page.getByRole("button", { name: "Ara", exact: true }).click();
-  await page.getByPlaceholder("Kitap veya yazar ara").fill("Uzay Kulübü Piyesi");
-  const result = page.getByRole("button", { name: /Uzay Kulübü Piyesi/ });
-  await expect(result).toBeVisible();
-  await result.click();
-
-  const stamp = page.locator('[data-detail-page] [data-okurio-provenance-stamp]');
-  await expect(stamp).toContainText("Okurio Kaynak İzi");
-  await expect(stamp).toContainText("AI destekli");
-  await expect(stamp.getByRole("link")).toHaveCount(3);
-  const start = page.getByRole("button", { name: "Okumaya başla", exact: true });
-  await expect(start).toBeEnabled();
-  await start.click();
-  await expect(page.locator("[data-reader-shell]")).toBeVisible();
-  await expect(page.locator("[data-okuma-metin]")).toContainText("Okulun uzay kulübü");
+  await page.getByPlaceholder("Kitap veya yazar ara").fill("Uzay Kulübü Sunumu");
+  await expect(page.getByRole("button", { name: /Uzay Kulübü Sunumu/ })).toHaveCount(0);
 });
