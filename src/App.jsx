@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from "react";
 import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus, Flame } from "lucide-react";
 import GlossaryCard from "./components/GlossaryCard.jsx";
+import OkurioProvenanceStamp from "./components/OkurioProvenanceStamp.jsx";
 import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdapter.js";
 import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
 import { COMPLETE_OKURIO_SESSIONS } from "./content/completeOkurioSessions.js";
@@ -1303,7 +1304,7 @@ const RAFLAR = [
   { ad: "Mitoloji ve Kahramanlar", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["prometheusun-secimi", "oki-labirentin-izi", "oki-pegasus"] },
   { ad: "Mitolojiden Klasiklere", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["ikarus-bugun-ne-anlatir", "prometheusun-secimi", "ariadnenin-ipi-yetiskin"] },
   { ad: "Mitolojiyle Okumaya Dönüş", mod: "yetiskin", yolIds: ["yetiskin_odak_18"], ids: ["ariadnenin-ipi-yetiskin", "ikarus-bugun-ne-anlatir"] },
-  { ad: "Rol Seçerek Oku", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-lili-sahnesi", "toto-acele-etme-piyesi", "uzay-kulubu-piyesi", "mino-nerede-sahnesi", "labirentte-uc-ses"] },
+  { ad: "Rol Seçerek Oku", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-lili-sahnesi", "toto-acele-etme-piyesi", "mino-nerede-sahnesi", "labirentte-uc-ses"] },
   { ad: "Dünya Masalları", mod: "cocuk", ids: ["japon-masallari", "cin-masallari", "grimm-masallari", "andersen-masallari", "ezop-masallari"] },
   { ad: "Kısa Dinletiler", mod: "yetiskin", ids: ["yuksek-okceler", "pembe-incili-kaftan", "diyet", "sessiz-saatler"] },
   { ad: "Klasik Romanlar", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "calikusu", "mai-ve-siyah"] },
@@ -1394,7 +1395,7 @@ const ICERIK_METADATA = {
   "ariadnenin-ipi-yetiskin": { yasMin: 18, yasMax: 99, segmentler: ["yetiskin_odak"], okumaEvreleri: ["okumaya_donus", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 8 },
   "oki-lili-sahnesi": { yasMin: 6, yasMax: 8, segmentler: ["ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "piyes", subject: "rol_okuma", oql: 2 },
   "toto-acele-etme-piyesi": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "piyes", subject: "rol_okuma", oql: 3 },
-  "uzay-kulubu-piyesi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "piyes", subject: "rol_okuma", oql: 4 },
+  "uzay-kulubu-piyesi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 4 },
   "yuksek-okceler": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
   "pembe-incili-kaftan": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
   "diyet": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
@@ -2708,6 +2709,7 @@ export default function DinletiApp() {
         </div>
         <div data-icerik-yolu style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{meta.icerikTuru.replace(/_/g, " ")}</div>
         <div data-content-scope style={{ fontSize: 11, color: sunum.deployable ? S.vurgu : "#D7B778", fontWeight: 700, marginTop: 4 }}>{sunum.label}</div>
+        <OkurioProvenanceStamp stamp={kitap.provenanceStamp} compact />
         <div data-actual-duration style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{sureYaz(sunum.seconds)} · {kalite.toplamKelime} kelime</div>
         <div data-oql style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>OQL-{kalite.oql} · ort. cümle {kalite.ortCumle.toFixed(1)}</div>
       </div>
@@ -3007,6 +3009,7 @@ export default function DinletiApp() {
             <><strong>Hazırlanıyor.</strong> Bu kısa kayıt tam eser veya tamamlanmış hikâye değildir ve henüz başlatılamaz.</>
           )}
         </div>
+        <OkurioProvenanceStamp stamp={k.provenanceStamp} />
         <div data-kalite-karti style={{ marginTop: 14, fontSize: 12, color: S.soluk, background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "8px 12px" }}>
           Okuma seviyesi: OQL-{icerikKalitesi(k).oql} · {icerikKalitesi(k).ad}{kitapMeta(k).cefr ? ` · CEFR ${kitapMeta(k).cefr}` : ""} · {icerikKalitesi(k).toplamKelime} kelime · gerçek süre {sureYaz(sunum.seconds)} · ort. cümle {icerikKalitesi(k).ortCumle.toFixed(1)} kelime
         </div>

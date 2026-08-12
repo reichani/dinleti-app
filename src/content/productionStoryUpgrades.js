@@ -1,3 +1,5 @@
+import { UZAY_KULUBU_PIYESI_DRAFT } from "./drafts/2026-08-04-uzay-kulubu-piyesi.js";
+
 const normalize = (text) => text.replace(/\s+/gu, " ").trim();
 
 const originalSource = {
@@ -6,6 +8,43 @@ const originalSource = {
   hakSahibi: "Okurio",
   surum: "2.0",
 };
+
+
+export const UZAY_KULUBU_PRODUCTION_CANDIDATE = (() => {
+  const { replacesIdAfterApproval, ...legacy } = UZAY_KULUBU_PIYESI_DRAFT.legacy;
+  const sourceUrls = UZAY_KULUBU_PIYESI_DRAFT.metadata.sourceUrls;
+  return {
+    ...legacy,
+    id: replacesIdAfterApproval,
+    yazar: "Okurio Özgün Bilim Anlatısı",
+    kategori: "Bilimsel Anlatı",
+    puan: 4.9,
+    renk: ["#203C65", "#E8A33D"],
+    sureDk: UZAY_KULUBU_PIYESI_DRAFT.metadata.estimatedMinutes,
+    icerikDurumu: "tam-metin",
+    hakDurumu: "okurio-ozgun-ai-destekli",
+    kaynak: {
+      ad: "NASA bilim referans paketi",
+      tur: "ana-referans",
+      kapsam: UZAY_KULUBU_PIYESI_DRAFT.metadata.sourceScope,
+      url: sourceUrls[0],
+      urls: sourceUrls,
+    },
+    provenanceStamp: {
+      id: "okurio-kaynak-izi-v1",
+      mark: "Okurio Kaynak İzi",
+      shortDisclosure: "Okurio özgün anlatısı · AI destekli · ana kaynakları açık",
+      disclosure: "Okurio için özgün olarak geliştirilen bu anlatıda AI destekli editoryal üretim kullanılmıştır. Bilimsel çerçeve aşağıdaki ana kaynaklarla sınırlandırılmıştır.",
+      reviewNotice: "Bu özgün Okurio anlatısı üçüncü taraf metin veya uyarlama içermez; NASA bağlantıları yalnız bilimsel bilgi kaynaklarıdır.",
+      primarySources: [
+        { label: "NASA · Sun Facts", url: sourceUrls[0] },
+        { label: "NASA · Moon Phases", url: sourceUrls[1] },
+        { label: "NASA · Solar System Facts", url: sourceUrls[2] },
+      ],
+    },
+    metadata: UZAY_KULUBU_PIYESI_DRAFT.metadata,
+  };
+})();
 
 export const PRODUCTION_STORY_UPGRADES = [
   {
@@ -211,6 +250,12 @@ export const PRODUCTION_STORY_UPGRADES = [
       },
     ],
   },
+  ...(
+    UZAY_KULUBU_PRODUCTION_CANDIDATE.metadata.releaseReady === true
+    && UZAY_KULUBU_PRODUCTION_CANDIDATE.metadata.contentQualityReview?.status === "approved"
+      ? [UZAY_KULUBU_PRODUCTION_CANDIDATE]
+      : []
+  ),
 ];
 
 export const PRODUCTION_STORY_UPGRADES_BY_ID = Object.fromEntries(
