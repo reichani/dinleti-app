@@ -1295,15 +1295,15 @@ const RAFLAR = [
   { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en", "fox-and-grapes-en", "lion-and-mouse-graded-en", "ugly-duckling-en", "moon-poem-en", "space-poem-en"] },
   { ad: "Young English Readers", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en"] },
   { ad: "English Classics Bridge", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en"] },
-  { ad: "Gökyüzü ve Yıldızlar", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-ayi-gordu", "yildiz-mi-gezegen-mi", "oki-ay-haritasi", "ay-bilmecesi", "yildiz-bilmecesi", "gokyuzu-siiri"] },
+  { ad: "Gökyüzü ve Yıldızlar", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-ayi-gordu", "yildiz-mi-gezegen-mi", "oki-ay-haritasi", "uzay-kulubu-piyesi", "ay-bilmecesi", "yildiz-bilmecesi", "gokyuzu-siiri"] },
 
   { ad: "Şiir ve Ritim", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6", "ilk_harfler_6_7", "ilk_cumleler_7_8"], ids: ["toto-tak-tak-dedi", "nana-ritim-oyunu", "oki-hop-hop", "oki-ay-siiri", "yagmur-tip-tip-siiri"] },
   { ad: "Bilmeceler", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["ay-bilmecesi", "yildiz-bilmecesi", "tohum-bilmecesi"] },
   { ad: "Oki Doğa Kulübü", mod: "cocuk", yolIds: ["okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["bir-tohumun-yolculugu", "arilar-neden-dans-eder", "kutup-tilkisi-yolculugu", "tohum-bilmecesi"] },
   { ad: "English Poems", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["little-star-poem-en", "moon-poem-en", "space-poem-en"] },
   { ad: "Eski Zaman Masalları", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-gunesin-hikayesi", "lili-ay-isigi"] },
-  { ad: "Oki Mitolojiye Başlıyor", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["oki-pegasus", "oki-labirentin-izi"] },
-  { ad: "Mitoloji ve Kahramanlar", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["prometheusun-secimi", "oki-labirentin-izi", "oki-pegasus"] },
+  { ad: "Oki Mitolojiye Başlıyor", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["oki-pegasus", "oki-labirentin-izi", "labirentte-uc-ses"] },
+  { ad: "Mitoloji ve Kahramanlar", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["prometheusun-secimi", "oki-labirentin-izi", "oki-pegasus", "labirentte-uc-ses"] },
   { ad: "Mitolojiden Klasiklere", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["ikarus-bugun-ne-anlatir", "prometheusun-secimi", "ariadnenin-ipi-yetiskin"] },
   { ad: "Mitolojiyle Okumaya Dönüş", mod: "yetiskin", yolIds: ["yetiskin_odak_18"], ids: ["ariadnenin-ipi-yetiskin", "ikarus-bugun-ne-anlatir"] },
   { ad: "Rol Seçerek Oku", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-lili-sahnesi", "toto-acele-etme-piyesi", "mino-nerede-sahnesi", "labirentte-uc-ses"] },
@@ -2452,7 +2452,7 @@ export default function DinletiApp() {
   const uyumluRaflar = useMemo(() => RAFLAR
     .filter((raf) => !raf.yolIds || raf.yolIds.includes(okumaYolu.yolId))
     .map((raf) => ({ ...raf, ids: raf.ids.filter((id) => kitapUyum(kitapBul(id))) }))
-    .filter((raf) => raf.ids.length > 0 || Boolean(raf.yolIds)), [kitapUyum, okumaYolu.yolId]);
+    .filter((raf) => raf.ids.length > 0), [kitapUyum, okumaYolu.yolId]);
 
   const icerikAuditOzeti = useMemo(() => {
     const rafSayilari = uyumluRaflar.map((raf) => `${raf.ad}: ${raf.ids.length}`);
@@ -2826,22 +2826,16 @@ export default function DinletiApp() {
         </div>
       )}
       <DevamKart />
-      {uyumluRaflar.length === 0 && <div style={{ color: S.soluk, fontSize: 14, marginTop: 18 }}>Bu okuma yolu için içerik hazırlığı sürüyor. Okuma yolunu değiştirerek mevcut seçkilere bakabilirsin.</div>}
+      {uyumluRaflar.length === 0 && <div data-bos-okuma-yolu style={{ color: S.soluk, fontSize: 14, marginTop: 18 }}>Bu okuma yolunda yaş ve uzunluk hedefini karşılayan hazır tam metin bulunmuyor. Okuma yolunu değiştirerek mevcut seçkilere bakabilirsin.</div>}
       {uyumluRaflar.map((raf) => {
         const hazirIds = raf.ids.filter((id) => icerikSunumu(kitapBul(id)).deployable);
-        const rafOzeti = hazirIds.length === 0 ? "hazırlanıyor" : `${hazirIds.length} hazır`;
+        const rafOzeti = `${hazirIds.length} hazır`;
         return (
           <div key={raf.ad} data-content-shelf data-shelf-name={raf.ad} style={{ marginTop: 28 }}>
             <div style={{ ...baslikStil, fontSize: 19, marginBottom: 14 }}>{raf.ad} <span style={{ fontFamily: "Inter, system-ui, sans-serif", color: S.soluk, fontSize: 12, fontWeight: 500 }}>· {rafOzeti}</span></div>
-            {hazirIds.length === 0 ? (
-              <div data-bos-raf style={{ background: S.kart, color: S.soluk, borderRadius: 14, padding: 14, fontSize: 13 }}>
-                Bu başlık için içerik hazırlanıyor. İçerik ekibi bu okuma yoluna uygun metinleri OQL ve yaş seviyesine göre genişletiyor.
-              </div>
-            ) : (
-              <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 6 }}>
-                {hazirIds.map((id) => <KitapKart key={id} kitap={kitapBul(id)} />)}
-              </div>
-            )}
+            <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 6 }}>
+              {hazirIds.map((id) => <KitapKart key={id} kitap={kitapBul(id)} />)}
+            </div>
           </div>
         );
       })}
