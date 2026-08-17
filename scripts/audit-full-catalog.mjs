@@ -2,7 +2,9 @@ import { readFileSync, writeFileSync } from "node:fs";
 import vm from "node:vm";
 import { COMPLETE_OKURIO_SESSIONS } from "../src/content/completeOkurioSessions.js";
 import { PETER_RABBIT_FULL } from "../src/content/fullPublicDomainStories.js";
+import { ANDERSEN_STORIES } from "../src/content/andersenStories.js";
 import { mergePilotStories } from "../src/content/pilotCatalogAdapter.js";
+import { evaluateContentQualityReview } from "../src/content/contentQualityReview.js";
 
 const WORDS_PER_MINUTE = 155;
 const DURATION_TOLERANCE = 0.15;
@@ -20,6 +22,19 @@ const AGE_TARGETS = Object.freeze({
   "18+": { min: 1800, max: 3500 },
 });
 
+const READING_PATH_BY_AGE_BAND = Object.freeze({
+  "3-4": "okul_oncesi_3_4",
+  "5-6": "okumaya_hazirlik_5_6",
+  "6-7": "ilk_harfler_6_7",
+  "7-8": "ilk_cumleler_7_8",
+  "8-10": "okuma_guveni_8_10",
+  "10-12": "akici_okuma_10_12",
+  "12-14": "genc_okurlar_12_14",
+  "14-16": "klasiklere_hazirlik_14_16",
+  "16-18": "lise_okuma_16_18",
+  "18+": "yetiskin_odak_18",
+});
+
 const AGE_ALIASES = Object.freeze({
   "3-4": "3-4",
   "3-5": "3-4",
@@ -35,6 +50,7 @@ const AGE_ALIASES = Object.freeze({
   "6-9": "7-8",
   "7-8": "7-8",
   "7-10": "8-10",
+  "7-12": "10-12",
   "8-10": "8-10",
   "10-12": "10-12",
   "10+": "10-12",
@@ -109,6 +125,7 @@ function loadMergedCatalog() {
   return vm.runInNewContext(expression, {
     COMPLETE_OKURIO_SESSIONS,
     PETER_RABBIT_FULL,
+    ANDERSEN_STORIES,
     mergePilotStories,
   });
 }
@@ -137,6 +154,8 @@ const reports = catalog.map((story) => {
   const sentences = sentenceList(body);
   const sentenceWords = sentences.map(countWords);
   const review = story?.contentQualityReview ?? story?.metadata?.contentQualityReview ?? null;
+  const readingPathId = READING_PATH_BY_AGE_BAND[ageBand] ?? null;
+  const reviewEvaluation = evaluateContentQualityReview(review, { readingPathId });
   const rightsStatus = story?.hakDurumu ?? story?.metadata?.rightsStatus ?? "missing";
   const sourceUrl =
     story?.kaynak?.url ??
@@ -165,7 +184,10 @@ const reports = catalog.map((story) => {
   if (durationDelta !== null && durationDelta > DURATION_TOLERANCE) {
     blockers.push(`duration-delta:${Math.round(durationDelta * 100)}%`);
   }
-  if (!microExercise && !review) blockers.push("contentQualityReview-missing");
+  if (!microExercise && !reviewEvaluation.publicationReady) {
+    blockers.push(...reviewEvaluation.schemaBlockers.map((item) => `content-review-schema:${item}`));
+    blockers.push(...reviewEvaluation.approvalBlockers.map((item) => `content-review:${item}`));
+  }
   if (publicDomain && (!sourceUrl || !sourceScope)) {
     blockers.push("public-domain-source-or-scope-missing");
   }
@@ -200,6 +222,9 @@ const reports = catalog.map((story) => {
       (paragraph) => sentenceList(paragraph).length > 3,
     ).length,
     contentQualityReviewStatus: review?.status ?? "missing",
+    readingPathId,
+    candidateDeployReady: reviewEvaluation.candidateDeployReady,
+    publicationReady: reviewEvaluation.publicationReady,
     rightsStatus,
     publicDomain,
     sourceUrl,
