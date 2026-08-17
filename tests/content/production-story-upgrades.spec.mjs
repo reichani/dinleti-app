@@ -43,7 +43,7 @@ test("yenilenen hikâyeler yaş grubunun gerçek minimum süresini karşılar", 
   }
 });
 
-test("katalog birleştirme aynı kimlikli kısa metni onaylı tam metinle değiştirir", () => {
+test("katalog birleştirme kısa metni tam metin ve review v2 sözleşmesiyle değiştirir", () => {
   const legacy = {
     id: "oki-sesleri-dinliyor",
     baslik: "Eski kısa sürüm",
@@ -55,7 +55,11 @@ test("katalog birleştirme aynı kimlikli kısa metni onaylı tam metinle deği�
   const merged = mergePilotStories([legacy]);
   const upgraded = merged.find((story) => story.id === legacy.id);
 
-  assert.equal(upgraded, PRODUCTION_STORY_UPGRADES_BY_ID[legacy.id]);
+  assert.deepEqual(upgraded.bolumler, PRODUCTION_STORY_UPGRADES_BY_ID[legacy.id].bolumler);
   assert.notEqual(upgraded.baslik, legacy.baslik);
   assert.ok(seconds(upgraded) >= 120);
+  assert.equal(upgraded.contentQualityReview.schemaVersion, "2.0");
+  assert.equal(upgraded.contentQualityReview.status, "pending");
+  assert.equal(upgraded.contentQualityReview.reviewerName, "");
+  assert.equal(upgraded.releaseReady, false);
 });
