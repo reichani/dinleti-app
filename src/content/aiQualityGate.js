@@ -1,3 +1,5 @@
+import { evaluateContentQualityReview } from "./contentQualityReview.js";
+
 export const AI_QUALITY_STATUS = Object.freeze({
   PASS: "PASS",
   FAIL: "FAIL",
@@ -50,10 +52,12 @@ export function evaluateAiAssistedQualityGate(metadata = {}) {
   if (!isNonEmpty(owner.approvedCommit)) blockers.push("Owner approval approvedCommit is missing.");
   if (!isNonEmpty(owner.approvalNotes)) blockers.push("Owner approval approvalNotes is missing.");
 
-  const humanReview = metadata.contentQualityReview ?? {};
-  if (humanReview.status !== "approved") blockers.push("Human content quality review is not approved.");
-  if (!isNonEmpty(humanReview.reviewerName)) blockers.push("Human reviewerName is missing.");
-  if (humanReview.reviewerName === review.agentName) {
+  const humanReview = evaluateContentQualityReview(metadata.contentQualityReview, {
+    readingPathId: metadata.readingPathId,
+    deployedCommit: review.reviewedCommit,
+  });
+  blockers.push(...humanReview.schemaBlockers, ...humanReview.approvalBlockers);
+  if (humanReview.normalized.reviewerName === review.agentName) {
     blockers.push("AI agent cannot be recorded as the human reviewer.");
   }
 
