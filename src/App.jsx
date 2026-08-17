@@ -1278,7 +1278,7 @@ const KATALOG = mergePilotStories([
 ]);
 
 const RAFLAR = [
-  { ad: "Odysseia Yolculukları", mod: "cocuk", yolIds: ["okuma_guveni_8_10", "genc_okurlar_12_14", "lise_okuma_16_18"], ids: ["odysseia-01-cocuk-truvadan-ayrilis", "odysseia-01-genc-truvadan-ayrilis", "odysseia-01-yetiskin-truvadan-ayrilis"] },
+  { ad: "Odysseia Yolculukları", mod: "cocuk", yolIds: ["okuma_guveni_8_10", "genc_okurlar_12_14", "klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["odysseia-01-cocuk-truvadan-ayrilis", "odysseia-01-genc-truvadan-ayrilis", "odysseia-01-klasiklere-hazirlik", "odysseia-01-yetiskin-truvadan-ayrilis"] },
   { ad: "Tam Okuma Oturumları", mod: "cocuk", yolIds: ["ilk_harfler_6_7"], ids: ["okurio-1-grup-ses-bahcesi", "okurio-lili-kayip-tohum-haritasi"] },
   { ad: "Tam Metin · Kamu Malı", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["peter-rabbit-en"] },
   { ad: "Oki Minik Dinleyiciler", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-sesleri-dinliyor", "mino-miyav-dedi", "lili-yildiz-sayiyor", "toto-tak-tak-dedi", "nana-ritim-oyunu"] },
@@ -1305,7 +1305,7 @@ const RAFLAR = [
   { ad: "Eski Zaman Masalları", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-gunesin-hikayesi", "lili-ay-isigi"] },
   { ad: "Oki Mitolojiye Başlıyor", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["oki-pegasus", "oki-labirentin-izi", "labirentte-uc-ses"] },
   { ad: "Mitoloji ve Kahramanlar", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["prometheusun-secimi", "oki-labirentin-izi", "oki-pegasus", "labirentte-uc-ses"] },
-  { ad: "Mitolojiden Klasiklere", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["ikarus-bugun-ne-anlatir", "prometheusun-secimi", "ariadnenin-ipi-yetiskin"] },
+  { ad: "Mitolojiden Klasiklere", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["odysseia-01-klasiklere-hazirlik", "ikarus-bugun-ne-anlatir", "prometheusun-secimi", "ariadnenin-ipi-yetiskin"] },
   { ad: "Mitolojiyle Okumaya Dönüş", mod: "yetiskin", yolIds: ["yetiskin_odak_18"], ids: ["ariadnenin-ipi-yetiskin", "ikarus-bugun-ne-anlatir"] },
   { ad: "Rol Seçerek Oku", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-lili-sahnesi", "toto-acele-etme-piyesi", "mino-nerede-sahnesi", "labirentte-uc-ses"] },
   { ad: "Dünya Masalları", mod: "cocuk", ids: ["japon-masallari", "cin-masallari", "grimm-masallari", "andersen-masallari", "ezop-masallari"] },
@@ -1341,6 +1341,7 @@ const YOL_ICERIK_TURLERI = {
 };
 
 const ICERIK_METADATA = {
+  "odysseia-01-klasiklere-hazirlik": { yasMin: 14, yasMax: 16, readingPathId: "klasiklere_hazirlik_14_16", segmentler: ["klasiklere_hazirlik"], okumaEvreleri: ["uzun_metin", "akademik_klasik"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "odysseia", oql: 6 },
   "odysseia-01-cocuk-truvadan-ayrilis": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni"], okumaEvreleri: ["paragraf", "dinleme"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "odysseia", oql: 3 },
   "odysseia-01-genc-truvadan-ayrilis": { yasMin: 12, yasMax: 14, segmentler: ["genc_okurlar"], okumaEvreleri: ["uzun_metin", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "odysseia", oql: 5 },
   "odysseia-01-yetiskin-truvadan-ayrilis": { yasMin: 16, yasMax: 18, segmentler: ["lise_okuma"], okumaEvreleri: ["uzun_metin", "akademik_klasik"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "odysseia", oql: 7 },
@@ -2719,9 +2720,11 @@ export default function DinletiApp() {
         <Kapak kitap={kitap} boyut={genis ? 96 : 128} />
         <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{kitap.baslik}</div>
         <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{kitap.yazar}</div>
-        <div data-yas style={{ fontSize: 11, color: S.vurgu, marginTop: 3 }}>
-          {kitap.yas || `${meta.yasMin || ""}${meta.yasMax ? `–${meta.yasMax}` : "+"} yaş`}{kitap.dil === "en" ? ` · CEFR ${meta.cefr || "A1"}` : ""}{meta.harfGrubu ? ` · ${meta.harfGrubu}. harf grubu` : ""}
-        </div>
+        {(kitap.dil === "en" || meta.harfGrubu) && (
+          <div data-reading-support-label style={{ fontSize: 11, color: S.vurgu, marginTop: 3 }}>
+            {kitap.dil === "en" ? `CEFR ${meta.cefr || "A1"}` : ""}{kitap.dil === "en" && meta.harfGrubu ? " · " : ""}{meta.harfGrubu ? `${meta.harfGrubu}. harf grubu` : ""}
+          </div>
+        )}
         <div data-icerik-yolu style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{meta.icerikTuru.replace(/_/g, " ")}</div>
         <div data-content-scope style={{ fontSize: 11, color: sunum.deployable ? S.vurgu : "#D7B778", fontWeight: 700, marginTop: 4 }}>{sunum.label}</div>
         <OkurioProvenanceStamp stamp={kitap.provenanceStamp} compact />
@@ -2922,7 +2925,7 @@ export default function DinletiApp() {
             <Kapak kitap={k} boyut={52} radius={6} />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600, fontSize: 15 }}>{k.baslik}</div>
-              <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{k.yazar} · {k.kategori}{k.dil === "en" ? " · English" : ""}{k.yas ? ` · ${k.yas}` : ""} · {sureYaz(toplamSn(k))}</div>
+              <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{k.yazar} · {k.kategori}{k.dil === "en" ? " · English" : ""} · {sureYaz(toplamSn(k))}</div>
             </div>
           </div>
         ))}
@@ -2987,7 +2990,6 @@ export default function DinletiApp() {
           <span style={{ display: "flex", alignItems: "center", gap: 5 }}><Clock size={13} /> {sureYaz(toplamSn(k))}</span>
           <span style={{ display: "flex", alignItems: "center", gap: 5 }}><BookOpen size={13} /> {k.bolumler.length} bölüm</span>
           <span style={{ color: S.vurgu }}>★ {k.puan}</span>
-          {k.yas && <span style={{ background: "rgba(232,163,61,0.15)", color: S.vurgu, borderRadius: 6, padding: "1px 7px" }}>{k.yas}</span>}
           {k.dil === "en" && <span style={{ background: "rgba(90,140,160,0.25)", color: "#9CCDE0", borderRadius: 6, padding: "1px 7px" }}>English</span>}
         </div>
         {!profilUyumlu && (
