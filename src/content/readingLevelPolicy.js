@@ -1,4 +1,5 @@
 import { CONTENT_STATUS, classifyContent } from "./contentIntegrity.js";
+import { readingPathIdForAgeLabel } from "./contentQualityReview.js";
 
 export const WORDS_PER_MINUTE = 155;
 
@@ -37,6 +38,20 @@ export function evaluateStoryForReadingLevel(story, metadata = {}, yolId) {
     return {
       eligible: false,
       reason: classification.status,
+      target,
+      ...classification,
+    };
+  }
+
+  const declaredReadingPathId =
+    metadata.readingPathId ??
+    readingPathIdForAgeLabel(metadata.ageBand ?? story?.yas);
+  if (declaredReadingPathId && declaredReadingPathId !== yolId) {
+    return {
+      eligible: false,
+      reason: "reading-path-mismatch",
+      declaredReadingPathId,
+      requestedReadingPathId: yolId,
       target,
       ...classification,
     };

@@ -68,3 +68,12 @@ test("personal reading remains available regardless of catalog word target", () 
   );
   assert.equal(result.eligible, true);
 });
+
+test("10-12 yaş tam metni kelime aralığı çakışsa bile 8-10 rafına sızmaz", () => {
+  const tenToTwelveStory = storyWithWords(750, { yas: "10-12 yaş" });
+  const wrongPath = evaluateStoryForReadingLevel(tenToTwelveStory, metadata, "okuma_guveni_8_10");
+  const correctPath = evaluateStoryForReadingLevel(tenToTwelveStory, metadata, "akici_okuma_10_12");
+  assert.equal(wrongPath.eligible, false);
+  assert.equal(wrongPath.reason, "reading-path-mismatch");
+  assert.equal(correctPath.eligible, true);
+});
