@@ -1278,6 +1278,7 @@ const KATALOG = mergePilotStories([
 ]);
 
 const RAFLAR = [
+  { ad: "Odysseia Yolculukları", mod: "cocuk", yolIds: ["okuma_guveni_8_10", "genc_okurlar_12_14", "lise_okuma_16_18"], ids: ["odysseia-01-cocuk-truvadan-ayrilis", "odysseia-01-genc-truvadan-ayrilis", "odysseia-01-yetiskin-truvadan-ayrilis"] },
   { ad: "Tam Okuma Oturumları", mod: "cocuk", yolIds: ["ilk_harfler_6_7"], ids: ["okurio-1-grup-ses-bahcesi", "okurio-lili-kayip-tohum-haritasi"] },
   { ad: "Tam Metin · Kamu Malı", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["peter-rabbit-en"] },
   { ad: "Oki Minik Dinleyiciler", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-sesleri-dinliyor", "mino-miyav-dedi", "lili-yildiz-sayiyor", "toto-tak-tak-dedi", "nana-ritim-oyunu"] },
@@ -1340,6 +1341,9 @@ const YOL_ICERIK_TURLERI = {
 };
 
 const ICERIK_METADATA = {
+  "odysseia-01-cocuk-truvadan-ayrilis": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni"], okumaEvreleri: ["paragraf", "dinleme"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "odysseia", oql: 3 },
+  "odysseia-01-genc-truvadan-ayrilis": { yasMin: 12, yasMax: 14, segmentler: ["genc_okurlar"], okumaEvreleri: ["uzun_metin", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "odysseia", oql: 5 },
+  "odysseia-01-yetiskin-truvadan-ayrilis": { yasMin: 16, yasMax: 18, segmentler: ["lise_okuma"], okumaEvreleri: ["uzun_metin", "akademik_klasik"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "odysseia", oql: 7 },
   "okurio-1-grup-ses-bahcesi": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["ses_harf", "hece_kelime", "kisa_cumle", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "rehberli_okuma", oql: 1 },
   "okurio-lili-kayip-tohum-haritasi": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["ses_harf", "hece_kelime", "kisa_cumle", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "ozgun_hikaye", oql: 1 },
   "oe-01-mino-neden-uzuldu": { yasMin: 7, yasMax: 9, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf", "dinleme"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "duygu_farkindaligi", oql: 3 },

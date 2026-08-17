@@ -276,3 +276,103 @@ export const ODYSSEY_STORIES = [
     },
   },
 ];
+
+const ODYSSEY_SECTION_EXPANSIONS = {
+  "odysseia-01-genc-truvadan-ayrilis": [
+    "Kıyıda kalan sessizlik herkesi aynı biçimde etkilemedi. Bir tayfa arkadaşının adını küçük defterine yazdı. Başka biri eve götüreceği kemeri avucunda tuttu. Odysseus bu farklı vedaları uzaktan izledi. Zaferin ortak, yasın ise kişisel olduğunu anladı. Yeni yolculuk iki gerçeği birlikte taşıyacaktı.",
+    "Denetim sırasında görevler yalnız rütbeye göre dağıtılmadı. Deneyimli denizciler genç tayfalara yöntemlerini gösterdi. Her kontrol ikinci bir kişi tarafından tekrarlandı. Bu düzen hata aramayı suçlama olmaktan çıkardı. Amaç birini yakalamak değil, gemileri korumaktı. Hazırlık böylece ortak bir öğrenme sürecine dönüştü.",
+    "Odysseus anılarının eksik olabileceğini de düşündü. Özlem, geçmişin sert kenarlarını zamanla yumuşatabiliyordu. İthaka zihnindeki kadar sakin olmayabilirdi. Telemakhos kendi kararlarını veren bir genç olmuştu. Penelope de yılların yükünü tek başına taşımıştı. Dönüş, onları yeniden dinlemeyi gerektirecekti.",
+    "Onarım tamamlanınca genç tayfa çatlağın çevresini yeniden yokladı. Reçinenin kenarında küçük bir boşluk daha buldu. Marangoz bu dikkati açıkça takdir etti. Tayfa, ilk uyarısının önemsendiğini gördü. Böylece sonraki sorunları söylemekten çekinmeyecekti. Güven, duyulan küçük bir sesle büyümüştü.",
+    "Plan bütün kaptanlara açık işaretlerle anlatıldı. Öndeki gemi hız değişimini bayrakla bildirecekti. Arkadaki gemiler belirlenen aralığı koruyacaktı. Rüzgâr sertleşirse filo korunaklı koya dönecekti. Herkes geri dönüş koşulunu önceden biliyordu. Bu açıklık, değişikliği başarısızlık gibi göstermeyecekti.",
+    "İlk kürek ritmi kurulurken bir gemi geride kaldı. Odysseus öndekilere yavaşlama işareti verdi. Geciken geminin halatı yeniden bağlandı. Kimse onu geride bırakmayı önermedi. Filo ancak bütün gemiler hazır olunca hızlandı. Ortak amaç, en hızlı olanı izlemek değildi.",
+    "Nöbetçiler yalnız yıldızlara güvenmedi. Rüzgârı, dalgayı ve diğer gemilerin ışıklarını izlediler. Gördüklerini kısa aralıklarla birbirlerine aktardılar. Bir işaret tek başına kesin sayılmadı. Gece, dikkatli karşılaştırmalarla daha anlaşılır oldu. Odysseus ortak bilginin korkuyu azalttığını gördü.",
+  ],
+  "odysseia-01-yetiskin-truvadan-ayrilis": [
+    "Kıyıda sökülen çadırlar geçici bir düzenin bittiğini gösteriyordu. Fakat biten düzen hemen yeni bir anlam üretmiyordu. Askerler yıllarca düşmana göre tanımlanan roller taşımıştı. Şimdi kendilerini savaşın dışında yeniden düşünmeleri gerekiyordu. Bazıları bu boşluğu sevinçle karşıladı. Bazıları ise yönünü kaybetmiş gibi sessizleşti. Odysseus, zafer anlatısının bu ayrımları örtebileceğini fark etti. Bu nedenle konuşmalarında kolay bir coşku kurmadı. Kayıpları küçültmeden yolculuğa hazırlanmayı seçti. Yeni başlangıç, geçmişi inkâr ederek kurulamazdı.",
+    "İthaka'ya ilişkin anıları birbirinden farklı zamanlara aitti. Bazı görüntüler savaş öncesinin güvenini taşıyordu. Bazıları ayrılık sabahının keskin hüznünü saklıyordu. Odysseus, hafızanın tarafsız bir kayıt olmadığını biliyordu. İnsan özlediği yeri yeniden kurarak hatırlardı. Bu kurgu bazen dayanma gücü verirdi. Bazen de dönüşte karşılaşılacak değişimi görünmez kılardı. Penelope'nin bekleyişini kendi özlemiyle ölçemezdi. Telemakhos'un büyümesini de uzaktan sahiplenemezdi. Aidiyet, başkalarının değişimine yer açmayı gerektiriyordu.",
+    "Denetim listeleri deneyimli denizcilerin bilgisiyle yeniden düzenlendi. Her gemi aynı zayıflıkları taşımıyordu. Yaşı, yükü ve önceki hasarı farklıydı. Bu nedenle tek bir kontrol sırası yeterli değildi. Odysseus ortak ölçütlerle yerel bilgiyi birlikte kullandı. Marangozlar tahtaları seslerinden ayırt edebiliyordu. Dümenciler kürek dengesindeki küçük farkları hissediyordu. Kayıtlar bu deneyimi görünür hâle getirdi. Feraset böylece kişisel sezginin ötesine geçti. Paylaşılan yöntem, filonun ortak hafızasına dönüştü.",
+    "Kararın gerekçesi açıklandığında herkes aynı fikirde olmadı. Yine de itirazlar düzensizlik sayılmadı. Bir kaptan gecikmenin hava riskini artıracağını söyledi. Başka biri eksik onarımın daha büyük risk taşıdığını savundu. Odysseus iki kaygıyı da kayda geçirdi. Son kararı verirken hangi riski seçtiğini belirtti. Bu açıklama kesinlik görüntüsü yaratmadı. Tersine, sorumluluğun nerede bulunduğunu görünür kıldı. Güven yalnız doğru sonuçtan doğmuyordu. Dürüst karar süreci de güven üretiyordu.",
+    "Kıyı rotası seçilirken geri dönüş noktaları belirlendi. Her nokta rüzgâr ve görüş koşuluna bağlandı. Böylece plan değişikliği önceden düşünülmüş oldu. Odysseus, katı planların güven verdiğini biliyordu. Fakat değişen denizde katılık tehlike yaratabilirdi. Esneklik ise kuralsızlık anlamına gelmiyordu. Hangi koşulda neyin değişeceği açıkça yazılmıştı. Nöbetçiler bu sınırları birlikte takip edecekti. Bilgelik, belirsizliği ortadan kaldıramazdı. Ancak belirsizlik içinde daha iyi hareket sağlayabilirdi.",
+    "Ayrılık sırasında bazı denizciler küçük törenler yaptı. Biri denize bir çiçek bıraktı. Bir başkası kaybettiği kardeşinin adını söyledi. Bu davranışlar resmi bir emirden doğmamıştı. Yine de ortak sessizlik içinde kendilerine yer buldu. Odysseus törenleri hızlandırmaya çalışmadı. Zaman kaybı gibi görünen dakikalar önemliydi. İnsanlar geride bıraktıklarıyla bağlarını tanıyordu. Ardından küreklerine daha sakin döndüler. Hareket etmek, unutmak zorunda olmak değildi.",
+    "Odysseus dönüşteki otoritesini de sorguladı. On yıl önce bıraktığı unvan değişmemiş olabilirdi. Fakat unvan, ilişkilerin aynı kaldığını kanıtlamazdı. İthaka halkı onsuz karar vermeyi öğrenmişti. Penelope sarayın yükünü taşımıştı. Telemakhos kendi düşüncelerini geliştirmişti. Dönüş, eski düzeni zorla canlandırmak olmamalıydı. Önce yeni gerçekliği anlaması gerekecekti. Kral olmak, yalnız yerini geri almak değildi. Değişen topluma karşı yeniden sorumluluk üstlenmekti.",
+    "Gece ilerledikçe gemilerin ışıkları karanlıkta sıralandı. Her ışık başka bir topluluğun varlığını gösteriyordu. Odysseus filoyu tek beden gibi düşünmedi. Gemilerin farklı ihtiyaçları ve sınırları vardı. Yine de ortak işaretler onları birbirine bağlıyordu. Metanet bu bağın içinde somutlaştı. Bir gemi yavaşladığında diğerleri hızını ayarladı. Bir nöbetçi kuşku duyduğunda işareti paylaştı. Dayanıklılık yalnız bireysel iradeden doğmuyordu. Uyum sağlayan ilişkiler de filoyu ayakta tutuyordu.",
+  ],
+};
+
+const ODYSSEY_DEPTH_EXPANSIONS = {
+  "odysseia-01-genc-truvadan-ayrilis": [
+    "Kimse tek bir duygu göstermeye zorlanmadı. Sessizlik de geçerli bir vedaydı. Herkes kendi vedisine yeterli zamanı ayırabildi.",
+    "Genç tayfalar öğrendiklerini kendi sözcükleriyle tekrar anlattı. Böylece yöntem ortaklaştı.",
+    "Odysseus, cevap vermeden önce ailesinin deneyimini dinlemeye karar verdi. Özlem yetmezdi.",
+    "Küçük uyarıların erken paylaşılması artık geminin açık bir kuralıydı. Kimse küçümsenmeyecekti.",
+    "Kaptanlar planı kendi ekiplerine yeniden anlattı. Anlaşılmayan noktalar kıyıda açıklığa kavuştu.",
+    "Geciken geminin ekibi filoya ışıkla teşekkür etti. Karşılık olarak diğer ışıklar parladı.",
+    "İlk gece böylece yalnız korkuyla tanımlanmadı. İşbirliği de karanlıkta görünür oldu.",
+  ],
+  "odysseia-01-yetiskin-truvadan-ayrilis": [
+    "Odysseus askerlerin evlerine hangi hikâyeyi taşıyacağını düşündü. Zafer sözcüğü her deneyimi tek renge boyayabilirdi. Oysa geride kalan yıllar birçok anlam taşıyordu. Bazı kararlar hâlâ sorgulanmayı bekliyordu. Bazı kayıpların açıklaması hiç bulunamayacaktı. Dönüş yolunda bu belirsizliklere yer açmak istedi. Liderlik, ortak hafızayı tek başına yazma yetkisi değildi. Başkalarının anlatılarını da koruma sorumluluğuydu.",
+    "Kendisi de anılarında seçici davranıyor olabilirdi. İthaka'nın güzel ayrıntıları zihninde daha parlak kalmıştı. Zor anlaşmazlıklar ise zamanla silikleşmişti. Bu farkındalık özlemini değersiz kılmadı. Yalnız ona daha ölçülü yaklaşmasını sağladı. Döneceği yer, hatırasının kusursuz kopyası olmayacaktı. Yeni bağlar ancak gerçek karşılaşmalarla kurulabilirdi. Bunun için sabır ve dinleme gerekecekti.",
+    "Her geminin kontrol sonucu kil tabletlere işlendi. Onarımlar tamamlandıkça kayıtlar ikinci kez karşılaştırıldı. Böylece sözlü bilgi kaybolmadan sonraki nöbete aktarılabildi. Odysseus kayıtların kusursuz olmadığını özellikle belirtti. Bir işaret unutulabilir veya yanlış okunabilirdi. Bu yüzden kayıt ile gözlem birlikte kullanılacaktı. Sistem, insan dikkatinin yerine geçmeyecekti. Dikkati daha tutarlı hâle getirecekti.",
+    "Mürettebat açıklama isteyebileceğini zamanla fark etti. Bu hak, komutanın sorumluluğunu daha görünür yaptı. Odysseus her soruya hemen cevap vermedi. Bilmediği noktaları açıkça ayırdı. Sonra deneyimli kişilerden görüş topladı. Bu tutum kararsızlık olarak görülmedi. Çünkü karar zamanı ve sınırı belliydi. Açıklık, otoriteyle düşünmeyi yan yana getirdi.",
+    "Rüzgârın yönü gece içinde yeniden değişebilirdi. Bu nedenle nöbetçiler yalnız mevcut havayı kaydetmedi. Değişimin hızını da izledi. Dalgaların aralığı düzenli biçimde karşılaştırıldı. Uzak bulutlar her nöbette yeniden çizildi. Küçük değişimler üst üste gelirse rota gözden geçirilecekti. Plan, yaşayan bir belge gibi kullanılacaktı. Deniz sabit olmadığı için karar da donmayacaktı.",
+    "Törenlerden sonra güvertede daha derin bir sessizlik oluştu. Bu sessizlik önceki boşluktan farklıydı. Söylenmesi gereken bazı adlar söylenmişti. Paylaşılan yas insanları aynılaştırmadı. Yalnız birbirlerinin yükünü görmelerini sağladı. Bir tayfa arkadaşının küreğini bir süre taşıdı. Başka biri nöbet sırasını gönüllü değiştirdi. Hatırlamak böylece küçük dayanışmalara dönüştü.",
+    "Odysseus kendi yokluğunun sonuçlarını kabul etmek zorundaydı. İyi niyet, yılların açtığı mesafeyi kapatmayabilirdi. Döndüğünde hemen anlaşılmayı beklememeliydi. Önce başkalarının kurduğu düzeni görmeliydi. Sonra kendi yerini yeniden müzakere etmeliydi. Bu düşünce gururunu rahatsız etti. Yine de onu daha gerçekçi kıldı. Aidiyet, talep kadar karşılıklılık da gerektiriyordu.",
+    "Gece nöbeti değişirken kısa bir toplantı yapıldı. İlk saatlerin gözlemleri yeni ekibe aktarıldı. Hiçbir olağandışı durum saklanmadı. Küçük tereddütler bile kayda geçirildi. Böylece yeni nöbet aynı soruları baştan kurmadı. Topluluk, birbirinin dikkatini devraldı. Metanet kesintisiz güç göstermek değildi. Yükü zamanında başkasına bırakabilmekti.",
+  ],
+};
+
+for (const story of ODYSSEY_STORIES) {
+  const expansions = ODYSSEY_SECTION_EXPANSIONS[story.legacy.id];
+  if (!expansions) continue;
+  story.legacy.bolumler.forEach((section, index) => {
+    const depth = ODYSSEY_DEPTH_EXPANSIONS[story.legacy.id]?.[index] ?? "";
+    section.metin = `${section.metin}\n\n${expansions[index]}${depth ? `\n\n${depth}` : ""}`;
+  });
+  const totalWords = story.legacy.bolumler.reduce((sum, section) => {
+    const words = section.metin.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
+    return sum + words;
+  }, 0);
+  const estimatedMinutes = Number((totalWords / 155).toFixed(1));
+  story.legacy.sureDk = estimatedMinutes;
+  story.metadata.estimatedMinutes = estimatedMinutes;
+}
+
+const ODYSSEY_READABILITY_REVISIONS = new Map([
+  ["İthaka'ya dönme düşüncesi içini umutla doldursa da önündeki denizin zaferden daha farklı bir sınav olduğunu biliyordu.", "İthaka'ya dönme düşüncesi içini umutla dolduruyordu. Fakat denizin farklı bir sınav olduğunu biliyordu."],
+  ["Karada düşman görünürdü; denizde ise tehlike çoğu zaman rüzgârın, akıntının ya da yanlış bir kararın içine saklanırdı.", "Karada düşman görünürdü. Denizdeki tehlike ise rüzgâra, akıntıya veya kararlara saklanırdı."],
+  ["Bazı denizciler bu denetimi gereksiz buldu; savaş bitmişti ve herkes bir an önce evine ulaşmak istiyordu.", "Bazı denizciler bu denetimi gereksiz buldu. Savaş bitmişti ve herkes evine ulaşmak istiyordu."],
+  ["Küçük kusurlar giderilirken gecikme arttı, fakat yolculuğun ilk günlerinde yaşanabilecek daha büyük sorunların önüne geçildi.", "Küçük kusurlar giderilirken gecikme arttı. Fakat daha büyük sorunların önüne geçildi."],
+  ["Su yiyecekleri bozabilir, bozulan erzak denizcileri güçsüz bırakabilir, güçsüzlük de yanlış kararlara yol açabilirdi.", "Su yiyecekleri bozabilirdi. Bozulan erzak denizcileri güçsüz bırakabilirdi. Güçsüzlük de yanlış kararlara yol açabilirdi."],
+  ["Sonunda gün batımından önce koydan çıkmaya, geceyi açık denize ulaşmadan korunaklı bir kıyı boyunca ilerleyerek geçirmeye karar verdi.", "Sonunda gün batımından önce koydan çıkmaya karar verdi. Geceyi korunaklı kıyı boyunca ilerleyerek geçireceklerdi."],
+  ["Ortak rota, bu farklılıkları yok etmiyor; onları aynı amaç çevresinde bir arada tutuyordu.", "Ortak rota bu farklılıkları yok etmiyordu. Onları aynı amaç çevresinde tutuyordu."],
+  ["Odysseus nöbet düzenini yeniden kontrol etti ve herkesin dinlenebilmesi için görevleri eşit biçimde dağıttı.", "Odysseus nöbet düzenini yeniden kontrol etti. Görevleri herkes dinlenebilsin diye eşit dağıttı."],
+  ["Zafer, geçmişte kalan bir sonuçtu; dönüş ise her gün yeniden kurulacak bir süreçti.", "Zafer geçmişte kalan bir sonuçtu. Dönüş ise her gün yeniden kurulacaktı."],
+  ["Bunun için yalnızca zekâ değil, sabır, dayanışma ve gerektiğinde fikrini değiştirebilme gücü gerekiyordu.", "Bunun için zekâ, sabır ve dayanışma gerekiyordu. Gerektiğinde fikir değiştirmek de önemliydi."],
+  ["İlk gecenin sonunda Odysseus şunu anladı: İthaka'ya giden yol haritada çizilebilir, fakat insanın eve gerçekten dönebilmesi için sorumluluğunu da yanında taşıması gerekirdi.", "İlk gecenin sonunda Odysseus önemli bir şey anladı. İthaka'ya giden yol haritada çizilebilirdi. Gerçek dönüş ise sorumluluğu yanında taşımayı gerektiriyordu."],
+  ["Zafer, uzaktan bakıldığında kesin bir sonuç gibi duruyordu; yakından ise yorgunluk, kayıp ve cevapsız sorular taşıyordu.", "Zafer uzaktan kesin bir sonuç gibi duruyordu. Yakından yorgunluk, kayıp ve cevapsız sorular taşıyordu."],
+  ["On yıl boyunca tek amaç etrafında yaşayan insanlar şimdi ne yapacaklarını yeniden öğrenmek zorundaydı.", "İnsanlar on yıl boyunca tek bir amaçla yaşamıştı. Şimdi yönlerini yeniden öğrenmeleri gerekiyordu."],
+  ["Kayalık kıyılar, zeytin ağaçları, sarayın avlusunda değişen ışık ve Penelope'nin sesi birbirine karıştı.", "Kayalık kıyılar ve zeytin ağaçları zihninde canlandı. Avlunun ışığı Penelope'nin sesine karıştı."],
+  ["Aidiyet bu nedenle yalnızca bir yere sahip olmak değil, değişmiş hâlinle o yere yeniden bağ kurabilmekti.", "Aidiyet yalnızca bir yere sahip olmak değildi. Değişmiş hâlinle yeniden bağ kurabilmekti."],
+  ["İthaka'nın çağrısı güçlüydü; fakat bu çağrı ona aynı zamanda hesabı verilmemiş yılları ve yeniden kurulması gereken ilişkileri hatırlatıyordu.", "İthaka'nın çağrısı güçlüydü. Fakat geçen yıllar henüz açıklanmamıştı. İlişkilerin de yeniden kurulması gerekiyordu."],
+  ["Oysa Odysseus, açık denizde büyük felaketlerin çoğu zaman küçük bir ihmalin çevresinde büyüdüğünü biliyordu.", "Odysseus açık denizdeki riskleri biliyordu. Büyük felaketler küçük bir ihmalin çevresinde büyüyebilirdi."],
+  ["Ancak bu gecikme, ileride yiyeceği, güvenliği ve insan gücünü koruyacak bir yatırıma dönüştü.", "Ancak bu gecikme önemli bir yatırıma dönüştü. Yiyeceği, güvenliği ve insan gücünü koruyacaktı."],
+  ["Odysseus farklı kaptanların görüşlerini dinledi, riskleri karşılaştırdı ve hangi belirsizliği neden kabul ettiğini anlattı.", "Odysseus farklı kaptanların görüşlerini dinledi. Riskleri karşılaştırdı ve kabul ettiği belirsizliği açıkladı."],
+  ["Bir kısmı uygun rüzgârı kaçırmadan açılmak istiyor, diğerleri geceyi kıyıda geçirmenin daha güvenli olduğunu savunuyordu.", "Bazıları uygun rüzgârla hemen açılmak istiyordu. Diğerleri geceyi kıyıda geçirmeyi daha güvenli buluyordu."],
+  ["Her biri yanında görünmeyen bir yük taşıyordu: kaybettikleri insanlar, verdikleri kararlar, söyleyemedikleri sözler.", "Her biri görünmeyen bir yük taşıyordu. Kayıpları, kararları ve söylenmemiş sözleri vardı."],
+  ["Bu yüzden dönüş, geçmişe geri gitmek değil, geçmişle bugünün arasında yeni bir ilişki kurmaktır.", "Bu yüzden dönüş geçmişe geri gitmek değildi. Geçmişle bugün arasında yeni ilişki kurmaktı."],
+  ["Odysseus uyumadan önce gemilerin sırasını, rüzgârın değişimini ve ertesi günün rotasını yeniden düşündü.", "Odysseus uyumadan önce gemilerin sırasını düşündü. Rüzgârı ve ertesi günün rotasını yeniden değerlendirdi."],
+  ["Eve dönüş başlamıştı; fakat yolun onu hangi kıyılara, hangi kayıplara ve hangi hakikatlere götüreceği henüz bilinmiyordu.", "Eve dönüş başlamıştı. Fakat yolun getireceği kıyılar ve kayıplar bilinmiyordu. Hakikatler de henüz uzaktaydı."],
+]);
+
+for (const story of ODYSSEY_STORIES) {
+  story.legacy.bolumler.forEach((section) => {
+    for (const [before, after] of ODYSSEY_READABILITY_REVISIONS) {
+      section.metin = section.metin.replace(before, after);
+    }
+  });
+  const revisedWordCount = story.legacy.bolumler.reduce((sum, section) =>
+    sum + (section.metin.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0), 0);
+  const revisedMinutes = Number((revisedWordCount / 155).toFixed(1));
+  story.legacy.sureDk = revisedMinutes;
+  story.metadata.estimatedMinutes = revisedMinutes;
+}
