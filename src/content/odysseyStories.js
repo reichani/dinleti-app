@@ -321,7 +321,38 @@ const ODYSSEY_DEPTH_EXPANSIONS = {
   ],
 };
 
+const ODYSSEY_EDITORIAL_LANGUAGE_PROFILES = {
+  "odysseia-01-cocuk-truvadan-ayrilis": {
+    idioms: [],
+    proverbs: [],
+    culturalObjects: [
+      { name: "ambar", context: "Gemide yiyeceklerin korunduğu bölüm olarak olayın neden-sonuç zincirini kurar.", ageFit: "Somut işlevi metin içinde açıklanır ve 8–10 yaş okuruna uygundur." },
+      { name: "reçine", context: "Ahşap çatlağın onarımında kullanılan doğal malzemedir.", ageFit: "Nesne, eylem ve sonuç birlikte verildiği için bağlamdan anlaşılır." },
+    ],
+  },
+  "odysseia-01-genc-truvadan-ayrilis": {
+    idioms: [
+      { expression: "farklı yüklerle", meaning: "Kişilerin görünmeyen duygu ve anılarla yol aldığını anlatan mecazdır.", ageFit: "Soyut anlam, hemen ardından kayıplar ve sözlerle somutlaştırılır." },
+    ],
+    proverbs: [],
+    culturalObjects: [
+      { name: "reçine", context: "Gemi ambarındaki çatlağın yalıtılmasında kullanılır.", ageFit: "Teknik kullanım olay örgüsüne bağlı ve anlaşılırdır." },
+    ],
+  },
+  "odysseia-01-yetiskin-truvadan-ayrilis": {
+    idioms: [
+      { expression: "yük taşıyordu", meaning: "Savaşın bıraktığı kişisel ve toplumsal sonuçları anlatan mecazdır.", ageFit: "Soyut etik değerlendirme 16–18 yaş okuma düzeyine uygundur." },
+    ],
+    proverbs: [],
+    culturalObjects: [
+      { name: "kil tabletlere", context: "Gemi denetimlerinin aktarılabilir kayda dönüşmesini gösterir.", ageFit: "Tarihsel unsur, bilgi sürekliliği ve sorumluluk temasıyla ilişkilidir." },
+      { name: "zeytin ağaçları", context: "İthaka'nın coğrafi ve kültürel belleğini somutlaştırır.", ageFit: "Mekân ve aidiyet temasına doğal biçimde bağlanır." },
+    ],
+  },
+};
+
 for (const story of ODYSSEY_STORIES) {
+  story.metadata.editorialLanguageProfile = ODYSSEY_EDITORIAL_LANGUAGE_PROFILES[story.legacy.id];
   const expansions = ODYSSEY_SECTION_EXPANSIONS[story.legacy.id];
   if (!expansions) continue;
   story.legacy.bolumler.forEach((section, index) => {

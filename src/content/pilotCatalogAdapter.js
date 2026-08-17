@@ -10,6 +10,7 @@ import {
   normalizeContentQualityReview,
   readingPathIdForAgeLabel,
 } from "./contentQualityReview.js";
+import { runContentEditorialPreReview } from "./contentEditorialReviewAgent.js";
 
 const BLOCKED_STORY_IDS = new Set([
   "mino-neden-uzuldu",
@@ -37,10 +38,12 @@ const attachReviewContract = (story) => {
   const sourceReview = story.contentQualityReview ?? metadata.contentQualityReview;
   const contentQualityReview = normalizeContentQualityReview(sourceReview, readingPathId);
   const review = evaluateContentQualityReview(contentQualityReview, { readingPathId });
+  const aiEditorialReview = runContentEditorialPreReview(story, { ...metadata, readingPathId });
 
   return {
     ...story,
     contentQualityReview,
+    aiEditorialReview,
     releaseReady: story.releaseReady === true && review.publicationReady,
   };
 };
