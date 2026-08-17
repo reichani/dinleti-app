@@ -1594,7 +1594,7 @@ const OKUMA_MODU_ANAHTAR = "okurio-okuma-modu-v1";
 const DESTEK_SECENEKLERI = [
   { id: "kelime_takibi", ad: "Kelime takibi" },
   { id: "hece_takibi", ad: "Hece takibi" },
-  { id: "odak", ad: "Sadece aktif cümle" },
+  { id: "odak", ad: "Aktif cümleyi öne çıkar" },
   { id: "buyuk_yazi", ad: "Büyük yazı" },
   { id: "genis_aralik", ad: "Geniş aralık" },
   { id: "yumusak_zemin", ad: "Yumuşak zemin" },
@@ -3138,8 +3138,12 @@ export default function DinletiApp() {
               let bas = 0;
               kelimeler.forEach((k, i) => { if (/[.!?…]$/.test(k) || i === kelimeler.length - 1) { cumleler.push([bas, i]); bas = i + 1; } });
               const aktifCumle = cumleler.find(([a, z]) => kelimeIx >= a && kelimeIx <= z) || cumleler[0];
-              const gorunecek = ayar.odak ? kelimeler.slice(aktifCumle[0], aktifCumle[1] + 1) : kelimeler;
-              const kaydirma = ayar.odak ? aktifCumle[0] : 0;
+              // Odak desteği bölümün bağlamını yok etmez. Önceki davranış yalnız
+              // aktif cümleyi DOM'a koyduğu için tam bir bölüm tek cümleymiş gibi
+              // görünüyordu. Bütün bölüm ekranda kalır; aktif cümle görsel olarak
+              // öne çıkarılır.
+              const gorunecek = kelimeler;
+              const kaydirma = 0;
               return (
                 <div id="okurio-okuma-icerigi" data-reader-workspace>
                   <div data-reading-column>
@@ -3157,6 +3161,7 @@ export default function DinletiApp() {
                     {gorunecek.map((k, i) => {
                       const gercekIx = i + kaydirma;
                       const aktifMi = ayar.vurgu && gercekIx === kelimeIx;
+                      const aktifCumledeMi = gercekIx >= aktifCumle[0] && gercekIx <= aktifCumle[1];
                       const temiz = k.replace(/[.,!?…;:]+$/u, "");
                       const son = k.slice(temiz.length);
                       const n = Math.max(1, Math.ceil(temiz.length * 0.45));
@@ -3182,6 +3187,8 @@ export default function DinletiApp() {
                           borderRadius: 4,
                           padding: aktifMi ? "0 2px" : 0,
                           color: aktifMi ? (ayar.tema === "krem" ? "#1A1510" : "#FFF3DC") : undefined,
+                          opacity: ayar.odak && !aktifCumledeMi ? 0.38 : 1,
+                          transition: ayar.odak ? "opacity 160ms ease" : undefined,
                           cursor: sozluk ? "help" : undefined,
                           textDecoration: sozluk ? "underline dotted" : undefined,
                           textUnderlineOffset: sozluk ? 3 : undefined,
@@ -3195,7 +3202,7 @@ export default function DinletiApp() {
                       <GlossaryCard entry={seciliSozluk} onClose={sozlukKapat} onPronounce={kelimeyiSeslendir} />
                     </div>
                   )}
-                  {ayar.odak && <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>Odak modu: cümle {cumleler.indexOf(aktifCumle) + 1} / {cumleler.length}</div>}
+                  {ayar.odak && <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>Odak modu: cümle {cumleler.indexOf(aktifCumle) + 1} / {cumleler.length} · bölümün tamamı görünür</div>}
                   </div>
                   <aside id="okurio-okuma-ayarlari" data-reader-settings data-acik={ayarPaneliAcik ? "1" : "0"} aria-label="Okuma ayarları" aria-hidden={mobilDar && !ayarPaneliAcik ? "true" : undefined}>
                   <div data-reader-settings-title style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
