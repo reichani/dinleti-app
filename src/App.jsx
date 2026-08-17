@@ -7,6 +7,7 @@ import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
 import { COMPLETE_OKURIO_SESSIONS } from "./content/completeOkurioSessions.js";
 import { ANDERSEN_STORIES } from "./content/andersenStories.js";
 import { classifyContent, estimateStorySeconds } from "./content/contentIntegrity.js";
+import { evaluateStoryForReadingLevel } from "./content/readingLevelPolicy.js";
 import { getGradeLabelForYolId, minimumFullReadingSecondsForAge } from "./content/schoolGradeMapping.js";
 import { cursorFromPosition, positionFromCursor, readingProgressSnapshot, monotonicBoundaryWord } from "./reader-core.js";
 
@@ -1647,7 +1648,8 @@ const kitapOkumaYolunaUygunMu = (kitap, yol = VARSAYILAN_OKUMA_YOLU) => {
   const turUyumu = izinliTurler.length === 0 || izinliTurler.includes(meta.icerikTuru);
   const modUyumu = yolDetay.mod === "yetiskin" ? meta.segmentler.includes("yetiskin_odak") : !meta.segmentler.every((s) => s === "yetiskin_odak");
   const evreUyumu = !yol.evreId || meta.okumaEvreleri.includes(yol.evreId) || yol.evreId === "dinleme" || yolDetay.mod === "yetiskin";
-  return segmentUyumu && turUyumu && modUyumu && evreUyumu;
+  const seviyeUyumu = evaluateStoryForReadingLevel(kitap, meta, yol.yolId).eligible;
+  return segmentUyumu && turUyumu && modUyumu && evreUyumu && seviyeUyumu;
 };
 
 /* ------------------------------------------------------------------ */
@@ -2682,6 +2684,7 @@ export default function DinletiApp() {
     const meta = kitapMeta(kitap);
     const kalite = icerikKalitesi(kitap);
     const sunum = icerikSunumu(kitap);
+    const seviye = evaluateStoryForReadingLevel(kitap, meta, okumaYolu.yolId);
     const ayrintiAc = () => setDetayId(kitap.id);
     return (
       <div
@@ -2689,6 +2692,8 @@ export default function DinletiApp() {
         data-story-id={kitap.id}
         data-content-status={sunum.status}
         data-reading-enabled={sunum.deployable ? "true" : "false"}
+        data-word-count={seviye.wordCount ?? 0}
+        data-reading-level={okumaYolu.yolId}
         role="button"
         tabIndex={0}
         aria-label={`${kitap.baslik} ayrıntılarını aç${sunum.deployable ? "" : " · hazırlanıyor"}`}
