@@ -4,6 +4,7 @@ import {
   PILOT_STORY_METADATA,
 } from "./pilotStories.js";
 import { ODYSSEY_STORIES } from "./odysseyStories.js";
+import { CLASSICS_PREP_STORIES } from "./classicsPrepStories.js";
 import { PRODUCTION_STORY_UPGRADES_BY_ID } from "./productionStoryUpgrades.js";
 import {
   evaluateContentQualityReview,
@@ -21,7 +22,7 @@ const BLOCKED_STORY_IDS = new Set([
   "os-01-toto-bir-an-durdu",
 ]);
 
-const ALL_CURATED_STORIES = [...ODYSSEY_STORIES, ...PILOT_STORIES];
+const ALL_CURATED_STORIES = [...ODYSSEY_STORIES, ...CLASSICS_PREP_STORIES, ...PILOT_STORIES];
 const PRODUCTION_VISIBLE_CURATED_STORIES = ALL_CURATED_STORIES.filter(
   ({ legacy }) => !BLOCKED_STORY_IDS.has(legacy.id),
 );
