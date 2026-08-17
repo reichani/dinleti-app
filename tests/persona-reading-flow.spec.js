@@ -158,7 +158,7 @@ test.describe("Persona bazlı okuma akışı", () => {
     expect(result.lastOptions.top).toBeLessThanOrEqual(72);
   });
 
-  test("dikkat desteği: kullanıcı seçince odak görünümü açık ve biyonik vurgu kapalı kalır", async ({ page }) => {
+  test("dikkat desteği: aktif cümleyi öne çıkarırken bölüm bağlamını korur", async ({ page }) => {
     await kendiMetniniAc(page, personaMetni);
     const player = page.locator("[data-mobile-stability]");
     const panel = await ayarlariAc(page);
@@ -168,7 +168,11 @@ test.describe("Persona bazlı okuma akışı", () => {
     await expect(panel.getByRole("button", { name: "Biyonik vurgu, deneysel" })).toHaveAttribute("aria-pressed", "false");
     const readingText = player.locator("[data-okuma-metin]");
     await expect(readingText).toContainText("Cümle 1");
-    await expect(readingText).not.toContainText("Cümle 9");
+    await expect(readingText).toContainText("Cümle 9");
+    await expect(player.getByText(/bölümün tamamı görünür/i)).toBeVisible();
+    const contextWord = readingText.locator("[data-kelime-ix='40']");
+    await expect(contextWord).toBeAttached();
+    await expect(contextWord).toHaveCSS("opacity", "0.38");
     await expect(player).toHaveAttribute("data-persona-flow", "calm");
   });
 
