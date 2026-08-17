@@ -5,6 +5,11 @@ import {
 } from "./pilotStories.js";
 import { ODYSSEY_STORIES } from "./odysseyStories.js";
 import { PRODUCTION_STORY_UPGRADES_BY_ID } from "./productionStoryUpgrades.js";
+import {
+  evaluateContentQualityReview,
+  normalizeContentQualityReview,
+  readingPathIdForAgeLabel,
+} from "./contentQualityReview.js";
 
 const BLOCKED_STORY_IDS = new Set([
   "mino-neden-uzuldu",
@@ -24,6 +29,22 @@ const ALL_CURATED_STORY_METADATA = Object.fromEntries(
   ALL_CURATED_STORIES.map(({ legacy, metadata }) => [legacy.id, metadata]),
 );
 
+const attachReviewContract = (story) => {
+  const metadata = ALL_CURATED_STORY_METADATA[story.id] ?? story.metadata ?? {};
+  const readingPathId =
+    metadata.readingPathId ??
+    readingPathIdForAgeLabel(metadata.ageBand ?? story.yas);
+  const sourceReview = story.contentQualityReview ?? metadata.contentQualityReview;
+  const contentQualityReview = normalizeContentQualityReview(sourceReview, readingPathId);
+  const review = evaluateContentQualityReview(contentQualityReview, { readingPathId });
+
+  return {
+    ...story,
+    contentQualityReview,
+    releaseReady: story.releaseReady === true && review.publicationReady,
+  };
+};
+
 /**
  * Safely merges curated stories into the existing catalog without mutating the
  * original array. Approved production upgrades replace matching legacy story
@@ -40,7 +61,7 @@ export function mergePilotStories(existingCatalog = []) {
     (story) => !existingIds.has(story.id),
   );
 
-  return [...newStories, ...upgradedCatalog];
+  return [...newStories, ...upgradedCatalog].map(attachReviewContract);
 }
 
 /**
