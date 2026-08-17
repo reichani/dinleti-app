@@ -42,18 +42,18 @@ export const ODYSSEY_STORIES = [
       yas: "7-10 yaş",
       renk: ["#274C77", "#A3CEF1"],
       puan: 5,
-      sureDk: 5,
+      sureDk: 3.3,
       ozet: "Odysseus, savaşın ardından eve dönmek için yola çıkarken hazırlığın, sabrın ve dayanışmanın değerini keşfeder.",
       bolumler: [
         {
           ad: "Sönen Ateşlerin Ardında",
           dk: 1,
-          metin: "Truva'nın yüksek surları sabahın solgun ışığında sessiz görünüyordu. On yıl boyunca kentin çevresinde kurulan çadırlar sökülmüş, savaş ateşleri yavaş yavaş sönmüştü. Odysseus kıyıda durup denizi izledi. Önünde parlayan su ona hem eve dönüşü hem de bilinmeyen yolları hatırlatıyordu. İthaka uzaktaydı; orada eşi Penelope ve oğlu Telemakhos onu bekliyordu. Odysseus, ‘Zafer kazandık ama yolculuğumuz henüz bitmedi,’ dedi. Denizciler onun çevresinde toplandı. Hepsi evlerini özlemişti. Yine de acele etmenin tehlikeli olacağını biliyorlardı. Önce gemileri, yiyecekleri ve su kaplarını dikkatle kontrol etmeleri gerekiyordu.",
+          metin: "Truva'nın yüksek surları sabahın solgun ışığında sessiz görünüyordu. Kentin çevresindeki çadırlar on yıl sonra sökülmüştü. Savaş ateşleri de yavaş yavaş sönmüştü. Odysseus kıyıda durup denizi izledi. Önünde parlayan su ona hem eve dönüşü hem de bilinmeyen yolları hatırlatıyordu. İthaka uzaktaydı; orada eşi Penelope ve oğlu Telemakhos onu bekliyordu. Odysseus, ‘Zafer kazandık ama yolculuğumuz henüz bitmedi,’ dedi. Denizciler onun çevresinde toplandı. Hepsi evlerini özlemişti. Yine de acele etmenin tehlikeli olacağını biliyorlardı. Önce gemileri, yiyecekleri ve su kaplarını dikkatle kontrol etmeleri gerekiyordu.",
         },
         {
           ad: "İthaka'yı Hatırlamak",
           dk: 1,
-          metin: "Odysseus gözlerini kapattığında İthaka'yı düşündü. Kayalık kıyıları, zeytin ağaçlarını ve evinin avlusunu hatırladı. Telemakhos'u en son küçük bir çocukken görmüştü. Şimdi ne kadar büyüdüğünü bilmiyordu. Penelope'nin sabırlı sesini anımsadı. Bu düşünceler ona güç verdi, fakat aynı zamanda sorumluluğunu da hatırlattı. Gemilerde yalnızca kendi hayatı yoktu; yanında yolculuk eden herkesin güvenliği de ona bağlıydı. Bu yüzden denizcilere görevlerini tek tek anlattı. Kimisi halatları kontrol edecek, kimisi kürekleri sayacak, kimisi de su kaplarının ağzını sıkıca kapatacaktı. ‘Eve ulaşmak istiyorsak birbirimize dikkat etmeliyiz,’ dedi.",
+          metin: "Odysseus gözlerini kapattığında İthaka'yı düşündü. Kayalık kıyıları, zeytin ağaçlarını ve evinin avlusunu hatırladı. Telemakhos'u en son küçük bir çocukken görmüştü. Şimdi ne kadar büyüdüğünü bilmiyordu. Penelope'nin sabırlı sesini anımsadı. Bu düşünceler ona güç verdi, fakat aynı zamanda sorumluluğunu da hatırlattı. Gemide yalnızca kendi hayatı yoktu. Yolculuk eden herkesin güvenliği de ona bağlıydı. Bu yüzden denizcilere görevlerini tek tek anlattı. Kimisi halatları kontrol edecekti. Kimisi kürekleri sayacaktı. Başkaları da su kaplarını sıkıca kapatacaktı. ‘Eve ulaşmak istiyorsak birbirimize dikkat etmeliyiz,’ dedi.",
         },
         {
           ad: "Küçük Çatlak",
@@ -63,7 +63,7 @@ export const ODYSSEY_STORIES = [
         {
           ad: "Rüzgârı Dinlemek",
           dk: 1,
-          metin: "Öğleye doğru hafif bir rüzgâr çıktı. Yelkenler hemen açılmadı. Odysseus önce gökyüzündeki bulutlara, sonra dalgaların yönüne baktı. Yaşlı dümenci de avucunu rüzgâra çevirdi. Rüzgâr kıyıdan denize doğru esiyor, fakat ara sıra yön değiştiriyordu. Bir süre beklediler. Denizciler bu sırada kürekleri yerlerine koydu ve gemiler arasındaki işaretleri tekrar etti. Bir gemi tehlike görürse kırmızı bez kaldıracak, suya ihtiyaç duyarsa iki kez boru çalacaktı. Herkes ne yapacağını bilince yolculuk daha güvenli olacaktı. Sonunda rüzgâr kararlı bir biçimde yelkenleri doldurdu. Odysseus başını salladı. Artık ayrılma vakti gelmişti.",
+          metin: "Öğleye doğru hafif bir rüzgâr çıktı. Yelkenler hemen açılmadı. Odysseus önce gökyüzündeki bulutlara, sonra dalgaların yönüne baktı. Yaşlı dümenci de avucunu rüzgâra çevirdi. Rüzgâr kıyıdan denize doğru esiyor, fakat ara sıra yön değiştiriyordu. Bir süre beklediler. Denizciler bu sırada kürekleri yerlerine koydu ve gemiler arasındaki işaretleri tekrar etti. Tehlike gören gemi kırmızı bez kaldıracaktı. Su isteyen gemi iki kez boru çalacaktı. Herkes ne yapacağını bilince yolculuk daha güvenli olacaktı. Sonunda rüzgâr kararlı bir biçimde yelkenleri doldurdu. Odysseus başını salladı. Artık ayrılma vakti gelmişti.",
         },
         {
           ad: "İlk Yelken",
@@ -73,14 +73,14 @@ export const ODYSSEY_STORIES = [
         {
           ad: "Mavi Bilmece",
           dk: 1,
-          metin: "Akşam yaklaşırken kıyı gözden kayboldu. Her yönde yalnızca deniz vardı. Ufuk, gökyüzüyle suyun birleştiği ince bir çember gibi görünüyordu. Bazı denizciler bu sonsuzluk karşısında huzursuz oldu. Odysseus onların yanına gidip İthaka'yı anlattı: küçük limanını, taş yollarını ve rüzgârda sallanan ağaçlarını. Herkes kendi evini düşünmeye başladı. Korkuları tamamen kaybolmadı, ama ortak bir amaçları olduğunu yeniden hatırladılar. Odysseus, yolculuğun yalnızca güçlü olmakla tamamlanamayacağını biliyordu. Sabır, dikkat ve dayanışma da gerekliydi. İlk yıldız görünürken nöbetçiler yerlerini aldı. Gemiler karanlık denizde ilerledi. Eve giden yol daha yeni başlıyordu ve deniz önlerinde çözülmeyi bekleyen mavi bir bilmeceydi.",
+          metin: "Akşam yaklaşırken kıyı gözden kayboldu. Her yönde yalnızca deniz vardı. Ufuk, gökyüzüyle suyun birleştiği ince bir çember gibi görünüyordu. Bazı denizciler bu sonsuzluk karşısında huzursuz oldu. Odysseus onların yanına gidip İthaka'yı anlattı. Küçük limanını, taş yollarını ve rüzgârlı ağaçlarını betimledi. Herkes kendi evini düşünmeye başladı. Korkuları tamamen kaybolmadı, ama ortak bir amaçları olduğunu yeniden hatırladılar. Odysseus, yolculuğun yalnızca güçlü olmakla tamamlanamayacağını biliyordu. Sabır, dikkat ve dayanışma da gerekliydi. İlk yıldız görünürken nöbetçiler yerlerini aldı. Gemiler karanlık denizde ilerledi. Eve giden yol daha yeni başlıyordu. Deniz, önlerinde çözülmeyi bekleyen mavi bir bilmeceydi.",
         },
       ],
     },
     metadata: {
       ...SHARED_REVIEW,
       ageBand: "7-10",
-      estimatedMinutes: 5,
+      estimatedMinutes: 3.3,
       pilotEligible: true,
       contentTrack: "mythology-vocabulary-growth",
       primaryDevelopmentTheme: "hopeful-beginnings-and-careful-preparation",
