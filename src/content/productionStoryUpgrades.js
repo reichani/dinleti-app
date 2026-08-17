@@ -1,4 +1,9 @@
 import { UZAY_KULUBU_PIYESI_DRAFT } from "./drafts/2026-08-04-uzay-kulubu-piyesi.js";
+import { OKI_GUNESIN_HIKAYESI_DRAFT } from "./drafts/2026-07-24-oki-gunesin-hikayesi.js";
+import { OKI_ATI_TANIYOR_DRAFT } from "./drafts/2026-07-24-oki-ati-taniyor.js";
+import { KUTUP_TILKISININ_YOLCULUGU_DRAFT } from "./drafts/2026-07-31-kutup-tilkisinin-yolculugu.js";
+import { OKI_VE_AY_HARITASI_DRAFT } from "./drafts/2026-08-01-oki-ve-ay-haritasi.js";
+import { LABIRENTTE_UC_SES_DRAFT } from "./drafts/2026-08-02-labirentte-uc-ses.js";
 
 const normalize = (text) => text.replace(/\s+/gu, " ").trim();
 
@@ -8,6 +13,73 @@ const originalSource = {
   hakSahibi: "Okurio",
   surum: "2.0",
 };
+
+const countWords = (text) =>
+  String(text ?? "").match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
+
+const preparedDraftToProductionCandidate = (draft, overrides = {}) => {
+  const sourceTruth = draft.sourceTruth ?? {};
+  const references = sourceTruth.references ?? [];
+  const bolumler = draft.sections.map((section) => {
+    const metin = section.paragraphs.join("\n\n");
+    const estimatedSeconds = Math.ceil((countWords(metin) * 60) / 155);
+    return {
+      ad: section.title,
+      dk: Number((estimatedSeconds / 60).toFixed(2)),
+      metin,
+    };
+  });
+
+  return {
+    id: draft.replacesIdAfterApproval,
+    baslik: draft.title,
+    yazar: "Okurio Özgün İçerik Ekibi",
+    seslendiren: "Oki Anlatıcı",
+    kategori: overrides.kategori ?? "Özgün Hikâye",
+    yas: `${draft.ageBand} yaş`,
+    renk: overrides.renk ?? ["#304C66", "#D7A044"],
+    puan: 4.9,
+    sureDk: Number((draft.estimatedSeconds / 60).toFixed(2)),
+    icerikDurumu: "tam-metin",
+    hakDurumu: "okurio-ozgun-ai-destekli",
+    kaynak: {
+      ad: sourceTruth.work ?? draft.title,
+      tur: sourceTruth.sourceType ?? "özgün",
+      kapsam: sourceTruth.scope ?? draft.primaryTheme,
+      url: references[0]?.url ?? sourceTruth.sourceUrl ?? null,
+      urls: references.map(({ url }) => url).filter(Boolean),
+    },
+    ozet: draft.primaryTheme,
+    bolumler,
+    contentQualityReview: draft.contentQualityReview,
+    releaseReady: false,
+    metadata: {
+      ageBand: draft.ageBand,
+      estimatedSeconds: draft.estimatedSeconds,
+      estimatedMinutes: Number((draft.estimatedSeconds / 60).toFixed(2)),
+      primaryTheme: draft.primaryTheme,
+      contentTrack: draft.contentTrack,
+      contentStatus: "candidate-deployed-human-review-pending",
+      structuralValid: draft.structuralValid !== false,
+      releaseReady: false,
+      glossary: draft.glossary,
+      optionalReflectionPrompt: draft.optionalReflectionPrompt,
+      sourceTruth,
+      factualReview: draft.factualReview,
+      originalityRightsReview: draft.originalityRightsReview,
+      contentQualityReview: draft.contentQualityReview,
+    },
+    ...overrides,
+  };
+};
+
+export const PREPARED_DRAFT_PRODUCTION_CANDIDATES = [
+  preparedDraftToProductionCandidate(OKI_GUNESIN_HIKAYESI_DRAFT, { kategori: "Okumaya Hazırlık", renk: ["#8D6A22", "#F1C75B"] }),
+  preparedDraftToProductionCandidate(OKI_ATI_TANIYOR_DRAFT, { kategori: "Hayvanları Tanıyalım", renk: ["#4E6B3A", "#B6D17A"] }),
+  preparedDraftToProductionCandidate(KUTUP_TILKISININ_YOLCULUGU_DRAFT, { kategori: "Doğa Bilimi", renk: ["#3B5266", "#D7E7EF"] }),
+  preparedDraftToProductionCandidate(OKI_VE_AY_HARITASI_DRAFT, { kategori: "Bilim Hikâyesi", renk: ["#263E68", "#AFC7F3"] }),
+  preparedDraftToProductionCandidate(LABIRENTTE_UC_SES_DRAFT, { kategori: "Piyes ve Mitoloji", renk: ["#4D365F", "#9B7BB8"] }),
+];
 
 
 export const UZAY_KULUBU_PRODUCTION_CANDIDATE = (() => {
@@ -47,6 +119,7 @@ export const UZAY_KULUBU_PRODUCTION_CANDIDATE = (() => {
 })();
 
 export const PRODUCTION_STORY_UPGRADES = [
+  ...PREPARED_DRAFT_PRODUCTION_CANDIDATES,
   {
     id: "oki-sesleri-dinliyor",
     baslik: "Oki Sesleri Dinliyor",
@@ -250,12 +323,10 @@ export const PRODUCTION_STORY_UPGRADES = [
       },
     ],
   },
-  ...(
-    UZAY_KULUBU_PRODUCTION_CANDIDATE.metadata.releaseReady === true
-    && UZAY_KULUBU_PRODUCTION_CANDIDATE.metadata.contentQualityReview?.status === "approved"
-      ? [UZAY_KULUBU_PRODUCTION_CANDIDATE]
-      : []
-  ),
+  // Yapısal olarak tamamlanan metin katalogda okunabilir. İnsan kalite onayı
+  // publicationReady kapısını açar; aday metnin kısa placeholder yerine
+  // gösterilmesini engellemez.
+  UZAY_KULUBU_PRODUCTION_CANDIDATE,
 ];
 
 export const PRODUCTION_STORY_UPGRADES_BY_ID = Object.fromEntries(

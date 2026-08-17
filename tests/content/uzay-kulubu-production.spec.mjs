@@ -7,10 +7,11 @@ import {
 
 const countWords = (text = "") => String(text).match(/[\p{L}\p{N}]+/gu)?.length ?? 0;
 
-test("Uzay Kulübü Sunumu insan onayı olmadan production kataloğuna bağlanmaz", () => {
+test("Uzay Kulübü Sunumu okunabilir adaya bağlanır, insan onayı olmadan yayın-ready olmaz", () => {
   assert.equal(candidate.metadata.releaseReady, false);
   assert.equal(candidate.metadata.contentQualityReview.status, "pending");
-  assert.equal(PRODUCTION_STORY_UPGRADES_BY_ID["uzay-kulubu-piyesi"], undefined);
+  assert.equal(PRODUCTION_STORY_UPGRADES_BY_ID["uzay-kulubu-piyesi"], candidate);
+  assert.equal(PRODUCTION_STORY_UPGRADES_BY_ID["uzay-kulubu-piyesi"].icerikDurumu, "tam-metin");
 });
 
 test("production adayı eksiksiz içerik ve özgünlük izini korur", () => {

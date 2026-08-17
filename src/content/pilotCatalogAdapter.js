@@ -95,7 +95,7 @@ export function getPilotEligibleCatalog(catalog = []) {
 }
 
 export function getStoryMetadata(storyId) {
-  return ALL_CURATED_STORY_METADATA[storyId] ?? null;
+  return ALL_CURATED_STORY_METADATA[storyId] ?? PRODUCTION_STORY_UPGRADES_BY_ID[storyId]?.metadata ?? null;
 }
 
 export function getGlossaryForStory(storyId) {
