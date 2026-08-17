@@ -8,6 +8,7 @@ import { COMPLETE_OKURIO_SESSIONS } from "./content/completeOkurioSessions.js";
 import { ANDERSEN_STORIES } from "./content/andersenStories.js";
 import { classifyContent, estimateStorySeconds } from "./content/contentIntegrity.js";
 import { evaluateStoryForReadingLevel } from "./content/readingLevelPolicy.js";
+import { evaluateContentQualityReview } from "./content/contentQualityReview.js";
 import { getGradeLabelForYolId, minimumFullReadingSecondsForAge } from "./content/schoolGradeMapping.js";
 import { cursorFromPosition, positionFromCursor, readingProgressSnapshot, monotonicBoundaryWord } from "./reader-core.js";
 
@@ -2685,6 +2686,9 @@ export default function DinletiApp() {
     const kalite = icerikKalitesi(kitap);
     const sunum = icerikSunumu(kitap);
     const seviye = evaluateStoryForReadingLevel(kitap, meta, okumaYolu.yolId);
+    const insanIncelemesi = evaluateContentQualityReview(kitap.contentQualityReview, {
+      readingPathId: okumaYolu.yolId,
+    });
     const ayrintiAc = () => setDetayId(kitap.id);
     return (
       <div
@@ -2694,6 +2698,8 @@ export default function DinletiApp() {
         data-reading-enabled={sunum.deployable ? "true" : "false"}
         data-word-count={seviye.wordCount ?? 0}
         data-reading-level={okumaYolu.yolId}
+        data-content-review-status={insanIncelemesi.normalized.status}
+        data-publication-ready={insanIncelemesi.publicationReady ? "true" : "false"}
         role="button"
         tabIndex={0}
         aria-label={`${kitap.baslik} ayrıntılarını aç${sunum.deployable ? "" : " · hazırlanıyor"}`}
