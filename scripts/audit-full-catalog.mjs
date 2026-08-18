@@ -153,6 +153,14 @@ const reports = catalog.map((story) => {
   );
   const sentences = sentenceList(body);
   const sentenceWords = sentences.map(countWords);
+  const averageSentenceWords =
+    sentenceWords.length > 0
+      ? Number(
+          (
+            sentenceWords.reduce((sum, count) => sum + count, 0) / sentenceWords.length
+          ).toFixed(2),
+        )
+      : 0;
   const review = story?.contentQualityReview ?? story?.metadata?.contentQualityReview ?? null;
   const readingPathId = READING_PATH_BY_AGE_BAND[ageBand] ?? null;
   const reviewEvaluation = evaluateContentQualityReview(review, { readingPathId });
@@ -180,6 +188,15 @@ const reports = catalog.map((story) => {
   }
   if (!microExercise && sectionWords.some((count) => count < 30)) {
     blockers.push("short-section");
+  }
+  if (!microExercise && sentenceWords.some((count) => count > 12)) {
+    blockers.push("sentence-max");
+  }
+  if (!microExercise && (averageSentenceWords < 6 || averageSentenceWords > 10)) {
+    blockers.push("sentence-average");
+  }
+  if (!microExercise && paragraphs.some((paragraph) => sentenceList(paragraph).length > 3)) {
+    blockers.push("paragraph-max");
   }
   if (durationDelta !== null && durationDelta > DURATION_TOLERANCE) {
     blockers.push(`duration-delta:${Math.round(durationDelta * 100)}%`);
@@ -209,14 +226,7 @@ const reports = catalog.map((story) => {
     microExercise,
     sectionCount: sections.length,
     sectionWords,
-    averageSentenceWords:
-      sentenceWords.length > 0
-        ? Number(
-            (
-              sentenceWords.reduce((sum, count) => sum + count, 0) / sentenceWords.length
-            ).toFixed(2),
-          )
-        : 0,
+    averageSentenceWords,
     longestSentenceWords: sentenceWords.length > 0 ? Math.max(...sentenceWords) : 0,
     paragraphOverThreeSentences: paragraphs.filter(
       (paragraph) => sentenceList(paragraph).length > 3,
