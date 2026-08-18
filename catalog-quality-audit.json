@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-08-18T05:32:59.210Z",
+  "generatedAt": "2026-08-18T08:36:03.665Z",
   "wordsPerMinute": 155,
   "durationTolerancePercent": 15,
   "catalogCount": 80,
   "fullReadingCount": 62,
   "microExerciseCount": 18,
-  "underOrEqual20Seconds": 22,
+  "underOrEqual20Seconds": 21,
   "blockedFullReadings": 62,
   "ageSummary": [
     {
@@ -37,9 +37,9 @@
         "max": 500
       },
       "storyCount": 15,
-      "averageWords": 146.5,
-      "medianWords": 38,
-      "belowMinimum": 11
+      "averageWords": 166.6,
+      "medianWords": 69,
+      "belowMinimum": 10
     },
     {
       "ageBand": "7-8",
@@ -1108,39 +1108,35 @@
       "category": "İlk Okuma",
       "ageLabel": "6-7 yaş",
       "ageBand": "6-7",
-      "wordCount": 23,
+      "wordCount": 324,
       "target": {
         "min": 250,
         "max": 500
       },
-      "estimatedSeconds": 9,
-      "declaredSeconds": 12,
-      "durationDeltaPercent": 33.3,
+      "estimatedSeconds": 126,
+      "declaredSeconds": 126,
+      "durationDeltaPercent": 0,
       "microExercise": false,
-      "sectionCount": 2,
+      "sectionCount": 4,
       "sectionWords": [
-        12,
-        11
+        82,
+        77,
+        80,
+        85
       ],
-      "averageSentenceWords": 2.56,
-      "longestSentenceWords": 4,
-      "paragraphOverThreeSentences": 2,
+      "averageSentenceWords": 6,
+      "longestSentenceWords": 8,
+      "paragraphOverThreeSentences": 0,
       "contentQualityReviewStatus": "pending",
       "readingPathId": "ilk_harfler_6_7",
       "candidateDeployReady": true,
       "publicationReady": false,
-      "rightsStatus": "missing",
+      "rightsStatus": "okurio-ozgun-ai-destekli",
       "publicDomain": false,
       "sourceUrl": null,
-      "sourceScope": "ozet",
+      "sourceScope": "tam-metin",
       "releaseReady": false,
       "blockers": [
-        "age-minimum:23<250",
-        "section-count:2",
-        "short-section",
-        "sentence-average",
-        "paragraph-max",
-        "duration-delta:33%",
         "content-review:Human review is not approved.",
         "content-review:reviewerName is missing.",
         "content-review:reviewedAt is missing.",

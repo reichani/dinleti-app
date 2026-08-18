@@ -65,7 +65,7 @@ test("katalog birleştirme kısa metni tam metin ve review v2 sözleşmesiyle de
   assert.equal(upgraded.releaseReady, false);
 });
 
-test("yapısal olarak hazır altı taslak placeholder yerine kataloğa bağlanır", () => {
+test("yapısal olarak hazır yedi taslak placeholder yerine kataloğa bağlanır", () => {
   const expectedIds = [
     "oki-gunesin-hikayesi",
     "oki-ati-taniyor",
@@ -73,6 +73,7 @@ test("yapısal olarak hazır altı taslak placeholder yerine kataloğa bağlanı
     "oki-ay-haritasi",
     "labirentte-uc-ses",
     "uzay-kulubu-piyesi",
+    "nana-anlatiyor",
   ];
   const placeholders = expectedIds.map((id) => ({
     id,

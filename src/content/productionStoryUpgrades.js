@@ -4,6 +4,7 @@ import { OKI_ATI_TANIYOR_DRAFT } from "./drafts/2026-07-24-oki-ati-taniyor.js";
 import { KUTUP_TILKISININ_YOLCULUGU_DRAFT } from "./drafts/2026-07-31-kutup-tilkisinin-yolculugu.js";
 import { OKI_VE_AY_HARITASI_DRAFT } from "./drafts/2026-08-01-oki-ve-ay-haritasi.js";
 import { LABIRENTTE_UC_SES_DRAFT } from "./drafts/2026-08-02-labirentte-uc-ses.js";
+import { NANA_ANLATIYOR_DRAFT } from "./drafts/2026-08-18-nana-anlatiyor.js";
 
 const normalize = (text) => text.replace(/\s+/gu, " ").trim();
 
@@ -79,6 +80,7 @@ export const PREPARED_DRAFT_PRODUCTION_CANDIDATES = [
   preparedDraftToProductionCandidate(KUTUP_TILKISININ_YOLCULUGU_DRAFT, { kategori: "Doğa Bilimi", renk: ["#3B5266", "#D7E7EF"] }),
   preparedDraftToProductionCandidate(OKI_VE_AY_HARITASI_DRAFT, { kategori: "Bilim Hikâyesi", renk: ["#263E68", "#AFC7F3"] }),
   preparedDraftToProductionCandidate(LABIRENTTE_UC_SES_DRAFT, { kategori: "Piyes ve Mitoloji", renk: ["#4D365F", "#9B7BB8"] }),
+  preparedDraftToProductionCandidate(NANA_ANLATIYOR_DRAFT, { kategori: "İlk Okuma", renk: ["#5B3A2E", "#C28C70"] }),
 ];
 
 
