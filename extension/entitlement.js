@@ -10,8 +10,18 @@ const PLAN_DEFAULTS = {
 const PREMIUM_FEATURES = new Set(["smart_read", "tts", "age_dictionary", "personal_profile", "reading_history"]);
 
 function normalizePlan(raw = {}) {
-  const base = PLAN_DEFAULTS[raw.plan] || PLAN_DEFAULTS.free;
-  return { ...base, ...raw };
+  const requestedPlan = typeof raw?.plan === "string" ? raw.plan : "free";
+  const base = PLAN_DEFAULTS[requestedPlan];
+  if (!base) return { ...PLAN_DEFAULTS.free };
+
+  // Browser storage is not a source of truth for paid access. Privilege-bearing
+  // fields always come from a known plan definition; only harmless metadata is
+  // retained until server-verified entitlements are connected.
+  return {
+    ...base,
+    ...(typeof raw.schoolId === "string" ? { schoolId: raw.schoolId } : {}),
+    ...(typeof raw.renewsAt === "string" ? { renewsAt: raw.renewsAt } : {})
+  };
 }
 
 async function getEntitlement() {
@@ -30,7 +40,7 @@ async function canUse(feature, usage = null) {
   if (!PREMIUM_FEATURES.has(feature)) return { allowed: true, entitlement };
   if (entitlement.unlimited || entitlement.premiumFeatures) return { allowed: true, entitlement };
   if (feature === "smart_read") {
-    const used = usage?.used || 0;
+    const used = Number.isFinite(usage?.used) ? Math.max(0, usage.used) : 0;
     const limit = entitlement.smartReadsLimit ?? 10;
     return { allowed: used < limit, entitlement, remaining: Math.max(0, limit - used) };
   }
