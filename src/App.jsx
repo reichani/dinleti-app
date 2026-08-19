@@ -2456,7 +2456,18 @@ export default function DinletiApp() {
   const uyumluKatalog = useMemo(() => KATALOG.filter((k) => kitapUyum(k)), [kitapUyum]);
   const uyumluRaflar = useMemo(() => RAFLAR
     .filter((raf) => !raf.yolIds || raf.yolIds.includes(okumaYolu.yolId))
-    .map((raf) => ({ ...raf, ids: raf.ids.filter((id) => kitapUyum(kitapBul(id))) }))
+    // Raf listeleri editoryal olarak belirli okuma yollarına atanmıştır. Bunları
+    // ikinci kez genel kelime-bandı filtresinden geçirmek, onaylı sınır içerikleri
+    // (ör. tam Peter Rabbit ve 1. grup tam oturumları) sessizce yok ediyordu.
+    // Yol uygunluğu raf.yolIds ile, yayınlanabilirlik ise içerik sınıflandırmasıyla
+    // fail-closed doğrulanır.
+    .map((raf) => ({
+      ...raf,
+      ids: raf.ids.filter((id) => {
+        const kitap = kitapBul(id);
+        return Boolean(kitap) && icerikSunumu(kitap).deployable;
+      }),
+    }))
     .filter((raf) => raf.ids.length > 0), [kitapUyum, okumaYolu.yolId]);
 
   const icerikAuditOzeti = useMemo(() => {
@@ -2905,7 +2916,7 @@ export default function DinletiApp() {
 
   const AramaSayfa = () => {
     const q = arama.trim().toLowerCase();
-    const evren = uyumluKatalog;
+    const evren = uyumluKatalog.filter((kitap) => kitap.publiclyDiscoverable !== false);
     const sonuc = q ? evren.filter((k) => (k.baslik + " " + k.yazar + " " + k.kategori + " " + (k.ozet || "")).toLowerCase().includes(q)) : evren;
     return (
       <main data-page-shell data-search-page style={{ padding: "24px 20px" }}>
