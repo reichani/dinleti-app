@@ -29,6 +29,7 @@ function loadFreemiumContext() {
     console,
     Date,
     Math,
+    Number,
     String,
     Set
   });
@@ -84,8 +85,8 @@ test('premium and school plans are unlimited without consuming local quota', asy
 test('unknown/tampered plan fails closed to free defaults', async () => {
   const { context } = loadFreemiumContext();
   const entitlement = await context.window.OkurioEntitlement.setEntitlement({ plan: 'god_mode', unlimited: true, premiumFeatures: true });
-  assert.equal(entitlement.plan, 'god_mode');
-  // Security assertion: normalizePlan must not allow an unknown plan to elevate privileges.
+  assert.equal(entitlement.plan, 'free');
+  assert.equal(entitlement.smartReadsLimit, 10);
   assert.equal(entitlement.unlimited, false);
   assert.equal(entitlement.premiumFeatures, false);
 });
