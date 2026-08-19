@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "validate:content": "node scripts/validate-pilot-content.mjs",
     "test:content": "node --test tests/content/*.spec.mjs",
+    "test:extension": "node --test tests/extension/*.spec.mjs",
     "test": "playwright test",
     "test:mobile": "playwright test --project=android-mobile --project=samsung-s24 --project=small-mobile",
     "test:desktop": "playwright test --project=desktop-chrome",
