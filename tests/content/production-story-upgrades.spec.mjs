@@ -12,6 +12,7 @@ const DURATION_RULES_BY_AGE = {
   "5-6 yaş": { minimumSeconds: 77, wordsPerMinute: 155 },
   "6-7 yaş": { minimumSeconds: 97, wordsPerMinute: 155 },
   "10-12 yaş": { minimumSeconds: 271, wordsPerMinute: 155 },
+  "18+": { minimumSeconds: 697, wordsPerMinute: 155 },
 };
 
 function countWords(story) {
