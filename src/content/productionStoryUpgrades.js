@@ -5,6 +5,7 @@ import { KUTUP_TILKISININ_YOLCULUGU_DRAFT } from "./drafts/2026-07-31-kutup-tilk
 import { OKI_VE_AY_HARITASI_DRAFT } from "./drafts/2026-08-01-oki-ve-ay-haritasi.js";
 import { LABIRENTTE_UC_SES_DRAFT } from "./drafts/2026-08-02-labirentte-uc-ses.js";
 import { NANA_ANLATIYOR_DRAFT } from "./drafts/2026-08-18-nana-anlatiyor.js";
+import { ARIADNENIN_IPI_YOL_BULMAK_DRAFT } from "./drafts/2026-08-19-ariadnenin-ipi-yol-bulmak.js";
 
 const normalize = (text) => text.replace(/\s+/gu, " ").trim();
 
@@ -37,7 +38,7 @@ const preparedDraftToProductionCandidate = (draft, overrides = {}) => {
     yazar: "Okurio Özgün İçerik Ekibi",
     seslendiren: "Oki Anlatıcı",
     kategori: overrides.kategori ?? "Özgün Hikâye",
-    yas: `${draft.ageBand} yaş`,
+    yas: draft.ageBand.endsWith("+") ? draft.ageBand : `${draft.ageBand} yaş`,
     renk: overrides.renk ?? ["#304C66", "#D7A044"],
     puan: 4.9,
     sureDk: Number((draft.estimatedSeconds / 60).toFixed(2)),
@@ -81,6 +82,7 @@ export const PREPARED_DRAFT_PRODUCTION_CANDIDATES = [
   preparedDraftToProductionCandidate(OKI_VE_AY_HARITASI_DRAFT, { kategori: "Bilim Hikâyesi", renk: ["#263E68", "#AFC7F3"] }),
   preparedDraftToProductionCandidate(LABIRENTTE_UC_SES_DRAFT, { kategori: "Piyes ve Mitoloji", renk: ["#4D365F", "#9B7BB8"] }),
   preparedDraftToProductionCandidate(NANA_ANLATIYOR_DRAFT, { kategori: "İlk Okuma", renk: ["#5B3A2E", "#C28C70"] }),
+  preparedDraftToProductionCandidate(ARIADNENIN_IPI_YOL_BULMAK_DRAFT, { kategori: "Mitolojiyle Okumaya Dönüş", renk: ["#2C3A3B", "#7AA6A1"], seslendiren: "Sakin Rehber" }),
 ];
 
 
