@@ -34,6 +34,34 @@ export function positionFromCursor(sections, sectionIndex, wordIndex, durationFo
   return Math.min(elapsed + duration, elapsed + (safeWord / count) * duration);
 }
 
+export function normalizeReadingProgress({ sections, progress, durationForSection }) {
+  if (!Array.isArray(sections) || sections.length === 0) {
+    return { sectionIndex: 0, wordIndex: 0, pos: 0 };
+  }
+
+  const storedPos = Math.max(0, Number(progress?.pos) || 0);
+  if (progress?.version !== 2) {
+    const cursor = cursorFromPosition(sections, storedPos, durationForSection);
+    return { ...cursor, pos: storedPos };
+  }
+
+  const sectionIndex = Math.max(
+    0,
+    Math.min(sections.length - 1, Number(progress.sectionIndex) || 0),
+  );
+  const count = Math.max(1, words(sections[sectionIndex]?.metin).length);
+  const wordIndex = Math.max(
+    0,
+    Math.min(count - 1, Number(progress.wordIndex) || 0),
+  );
+
+  return {
+    sectionIndex,
+    wordIndex,
+    pos: positionFromCursor(sections, sectionIndex, wordIndex, durationForSection),
+  };
+}
+
 export function readingProgressSnapshot({
   storyId,
   sections,
@@ -42,10 +70,15 @@ export function readingProgressSnapshot({
   durationForSection,
   now = Date.now(),
 }) {
+  const normalized = normalizeReadingProgress({
+    sections,
+    progress: { version: 2, sectionIndex, wordIndex },
+    durationForSection,
+  });
   return {
-    pos: positionFromCursor(sections, sectionIndex, wordIndex, durationForSection),
-    sectionIndex: Math.max(0, Number(sectionIndex) || 0),
-    wordIndex: Math.max(0, Number(wordIndex) || 0),
+    pos: normalized.pos,
+    sectionIndex: normalized.sectionIndex,
+    wordIndex: normalized.wordIndex,
     storyId,
     ts: now,
     version: 2,
