@@ -5,6 +5,8 @@ import {
   positionFromCursor,
   readingProgressSnapshot,
   monotonicBoundaryWord,
+  createSpeechWordTimeline,
+  timelineWordFromElapsed,
 } from "../../src/reader-core.js";
 
 const sections = [
@@ -54,4 +56,17 @@ test("Samsung duplicate or backward boundary indices cannot reset progress", () 
   assert.equal(monotonicBoundaryWord({ ...args, charIndex: 10, currentIndex: 0 }), 2);
   assert.equal(monotonicBoundaryWord({ ...args, charIndex: 6, currentIndex: 2 }), null);
   assert.equal(monotonicBoundaryWord({ ...args, charIndex: 24, currentIndex: 2 }), 4);
+});
+
+test("fallback timeline uses absolute elapsed time and catches up without timer drift", () => {
+  const startsAt = createSpeechWordTimeline(["bir", "iki", "uzunca", "dört"], () => 200, 1.25);
+  assert.deepEqual(startsAt, [0, 250, 500, 750]);
+  assert.equal(timelineWordFromElapsed({ startsAt, elapsedMs: 249, baseIndex: 8, currentIndex: 8, endIndex: 11 }), null);
+  assert.equal(timelineWordFromElapsed({ startsAt, elapsedMs: 520, baseIndex: 8, currentIndex: 8, endIndex: 11 }), 10);
+  assert.equal(timelineWordFromElapsed({ startsAt, elapsedMs: 900, baseIndex: 8, currentIndex: 10, endIndex: 11 }), 11);
+});
+
+test("speech timeline clamps unsafe calibration values", () => {
+  assert.deepEqual(createSpeechWordTimeline(["bir", "iki"], () => 100, 10), [0, 200]);
+  assert.deepEqual(createSpeechWordTimeline(["bir", "iki"], () => 100, 0.1), [0, 50]);
 });

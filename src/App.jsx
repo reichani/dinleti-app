@@ -10,7 +10,7 @@ import { classifyContent, estimateStorySeconds } from "./content/contentIntegrit
 import { evaluateStoryForReadingLevel } from "./content/readingLevelPolicy.js";
 import { evaluateContentQualityReview } from "./content/contentQualityReview.js";
 import { getGradeLabelForYolId, minimumFullReadingSecondsForAge } from "./content/schoolGradeMapping.js";
-import { cursorFromPosition, positionFromCursor, readingProgressSnapshot, monotonicBoundaryWord } from "./reader-core.js";
+import { cursorFromPosition, positionFromCursor, readingProgressSnapshot, monotonicBoundaryWord, createSpeechWordTimeline, timelineWordFromElapsed } from "./reader-core.js";
 
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
@@ -2303,7 +2303,8 @@ export default function DinletiApp() {
       const dil = kitap.dil === "en" ? "en-GB" : "tr-TR";
       const hedef = kitap.dil === "en" ? "en" : "tr";
       const bolumBaslangic = Date.now();
-      const tahminMs = kelimeler.slice(basKelime).reduce((t, k) => t + kelimeSure(k, hiz), 0);
+      const etkinHiz = Math.max(0.55, Math.min(1.8, hiz * sesTonuAyar.rate * modAyar.rateCarpan));
+      const tahminMs = kelimeler.slice(basKelime).reduce((t, k) => t + kelimeSure(k, etkinHiz), 0);
       const konumuYaz = (wordIndex) => {
         const safeWord = Math.max(0, Math.min(kelimeler.length - 1, wordIndex));
         setKelimeIx(safeWord);
@@ -2312,7 +2313,7 @@ export default function DinletiApp() {
 
       const sesAta = (u) => {
         u.lang = dil;
-        u.rate = Math.max(0.55, Math.min(1.8, hiz * sesTonuAyar.rate * modAyar.rateCarpan));
+        u.rate = etkinHiz;
         u.pitch = sesTonuAyar.pitch;
         u.volume = 1;
         let liste = seslerRef.current;
@@ -2350,6 +2351,15 @@ export default function DinletiApp() {
         let syncMode = "pending";
         let syncTimer = null;
         let fallbackIx = basIx;
+        let timelineStartedAt = 0;
+        let utteranceStartedAt = 0;
+        const nominalSentenceMs = kelimeler.slice(basIx, z + 1)
+          .reduce((total, word) => total + kelimeSure(word, etkinHiz), 0);
+        let timeline = createSpeechWordTimeline(
+          kelimeler.slice(basIx, z + 1),
+          (word) => kelimeSure(word, etkinHiz),
+          kalibrasyon.current,
+        );
         const timeriDurdur = () => {
           if (syncTimer) window.clearTimeout(syncTimer);
           syncTimer = null;
@@ -2357,17 +2367,33 @@ export default function DinletiApp() {
         const fallbackAdimi = () => {
           if (zincirNo.current !== benimNo || syncMode === "boundary") return;
           syncMode = "fallback";
-          fallbackIx = Math.min(z, fallbackIx + 1);
-          konumuYaz(fallbackIx);
-          if (fallbackIx < z) syncTimer = window.setTimeout(fallbackAdimi, kelimeSure(kelimeler[fallbackIx], hiz));
+          if (!timelineStartedAt) timelineStartedAt = performance.now();
+          const idx = timelineWordFromElapsed({
+            startsAt: timeline,
+            elapsedMs: performance.now() - timelineStartedAt,
+            baseIndex: basIx,
+            currentIndex: fallbackIx,
+            endIndex: z,
+          });
+          if (idx != null) {
+            fallbackIx = idx;
+            konumuYaz(idx);
+          }
+          if (fallbackIx < z) syncTimer = window.setTimeout(fallbackAdimi, 60);
         };
         const fallbackBeklet = () => {
           timeriDurdur();
-          const wordDelay = kelimeSure(kelimeler[fallbackIx] || "", hiz);
-          const watchdogDelay = Math.max(700, Math.min(1400, Math.round(wordDelay * 1.8)));
-          syncTimer = window.setTimeout(fallbackAdimi, watchdogDelay);
+          if (!timelineStartedAt) timelineStartedAt = performance.now();
+          syncTimer = window.setTimeout(fallbackAdimi, 60);
         };
         sesAta(u);
+        u.onstart = () => {
+          if (zincirNo.current !== benimNo) return;
+          utteranceStartedAt = performance.now();
+          timelineStartedAt = utteranceStartedAt;
+          konumuYaz(basIx);
+          fallbackBeklet();
+        };
         u.onboundary = (e) => {
           if (e.name && e.name !== "word") return;
           const idx = monotonicBoundaryWord({
@@ -2385,6 +2411,19 @@ export default function DinletiApp() {
           sonSinir.current = Date.now();
           fallbackIx = idx;
           konumuYaz(idx);
+          const localIndex = idx - basIx;
+          const expectedMs = timeline[localIndex];
+          const observedMs = Number(e.elapsedTime) * 1000;
+          if (expectedMs > 120 && observedMs > 0) {
+            const observedCalibration = Math.max(0.5, Math.min(2, kalibrasyon.current * observedMs / expectedMs));
+            kalibrasyon.current = kalibrasyon.current * 0.75 + observedCalibration * 0.25;
+            timeline = createSpeechWordTimeline(
+              kelimeler.slice(basIx, z + 1),
+              (word) => kelimeSure(word, etkinHiz),
+              kalibrasyon.current,
+            );
+          }
+          timelineStartedAt = performance.now() - timeline[localIndex];
           // Geçerli boundary akışı kesilirse watchdog son doğru kelimeden sürer.
           syncMode = "pending";
           fallbackBeklet();
@@ -2392,6 +2431,10 @@ export default function DinletiApp() {
         u.onend = () => {
           timeriDurdur();
           if (zincirNo.current !== benimNo) return;
+          if (utteranceStartedAt && nominalSentenceMs > 300) {
+            const observedRatio = Math.max(0.5, Math.min(2, (performance.now() - utteranceStartedAt) / nominalSentenceMs));
+            kalibrasyon.current = kalibrasyon.current * 0.8 + observedRatio * 0.2;
+          }
           const sonKelime = kelimeler[z] || "";
           const duraklama = /[.!?…]$/.test(sonKelime) ? sesTonuAyar.noktaMs : (/[,;:]$/.test(sonKelime) ? sesTonuAyar.virgulMs : 140);
           window.setTimeout(() => {
@@ -2402,8 +2445,16 @@ export default function DinletiApp() {
         };
         u.onerror = timeriDurdur;
         konusmaRef.current = u;
-        fallbackBeklet();
         window.speechSynthesis.speak(u);
+        // Bazı Android motorları `start` olayı üretmez. Bu kısa bekçi yalnızca
+        // o durumda zaman çizelgesini başlatır; gerçek `start` gelirse yeniden hizalanır.
+        syncTimer = window.setTimeout(() => {
+          if (!timelineStartedAt) {
+            utteranceStartedAt = performance.now();
+            timelineStartedAt = utteranceStartedAt;
+          }
+          fallbackAdimi();
+        }, 180);
       };
 
       if (basKelime === 0) {
