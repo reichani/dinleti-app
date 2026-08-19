@@ -11,13 +11,26 @@
     <header>
       <div>
         <p class="eyebrow">OKURIO</p>
-        <h1>Okuma Katmanı</h1>
+        <h1>Web'i sana göre oku</h1>
       </div>
       <label class="switch" aria-label="Okuma katmanını aç veya kapat">
         <input id="enabled" type="checkbox" />
         <span></span>
       </label>
     </header>
+
+    <section class="plan-card" aria-live="polite">
+      <div>
+        <strong id="planName">Okurio Free</strong>
+        <p id="quotaText">Smart Read kullanımın yükleniyor…</p>
+      </div>
+      <button id="smartRead" type="button">Smart Reading</button>
+      <p id="quotaNote" class="note">Temel erişilebilirlik ayarların her zaman ücretsiz kalır.</p>
+      <div class="upgrade-actions">
+        <button id="upgrade" class="primary" type="button">Premium'u keşfet</button>
+        <button id="schoolLogin" class="secondary" type="button">Okulum Okurio kullanıyor</button>
+      </div>
+    </section>
 
     <section>
       <label for="fontFamily">Yazı tipi</label>
@@ -66,6 +79,8 @@
     <button id="reset" class="secondary" type="button">Ayarları sıfırla</button>
     <p class="note">Ayarlar bu tarayıcıda saklanır. Sayfayı yenilemeden uygulanır.</p>
   </main>
+  <script src="entitlement.js"></script>
+  <script src="usage.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

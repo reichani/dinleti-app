@@ -1,0 +1,31 @@
+name: Extension regression
+
+on:
+  pull_request:
+    paths:
+      - 'extension/**'
+      - 'tests/extension/**'
+      - 'package.json'
+      - '.github/workflows/extension-regression.yml'
+  push:
+    branches:
+      - 'feat/extension-freemium-v0.2'
+    paths:
+      - 'extension/**'
+      - 'tests/extension/**'
+      - 'package.json'
+
+jobs:
+  extension-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run extension regression contract
+        run: npm run test:extension
+      - name: Verify extension manifest remains minimal
+        run: |
+          node -e "const m=require('./extension/manifest.json'); const allowed=['storage','activeTab','scripting']; const extra=(m.permissions||[]).filter(x=>!allowed.includes(x)); if(extra.length){console.error('Unexpected extension permissions:',extra); process.exit(1)}"
