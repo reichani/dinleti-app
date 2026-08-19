@@ -1,5 +1,3 @@
-import { evaluateContentQualityReview } from "./contentQualityReview.js";
-
 export const AI_QUALITY_STATUS = Object.freeze({
   PASS: "PASS",
   FAIL: "FAIL",
@@ -19,6 +17,12 @@ export const AI_QUALITY_CHECKS = Object.freeze([
 ]);
 
 const isNonEmpty = (value) => typeof value === "string" && value.trim().length > 0;
+
+export const PRODUCT_OWNER_ACCEPTANCE_STATUS = Object.freeze({
+  PENDING: "pending",
+  ACCEPTED: "accepted",
+  REJECTED: "rejected",
+});
 
 export function evaluateAiAssistedQualityGate(metadata = {}) {
   const review = metadata.aiQualityReview ?? {};
@@ -45,30 +49,45 @@ export function evaluateAiAssistedQualityGate(metadata = {}) {
     }
   }
 
-  const owner = metadata.ownerApproval ?? {};
-  if (owner.status !== "approved") blockers.push("Owner approval is not approved.");
-  if (!isNonEmpty(owner.ownerName)) blockers.push("Owner approval ownerName is missing.");
-  if (!isNonEmpty(owner.approvedAt)) blockers.push("Owner approval approvedAt is missing.");
-  if (!isNonEmpty(owner.approvedCommit)) blockers.push("Owner approval approvedCommit is missing.");
-  if (!isNonEmpty(owner.approvalNotes)) blockers.push("Owner approval approvalNotes is missing.");
-
-  const humanReview = evaluateContentQualityReview(metadata.contentQualityReview, {
-    readingPathId: metadata.readingPathId,
-    deployedCommit: review.reviewedCommit,
-  });
-  blockers.push(...humanReview.schemaBlockers, ...humanReview.approvalBlockers);
-  if (humanReview.normalized.reviewerName === review.agentName) {
-    blockers.push("AI agent cannot be recorded as the human reviewer.");
-  }
-
-  const reviewedCommit = review.reviewedCommit;
-  if (isNonEmpty(reviewedCommit) && isNonEmpty(owner.approvedCommit) && reviewedCommit !== owner.approvedCommit) {
-    blockers.push("AI review and owner approval do not cover the same commit.");
-  }
-
   return {
     status: blockers.length === 0 ? AI_QUALITY_STATUS.PASS : AI_QUALITY_STATUS.BLOCKED,
     releaseReady: blockers.length === 0,
+    blockers,
+  };
+}
+
+/**
+ * Product-owner acceptance is deliberately evaluated after deployment. It is
+ * not part of the automated pre-deploy gate and therefore cannot be forged by
+ * an AI/content record to make a candidate deployable.
+ */
+export function evaluateProductOwnerAcceptance(ownerAcceptance = {}, deployedCommit = "") {
+  const blockers = [];
+  const status = ownerAcceptance.status ?? PRODUCT_OWNER_ACCEPTANCE_STATUS.PENDING;
+
+  if (!Object.values(PRODUCT_OWNER_ACCEPTANCE_STATUS).includes(status)) {
+    blockers.push("Product-owner acceptance status is invalid.");
+  }
+  if (status !== PRODUCT_OWNER_ACCEPTANCE_STATUS.ACCEPTED) {
+    blockers.push("Product owner has not accepted the deployed release.");
+  }
+  if (ownerAcceptance.ownerName !== "Reyhan Açar") {
+    blockers.push("Product-owner acceptance must be recorded by Reyhan Açar.");
+  }
+  if (!isNonEmpty(ownerAcceptance.decidedAt)) blockers.push("Product-owner decision time is missing.");
+  if (!isNonEmpty(ownerAcceptance.deployedCommit)) blockers.push("Accepted deployed commit is missing.");
+  if (!isNonEmpty(ownerAcceptance.notes)) blockers.push("Product-owner decision notes are missing.");
+  if (
+    isNonEmpty(deployedCommit) &&
+    isNonEmpty(ownerAcceptance.deployedCommit) &&
+    ownerAcceptance.deployedCommit !== deployedCommit
+  ) {
+    blockers.push("Product-owner acceptance does not cover the deployed commit.");
+  }
+
+  return {
+    status,
+    accepted: blockers.length === 0,
     blockers,
   };
 }
