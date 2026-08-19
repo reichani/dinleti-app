@@ -10,7 +10,7 @@ import { classifyContent, estimateStorySeconds } from "./content/contentIntegrit
 import { evaluateStoryForReadingLevel } from "./content/readingLevelPolicy.js";
 import { evaluateContentQualityReview } from "./content/contentQualityReview.js";
 import { getGradeLabelForYolId, minimumFullReadingSecondsForAge } from "./content/schoolGradeMapping.js";
-import { cursorFromPosition, positionFromCursor, readingProgressSnapshot, monotonicBoundaryWord } from "./reader-core.js";
+import { cursorFromPosition, positionFromCursor, normalizeReadingProgress, readingProgressSnapshot, monotonicBoundaryWord } from "./reader-core.js";
 
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
@@ -2034,8 +2034,15 @@ export default function DinletiApp() {
         setIlerlemeler(d.ilerlemeler || {});
         if (d.hiz) setHiz(d.hiz);
         if (d.sonKitap && kitapBul(d.sonKitap) && icerikSunumu(kitapBul(d.sonKitap)).deployable) {
+          const k = kitapBul(d.sonKitap);
+          const progress = normalizeReadingProgress({
+            sections: k.bolumler,
+            progress: d.ilerlemeler?.[d.sonKitap],
+            durationForSection: bolumSn,
+          });
           setAktifId(d.sonKitap);
-          setPozisyon(d.ilerlemeler?.[d.sonKitap]?.pos || 0);
+          setPozisyon(progress.pos);
+          setKelimeIx(progress.wordIndex);
         }
       }
       setYukleniyor(false);
@@ -2514,17 +2521,17 @@ export default function DinletiApp() {
     if (id !== aktifId) {
       konusmayiDurdur();
       setAktifId(id);
-      const p = ilerlemeler[id]?.pos || 0;
       const k = kitapBul(id);
-      const kayitli = ilerlemeler[id];
-      const cursor = kayitli?.version === 2
-        ? { sectionIndex: kayitli.sectionIndex || 0, wordIndex: kayitli.wordIndex || 0 }
-        : cursorFromPosition(k.bolumler, p, bolumSn);
-      setPozisyon(p);
-      setKelimeIx(cursor.wordIndex);
+      const progress = normalizeReadingProgress({
+        sections: k.bolumler,
+        progress: ilerlemeler[id],
+        durationForSection: bolumSn,
+      });
+      setPozisyon(progress.pos);
+      setKelimeIx(progress.wordIndex);
       setCaliyor(true);
       seriGuncelle();
-      if (etkinSeslendirme) konusmayiBaslat(k, cursor.sectionIndex, cursor.wordIndex);
+      if (etkinSeslendirme) konusmayiBaslat(k, progress.sectionIndex, progress.wordIndex);
       return;
     }
     if (caliyor) {
