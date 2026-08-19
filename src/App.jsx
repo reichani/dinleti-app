@@ -3117,7 +3117,7 @@ export default function DinletiApp() {
           )}
 
           {/* OKUMA ALANI: ekranın ana yüzeyi */}
-          <div data-okuma-alani style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: mobilDar ? 10 : 14, position: "relative" }}>
+          <div data-okuma-alani style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: mobilDar ? 10 : 14, position: "relative", display: "flex", flexDirection: "column" }}>
             <div data-reader-stage-header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginBottom: mobilDar ? 5 : 10, minHeight: mobilDar ? 44 : undefined }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: S.soluk, fontSize: mobilDar ? 11 : 13 }}><BookOpen size={mobilDar ? 13 : 15} /> Okuma görünümü</div>
               <div style={{ display: "flex", gap: 6 }}>
@@ -3144,8 +3144,8 @@ export default function DinletiApp() {
               const gorunecek = kelimeler;
               const kaydirma = 0;
               return (
-                <div id="okurio-okuma-icerigi" data-reader-workspace>
-                  <div data-reading-column>
+                <div id="okurio-okuma-icerigi" data-reader-workspace style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden" }}>
+                  <div data-reading-column style={{ height: "100%", minHeight: 0 }}>
                   <div ref={readerScrollRef} data-okuma-metin="1" data-tema={ayar.tema} data-aktif-cumle={`${aktifCumle[0]}-${aktifCumle[1]}`} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} style={{
                     fontSize: PUNTOLAR[ayar.punto], letterSpacing: `${ARALIKLAR[ayar.aralik]}em`,
                     lineHeight: SATIRLAR[ayar.aralik], wordSpacing: `${ARALIKLAR[ayar.aralik] * 2.2}em`,
@@ -3380,7 +3380,7 @@ export default function DinletiApp() {
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
           {evreSecenekleri(taslak.yolId).map((e) => (
             <button key={e.id} onClick={() => setTaslak((t) => ({ ...t, evreId: e.id }))}
-              style={{ textAlign: "left", background: taslak.evreId === e.id ? "rgba(232,163,61,0.14)" : S.kart, border: taslak.evreId === e.id ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "11px 12px", color: S.metin, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>
+              style={{ textAlign: "left", background: taslak.evreId === e.id ? "rgba(232,163,61,0.14)" : S.kart, border: taslak.evreId === e.id ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 12, minHeight: 44, padding: "11px 12px", color: S.metin, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>
               {e.ad}
             </button>
           ))}
@@ -3393,7 +3393,7 @@ export default function DinletiApp() {
             return (
               <button key={d.id} onClick={() => toggleDestek(d.id)}
                 aria-pressed={secili}
-                style={{ background: secili ? "rgba(232,163,61,0.17)" : S.kart, border: secili ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 999, padding: "9px 12px", color: secili ? S.vurgu : S.soluk, cursor: "pointer", fontFamily: "inherit", fontSize: 12 }}>
+                style={{ background: secili ? "rgba(232,163,61,0.17)" : S.kart, border: secili ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 999, minHeight: 44, padding: "9px 12px", color: secili ? S.vurgu : S.soluk, cursor: "pointer", fontFamily: "inherit", fontSize: 12 }}>
                 {secili ? "✓ " : ""}{d.ad}
               </button>
             );
