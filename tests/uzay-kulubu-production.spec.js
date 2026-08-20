@@ -16,11 +16,9 @@ async function uygulamayiHazirla(page) {
   await page.goto("/");
 }
 
-test("Uzay Kulübü yapısal production adayı olarak açılır", async ({ page }) => {
+test("onaysız Uzay Kulübü Sunumu production aramasında açılmaz", async ({ page }) => {
   await uygulamayiHazirla(page);
   await page.getByRole("button", { name: "Ara", exact: true }).click();
   await page.getByPlaceholder("Kitap veya yazar ara").fill("Uzay Kulübü Sunumu");
-  await page.getByRole("button", { name: /Uzay Kulübü Sunumu/ }).click();
-  await expect(page.locator('[data-icerik-kapsami="full-reading"]')).toContainText("Tam okuma");
-  await expect(page.getByRole("button", { name: "Okumaya başla", exact: true })).toBeEnabled();
+  await expect(page.getByRole("button", { name: /Uzay Kulübü Sunumu/ })).toHaveCount(0);
 });
