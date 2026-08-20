@@ -30,7 +30,7 @@ async function okuyucuyuAc(page) {
 }
 
 test.describe("Responsive reader UX sözleşmesi", () => {
-  test("kartlarda gerçek süre ve kapsam görünür; genişletilen Andersen tam okuma durumundadır", async ({ page }) => {
+  test("kartlarda gerçek süre ve kapsam görünür; Andersen doğru okuma yolunda tam okumadır", async ({ page }) => {
     await uygulamayiHazirla(page);
     await expect(page.locator("[data-surum]")).toContainText("v2.8.4");
 
@@ -40,10 +40,6 @@ test.describe("Responsive reader UX sözleşmesi", () => {
     await expect(kisaMasal.locator("[data-actual-duration]")).toContainText(/4:\d{2}/);
     await expect(kisaMasal).toHaveAttribute("data-reading-enabled", "true");
 
-    const tamMetin = page.locator('[data-story-id="peter-rabbit-en"]').first();
-    await expect(tamMetin).toBeVisible();
-    await expect(tamMetin.locator("[data-content-scope]")).toHaveText("Tam metin");
-    await expect(tamMetin).toHaveAttribute("data-reading-enabled", "true");
   });
 
   test("genişletilen Andersen tam okuma olarak başlatılabilir", async ({ page }) => {
@@ -60,7 +56,7 @@ test.describe("Responsive reader UX sözleşmesi", () => {
     await expect(page.locator("[data-reader-shell]")).toBeVisible();
   });
 
-  test("harf, hece ve kelime kartları ayrı Mikro Alıştırmalar rafındadır", async ({ page }) => {
+  test("6–7 yolunda raflar yalnız yaş hedefini karşılayan tam okumaları gösterir", async ({ page }) => {
     await uygulamayiHazirla(page, {
       ...OKUMA_YOLU,
       yolId: "ilk_harfler_6_7",
@@ -68,22 +64,15 @@ test.describe("Responsive reader UX sözleşmesi", () => {
       destekler: ["hece_takibi", "kelime_takibi", "buyuk_yazi", "genis_aralik"],
     });
 
-    const mikroRaf = page.locator('[data-shelf-name="Mikro Alıştırmalar"]');
-    await expect(mikroRaf).toBeVisible();
+    await expect(page.locator('[data-shelf-name="Mikro Alıştırmalar"]')).toHaveCount(0);
+    const tamOkumaRafi = page.locator('[data-shelf-name="Tam Okuma Oturumları"]');
+    await expect(tamOkumaRafi).toBeVisible();
     const tamOturum = page.locator('[data-story-id="okurio-lili-kayip-tohum-haritasi"]');
     await expect(tamOturum).toBeVisible();
     await expect(tamOturum.locator("[data-content-scope]")).toHaveText("Tam okuma");
     await expect(tamOturum.locator("[data-actual-duration]")).toContainText(/3:\d{2}/);
     await expect(tamOturum).toHaveAttribute("data-reading-enabled", "true");
 
-    const harfKarti = mikroRaf.locator('[data-story-id="oki-ses-a"]');
-    await expect(harfKarti.locator("[data-content-scope]")).toHaveText("Mikro alıştırma");
-    await expect(harfKarti.locator("[data-actual-duration]")).toContainText(/0:\d{2}/);
-    await expect(harfKarti).toHaveAttribute("data-reading-enabled", "true");
-
-    await harfKarti.click();
-    await expect(page.getByRole("button", { name: "Okumaya başla", exact: true })).toBeEnabled();
-    await expect(page.locator('[data-icerik-kapsami="micro-exercise"]')).toContainText("Harf, hece veya kelime çalışmasıdır");
   });
 
   test("Kendi Metnim raflardan sonra kapalı CTA olarak durur ve isteğe bağlı açılır", async ({ page }, testInfo) => {
