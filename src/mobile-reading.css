@@ -202,6 +202,7 @@ body,
 
 [data-reader-shell] button {
   min-block-size: 44px;
+  min-inline-size: 44px;
 }
 
 [data-okuma-modu]::before {
@@ -248,7 +249,8 @@ body,
   [data-reader-workspace] {
     display: block;
     position: relative;
-    block-size: 100%;
+    block-size: auto;
+    flex: 1 1 auto;
     overflow: hidden;
   }
 
@@ -498,7 +500,11 @@ body,
     overflow: hidden !important;
   }
 
-  [data-reader-workspace],
+  [data-reader-workspace] {
+    block-size: auto !important;
+    flex: 1 1 auto !important;
+  }
+
   [data-reading-column] {
     block-size: 100% !important;
   }
