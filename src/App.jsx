@@ -2506,7 +2506,13 @@ export default function DinletiApp() {
   const uyumluKatalog = useMemo(() => KATALOG.filter((k) => kitapUyum(k)), [kitapUyum]);
   const uyumluRaflar = useMemo(() => RAFLAR
     .filter((raf) => !raf.yolIds || raf.yolIds.includes(okumaYolu.yolId))
-    .map((raf) => ({ ...raf, ids: raf.ids.filter((id) => kitapUyum(kitapBul(id))) }))
+    .map((raf) => ({
+      ...raf,
+      ids: raf.ids.filter((id) => {
+        const kitap = kitapBul(id);
+        return kitapUyum(kitap) && icerikSunumu(kitap).deployable;
+      }),
+    }))
     .filter((raf) => raf.ids.length > 0), [kitapUyum, okumaYolu.yolId]);
 
   const icerikAuditOzeti = useMemo(() => {
