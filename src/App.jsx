@@ -2,6 +2,7 @@ import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallba
 import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus, Flame } from "lucide-react";
 import GlossaryCard from "./components/GlossaryCard.jsx";
 import OkurioProvenanceStamp from "./components/OkurioProvenanceStamp.jsx";
+import { extractDocumentText, normalizeDocumentText, SUPPORTED_DOCUMENT_ACCEPT } from "./documentImport.js";
 import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdapter.js";
 import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
 import { COMPLETE_OKURIO_SESSIONS } from "./content/completeOkurioSessions.js";
@@ -15,7 +16,7 @@ import { cursorFromPosition, positionFromCursor, readingProgressSnapshot, monoto
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.8.4";
+const SURUM = "2.9.0";
 
 const KATALOG = mergePilotStories([
 
@@ -1862,6 +1863,7 @@ export default function DinletiApp() {
   const [kendiMetin, setKendiMetin] = useState("");
   const [kendiBaslik, setKendiBaslik] = useState("Kendi Metnim");
   const [kendiMetinMesaji, setKendiMetinMesaji] = useState("");
+  const [kendiMetinYukleniyor, setKendiMetinYukleniyor] = useState(false);
   const [kendiMetinPaneliAcik, setKendiMetinPaneliAcik] = useState(false);
   const [kendiIcerikListesi, setKendiIcerikListesi] = useState([]);
   const [modPaneliAcik, setModPaneliAcik] = useState(false);
@@ -1940,7 +1942,7 @@ export default function DinletiApp() {
   };
 
   const kendiMetniAc = useCallback((metin, baslik = "Kendi Metnim") => {
-    const temizMetin = (metin || "").replace(/\s+/g, " ").trim();
+    const temizMetin = normalizeDocumentText(metin);
     if (temizMetin.length < 20) { setKendiMetinMesaji("En az birkaç cümlelik düz metin ekle."); return; }
     const id = `kendi-metin-${Date.now()}`;
     const kelimeSayisi = temizMetin.split(/\s+/).length;
@@ -1958,7 +1960,7 @@ export default function DinletiApp() {
     const kitap = {
       id, baslik: baslik || "Kendi Metnim", yazar: "Kullanıcı İçeriği", seslendiren: "Oki Anlatıcı", kategori: "Kendi Metnim",
       yas: okumaYoluDetay.yas || "Kişisel", renk: ["#3B465C", "#9FB3D7"], puan: 5, sureDk: Math.max(1, Math.ceil(kelimeSayisi / 130)),
-      ozet: "Kopyala-yapıştır veya TXT dosyasıyla eklenen kişisel kullanım metni.", bolumler, kullaniciIcerigi: true,
+      ozet: "Kopyala-yapıştır, PDF, Word veya TXT dosyasıyla eklenen kişisel kullanım metni.", bolumler, kullaniciIcerigi: true,
     };
     const metadata = { yasMin: 6, yasMax: 99, segmentler: YOL_SEGMENT_GRUPLARI[okumaYolu.yolId] || ["yetiskin_odak"], okumaEvreleri: [okumaYolu.evreId], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kullanici_metni", subject: "kendi_metin", oql: okumaYoluDetay.oql || 4 };
     if (!KATALOG.some((k) => k.id === id)) KATALOG.unshift(kitap);
@@ -1973,24 +1975,23 @@ export default function DinletiApp() {
     setAktifId(id); setDetayId(null); setSekme("ana"); setPozisyon(0); setKelimeIx(0); setCaliyor(false); setKendiMetinPaneliAcik(false); setOynaticiAcik(true); setKendiMetin(""); setKendiMetinMesaji("Metin okuma moduna alındı.");
   }, [okumaYolu, okumaYoluDetay]);
 
-  const dosyaMetniYukle = useCallback((e) => {
+  const dosyaMetniYukle = useCallback(async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
-      setKendiMetinMesaji("PDF desteği için güvenli metin çıkarma katmanı gerekiyor. Bugünkü MVP’de TXT ve kopyala-yapıştır destekleniyor.");
+    setKendiMetinYukleniyor(true);
+    setKendiMetinMesaji(`${file.name} cihazında okunuyor…`);
+    try {
+      const result = await extractDocumentText(file);
+      setKendiBaslik(result.title || "Kendi Metnim");
+      setKendiMetin(result.text);
+      setKendiMetinMesaji(`${result.type.toUpperCase()} metni hazır. Kontrol et ve “Okuma moduna al” düğmesine bas.`);
+    } catch (error) {
+      setKendiMetinMesaji(error?.message || "Belge okunamadı. Başka bir dosya seç.");
+    } finally {
+      setKendiMetinYukleniyor(false);
       e.target.value = "";
-      return;
     }
-    if (!file.name.toLowerCase().endsWith(".txt") && !file.type.startsWith("text/")) {
-      setKendiMetinMesaji("Şimdilik yalnızca .txt veya düz metin dosyası yükle.");
-      e.target.value = "";
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => kendiMetniAc(String(reader.result || ""), file.name.replace(/\.txt$/i, ""));
-    reader.readAsText(file, "utf-8");
-    e.target.value = "";
-  }, [kendiMetniAc]);
+  }, []);
 
   const konusmaRef = useRef(null);
   const sonKayit = useRef(0);
@@ -2938,10 +2939,10 @@ export default function DinletiApp() {
               <textarea value={kendiMetin} onChange={(e) => setKendiMetin(e.target.value)} placeholder="Metni buraya yapıştır..." aria-label="Kendi metnim" style={{ width: "100%", boxSizing: "border-box", minHeight: "min(48dvh, 420px)", flex: "1 1 auto", marginTop: 10, borderRadius: 12, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "14px", fontSize: 16, lineHeight: 1.55, fontFamily: "inherit", resize: "none" }} />
               {kendiMetinMesaji && <div aria-live="polite" style={{ color: S.soluk, fontSize: 12, marginTop: 8 }}>{kendiMetinMesaji}</div>}
               <div data-kendi-metin-actions style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", marginTop: 12, flexShrink: 0 }}>
-                <label style={{ minHeight: 44, display: "flex", alignItems: "center", background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "0 12px", cursor: "pointer", fontSize: 13 }}>TXT seç
-                  <input type="file" accept=".txt,text/plain" onChange={dosyaMetniYukle} style={{ display: "none" }} />
+                <label aria-disabled={kendiMetinYukleniyor ? "true" : undefined} style={{ minHeight: 44, display: "flex", alignItems: "center", background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "0 12px", cursor: kendiMetinYukleniyor ? "wait" : "pointer", fontSize: 13, opacity: kendiMetinYukleniyor ? 0.7 : 1 }}>{kendiMetinYukleniyor ? "Belge okunuyor…" : "PDF, Word veya TXT seç"}
+                  <input type="file" aria-label="PDF, Word veya TXT dosyası seç" accept={SUPPORTED_DOCUMENT_ACCEPT} disabled={kendiMetinYukleniyor} onChange={dosyaMetniYukle} style={{ display: "none" }} />
                 </label>
-                <button onClick={() => kendiMetniAc(kendiMetin, kendiBaslik)} style={{ minHeight: 48, background: S.vurgu, color: "#14181F", border: "none", borderRadius: 12, padding: "0 18px", fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}>Okuma moduna al</button>
+                <button disabled={kendiMetinYukleniyor} onClick={() => kendiMetniAc(kendiMetin, kendiBaslik)} style={{ minHeight: 48, background: S.vurgu, color: "#14181F", border: "none", borderRadius: 12, padding: "0 18px", fontWeight: 800, cursor: kendiMetinYukleniyor ? "wait" : "pointer", fontFamily: "inherit", opacity: kendiMetinYukleniyor ? 0.65 : 1 }}>Okuma moduna al</button>
               </div>
               <div data-terms style={{ color: S.soluk, fontSize: 11, lineHeight: 1.45, marginTop: 10, opacity: 0.9 }}>
                 Yüklediğin içeriğin haklarından sen sorumlusun. Okurio metni kişisel erişilebilir okuma desteği için işler; yayınlamaz veya dağıtmaz.
@@ -2961,7 +2962,7 @@ export default function DinletiApp() {
 
   const AramaSayfa = () => {
     const q = arama.trim().toLowerCase();
-    const evren = uyumluKatalog;
+    const evren = uyumluKatalog.filter((kitap) => kitap.publiclyDiscoverable !== false);
     const sonuc = q ? evren.filter((k) => (k.baslik + " " + k.yazar + " " + k.kategori + " " + (k.ozet || "")).toLowerCase().includes(q)) : evren;
     return (
       <main data-page-shell data-search-page style={{ padding: "24px 20px" }}>
@@ -3173,7 +3174,7 @@ export default function DinletiApp() {
           )}
 
           {/* OKUMA ALANI: ekranın ana yüzeyi */}
-          <div data-okuma-alani style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: mobilDar ? 10 : 14, position: "relative" }}>
+          <div data-okuma-alani style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: mobilDar ? 10 : 14, position: "relative", display: "flex", flexDirection: "column" }}>
             <div data-reader-stage-header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginBottom: mobilDar ? 5 : 10, minHeight: mobilDar ? 44 : undefined }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: S.soluk, fontSize: mobilDar ? 11 : 13 }}><BookOpen size={mobilDar ? 13 : 15} /> Okuma görünümü</div>
               <div style={{ display: "flex", gap: 6 }}>
@@ -3200,8 +3201,8 @@ export default function DinletiApp() {
               const gorunecek = kelimeler;
               const kaydirma = 0;
               return (
-                <div id="okurio-okuma-icerigi" data-reader-workspace>
-                  <div data-reading-column>
+                <div id="okurio-okuma-icerigi" data-reader-workspace style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden" }}>
+                  <div data-reading-column style={{ height: "100%", minHeight: 0 }}>
                   <div ref={readerScrollRef} data-okuma-metin="1" data-tema={ayar.tema} data-aktif-cumle={`${aktifCumle[0]}-${aktifCumle[1]}`} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} style={{
                     fontSize: PUNTOLAR[ayar.punto], letterSpacing: `${ARALIKLAR[ayar.aralik]}em`,
                     lineHeight: SATIRLAR[ayar.aralik], wordSpacing: `${ARALIKLAR[ayar.aralik] * 2.2}em`,

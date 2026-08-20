@@ -16,7 +16,11 @@ permissions:
 jobs:
   reader-contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 18
+    container:
+      image: mcr.microsoft.com/playwright:v1.61.1-noble
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     strategy:
       fail-fast: false
       matrix:
@@ -28,7 +32,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium webkit
       - run: CROSS_PLATFORM=1 npx playwright test tests/reader-cross-platform-contract.spec.js --project=${{ matrix.project }}
       - uses: actions/upload-artifact@v4
         if: failure()

@@ -98,6 +98,7 @@ export const UZAY_KULUBU_PRODUCTION_CANDIDATE = (() => {
     renk: ["#203C65", "#E8A33D"],
     sureDk: UZAY_KULUBU_PIYESI_DRAFT.metadata.estimatedMinutes,
     icerikDurumu: "tam-metin",
+    publiclyDiscoverable: false,
     hakDurumu: "okurio-ozgun-ai-destekli",
     kaynak: {
       ad: "NASA bilim referans paketi",
@@ -327,9 +328,8 @@ export const PRODUCTION_STORY_UPGRADES = [
       },
     ],
   },
-  // Yapısal olarak tamamlanan metin katalogda okunabilir. İnsan kalite onayı
-  // publicationReady kapısını açar; aday metnin kısa placeholder yerine
-  // gösterilmesini engellemez.
+  // Yapısal aday katalog sözleşmesine bağlı kalır; ancak insan kalite onayı
+  // tamamlanana kadar publiclyDiscoverable=false ile aramaya kapalıdır.
   UZAY_KULUBU_PRODUCTION_CANDIDATE,
 ];
 

@@ -21,6 +21,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.61.1-noble
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
 
     steps:
       - name: Repository checkout
@@ -52,9 +56,6 @@ jobs:
           test -f dist/release.json
           test -d dist/assets
           node -e "const r=require('./dist/release.json'); if(!r.commit) process.exit(1)"
-
-      - name: Playwright Chromium kur
-        run: npx playwright install --with-deps chromium
 
       - name: Regresyon testlerini çalıştır
         run: npm test

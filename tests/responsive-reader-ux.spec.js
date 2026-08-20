@@ -32,7 +32,7 @@ async function okuyucuyuAc(page) {
 test.describe("Responsive reader UX sözleşmesi", () => {
   test("kartlarda gerçek süre ve kapsam görünür; Andersen doğru okuma yolunda tam okumadır", async ({ page }) => {
     await uygulamayiHazirla(page);
-    await expect(page.locator("[data-surum]")).toContainText("v2.8.4");
+    await expect(page.locator("[data-surum]")).toContainText("v2.9.0");
 
     const kisaMasal = page.locator('[data-story-id="andersen-masallari"]').first();
     await expect(kisaMasal).toBeVisible();
@@ -82,6 +82,16 @@ test.describe("Responsive reader UX sözleşmesi", () => {
     const dialog = page.locator("[data-kendi-metin-dialog]");
     await expect(dialog).toBeVisible();
     await expect(page.getByLabel("Kendi metnim", { exact: true })).toBeVisible();
+    const documentInput = page.getByLabel("PDF, Word veya TXT dosyası seç");
+    await expect(documentInput).toHaveAttribute("accept", /\.pdf/);
+    await expect(documentInput).toHaveAttribute("accept", /\.docx/);
+    await documentInput.setInputFiles({
+      name: "bilimsel-not.txt",
+      mimeType: "text/plain",
+      buffer: Buffer.from("Araştırma başlığı\n\nBu, erişilebilir okuma görünümünde kontrol edilecek yeterince uzun bir bilimsel nottur."),
+    });
+    await expect(page.getByLabel("Kendi metnim", { exact: true })).toContainText("erişilebilir okuma görünümünde");
+    await expect(page.getByText(/TXT metni hazır/)).toBeVisible();
     if (testInfo.project.name !== "desktop-chrome") {
       const height = await dialog.evaluate((element) => element.getBoundingClientRect().height);
       expect(height).toBeGreaterThanOrEqual((await page.evaluate(() => innerHeight)) - 1);
