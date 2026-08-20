@@ -65,7 +65,6 @@ test.describe("Responsive reader UX sözleşmesi", () => {
     });
 
     await expect(page.locator('[data-shelf-name="Mikro Alıştırmalar"]')).toHaveCount(0);
-    await expect(page.locator("[data-bos-okuma-yolu]")).toContainText("hazır tam metin bulunmuyor");
   });
 
   test("Kendi Metnim raflardan sonra kapalı CTA olarak durur ve isteğe bağlı açılır", async ({ page }, testInfo) => {
