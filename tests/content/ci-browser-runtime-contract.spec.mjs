@@ -4,10 +4,12 @@ import test from "node:test";
 
 const crossPlatform = fs.readFileSync(".github/workflows/cross-platform-reader.yml", "utf8");
 const regression = fs.readFileSync(".github/workflows/playwright.yml", "utf8");
+const lockfile = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
+const playwrightVersion = lockfile.packages["node_modules/@playwright/test"].version;
 
 test("browser jobs use the repository Playwright version and preinstalled browsers", () => {
   for (const workflow of [crossPlatform, regression]) {
-    assert.match(workflow, /mcr\.microsoft\.com\/playwright:v1\.55\.0-noble/);
+    assert.match(workflow, new RegExp(`mcr\\.microsoft\\.com/playwright:v${playwrightVersion}-noble`));
     assert.match(workflow, /PLAYWRIGHT_BROWSERS_PATH:\s*\/ms-playwright/);
     assert.doesNotMatch(workflow, /playwright install/);
   }

@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 18
     container:
-      image: mcr.microsoft.com/playwright:v1.55.0-noble
+      image: mcr.microsoft.com/playwright:v1.61.1-noble
     env:
       PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     strategy:
