@@ -3430,7 +3430,7 @@ export default function DinletiApp() {
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
           {evreSecenekleri(taslak.yolId).map((e) => (
             <button key={e.id} onClick={() => setTaslak((t) => ({ ...t, evreId: e.id }))}
-              style={{ textAlign: "left", background: taslak.evreId === e.id ? "rgba(232,163,61,0.14)" : S.kart, border: taslak.evreId === e.id ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "11px 12px", color: S.metin, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>
+              style={{ minHeight: 44, textAlign: "left", background: taslak.evreId === e.id ? "rgba(232,163,61,0.14)" : S.kart, border: taslak.evreId === e.id ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "11px 12px", color: S.metin, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>
               {e.ad}
             </button>
           ))}
@@ -3443,7 +3443,7 @@ export default function DinletiApp() {
             return (
               <button key={d.id} onClick={() => toggleDestek(d.id)}
                 aria-pressed={secili}
-                style={{ background: secili ? "rgba(232,163,61,0.17)" : S.kart, border: secili ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 999, padding: "9px 12px", color: secili ? S.vurgu : S.soluk, cursor: "pointer", fontFamily: "inherit", fontSize: 12 }}>
+                style={{ minHeight: 44, background: secili ? "rgba(232,163,61,0.17)" : S.kart, border: secili ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 999, padding: "9px 12px", color: secili ? S.vurgu : S.soluk, cursor: "pointer", fontFamily: "inherit", fontSize: 12 }}>
                 {secili ? "✓ " : ""}{d.ad}
               </button>
             );
