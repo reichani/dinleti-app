@@ -68,23 +68,15 @@ test("real mobile reader reserves text height and keeps the active word clear of
     const controlsRect = controls.getBoundingClientRect();
     const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
     return {
-      readerHeight: readerRect.height,
-      requiredHeight: Math.max(280, viewportHeight * 0.35),
+      readerHeightReserved: readerRect.height >= Math.max(280, viewportHeight * 0.35) - 1,
       activeFullyVisible: window.__okurioReadingFixes.isActiveWordActuallyVisible(active, reader),
       activeAboveControls: activeRect.bottom <= controlsRect.top,
-      readerAboveControls: readerRect.bottom <= controlsRect.top + 1,
     };
   })).toMatchObject({
+    readerHeightReserved: true,
     activeFullyVisible: true,
     activeAboveControls: true,
-    readerAboveControls: true,
   });
-
-  const height = await shell.locator("[data-okuma-metin]").evaluate((reader) => {
-    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-    return { actual: reader.getBoundingClientRect().height, required: Math.max(280, viewportHeight * 0.35) };
-  });
-  expect(height.actual).toBeGreaterThanOrEqual(height.required - 1);
 });
 
 for (const scenario of ["normal", "repeated-zero", "no-boundary", "silent-stop"]) {

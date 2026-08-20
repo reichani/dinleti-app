@@ -67,3 +67,31 @@ export function monotonicBoundaryWord({
   );
   return candidate > currentIndex ? candidate : null;
 }
+
+export function createSpeechWordTimeline(words, durationForWord, calibration = 1) {
+  const safeCalibration = Math.max(0.5, Math.min(2, Number(calibration) || 1));
+  let elapsed = 0;
+  return words.map((word) => {
+    const startsAt = elapsed;
+    elapsed += Math.max(40, Number(durationForWord(word)) || 0) * safeCalibration;
+    return startsAt;
+  });
+}
+
+export function timelineWordFromElapsed({
+  startsAt,
+  elapsedMs,
+  baseIndex,
+  currentIndex,
+  endIndex,
+}) {
+  if (!Array.isArray(startsAt) || startsAt.length === 0) return null;
+  const elapsed = Math.max(0, Number(elapsedMs) || 0);
+  let localIndex = 0;
+  for (let index = 1; index < startsAt.length; index += 1) {
+    if (startsAt[index] > elapsed) break;
+    localIndex = index;
+  }
+  const candidate = Math.min(endIndex, baseIndex + localIndex);
+  return candidate > currentIndex ? candidate : null;
+}
