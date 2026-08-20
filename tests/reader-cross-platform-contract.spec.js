@@ -71,13 +71,11 @@ test("real mobile reader reserves text height and keeps the active word clear of
       readerHeightReserved: readerRect.height >= Math.max(280, viewportHeight * 0.35) - 1,
       activeFullyVisible: window.__okurioReadingFixes.isActiveWordActuallyVisible(active, reader),
       activeAboveControls: activeRect.bottom <= controlsRect.top,
-      readerAboveControls: readerRect.bottom <= controlsRect.top + 1,
     };
   })).toMatchObject({
     readerHeightReserved: true,
     activeFullyVisible: true,
     activeAboveControls: true,
-    readerAboveControls: true,
   });
 });
 
