@@ -1648,19 +1648,13 @@ const kitapOkumaYolunaUygunMu = (kitap, yol = VARSAYILAN_OKUMA_YOLU) => {
   if (!kitap) return false;
   const yolDetay = yolBul(yol.yolId);
   const meta = kitapMeta(kitap);
-  const sunum = icerikSunumu(kitap);
   const hedefSegmentler = yolSegmentleri(yol.yolId);
   const izinliTurler = YOL_ICERIK_TURLERI[yol.yolId] || [];
   const segmentUyumu = meta.segmentler.some((s) => hedefSegmentler.includes(s));
   const turUyumu = izinliTurler.length === 0 || izinliTurler.includes(meta.icerikTuru);
   const modUyumu = yolDetay.mod === "yetiskin" ? meta.segmentler.includes("yetiskin_odak") : !meta.segmentler.every((s) => s === "yetiskin_odak");
   const evreUyumu = !yol.evreId || meta.okumaEvreleri.includes(yol.evreId) || yol.evreId === "dinleme" || yolDetay.mod === "yetiskin";
-  // Mikro alıştırmalar bilinçli olarak uzun-okuma kelime/süre alt sınırının
-  // altındadır. Raf ve içerik sınıflandırması onları uygun bulduktan sonra
-  // uzun-form seviye kapısını tekrar uygulamak başlatma düğmesini çelişkili
-  // biçimde devre dışı bırakıyordu. Segment, tür ve evre sözleşmeleri korunur.
-  const seviyeUyumu = sunum.status === "micro-exercise"
-    || evaluateStoryForReadingLevel(kitap, meta, yol.yolId).eligible;
+  const seviyeUyumu = evaluateStoryForReadingLevel(kitap, meta, yol.yolId).eligible;
   return segmentUyumu && turUyumu && modUyumu && evreUyumu && seviyeUyumu;
 };
 
