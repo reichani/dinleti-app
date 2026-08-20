@@ -56,7 +56,7 @@ test.describe("Responsive reader UX sözleşmesi", () => {
     await expect(page.locator("[data-reader-shell]")).toBeVisible();
   });
 
-  test("6–7 yolunda raflar yalnız yaş hedefini karşılayan tam okumaları gösterir", async ({ page }) => {
+  test("6–7 yolunda kısa alıştırmalar tam okuma diye sunulmaz", async ({ page }) => {
     await uygulamayiHazirla(page, {
       ...OKUMA_YOLU,
       yolId: "ilk_harfler_6_7",
@@ -65,14 +65,7 @@ test.describe("Responsive reader UX sözleşmesi", () => {
     });
 
     await expect(page.locator('[data-shelf-name="Mikro Alıştırmalar"]')).toHaveCount(0);
-    const tamOkumaRafi = page.locator('[data-shelf-name="Tam Okuma Oturumları"]');
-    await expect(tamOkumaRafi).toBeVisible();
-    const tamOturum = page.locator('[data-story-id="okurio-lili-kayip-tohum-haritasi"]');
-    await expect(tamOturum).toBeVisible();
-    await expect(tamOturum.locator("[data-content-scope]")).toHaveText("Tam okuma");
-    await expect(tamOturum.locator("[data-actual-duration]")).toContainText(/3:\d{2}/);
-    await expect(tamOturum).toHaveAttribute("data-reading-enabled", "true");
-
+    await expect(page.locator("[data-bos-okuma-yolu]")).toContainText("hazır tam metin bulunmuyor");
   });
 
   test("Kendi Metnim raflardan sonra kapalı CTA olarak durur ve isteğe bağlı açılır", async ({ page }, testInfo) => {
