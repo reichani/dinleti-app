@@ -17,7 +17,7 @@ test("browser jobs use the repository Playwright version and preinstalled browse
 
 test("browser jobs keep bounded but realistic fail-closed timeouts", () => {
   assert.match(crossPlatform, /timeout-minutes:\s*18/);
-  assert.match(regression, /timeout-minutes:\s*30/);
+  assert.match(regression, /timeout-minutes:\s*20/);
 });
 
 test("the cross-platform matrix still runs every required reader viewport", () => {
