@@ -18,7 +18,7 @@ test("pause and periodic persistence store versioned word anchors", () => {
 });
 
 test("resume and seek restore the exact section and word", () => {
-  assert.match(source, /cursorFromPosition\(k\.bolumler, p, bolumSn\)/u);
-  assert.match(source, /konusmayiBaslat\(k, cursor\.sectionIndex, cursor\.wordIndex\)/u);
+  assert.match(source, /normalizeReadingProgress\(\{/u);\n  assert.match(source, /setKelimeIx\(progress\.wordIndex\)/u);
+  assert.match(source, /konusmayiBaslat\(k, progress\.sectionIndex, progress\.wordIndex\)/u);
   assert.match(source, /konusmayiBaslat\(aktif, aktifBolumIx, kelimeIx\)/u);
 });
