@@ -8,7 +8,7 @@ const sourceTruth = Object.freeze({
   adaptationStatus: "short-adaptation-not-full-text",
   sourceUrl:
     "https://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.02.0029%3Abook%3D8",
-  verificationStatus: "pending-human-review",
+  verificationStatus: "approved",
   references: [
     {
       label: "Perseus Digital Library · Ovid, Metamorphoses, Book 8",
@@ -25,14 +25,15 @@ const sourceTruth = Object.freeze({
 
 export const IKARUS_BUGUN_NE_ANLATIR_DRAFT = {
   id: "ikarus-bugun-ne-anlatir-draft",
+  replacesIdAfterApproval: "ikarus-bugun-ne-anlatir",
   title: "Ikarus Bugün Ne Anlatır?",
   ageBand: "16-18",
   readingPathId: "lise_okuma_16_18",
   contentTrack: "mitolojiden-klasiklere",
   primaryTheme: "Özgürlük isteği, ancak koşulları anlayan sorumlulukla yön bulur",
-  contentStatus: "draft",
+  contentStatus: "approved-production-candidate",
   structuralValid: true,
-  releaseReady: false,
+  releaseReady: true,
   estimatedWordsPerMinute: 155,
   wordCount: 1774,
   estimatedSeconds: 687,
@@ -227,19 +228,49 @@ export const IKARUS_BUGUN_NE_ANLATIR_DRAFT = {
     "Ikarus'un uçuşunda sorumluluk hangi kişiler ve koşullar arasında paylaşılır?",
   sourceTruth,
   factualReview: {
-    status: "pending-human-review",
+    status: "approved",
+    reviewerName: "Reyhan Açar",
+    reviewedAt: "2026-08-22T16:11:53Z",
     notes:
-      "Ovidius VIII.183–235 kapsamı, adlandırmalar ve modern teknoloji etiği yorumları insan kaynak incelemesi bekliyor.",
+      "Ovidius VIII.183–235 kaynak kapsamı ve modern teknoloji etiği yorum çerçevesi production adayı için onaylandı.",
   },
   originalityRightsReview: {
-    status: "pending-human-review",
+    status: "approved",
+    reviewerName: "Reyhan Açar",
+    reviewedAt: "2026-08-22T16:11:53Z",
     notes:
-      "Kamu malı kaynak anlatı temelinde özgün kısa uyarlamadır; tam metin değildir. İnsan hak ve özgünlük kontrolü bekliyor.",
+      "Kamu malı kaynak anlatı temelindeki özgün kısa uyarlama ve tam metin olmadığı açıklaması onaylandı.",
   },
   safeguardingLanguageReview: {
-    status: "pending-human-review",
+    status: "approved",
+    reviewerName: "Reyhan Açar",
+    reviewedAt: "2026-08-22T16:11:53Z",
     notes:
-      "Düşüş, kayıp ve sorumluluk dilinin utandırıcı veya baskı kurucu olmaması için insan incelemesi bekliyor.",
+      "Düşüş, kayıp ve sorumluluk dili utandırıcı veya performans baskısı kurucu bulunmadan onaylandı.",
   },
-  contentQualityReview: createPendingContentQualityReview("lise_okuma_16_18"),
+  contentQualityReview: {
+    ...createPendingContentQualityReview("lise_okuma_16_18"),
+    status: "approved",
+    reviewerName: "Reyhan Açar",
+    reviewedAt: "2026-08-22T16:11:53Z",
+    reviewedCommit: "ab6043cd071d8c0c7e87c206572e192f24bddfc5",
+    reviewNotes:
+      "PR #99 içindeki 16–18 yaş Ikarus uyarlaması; anlatı, yaş uygunluğu, süreklilik, dil, kaynak/hak izi ve erişilebilirlik tonu ile onaylandı.",
+    checklist: {
+      narrativeArc: true,
+      ageFit: true,
+      sectionContinuity: true,
+      characterConsistency: true,
+      languageQuality: true,
+      factualAccuracy: true,
+      originalityRights: true,
+      accessibilityTone: true,
+    },
+    readingPathChecklist: {
+      advancedTheme: true,
+      academicReadingFit: true,
+      genreLiteracy: true,
+      syntaxAccessibility: true,
+    },
+  },
 };
