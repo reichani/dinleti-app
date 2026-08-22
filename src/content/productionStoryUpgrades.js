@@ -6,6 +6,7 @@ import { OKI_VE_AY_HARITASI_DRAFT } from "./drafts/2026-08-01-oki-ve-ay-haritasi
 import { LABIRENTTE_UC_SES_DRAFT } from "./drafts/2026-08-02-labirentte-uc-ses.js";
 import { NANA_ANLATIYOR_DRAFT } from "./drafts/2026-08-18-nana-anlatiyor.js";
 import { ARIADNENIN_IPI_YOL_BULMAK_DRAFT } from "./drafts/2026-08-19-ariadnenin-ipi-yol-bulmak.js";
+import { IKARUS_BUGUN_NE_ANLATIR_DRAFT } from "./drafts/2026-08-22-ikarus-bugun-ne-anlatir.js";
 
 const normalize = (text) => text.replace(/\s+/gu, " ").trim();
 
@@ -54,16 +55,18 @@ const preparedDraftToProductionCandidate = (draft, overrides = {}) => {
     ozet: draft.primaryTheme,
     bolumler,
     contentQualityReview: draft.contentQualityReview,
-    releaseReady: false,
+    releaseReady: draft.releaseReady === true,
     metadata: {
       ageBand: draft.ageBand,
       estimatedSeconds: draft.estimatedSeconds,
       estimatedMinutes: Number((draft.estimatedSeconds / 60).toFixed(2)),
       primaryTheme: draft.primaryTheme,
       contentTrack: draft.contentTrack,
-      contentStatus: "candidate-deployed-human-review-pending",
+      contentStatus: draft.releaseReady === true
+        ? "approved-production-candidate"
+        : "candidate-deployed-human-review-pending",
       structuralValid: draft.structuralValid !== false,
-      releaseReady: false,
+      releaseReady: draft.releaseReady === true,
       glossary: draft.glossary,
       optionalReflectionPrompt: draft.optionalReflectionPrompt,
       sourceTruth,
@@ -83,6 +86,7 @@ export const PREPARED_DRAFT_PRODUCTION_CANDIDATES = [
   preparedDraftToProductionCandidate(LABIRENTTE_UC_SES_DRAFT, { kategori: "Piyes ve Mitoloji", renk: ["#4D365F", "#9B7BB8"] }),
   preparedDraftToProductionCandidate(NANA_ANLATIYOR_DRAFT, { kategori: "İlk Okuma", renk: ["#5B3A2E", "#C28C70"] }),
   preparedDraftToProductionCandidate(ARIADNENIN_IPI_YOL_BULMAK_DRAFT, { kategori: "Mitolojiyle Okumaya Dönüş", renk: ["#2C3A3B", "#7AA6A1"], seslendiren: "Sakin Rehber" }),
+  preparedDraftToProductionCandidate(IKARUS_BUGUN_NE_ANLATIR_DRAFT, { kategori: "Mitolojiden Klasiklere", renk: ["#26334F", "#D9A24A"] }),
 ];
 
 
