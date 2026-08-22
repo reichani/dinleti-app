@@ -57,15 +57,15 @@ const PERSONAL_METADATA = {
 async function seedResumeState(page) {
   await page.addInitScript(({ readingPath, book, metadata }) => {
     localStorage.clear();
-    localStorage.setItem("dinleti:okurio-okuma-yolu-v1", JSON.stringify(readingPath));
     localStorage.setItem("okurio-okuma-yolu-v1", JSON.stringify(readingPath));
-    localStorage.setItem("dinleti:dinleti-mod-v1", "cocuk");
+    localStorage.setItem("okurio-okuma-yolu-v1", JSON.stringify(readingPath));
+    localStorage.setItem("dinleti-mod-v1", "cocuk");
     localStorage.setItem(
-      "dinleti:okurio-kendi-icerik-v1",
+      "okurio-kendi-icerik-v1",
       JSON.stringify([{ kitap: book, metadata, eklenmeZamani: Date.now() - 60_000 }]),
     );
     localStorage.setItem(
-      "dinleti:dinleti-durum-v1",
+      "dinleti-durum-v1",
       JSON.stringify({
         favoriler: [],
         hiz: 1,
@@ -133,11 +133,11 @@ test.describe("Kaldığın yerden devam et regresyonu", () => {
   test("eski pos tabanlı kayıtlar için backward compatibility korunur", async ({ page }) => {
     await page.addInitScript(({ readingPath, book, metadata }) => {
       localStorage.clear();
-      localStorage.setItem("dinleti:okurio-okuma-yolu-v1", JSON.stringify(readingPath));
       localStorage.setItem("okurio-okuma-yolu-v1", JSON.stringify(readingPath));
-      localStorage.setItem("dinleti:dinleti-mod-v1", "cocuk");
-      localStorage.setItem("dinleti:okurio-kendi-icerik-v1", JSON.stringify([{ kitap: book, metadata, eklenmeZamani: Date.now() }]));
-      localStorage.setItem("dinleti:dinleti-durum-v1", JSON.stringify({
+      localStorage.setItem("okurio-okuma-yolu-v1", JSON.stringify(readingPath));
+      localStorage.setItem("dinleti-mod-v1", "cocuk");
+      localStorage.setItem("okurio-kendi-icerik-v1", JSON.stringify([{ kitap: book, metadata, eklenmeZamani: Date.now() }]));
+      localStorage.setItem("dinleti-durum-v1", JSON.stringify({
         favoriler: [],
         hiz: 1,
         sonKitap: book.id,
