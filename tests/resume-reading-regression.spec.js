@@ -112,10 +112,11 @@ test.describe("Kaldığın yerden devam et regresyonu", () => {
     await page.goto("/");
 
     const resumeLabel = page.getByText("Kaldığın yerden devam et", { exact: true });
+    const resumeCard = resumeLabel.locator("..");
     await expect(resumeLabel).toBeVisible();
-    await expect(page.getByText("Devam Test Kitabı", { exact: true })).toBeVisible();
+    await expect(resumeCard.getByText("Devam Test Kitabı", { exact: true })).toBeVisible();
 
-    await resumeLabel.click();
+    await resumeCard.click();
 
     const player = page.locator("[data-mobile-stability]");
     await expect(player).toBeVisible();
