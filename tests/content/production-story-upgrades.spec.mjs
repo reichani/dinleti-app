@@ -12,6 +12,7 @@ const DURATION_RULES_BY_AGE = {
   "5-6 yaş": { minimumSeconds: 77, wordsPerMinute: 155 },
   "6-7 yaş": { minimumSeconds: 97, wordsPerMinute: 155 },
   "10-12 yaş": { minimumSeconds: 271, wordsPerMinute: 155 },
+  "16-18 yaş": { minimumSeconds: 581, wordsPerMinute: 155 },
   "18+": { minimumSeconds: 697, wordsPerMinute: 155 },
 };
 
@@ -94,4 +95,17 @@ test("yapısal olarak hazır yedi taslak placeholder yerine kataloğa bağlanır
     assert.equal(story.contentQualityReview.status, "pending");
     assert.equal(story.releaseReady, false);
   }
+});
+
+test("ürün sahibi onaylı Ikarus uzun production kaydının yerine geçer", () => {
+  const story = PRODUCTION_STORY_UPGRADES_BY_ID["ikarus-bugun-ne-anlatir"];
+  assert.ok(story);
+  assert.equal(story.yas, "16-18 yaş");
+  assert.equal(story.contentQualityReview.status, "approved");
+  assert.equal(story.contentQualityReview.reviewerName, "Reyhan Açar");
+  assert.equal(story.releaseReady, true);
+  assert.equal(story.metadata.releaseReady, true);
+  assert.equal(story.bolumler.length, 8);
+  assert.ok(countWords(story) >= 1500);
+  assert.ok(seconds(story) >= 581);
 });
