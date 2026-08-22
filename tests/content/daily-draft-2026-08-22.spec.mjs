@@ -36,21 +36,24 @@ test("Ikarus: cümle, paragraf, sözlük ve tema sözleşmesi", () => {
   assert.ok(story.optionalReflectionPrompt);
 });
 
-test("Ikarus: kamu malı kaynak kapsamı açık ve insan onayı zorunlu", () => {
+test("Ikarus: kamu malı kaynak kapsamı açık ve ürün sahibi onayı izlenebilir", () => {
   const review = story.contentQualityReview;
   const checklistKeys = ["narrativeArc","ageFit","sectionContinuity","characterConsistency","languageQuality","factualAccuracy","originalityRights","accessibilityTone"];
-  assert.equal(story.contentStatus, "draft");
-  assert.equal(story.releaseReady, false);
-  assert.equal(review.status, "pending");
-  assert.equal(review.reviewerName, "");
-  assert.equal(review.reviewedAt, "");
-  assert.equal(review.reviewNotes, "");
+  assert.equal(story.contentStatus, "approved-production-candidate");
+  assert.equal(story.releaseReady, true);
+  assert.equal(story.replacesIdAfterApproval, "ikarus-bugun-ne-anlatir");
+  assert.equal(review.status, "approved");
+  assert.equal(review.reviewerName, "Reyhan Açar");
+  assert.equal(review.reviewedAt, "2026-08-22T16:11:53Z");
+  assert.equal(review.reviewedCommit, "ab6043cd071d8c0c7e87c206572e192f24bddfc5");
+  assert.match(review.reviewNotes, /PR #99/u);
   assert.deepEqual(Object.keys(review.checklist), checklistKeys);
-  assert.ok(Object.values(review.checklist).every((value) => value === false));
-  assert.equal(story.factualReview.status, "pending-human-review");
-  assert.equal(story.originalityRightsReview.status, "pending-human-review");
-  assert.equal(story.safeguardingLanguageReview.status, "pending-human-review");
-  assert.equal(story.sourceTruth.verificationStatus, "pending-human-review");
+  assert.ok(Object.values(review.checklist).every((value) => value === true));
+  assert.ok(Object.values(review.readingPathChecklist).every((value) => value === true));
+  assert.equal(story.factualReview.status, "approved");
+  assert.equal(story.originalityRightsReview.status, "approved");
+  assert.equal(story.safeguardingLanguageReview.status, "approved");
+  assert.equal(story.sourceTruth.verificationStatus, "approved");
   assert.equal(story.sourceTruth.sourceType, "public-domain-adaptation");
   assert.equal(story.sourceTruth.adaptationStatus, "short-adaptation-not-full-text");
   assert.match(story.sourceTruth.scope, /VIII\.183–235/u);
