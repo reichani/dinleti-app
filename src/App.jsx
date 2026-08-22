@@ -2798,7 +2798,11 @@ export default function DinletiApp() {
 
   const DevamKart = () => {
     const devamlar = Object.entries(ilerlemeler)
-      .filter(([id, v]) => v.pos > 10 && kitapUyum(kitapBul(id)) && icerikSunumu(kitapBul(id)).deployable)
+      .filter(([id, v]) => {
+        const kitap = kitapBul(id);
+        const kisiselOkuma = kitap && kitapMeta(kitap).icerikTuru === "kullanici_metni";
+        return v.pos > 10 && kitap && (kisiselOkuma || kitapUyum(kitap)) && icerikSunumu(kitap).deployable;
+      })
       .sort((a, b) => b[1].ts - a[1].ts);
     if (devamlar.length === 0) return null;
     const [id, v] = devamlar[0];
