@@ -98,6 +98,43 @@ test.describe("Responsive reader UX sözleşmesi", () => {
     }
   });
 
+  test("İngilizce Kendi Metnim İngilizce TTS sesiyle açılır", async ({ page }) => {
+    await page.addInitScript(() => {
+      class FakeUtterance {
+        constructor(text) { this.text = text; this.lang = ""; this.voice = null; }
+      }
+      const spoken = [];
+      const voices = [
+        { name: "Mock Turkish", lang: "tr-TR", localService: true },
+        { name: "Mock English", lang: "en-GB", localService: true },
+      ];
+      Object.defineProperty(window, "SpeechSynthesisUtterance", { configurable: true, value: FakeUtterance });
+      Object.defineProperty(window, "speechSynthesis", { configurable: true, value: {
+        speak(utterance) { spoken.push({ lang: utterance.lang, voiceLang: utterance.voice?.lang, text: utterance.text }); },
+        cancel() {},
+        getVoices() { return voices; },
+        addEventListener() {},
+        removeEventListener() {},
+        get paused() { return false; },
+        get speaking() { return false; },
+      }});
+      window.__okurioSpoken = spoken;
+    });
+
+    await uygulamayiHazirla(page);
+    await page.getByRole("button", { name: /Kendi metnini oku/i }).click();
+    await page.getByLabel("Kendi metnim", { exact: true }).fill(
+      "This study examines how attention changes during reading. The results are discussed with earlier research and the method is described in detail.",
+    );
+    await page.getByRole("button", { name: "Okuma moduna al", exact: true }).click();
+    await page.getByRole("button", { name: "Oynat", exact: true }).click();
+
+    await expect.poll(() => page.evaluate(() => window.__okurioSpoken?.[0])).toMatchObject({
+      lang: "en-GB",
+      voiceLang: "en-GB",
+    });
+  });
+
   test("masaüstünde uygulama ve gerçek metin yüzeyi geniş alanı kullanır", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-chrome", "Masaüstü geometri sözleşmesi");
     await okuyucuyuAc(page);
