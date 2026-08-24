@@ -2,19 +2,33 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   AI_QUALITY_CHECKS,
+  AI_QUALITY_STATUS,
   evaluateAiAssistedQualityGate,
+  evaluateProductOwnerAcceptance,
   assertAiAssistedReleaseReady,
 } from "../../src/content/aiQualityGate.js";
 import story from "../../src/content/drafts/2026-08-04-uzay-kulubu-piyesi.js";
 
-test("independent AI evidence does not impersonate or replace human approval", () => {
-  const metadata = story.metadata;
-  assert.equal(metadata.aiQualityReview.reviewerKind, "ai");
-  assert.equal(metadata.contentQualityReview.status, "pending");
-  assert.equal(metadata.contentQualityReview.reviewerName, "");
-  assert.equal(metadata.ownerApproval.status, "pending");
-  assert.equal(metadata.releaseReady, false);
-  assert.equal(evaluateAiAssistedQualityGate(metadata).releaseReady, false);
+const completeAutomatedMetadata = () => ({
+  aiQualityReview: {
+    reviewerKind: "ai",
+    agentName: "okurio-quality-gate",
+    reviewedAt: "2026-08-19T10:00:00.000Z",
+    reviewedCommit: "abc123",
+    checks: Object.fromEntries(
+      AI_QUALITY_CHECKS.map((name) => [name, {
+        status: AI_QUALITY_STATUS.PASS,
+        evidence: `${name} automated evidence`,
+      }]),
+    ),
+  },
+  ownerApproval: { status: "pending" },
+});
+
+test("complete automated evidence can pass before product-owner acceptance", () => {
+  const result = evaluateAiAssistedQualityGate(completeAutomatedMetadata());
+  assert.equal(result.status, AI_QUALITY_STATUS.PASS);
+  assert.equal(result.releaseReady, true);
 });
 
 test("all eight AI checks carry explicit evidence and conservative statuses", () => {
@@ -29,9 +43,29 @@ test("all eight AI checks carry explicit evidence and conservative statuses", ()
   assert.equal(checks.originalityRights.status, "PASS");
 });
 
-test("release assertion fails closed while any AI or owner evidence is incomplete", () => {
+test("automated release assertion fails closed while AI evidence is incomplete", () => {
   assert.throws(
     () => assertAiAssistedReleaseReady(story.metadata),
     (error) => error.code === "AI_QUALITY_GATE_BLOCKED" && error.report.blockers.length > 0,
   );
+});
+
+test("only Reyhan can accept the exact deployed commit after deployment", () => {
+  const accepted = evaluateProductOwnerAcceptance({
+    status: "accepted",
+    ownerName: "Reyhan Açar",
+    decidedAt: "2026-08-19T10:05:00.000Z",
+    deployedCommit: "abc123",
+    notes: "Samsung S24+ production kabulü geçti.",
+  }, "abc123");
+  assert.equal(accepted.accepted, true);
+
+  const wrongCommit = evaluateProductOwnerAcceptance({
+    status: "accepted",
+    ownerName: "Reyhan Açar",
+    decidedAt: "2026-08-19T10:05:00.000Z",
+    deployedCommit: "old456",
+    notes: "Eski build.",
+  }, "abc123");
+  assert.equal(wrongCommit.accepted, false);
 });

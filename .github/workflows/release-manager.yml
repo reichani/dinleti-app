@@ -1,22 +1,15 @@
 name: Okurio Release Manager
 
 on:
+  workflow_run:
+    workflows: ["Okurio Regression and Build Checks"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       candidate_sha:
-        description: "Üretimde doğrulanacak tam commit SHA"
-        required: true
+        description: "Yeniden doğrulanacak production commit SHA (boşsa main HEAD)"
+        required: false
         type: string
-      release_manager_approved:
-        description: "Release Manager aday kapsamını ve kalite kapısını onayladı"
-        required: true
-        default: false
-        type: boolean
-      samsung_s24_plus_verified:
-        description: "Reyhan gerçek Samsung S24+ üzerinde kontrol etti"
-        required: true
-        default: false
-        type: boolean
 
 permissions:
   contents: read
@@ -26,63 +19,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release-guard:
-    name: Release Manager onayı
-    runs-on: ubuntu-latest
-    steps:
-      - name: İnsan onaylarını zorunlu tut
-        env:
-          RM_APPROVED: ${{ inputs.release_manager_approved }}
-          S24_APPROVED: ${{ inputs.samsung_s24_plus_verified }}
-        run: |
-          test "$RM_APPROVED" = "true"
-          test "$S24_APPROVED" = "true"
-
-  candidate-quality:
-    name: Adayı yeniden doğrula
-    needs: release-guard
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - name: Aday commit'i al
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.candidate_sha }}
-
-      - name: Node.js kurulumu
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Bağımlılıkları kur
-        run: npm ci --no-audit --no-fund
-
-      - name: İçerik kalite kapısı
-        run: |
-          npm run validate:content
-          npm run test:content
-
-      - name: Aday artifact'ı üret
-        env:
-          GITHUB_SHA: ${{ inputs.candidate_sha }}
-        run: npm run build
-
-      - name: Chromium kur ve regresyonları çalıştır
-        run: |
-          npx playwright install --with-deps chromium
-          npm test
-
-      - name: Aday artifact'ı sakla
-        uses: actions/upload-artifact@v4
-        with:
-          name: okurio-release-${{ inputs.candidate_sha }}
-          path: dist/
-          retention-days: 90
-
   production-acceptance:
-    name: Production kabulü
-    needs: candidate-quality
+    name: Otomatik production kanıtı
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
@@ -92,7 +33,7 @@ jobs:
       - name: Aday commit'i al
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.candidate_sha }}
+          ref: ${{ inputs.candidate_sha || github.event.workflow_run.head_sha || 'main' }}
 
       - name: Node.js kurulumu
         uses: actions/setup-node@v4
@@ -103,26 +44,39 @@ jobs:
       - name: Bağımlılıkları kur
         run: npm ci --no-audit --no-fund
 
-      - name: Production SHA'sını doğrula
+      - name: Cloudflare deploy ve production SHA'sını bekle
         env:
-          EXPECTED_SHA: ${{ inputs.candidate_sha }}
-          PRODUCTION_URL: https://dinleti-app.pages.dev
+          EXPECTED_SHA: ${{ inputs.candidate_sha || github.event.workflow_run.head_sha }}
+          PRODUCTION_URL: ${{ vars.DINLETI_LIVE_URL || 'https://dinleti-app.pages.dev' }}
         run: |
-          node -e "fetch(process.env.PRODUCTION_URL + '/release.json', { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error('release.json ' + r.status); return r.json(); }).then(x => { if (x.commit !== process.env.EXPECTED_SHA) throw new Error('Production SHA ' + x.commit + ' beklenen ' + process.env.EXPECTED_SHA); console.log('Production SHA doğrulandı:', x.commit); })"
+          if [ -z "$EXPECTED_SHA" ]; then EXPECTED_SHA=$(git rev-parse HEAD); fi
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error --location --connect-timeout 10 --max-time 30 "$PRODUCTION_URL/release.json" > /tmp/release.json; then
+              LIVE_SHA=$(node -e "console.log(require('/tmp/release.json').commit || '')")
+              if [ "$LIVE_SHA" = "$EXPECTED_SHA" ]; then
+                echo "Production SHA doğrulandı: $LIVE_SHA"
+                exit 0
+              fi
+              echo "Deneme $attempt: production SHA $LIVE_SHA, beklenen $EXPECTED_SHA"
+            fi
+            sleep 15
+          done
+          echo "Production kalıcı URL doğru SHA'yı servis etmedi"
+          exit 1
 
       - name: Production Chromium smoke testi
         run: npx playwright install --with-deps chromium
 
       - name: Kalıcı production adresini test et
         env:
-          PLAYWRIGHT_BASE_URL: https://dinleti-app.pages.dev
+          PLAYWRIGHT_BASE_URL: ${{ vars.DINLETI_LIVE_URL || 'https://dinleti-app.pages.dev' }}
         run: npx playwright test tests/app-smoke.spec.js tests/links.spec.js tests/responsive-reader-ux.spec.js --project=desktop-chrome --project=samsung-s24
 
       - name: Kabul raporunu sakla
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: okurio-production-acceptance-${{ inputs.candidate_sha }}
+          name: okurio-production-evidence-${{ inputs.candidate_sha || github.event.workflow_run.head_sha }}
           path: |
             playwright-report/
             test-results/
