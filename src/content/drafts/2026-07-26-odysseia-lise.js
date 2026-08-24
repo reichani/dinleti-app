@@ -1,0 +1,210 @@
+const sourceTruth = Object.freeze({
+  work: "Homeros, Odysseia",
+  primaryText: {
+    title: "The Odyssey of Homer",
+    translator: "Samuel Butler",
+    repository: "Project Gutenberg",
+    url: "https://www.gutenberg.org/ebooks/1727",
+    rightsNote: "Kaynak edisyon Project Gutenberg kaydında kamu malı olarak sunulur.",
+  },
+  scope:
+    "Odysseus'un Truva sonrasındaki eve dönüş çerçevesi, İthaka, Penelope ve Telemakhos ilişkileri",
+  sourceType: "public-domain-framework-original-retelling",
+  adaptationScope:
+    "Özgün Okurio yeniden anlatımıdır; kıyı hazırlıkları, konuşmalar ve liderlik sahneleri yaratıcı uyarlamadır.",
+  translationUse:
+    "Modern Türkçe çevirilerden cümle alınmaz; metin doğrudan çeviri iddiası taşımaz.",
+  verificationStatus: "pending-human-review",
+});
+
+export const ODYSSEIA_LISE_DRAFT = {
+  id: "odysseia-01-yetiskin-truvadan-ayrilis-v2-draft",
+  replacesIdAfterApproval: "odysseia-01-yetiskin-truvadan-ayrilis",
+  title: "Odysseia: Dönüşün Başladığı Kıyı",
+  ageBand: "16-18",
+  contentTrack: "lise-okuma",
+  primaryTheme:
+    "Dönüşün, geçmişe dönmekten çok değişimle sorumlu biçimde yüzleşmek olması",
+  contentStatus: "draft",
+  releaseReady: false,
+  estimatedWordsPerMinute: 155,
+  wordCount: 1500,
+  estimatedSeconds: 581,
+  declaredSeconds: 581,
+  sections: [
+    {
+      title: "Küllerin Ardından",
+      paragraphs: [
+        "Şafak, Truva kıyısındaki dumanı ağır bir perdeye çevirmişti. Yıllarca erişilmez görünen surlar artık sessizce uzanıyordu. Zafer uzaktan kesin, yakından ise parçalı görünüyordu.",
+        "Askerlerin yüzlerinde sevinç, yorgunluk ve boşluk birlikte duruyordu. Bazıları eve dönüş hazırlıklarını neşeyle hızlandırmak istiyordu. Bazıları kayıpların adlarını sessizce yeniden sayıyordu.",
+        "Odysseus kıyıya inerken bu farklı yüzleri dikkatle gözledi. On yıl boyunca tek hedef çevresinde yaşamışlardı. Şimdi herkes kendi geleceğini yeniden kurmak zorundaydı.",
+        "Savaş bitmişti, fakat etkileri bir gecede kaybolmamıştı. Alışkanlıklar, korkular ve kararlar insanlarla birlikte kalmıştı. Eve taşınacak görünmez yükler de bulunuyordu.",
+        "Odysseus dönüşü yalnız gemilerin yönü olarak düşünmedi. İthaka'ya ulaşmak başka, gerçekten dönmek başka olabilirdi. Bunun için önce geride kalan ağırlık tanınmalıydı.",
+        "Kıyının sessizliği bu düşünceyi daha belirgin kılıyordu. Önlerinde deniz, arkalarında yıkılmış bir şehir vardı. İki yön de onlardan dürüst bir hesap bekliyordu.",
+        "Denizciler geride bıraktıkları yılları aynı biçimde hatırlamıyordu. Kimi yalnız zaferi, kimi ödenen ağır bedeli görüyordu. Ortak geçmiş bile farklı anlamlar taşıyabiliyordu.",
+        "Odysseus bu ayrılığı bir zayıflık olarak değerlendirmedi. İnsanların duygularını tek bir anlatıya zorlamak istemedi. Dönüş, bu farklı hafızalarla birlikte sürdürülecekti.",
+        "Hiçbir konuşma geçmişi bütünüyle kapatamazdı. Yine de konuşmak, sessiz yükleri paylaşılabilir kılabilirdi. Yolculuk bunun için yeni zaman sağlayacaktı.",
+      ],
+    },
+    {
+      title: "Aidiyetin Hafızası",
+      paragraphs: [
+        "Odysseus denize bakınca İthaka zihninde yeniden canlandı. Kayalık kıyıları ve rüzgârlı zeytinlikleri hatırladı. Sarayın avlusundaki akşam ışığı gözlerinde belirdi.",
+        "Penelope'nin sesini, kelimelerden çok ritmiyle anımsıyordu. Telemakhos'u ise küçük bir çocukken bırakmıştı. Şimdi karşısında nasıl bir genç bulacağını bilmiyordu.",
+        "Özlem, geçmişi değişmeden korunmuş gibi gösterebilirdi. Oysa bekleyen insanlar yaşamayı ve değişmeyi sürdürmüştü. Dönen kişi de eski hâlinde kalmamıştı.",
+        "Bu nedenle aidiyet yalnızca bir yere sahip olmak değildi. Değişmiş hâlinle yeniden bağ kurmayı da gerektiriyordu. Eski roller aynı biçimde geri alınamazdı.",
+        "Odysseus kral, eş ve baba olarak dönecekti. Her rol başka bir sorumluluk ve eksik taşıyordu. Zafer bu eksiklerin hiçbirini kendiliğinden kapatmıyordu.",
+        "İthaka'nın çağrısı ona hem umut hem tedirginlik verdi. Eve ulaşmak kesin bir son olmayacaktı. Asıl sınav, ulaştıktan sonra başlayabilirdi.",
+        "Kendisini bekleyen düzeni zihninde kolayca ideal hâle getirebilirdi. Fakat özlem, gerçekliğin yerine geçtiğinde yanıltıcı olabilirdi. İthaka'yı yeniden görmeden kesin hükümler kurmamalıydı.",
+        "Penelope'nin ve Telemakhos'un kendi hikâyeleri de vardı. Odysseus bu hikâyelerin merkezinde bulunmamıştı. Döndüğünde önce onların deneyimlerine yer açması gerekecekti.",
+        "Aidiyet yalnız hatırlanan görüntülerden oluşamazdı. Karşılaşma, hafızayı bugünün gerçekliğiyle yeniden sınayacaktı. Odysseus bu sınava hazırlanıyordu.",
+      ],
+    },
+    {
+      title: "Gemilerin Sessiz Bilgisi",
+      paragraphs: [
+        "Hazırlıklar başlayınca bütün gemiler kıyıda sıraya alındı. Yelken bezleri açıldı ve dikişler ışıkta incelendi. Halatların gevşeyen lifleri tek tek arandı.",
+        "Kürekler dengelerine ve çatlaklarına göre ayrıldı. Su kaplarının ağızları yeniden sıkıca bağlandı. Erzak listeleri gemiler arasında karşılaştırıldı.",
+        "Bazı denizciler bu denetimi gereksiz bir gecikme saydı. Savaş bitmişti ve herkes evine varmak istiyordu. Beklenen her saat sabırlarını biraz daha zorluyordu.",
+        "Odysseus acele ile cesareti birbirinden ayırdı. Cesaret, görülen tehlikeyi küçümsemek anlamına gelmiyordu. Riskleri ölçmek de korkaklık değildi.",
+        "Genç tayfa Melas, ambarın altında ıslaklık fark etti. Önce devrilmiş bir su kabından şüphelendi. Sonra suyun tahtadan sızdığını gördü.",
+        "Yaşlı marangoz çatlağı eliyle dikkatle yokladı. İnce yarık, ağır yük altında büyüyebilirdi. Gemi sessizce gelecekteki tehlikeyi haber veriyordu.",
+        "Bazı kaptanlar onarımı sonraki limana bırakmayı önerdi. Çatlak küçük görünüyordu ve hava sakindi. Fakat yolun koşulları henüz bilinmiyordu.",
+        "Odysseus küçük ihmalin büyüme biçimini açıkça anlattı. Sızan su önce tahıl çuvallarını bozabilirdi. Bozulan yiyecekler mürettebatı güçsüz bırakabilirdi.",
+        "Güçsüzlük dikkati azaltır ve kararları yavaşlatırdı. Yavaş kararlar başka riskleri daha da büyütebilirdi. Tek çatlak böylece bütün filoyu etkileyebilirdi.",
+        "Marangoz zarar gören tahtayı dikkatle yerinden çıkardı. Yeni parçayı ölçüp çevresini reçineyle kapladı. Melas bütün işlem boyunca yanında çalıştı.",
+        "Bekleyen denizciler zamanla onarıma destek vermeye başladı. Kimisi alet taşıdı, kimisi ambarı boşalttı. Gecikme ortak bir hazırlık zamanına dönüştü.",
+        "Onarım bitince Odysseus yalnız sonucu kontrol etmedi. Melas'a suyu nasıl fark ettiğini de sordu. Dikkatin kaynağını anlamak, onu tekrarlanabilir kılıyordu.",
+      ],
+    },
+    {
+      title: "Emir ile Gerekçe",
+      paragraphs: [
+        "Uzun savaş boyunca birçok emir tartışmaya kapalı verilmişti. Dönüş yolculuğu ise başka bir liderlik dili gerektiriyordu. Yorgun insanlar yalnız zafer sözüyle yönetilemezdi.",
+        "Odysseus onarım kararının nedenlerini mürettebatla açıkça paylaştı. Hangi riski kabul etmediğini tek tek anlattı. Hangi belirsizliklerin süreceğini de saklamadı.",
+        "Bu açıklama onun otoritesini azaltmadı. Aksine güveni kişisel bağlılıktan ortak kavrayışa taşıdı. İnsanlar kararın nasıl kurulduğunu görebiliyordu.",
+        "Bir liderin her şeyi bilmesi mümkün değildi. Fakat bilmediğini hesaba katması mümkündü. Bu tutum mürettebatın görüşlerini daha değerli kıldı.",
+        "Kaptanlar kendi gemilerindeki sorunları açıkça bildirmeye başladı. Eksikleri saklamak yerine birlikte çözüm aradılar. Bilgi, hiyerarşinin içinde kaybolmadan dolaştı.",
+        "Odysseus için sorumluluk yalnız son kararı vermek değildi. Kararın sonuçlarını paylaşmak da aynı ölçüde önemliydi. Gerekçe, buyruğu ortak bir göreve dönüştürüyordu.",
+        "Bu yeni dil mürettebatın sessiz bilgisini görünür hâle getirdi. En genç tayfa bile gördüğü sorunu açıklayabiliyordu. Deneyim artık yalnız yüksek rütbelilere ait değildi.",
+        "Kararlar yine Odysseus'un sorumluluğunda kalmaya devam ediyordu. Katılım, liderliğin ortadan kalkması anlamına gelmiyordu. Yalnızca kararların daha geniş bilgiyle kurulmasını sağlıyordu.",
+        "Güven tek bir açıklamayla kalıcı olmazdı. Her yeni kararda yeniden doğrulanması gerekiyordu. Liderlik böylece sürekli bir ilişkiye dönüşüyordu.",
+      ],
+    },
+    {
+      title: "Rüzgâr Kurulu",
+      paragraphs: [
+        "Akşamüstü rüzgâr kuvvetlenince kaptanlar yeniden toplandı. Uzun bulut şeritleri ufuk boyunca ilerliyordu. Uzak dalgalar gittikçe daha belirgin görünüyordu.",
+        "Genç kaptan Pheres hemen açılmayı savundu. Güçlü rüzgâr filoyu kıyıdan hızla uzaklaştırabilirdi. Beklemek ona göre değerli fırsatı kaybetmekti.",
+        "Yaşlı dümenci kıyı akıntısının gece değişebileceğini söyledi. Yüklü gemiler ters akıntıda zorlanabilirdi. Karanlık, küçük sorunların fark edilmesini geciktirebilirdi.",
+        "Başka bir kaptan yağmur kokusu almadığını belirtti. Ancak rüzgârın yönü henüz tam kararlı değildi. Her işaret farklı bir ihtimali destekliyordu.",
+        "Odysseus tek belirtiye dayanarak karar vermedi. Rüzgârı, akıntıyı ve gemilerin yükünü birlikte değerlendirdi. Mürettebatın yorgunluğunu da hesaba kattı.",
+        "Sonunda filo koydan ayrılacak, kıyı boyunca ilerleyecekti. Açık denize geçiş sabah yeniden değerlendirilecekti. Plan, yanılma payına bilinçli biçimde yer bırakıyordu.",
+        "Kesin görünmek isteyen bir lider bu payı saklayabilirdi. Odysseus ise planın sınırlarını açıkça kabul etti. Belirsizliği adlandırmak mürettebatın hazırlığını güçlendirdi.",
+        "Her gemi gece boyunca rüzgârı ayrı kaydedecekti. Sabah bu gözlemler kurulda yeniden karşılaştırılacaktı. Plan böylece tek karardan yaşayan sürece dönüştü.",
+        "Farklı gözlemler birbirini yanlışlamaktan çok tamamlayabilirdi. Bir geminin göremediğini diğeri fark edebilirdi. Filo ortak dikkati böyle kuruyordu.",
+        "Kaptanlar karar sonrası kendi gemilerine sakinlikle döndü. Tartışma, aralarında kalıcı bir ayrılık oluşturmamıştı. Ortak gerekçe görüş farklarını taşıyabiliyordu.",
+      ],
+    },
+    {
+      title: "Ayrılığın Görünmeyen Yükü",
+      paragraphs: [
+        "Güneş alçalırken ilk yelken ağır ağır açıldı. Gemiler kıyıdan belirlenen sırayla uzaklaşmaya başladı. Kürekler suya ortak bir ritimle girdi.",
+        "Truva'nın surları giderek daha küçük görünüyordu. Bazı denizciler uzun süre geriye bakmayı seçti. Bazıları ise hiç bakmamayı tercih etti.",
+        "Bir denizci kaybettiği kardeşinin adını fısıldadı. Başka biri evindeki çocuklarından sessizce söz etti. Herkes aynı rotaya farklı bir geçmiş taşıyordu.",
+        "Odysseus bu duyguları susturmaya çalışmadı. Liderlik her acıyı çözüme ulaştıramazdı. Bazen yapılabilecek şey ortak yönü korumaktı.",
+        "İthaka filonun ortak hedefi gibi görünüyordu. Yine de herkes aslında başka bir eve dönüyordu. Bu fark onları birbirinden koparmak zorunda değildi.",
+        "Küreklerin sesi bir süre konuşmaların yerini aldı. Özlemler aynı ritim içinde yan yana durdu. Kıyı sonunda ince bir çizgiye dönüştü.",
+        "Geride kalan şehir her insanda başka izler bırakmıştı. Bazı izler anlatılabiliyor, bazıları sessizlikte kalıyordu. Yolculuk bunları hemen çözmek zorunda değildi.",
+        "Ortak rota kişisel acıları yok etmiyor, yalnızca taşıyordu. Birlikte ilerlemek herkesin aynı duyguyu hissetmesi değildi. Farklı yüklerle aynı sorumluluğu paylaşmaktı.",
+        "Gece yaklaşırken konuşmalar giderek azaldı. Kimse diğerinin sessizliğini açıklamaya çalışmadı. Saygı bazen soru sormamayı gerektiriyordu.",
+      ],
+    },
+    {
+      title: "Dönüşün Çelişkisi",
+      paragraphs: [
+        "Kıyı küçüldükçe dönüş fikri daha karmaşık görünmeye başladı. İnsan eve, düzeninin kendisini beklediğini düşünerek döner. Uzun ayrılıklar ise bütün düzenleri değiştirebilir.",
+        "Dönüş bu nedenle geçmişe geri gitmek değildir. Geçmişle bugün arasında yeni bağlar kurmaktır. Bu bağların sonucu önceden bütünüyle bilinemez.",
+        "Odysseus İthaka'daki yönetimin durumunu henüz bilmiyordu. Ailesinin hangi güçlüklerle karşılaştığını da bilmiyordu. Bilmedikleri, denizdeki mesafeden daha büyüktü.",
+        "Zafer ona bu soruların cevaplarını vermemişti. Savaşta işe yarayan davranışlar evde yetersiz kalabilirdi. Dönüş, başka tür bir dikkat gerektiriyordu.",
+        "Odysseus önce dinlemesi gerektiğini giderek daha iyi anladı. Kendi özlemini başkalarının gerçeği sayamazdı. Aidiyet, karşılıklı tanımayla yeniden kurulmalıydı.",
+        "Deniz dışarıdaki engelleri önlerine getirecekti. Yolculuk içlerindeki belirsizlikleri de görünür kılacaktı. İki sınav birbirinden bütünüyle ayrı değildi.",
+        "Dışarıdaki her karar içerideki bir değeri sınayabilirdi. Sabır, yalnız rüzgâr beklerken gösterilen davranış değildi. Başkasının değişimini kabul ederken de gerekliydi.",
+        "Odysseus dönüşü sahip olduğu konumu geri almak sayamazdı. Önce ilişkilerin hangi noktada bulunduğunu anlamalıydı. Yetki, tanınma ve güven yeniden kurulacaktı.",
+        "Bu düşünce onun zafer duygusunu dengeliyordu. Kazanılmış unvanlar her ilişkide yeterli olmayabilirdi. Dönüş alçakgönüllülük de isteyecekti.",
+        "Odysseus bu sonucu kolay bir cevap saymadı. Yol boyunca düşüncesi yeniden değişebilirdi. Dönüşün anlamı ancak karşılaşmalarla tamamlanacaktı.",
+      ],
+    },
+    {
+      title: "İlk Gece ve Metanet",
+      paragraphs: [
+        "Gece çökerken filo korunaklı kıyı boyunca ilerliyordu. Açık deniz uzakta koyu bir boşluk gibiydi. Yıldızlar gökyüzünde yavaşça belirginleşti.",
+        "Nöbetçiler yerlerini aldı ve görevler yeniden doğrulandı. Dinlenecek kişiler dar güvertelere uzandı. Melas onarılan ambara son kez indi.",
+        "Tahta hâlâ kuru, reçine ise sağlam görünüyordu. Melas sonucu yaşlı marangoza dikkatle bildirdi. Marangoz, dikkatin yol boyunca süreceğini söyledi.",
+        "Odysseus gemilerin sırasını yeniden tek tek saydı. Rüzgârın hafiflediğini ve dalgaların küçüldüğünü gördü. Sabah planın yeniden kurulacağını biliyordu.",
+        "Metanet, değişmeyen bir sertlik anlamına gelmiyordu. Yeni bilgi karşısında kırılmadan uyum sağlamaktı. Bazen önceki kararın değiştirilmesini de gerektirirdi.",
+        "İlk gece büyük bir sorun yaşanmadan tamamlandı. Bu sakinlik geleceğe ilişkin bir güvence değildi. Yalnızca dikkatli başlangıcın değerini gösteriyordu.",
+        "Odysseus karanlık ufka uzun süre sessizce baktı. İthaka'ya giden yol artık gerçekten başlamıştı. Sorumluluk da onlarla birlikte ilerliyordu.",
+        "İlk gecenin sakinliği bir ödül olarak görülemezdi. Doğru hazırlık riski azaltmış, fakat tamamen kaldırmamıştı. Ertesi gün başka işaretler başka kararlar isteyebilirdi.",
+        "Odysseus kesinlik yerine dikkatli sürekliliğe güvenmeye başladı. Her sabah bilgileri yeniden değerlendirmek gerekecekti. Metanet, bu bitmeyen dikkati taşımak demekti.",
+        "Ufuk karanlıkta görünmez olmuştu. Yön yine de ortak işaretlerle korunuyordu. Eve dönüş dikkatle sürdürülüyordu.",
+        "Sabah yeni bir değerlendirme zamanı getirecekti. Mürettebat bu yenilenmeye birlikte daha dikkatle hazırlanıyordu.",
+      ],
+    },
+  ],
+  glossary: [
+    {
+      word: "aidiyet",
+      definition: "Kendini bir yerin, ilişkinin veya topluluğun parçası saymaktır.",
+    },
+    {
+      word: "otorite",
+      definition: "Karar verme, yönlendirme veya yönetme yetkisidir.",
+    },
+    {
+      word: "gerekçe",
+      definition: "Bir kararın dayandığı açıklanabilir nedendir.",
+    },
+    {
+      word: "hiyerarşi",
+      definition: "Görev ve yetkilerin basamaklı biçimde düzenlenmesidir.",
+    },
+    {
+      word: "çelişki",
+      definition: "Karşıt görünen düşüncelerin aynı durumda birlikte bulunmasıdır.",
+    },
+    {
+      word: "metanet",
+      definition: "Zorluk karşısında dengeli ve dayanıklı kalabilme gücüdür.",
+    },
+  ],
+  optionalReflectionPrompt:
+    "Metin, eve dönmek ile geçmişe geri gitmek arasında nasıl bir ayrım kuruyor?",
+  sourceTruth,
+  factualReview: {
+    status: "pending-human-review",
+    notes:
+      "Klasik eser uzmanı, kanonik dönüş çerçevesini yaratıcı kıyı ve liderlik sahnelerinden ayırarak doğrulamalıdır.",
+  },
+  originalityRightsReview: {
+    status: "pending-human-review",
+    notes:
+      "Kamu malı kaynak çerçevesi kullanılmıştır; özgünlük ve hak kapsamı insan kaydı bekliyor.",
+  },
+  contentQualityReview: {
+    status: "pending",
+    reviewerName: "",
+    reviewedAt: "",
+    reviewNotes: "",
+    checklist: {
+      narrativeArc: false,
+      ageFit: false,
+      sectionContinuity: false,
+      characterConsistency: false,
+      languageQuality: false,
+      factualAccuracy: false,
+      originalityRights: false,
+      accessibilityTone: false,
+    },
+  },
+};
