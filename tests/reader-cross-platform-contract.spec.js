@@ -22,7 +22,7 @@ async function openRealContentAndPlay(page) {
   const text = Array.from({ length: 32 }, (_, index) =>
     `Sakin okuma cümlesi ${index + 1}, aktif kelimenin gerçek ekranda bütünüyle görünmesini doğrular.`
   ).join(" ");
-  await page.getByRole("button", { name: /Kendi metnini oku/i }).click();
+  await page.getByRole("button", { name: /Kendi (?:metnini oku|İçeriğini Ekle)/i }).click();
   await page.getByLabel("Kendi metnim", { exact: true }).fill(text);
   await page.getByRole("button", { name: "Okuma moduna al", exact: true }).click();
   const shell = page.locator("[data-reader-shell]");
