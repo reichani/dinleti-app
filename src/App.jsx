@@ -1,3512 +1,7 @@
-import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from "react";
-import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus, Flame } from "lucide-react";
-import GlossaryCard from "./components/GlossaryCard.jsx";
-import OkurioProvenanceStamp from "./components/OkurioProvenanceStamp.jsx";
-import { extractDocumentText, normalizeDocumentText, SUPPORTED_DOCUMENT_ACCEPT } from "./documentImport.js";
-import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdapter.js";
-import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
-import { COMPLETE_OKURIO_SESSIONS } from "./content/completeOkurioSessions.js";
-import { ANDERSEN_STORIES } from "./content/andersenStories.js";
-import { classifyContent, estimateStorySeconds } from "./content/contentIntegrity.js";
-import { evaluateStoryForReadingLevel } from "./content/readingLevelPolicy.js";
-import { evaluateContentQualityReview } from "./content/contentQualityReview.js";
-import { getGradeLabelForYolId, minimumFullReadingSecondsForAge } from "./content/schoolGradeMapping.js";
-import { cursorFromPosition, positionFromCursor, normalizeReadingProgress, readingProgressSnapshot, monotonicBoundaryWord, createSpeechWordTimeline, timelineWordFromElapsed } from "./reader-core.js";
-
-/* ------------------------------------------------------------------ */
-/* Katalog: telifsiz TÃ¼rk klasikleri, Ã¶rnek bÃ¶lÃ¼m metinleriyle          */
-/* ------------------------------------------------------------------ */
-const SURUM = "2.9.0";
-
-const KATALOG = mergePilotStories([
-
-  ...COMPLETE_OKURIO_SESSIONS,
-
-
-  {
-    id: "oki-sesleri-dinliyor",
-    baslik: "Oki Sesleri Dinliyor",
-    yazar: "Okurio Minik Dinleyiciler",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Minik Dinleme",
-    yas: "3-4 yaÅŸ",
-    renk: ["#5A4B28", "#D7B45E"],
-    puan: 4.9,
-    sureDk: 1.9, icerikDurumu: "ozet",
-    ozet: "Minik dinleyiciler iÃ§in ses farkÄ±ndalÄ±ÄŸÄ±, kÄ±sa dikkat ve gÃ¼venli tekrar hikÃ¢yesi.",
-    bolumler: [
-      { ad: "Sesleri Dinle", dk: 1, metin: "Oki durdu. Bir ses duydu. PÄ±t pÄ±t. Mino baktÄ±. Oki gÃ¼ldÃ¼." },
-      { ad: "Tekrar Dinle", dk: 1, metin: "PÄ±t pÄ±t. TÄ±p tÄ±p. Oki dinledi. Mino miyav dedi. Nana yavaÅŸÃ§a anlattÄ±." },
-    ],
-  },
-  {
-    id: "mino-miyav-dedi",
-    baslik: "Mino Miyav Dedi",
-    yazar: "Okurio Minik Dinleyiciler",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Minik Dinleme",
-    yas: "3-4 yaÅŸ",
-    renk: ["#3F5A45", "#8EBD7C"],
-    puan: 4.9,
-    sureDk: 1.9, icerikDurumu: "ozet",
-    ozet: "Okul Ã¶ncesi iÃ§in hayvan sesi, tekrar ve kÄ±sa hikÃ¢ye sÄ±rasÄ± Ã§alÄ±ÅŸmasÄ±.",
-    bolumler: [
-      { ad: "Miyav", dk: 1, metin: "Mino miyav dedi. Oki baktÄ±. Lili gÃ¼ldÃ¼. Toto zÄ±pladÄ±." },
-      { ad: "Kim Seslendi?", dk: 1, metin: "Miyav. Mino seslendi. Oki el salladÄ±. Nana, dinledin, dedi." },
-    ],
-  },
-  {
-    id: "lili-yildiz-sayiyor",
-    baslik: "Lili YÄ±ldÄ±z SayÄ±yor",
-    yazar: "Okurio Minik Dinleyiciler",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Minik Dinleme",
-    yas: "3-4 yaÅŸ",
-    renk: ["#283F63", "#7CA0D8"],
-    puan: 4.9,
-    sureDk: 1.8, icerikDurumu: "ozet",
-    ozet: "GÃ¶kyÃ¼zÃ¼ temasÄ±na yumuÅŸak bir giriÅŸ; minik dinleyiciler iÃ§in sakin gece hikÃ¢yesi.",
-    bolumler: [
-      { ad: "YÄ±ldÄ±z", dk: 1, metin: "Lili gÃ¶ÄŸe baktÄ±. Bir yÄ±ldÄ±z gÃ¶rdÃ¼. Oki de baktÄ±. Mino sessizce oturdu." },
-      { ad: "Gece", dk: 1, metin: "YÄ±ldÄ±z parladÄ±. Lili saydÄ±. Bir, iki. Nana, gece sakin, dedi." },
-    ],
-  },
-  {
-    id: "oki-ses-a",
-    baslik: "A Sesi",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#6A4A1F", "#E0A64B"],
-    puan: 4.9,
-    sureDk: 2,
-    ozet: "1. harf grubu iÃ§in A sesini duymaya, gÃ¶rmeye ve kÄ±sa heceler iÃ§inde takip etmeye hazÄ±rlayan mikro Ã§alÄ±ÅŸma.",
-    bolumler: [
-      { ad: "Sesi Dinle", dk: 1, metin: "BugÃ¼nÃ¼n sesi a. A sesi aÄŸzÄ±mÄ±z aÃ§Ä±kken Ã§Ä±kar. A. A. A. Oki a sesini duydu." },
-      { ad: "Harf ve Hece", dk: 1, metin: "a. an. al. at. Ela a sesini buldu. Oki el salladÄ±." },
-    ],
-  },
-  {
-    id: "oki-ses-n",
-    baslik: "N Sesi",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#365A46", "#78A878"],
-    puan: 4.9,
-    sureDk: 2,
-    ozet: "N sesini a/e sesleriyle birleÅŸtirerek an, en ve ana gibi ilk hecelere geÃ§iÅŸ.",
-    bolumler: [
-      { ad: "Sesi Dinle", dk: 1, metin: "BugÃ¼nÃ¼n sesi n. N sesi kÄ±sa ve yumuÅŸak Ã§Ä±kar. N. N. N. Nana n sesini sÃ¶yledi." },
-      { ad: "Heceye GeÃ§", dk: 1, metin: "a ve n yan yana geldi. an. e ve n yan yana geldi. en. Oki an hecesini takip etti." },
-    ],
-  },
-  {
-    id: "oki-heceler-1",
-    baslik: "an en al el at et",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#334A66", "#6D93C9"],
-    puan: 4.9,
-    sureDk: 3,
-    ozet: "1. harf grubunun ilk heceleri: an, en, al, el, at, et. Heceleri sesle ve vurguyla takip etme Ã§alÄ±ÅŸmasÄ±.",
-    bolumler: [
-      { ad: "Hece KartlarÄ±", dk: 2, metin: "an. en. al. el. at. et. Oki heceleri tane tane dinledi. Lili el hecesini buldu." },
-      { ad: "Tekrar", dk: 1, metin: "an. al. at. el. et. en. Her hece kÄ±sa bir adÄ±mdÄ±r. Oki yavaÅŸÃ§a takip etti." },
-    ],
-  },
-  {
-    id: "oki-kelimeler-1",
-    baslik: "Ä°lk Kelimeler: ana, anne, Ali, Ela",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#5A3B5F", "#A77AB0"],
-    puan: 4.9,
-    sureDk: 3,
-    ozet: "1. harf grubuyla kurulabilen ilk anlamlÄ± kelimeleri tanÄ±ma ve kelime kelime takip etme Ã§alÄ±ÅŸmasÄ±.",
-    bolumler: [
-      { ad: "Kelime KartlarÄ±", dk: 2, metin: "ana. anne. Ali. Ela. at. el. tel. Oki kelimeleri duydu. Ela el salladÄ±." },
-      { ad: "KÄ±sa CÃ¼mle", dk: 1, metin: "Ali atÄ± tanÄ±dÄ±. Ela el ele. Anne tane tane anlattÄ±." },
-    ],
-  },
-  {
-    id: "oki-ati-taniyor",
-    baslik: "Oki AtÄ± TanÄ±yor",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#6B3B2A", "#C78258"],
-    puan: 4.9,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Cin Ali sadeliÄŸinden ilham alan ama tamamen Ã¶zgÃ¼n, 1. harf grubu ile kÄ±sa cÃ¼mle takip hikÃ¢yesi.",
-    bolumler: [
-      { ad: "Mini HikÃ¢ye", dk: 3, metin: "Oki atÄ± gÃ¶rdÃ¼. At ona baktÄ±. Oki el salladÄ±. Lili gÃ¼ldÃ¼. Nana tane tane anlattÄ±." },
-      { ad: "Birlikte Tekrar", dk: 1, metin: "Oki atÄ± gÃ¶rdÃ¼. At ona baktÄ±. Oki el salladÄ±. Åimdi sen de yavaÅŸÃ§a takip et." },
-    ],
-  },
-  {
-    id: "ela-el-ele",
-    baslik: "Ela El Ele",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#2E5A5A", "#71A9A6"],
-    puan: 4.9,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Ä°lk kelimeler ve kÄ±sa cÃ¼mlelerle, el-ele temasÄ±nÄ± sakin ve tekrar eden bir mini hikÃ¢yeye dÃ¶nÃ¼ÅŸtÃ¼ren Ã¶zgÃ¼n iÃ§erik.",
-    bolumler: [
-      { ad: "Mini HikÃ¢ye", dk: 3, metin: "Ela el ele yÃ¼rÃ¼dÃ¼. Ali atÄ± anlattÄ±. Oki ana dedi. Lili el salladÄ±. Herkes tane tane okudu." },
-      { ad: "Birlikte Tekrar", dk: 1, metin: "Ela el ele. Ali ata baktÄ±. Oki el salladÄ±. YavaÅŸÃ§a takip edelim." },
-    ],
-  },
-  {
-    id: "oki-ses-e",
-    baslik: "E Sesi",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#735C2E", "#D8B45C"],
-    puan: 4.9,
-    sureDk: 2,
-    ozet: "1. harf grubu iÃ§inde E sesini duymaya, gÃ¶rmeye ve el/en heceleriyle takip etmeye hazÄ±rlayan mikro Ã§alÄ±ÅŸma.",
-    bolumler: [
-      { ad: "Sesi Dinle", dk: 1, metin: "BugÃ¼nÃ¼n sesi e. E sesi kÄ±sa ve aÃ§Ä±k Ã§Ä±kar. E. E. E. Lili e sesini duydu." },
-      { ad: "Harf ve Hece", dk: 1, metin: "e. en. el. et. Ela e sesini buldu. Oki el hecesini takip etti." },
-    ],
-  },
-  {
-    id: "oki-ses-t",
-    baslik: "T Sesi",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#5D3F32", "#C58A68"],
-    puan: 4.9,
-    sureDk: 2,
-    ozet: "T sesini kÄ±sa heceler iÃ§inde tanÄ±tan ve at/et gibi ilk hecelere baÄŸlayan Ã§alÄ±ÅŸma.",
-    bolumler: [
-      { ad: "Sesi Dinle", dk: 1, metin: "BugÃ¼nÃ¼n sesi t. T sesi kÄ±sa Ã§Ä±kar. T. T. T. Toto t sesini duydu." },
-      { ad: "Heceye GeÃ§", dk: 1, metin: "a ve t yan yana geldi. at. e ve t yan yana geldi. et. Oki at hecesini takip etti." },
-    ],
-  },
-  {
-    id: "oki-ses-i",
-    baslik: "Ä° Sesi",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#33485C", "#7FA6C7"],
-    puan: 4.9,
-    sureDk: 2,
-    ozet: "Ä° sesini il/in gibi kÄ±sa hecelerle birleÅŸtiren, yavaÅŸ ve takipli mikro Ã§alÄ±ÅŸma.",
-    bolumler: [
-      { ad: "Sesi Dinle", dk: 1, metin: "BugÃ¼nÃ¼n sesi i. Ä° sesi ince Ã§Ä±kar. Ä°. Ä°. Ä°. Mino i sesini duydu." },
-      { ad: "Harf ve Hece", dk: 1, metin: "i. il. in. it. Lili il hecesini buldu. Oki tane tane takip etti." },
-    ],
-  },
-  {
-    id: "oki-ses-l",
-    baslik: "L Sesi",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#3D5A3A", "#8EB77C"],
-    puan: 4.9,
-    sureDk: 2,
-    ozet: "L sesini el, al ve il heceleriyle tanÄ±tan sakin ilk okuma Ã§alÄ±ÅŸmasÄ±.",
-    bolumler: [
-      { ad: "Sesi Dinle", dk: 1, metin: "BugÃ¼nÃ¼n sesi l. L sesi dilimizle Ã§Ä±kar. L. L. L. Lili l sesini sÃ¶yledi." },
-      { ad: "Heceye GeÃ§", dk: 1, metin: "e ve l yan yana geldi. el. a ve l yan yana geldi. al. i ve l yan yana geldi. il." },
-    ],
-  },
-  {
-    id: "oki-heceler-2",
-    baslik: "al el il in it",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#4A3F6B", "#9483CF"],
-    puan: 4.9,
-    sureDk: 3,
-    ozet: "1. harf grubu iÃ§inde ikinci hece seti: al, el, il, in, it. Heceyi gÃ¶r, duy ve takip et.",
-    bolumler: [
-      { ad: "Hece KartlarÄ±", dk: 2, metin: "al. el. il. in. it. Oki heceleri dinledi. Lili il hecesini gÃ¶sterdi." },
-      { ad: "Tekrar", dk: 1, metin: "al. el. il. in. it. Her hece bir kÃ¼Ã§Ã¼k adÄ±mdÄ±r. YavaÅŸÃ§a takip edelim." },
-    ],
-  },
-  {
-    id: "ali-ile-ela",
-    baslik: "Ali ile Ela",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#5A2E42", "#B96F8D"],
-    puan: 4.9,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Ali ve Ela karakterleriyle, 1. grup harflerden kurulan ilk cÃ¼mlelere geÃ§iÅŸ hikÃ¢yesi.",
-    bolumler: [
-      { ad: "Mini HikÃ¢ye", dk: 3, metin: "Ali el salladÄ±. Ela onu gÃ¶rdÃ¼. Oki ata baktÄ±. Lili sakin sakin anlattÄ±." },
-      { ad: "Birlikte Tekrar", dk: 1, metin: "Ali el salladÄ±. Ela gÃ¶rdÃ¼. Oki baktÄ±. Åimdi birlikte okuyalÄ±m." },
-    ],
-  },
-  {
-    id: "lili-ile-at",
-    baslik: "Lili ile At",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#2F4F47", "#73A995"],
-    puan: 4.9,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Lili'nin atla karÅŸÄ±laÅŸmasÄ±nÄ± Ã§ok kÄ±sa cÃ¼mlelerle anlatan, gÃ¼ven veren ilk okuma hikÃ¢yesi.",
-    bolumler: [
-      { ad: "Mini HikÃ¢ye", dk: 3, metin: "Lili atÄ± gÃ¶rdÃ¼. At ona baktÄ±. Lili el salladÄ±. Oki gÃ¼lÃ¼msedi. Nana anlattÄ±." },
-      { ad: "Birlikte Tekrar", dk: 1, metin: "Lili atÄ± gÃ¶rdÃ¼. At baktÄ±. Oki el salladÄ±. Tane tane takip edelim." },
-    ],
-  },
-  {
-    id: "oki-el-ele",
-    baslik: "Oki El Ele",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#3A4E71", "#789BDB"],
-    puan: 4.9,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Oki ve Lili'nin birlikte okuma deneyimini, el ele ve sakin tekrarlarla anlatan mini hikÃ¢ye.",
-    bolumler: [
-      { ad: "Mini HikÃ¢ye", dk: 3, metin: "Oki el ele yÃ¼rÃ¼dÃ¼. Lili el tuttu. Mino onlara baktÄ±. Nana yavaÅŸÃ§a okudu." },
-      { ad: "Birlikte Tekrar", dk: 1, metin: "Oki el ele. Lili el tuttu. Mino baktÄ±. Ben de takip ediyorum." },
-    ],
-  },
-  {
-    id: "mino-nerede",
-    baslik: "Mino Nerede?",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#4E4A2D", "#C0B15A"],
-    puan: 4.9,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Mino'yu arayan Oki'nin kÄ±sa ve eÄŸlenceli hikÃ¢yesi; ilk okuma iÃ§in sÄ±nÄ±rlÄ± kelime ve sakin tekrar.",
-    bolumler: [
-      { ad: "Mini HikÃ¢ye", dk: 3, metin: "Mino el altÄ±nda. Oki onu aradÄ±. Lili eliyle gÃ¶sterdi. Mino Ã§Ä±ktÄ±. Oki gÃ¼ldÃ¼." },
-      { ad: "Birlikte Tekrar", dk: 1, metin: "Mino Ã§Ä±ktÄ±. Oki gÃ¼ldÃ¼. Lili gÃ¶sterdi. Åimdi yavaÅŸÃ§a okuyorum." },
-    ],
-  },
-  {
-    id: "nana-anlatiyor",
-    baslik: "Nana AnlatÄ±yor",
-    yazar: "Okurio Ä°lk Okuma",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ä°lk Okuma",
-    yas: "6-7 yaÅŸ",
-    renk: ["#5B3A2E", "#C28C70"],
-    puan: 4.9,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Nana'nÄ±n yavaÅŸ ve gÃ¼venli anlatÄ±mÄ±yla 1. grup harfleri tekrar eden kapanÄ±ÅŸ hikÃ¢yesi.",
-    bolumler: [
-      { ad: "Mini HikÃ¢ye", dk: 3, metin: "Nana anlattÄ±. Oki dinledi. Lili el salladÄ±. Ali atÄ± tanÄ±dÄ±. Ela gÃ¼ldÃ¼." },
-      { ad: "Birlikte Tekrar", dk: 1, metin: "Nana anlattÄ±. Oki dinledi. Ali atÄ± tanÄ±dÄ±. Bir adÄ±m daha tamamlandÄ±." },
-    ],
-  },
-  {
-    id: "kurk-mantolu-madonna",
-    yas: "13+ yaÅŸ",
-    baslik: "KÃ¼rk Mantolu Madonna",
-    yazar: "Sabahattin Ali",
-    seslendiren: "StÃ¼dyo KaydÄ±",
-    kategori: "Roman",
-    renk: ["#3E2C41", "#7A4A6D"],
-    puan: 4.8,
-    sureDk: 0.8, icerikDurumu: "ozet",
-    ozet: "Raif Efendi'nin sessiz hayatÄ±nÄ±n ardÄ±ndaki bÃ¼yÃ¼k aÅŸkÄ±n hikÃ¢yesi. Berlin'de baÅŸlayan ve bir siyah defterde saklÄ± kalan bir tutku.",
-    bolumler: [
-      { ad: "Birinci BÃ¶lÃ¼m", dk: 46, metin: "Åimdiye kadar tesadÃ¼f ettiÄŸim insanlardan bir tanesi benim Ã¼zerimde belki en bÃ¼yÃ¼k tesiri yapmÄ±ÅŸtÄ±r. Aradan aylar geÃ§tiÄŸi halde bir tÃ¼rlÃ¼ bu tesirden kurtulamadÄ±m." },
-      { ad: "Ä°kinci BÃ¶lÃ¼m", dk: 52, metin: "Raif Efendi, her gÃ¼n gÃ¶rdÃ¼ÄŸÃ¼mÃ¼z halde hakkÄ±nda hiÃ§bir ÅŸey bilmediÄŸimiz insanlardan biriydi. MasasÄ±nÄ±n baÅŸÄ±nda sessizce Ã§alÄ±ÅŸÄ±r, kimseyle konuÅŸmazdÄ±." },
-      { ad: "ÃœÃ§Ã¼ncÃ¼ BÃ¶lÃ¼m", dk: 48, metin: "Siyah kaplÄ± defteri elime aldÄ±ÄŸÄ±m zaman, iÃ§inde bir insanÄ±n bÃ¼tÃ¼n hayatÄ±nÄ±n saklÄ± olduÄŸunu bilmiyordum." },
-      { ad: "DÃ¶rdÃ¼ncÃ¼ BÃ¶lÃ¼m", dk: 55, metin: "Berlin sokaklarÄ±nda dolaÅŸÄ±rken, bir resim sergisinde gÃ¶rdÃ¼ÄŸÃ¼m o tablo karÅŸÄ±sÄ±nda donup kaldÄ±m. KÃ¼rk mantolu bir kadÄ±n portresiydi bu." },
-      { ad: "BeÅŸinci BÃ¶lÃ¼m", dk: 58, metin: "Maria Puder ile tanÄ±ÅŸmamÄ±z her ÅŸeyi deÄŸiÅŸtirdi. DÃ¼nyada baÅŸka tÃ¼rlÃ¼ insanlarÄ±n da yaÅŸadÄ±ÄŸÄ±nÄ± ilk defa o zaman anladÄ±m." },
-      { ad: "AltÄ±ncÄ± BÃ¶lÃ¼m", dk: 57, metin: "YÄ±llar sonra o defterin son sayfasÄ±nÄ± Ã§evirdiÄŸimde, insanÄ±n bir baÅŸkasÄ±nÄ± gerÃ§ekten tanÄ±masÄ±nÄ±n ne kadar zor olduÄŸunu dÃ¼ÅŸÃ¼ndÃ¼m." },
-      { ad: "Son BÃ¶lÃ¼m", dk: 56, metin: "Hayat, bazen en kÄ±ymetli ÅŸeylerini en sessiz insanlarÄ±n iÃ§ine saklar. Raif Efendi'nin hikÃ¢yesi bana bunu Ã¶ÄŸretti." },
-    ],
-  },
-  {
-    id: "calikusu",
-    yas: "12+ yaÅŸ",
-    baslik: "Ã‡alÄ±kuÅŸu",
-    yazar: "ReÅŸat Nuri GÃ¼ntekin",
-    seslendiren: "StÃ¼dyo KaydÄ±",
-    kategori: "Roman",
-    renk: ["#1F4E46", "#3E8E7E"],
-    puan: 4.7,
-    sureDk: 0.6, icerikDurumu: "ozet",
-    ozet: "Feride'nin Ä°stanbul'dan Anadolu'ya uzanan yolculuÄŸu; bir genÃ§ Ã¶ÄŸretmenin idealizmi, kÄ±rgÄ±nlÄ±klarÄ± ve direnci.",
-    bolumler: [
-      { ad: "Birinci KÄ±sÄ±m", dk: 95, metin: "DÃ¶rdÃ¼ncÃ¼ sÄ±nÄ±ftaydÄ±m. YaÅŸÄ±m on iki kadar olmalÄ±. FransÄ±zca muallimimiz SÃ¶r Aleksi, bir gÃ¼n bize yazÄ± vazifesi vermiÅŸti." },
-      { ad: "Ä°kinci KÄ±sÄ±m", dk: 90, metin: "Teyzemin kÃ¶ÅŸkÃ¼nde geÃ§en o yaz gÃ¼nleri, hayatÄ±mÄ±n en kaygÄ±sÄ±z zamanlarÄ±ydÄ±. AÄŸaÃ§lara tÄ±rmanÄ±r, kuÅŸ yuvalarÄ±nÄ± gÃ¶zlerdim." },
-      { ad: "ÃœÃ§Ã¼ncÃ¼ KÄ±sÄ±m", dk: 92, metin: "Anadolu'ya gitmeye karar verdiÄŸim gece, penceremin Ã¶nÃ¼nde saatlerce oturdum. Ä°stanbul'un Ä±ÅŸÄ±klarÄ± uzakta titriyordu." },
-      { ad: "DÃ¶rdÃ¼ncÃ¼ KÄ±sÄ±m", dk: 88, metin: "Zeyniler kÃ¶yÃ¼ndeki ilk gÃ¼nÃ¼m hiÃ§ unutamayacaÄŸÄ±m bir gÃ¼ndÃ¼. Mektep dediÄŸim yer, yÄ±kÄ±k bir odadan ibaretti." },
-      { ad: "BeÅŸinci KÄ±sÄ±m", dk: 87, metin: "Ã‡ocuklarÄ±n gÃ¶zlerindeki Ä±ÅŸÄ±k, bÃ¼tÃ¼n yorgunluÄŸumu unutturuyordu. Ã–ÄŸretmenlik, meÄŸer insanÄ±n kendini bulmasÄ± demekmiÅŸ." },
-      { ad: "Son KÄ±sÄ±m", dk: 88, metin: "YÄ±llar sonra geriye dÃ¶nÃ¼p baktÄ±ÄŸÄ±mda, Ã‡alÄ±kuÅŸu'nun hiÃ§ susmadÄ±ÄŸÄ±nÄ±, sadece baÅŸka dallarda Ã¶tmeyi Ã¶ÄŸrendiÄŸini anladÄ±m." },
-    ],
-  },
-  {
-    id: "yuksek-okceler",
-    yas: "10+ yaÅŸ",
-    baslik: "YÃ¼ksek Ã–kÃ§eler",
-    yazar: "Ã–mer Seyfettin",
-    seslendiren: "StÃ¼dyo KaydÄ±",
-    kategori: "HikÃ¢ye",
-    renk: ["#4A3728", "#8C6A4A"],
-    puan: 4.5,
-    sureDk: 0.4, icerikDurumu: "ozet",
-    ozet: "Hatice HanÄ±m'Ä±n yÃ¼ksek Ã¶kÃ§eli ayakkabÄ±larÄ±yla baÅŸlayan, evindeki gerÃ§ekleri fark etmesiyle biten ironik bir hikÃ¢ye.",
-    bolumler: [
-      { ad: "HikÃ¢yenin BaÅŸÄ±", dk: 12, metin: "Hatice HanÄ±m, altÄ± yaÅŸÄ±ndan beri yÃ¼ksek Ã¶kÃ§eli ayakkabÄ±larla gezmeye alÄ±ÅŸmÄ±ÅŸtÄ±. Ã–kÃ§esiz terlik giydiÄŸi zaman kendini merdivenden iniyormuÅŸ gibi hissederdi." },
-      { ad: "GeliÅŸme", dk: 11, metin: "Evinde her ÅŸey yolunda gÃ¶rÃ¼nÃ¼yordu. HizmetÃ§iler Ã§alÄ±ÅŸkan, aÅŸÃ§Ä± dÃ¼rÃ¼st, uÅŸak itaatliydi. En azÄ±ndan Hatice HanÄ±m Ã¶yle sanÄ±yordu." },
-      { ad: "Son", dk: 11, metin: "Doktorun tavsiyesiyle Ã¶kÃ§esiz ayakkabÄ± giymeye baÅŸlayÄ±nca, evin iÃ§inde sessizce dolaÅŸÄ±r oldu. Ä°ÅŸte o zaman her ÅŸeyi gÃ¶rdÃ¼." },
-    ],
-  },
-  {
-    id: "pembe-incili-kaftan",
-    yas: "10+ yaÅŸ",
-    baslik: "Pembe Ä°ncili Kaftan",
-    yazar: "Ã–mer Seyfettin",
-    seslendiren: "StÃ¼dyo KaydÄ±",
-    kategori: "HikÃ¢ye",
-    renk: ["#5A2A33", "#A0525F"],
-    puan: 4.6,
-    sureDk: 0.4, icerikDurumu: "ozet",
-    ozet: "Muhsin Ã‡elebi'nin Åah Ä°smail'in sarayÄ±nda verdiÄŸi onur dersi; gururun ve devlet haysiyetinin hikÃ¢yesi.",
-    bolumler: [
-      { ad: "ElÃ§i AranÄ±yor", dk: 14, metin: "Divanda herkes susuyordu. Åah Ä°smail'e gÃ¶nderilecek elÃ§inin kim olacaÄŸÄ± henÃ¼z belli deÄŸildi. Bu iÅŸ, Ã¶lÃ¼me gitmek kadar tehlikeliydi." },
-      { ad: "Muhsin Ã‡elebi", dk: 13, metin: "Muhsin Ã‡elebi, ne mevki ne servet peÅŸindeydi. Sade yaÅŸar, kimseye eyvallah etmezdi. Teklifi duyunca yalnÄ±z bir ÅŸart koÅŸtu." },
-      { ad: "Sarayda", dk: 14, metin: "Tebriz sarayÄ±nÄ±n kapÄ±sÄ±ndan girerken sÄ±rtÄ±nda pembe incili kaftanÄ± vardÄ±. TahtÄ±n Ã¶nÃ¼nde kimse ona yer gÃ¶stermedi. O da kaftanÄ±nÄ± Ã§Ä±karÄ±p yere serdi." },
-    ],
-  },
-  {
-    id: "mai-ve-siyah",
-    yas: "13+ yaÅŸ",
-    baslik: "Mai ve Siyah",
-    yazar: "Halit Ziya UÅŸaklÄ±gil",
-    seslendiren: "StÃ¼dyo KaydÄ±",
-    kategori: "Roman",
-    renk: ["#1E2A4A", "#3D5A99"],
-    puan: 4.4,
-    sureDk: 0.5, icerikDurumu: "ozet",
-    ozet: "Ahmet Cemil'in mai hayalleri ile siyah gerÃ§ekleri arasÄ±nda sÄ±kÄ±ÅŸan hayatÄ±; Servet-i FÃ¼nun dÃ¶neminin en dokunaklÄ± romanÄ±.",
-    bolumler: [
-      { ad: "Birinci BÃ¶lÃ¼m", dk: 78, metin: "Ahmet Cemil, gazetenin loÅŸ odasÄ±nda geÃ§ saatlere kadar Ã§alÄ±ÅŸÄ±r, hayalinde bÃ¼yÃ¼k eserinin sayfalarÄ±nÄ± kurardÄ±." },
-      { ad: "Ä°kinci BÃ¶lÃ¼m", dk: 76, metin: "Mai bir gecede, yÄ±ldÄ±zlarÄ±n altÄ±nda, istikbalin bÃ¼tÃ¼n vaatleri ona gÃ¼lÃ¼msÃ¼yor gibiydi." },
-      { ad: "ÃœÃ§Ã¼ncÃ¼ BÃ¶lÃ¼m", dk: 79, metin: "Matbaa borÃ§larÄ±, hasta anne, evin geÃ§imi... Hayaller birer birer siyaha dÃ¶nÃ¼yordu." },
-      { ad: "DÃ¶rdÃ¼ncÃ¼ BÃ¶lÃ¼m", dk: 77, metin: "Lamia'nÄ±n niÅŸan haberi geldiÄŸinde, Ahmet Cemil elindeki mÃ¼sveddeleri sobaya attÄ±." },
-      { ad: "BeÅŸinci BÃ¶lÃ¼m", dk: 78, metin: "Vapur uzaklaÅŸÄ±rken Ä°stanbul'un Ä±ÅŸÄ±klarÄ±na baktÄ±. Mai hÃ¼lyalar geride, siyah hakikat Ã¶nÃ¼ndeydi." },
-      { ad: "Son BÃ¶lÃ¼m", dk: 77, metin: "Ä°nsan bazen hayallerini gÃ¶merek yaÅŸamayÄ± Ã¶ÄŸrenir. Ahmet Cemil de Ã¶ÄŸrendi." },
-    ],
-  },
-  {
-    id: "diyet",
-    yas: "10+ yaÅŸ",
-    baslik: "Diyet",
-    yazar: "Ã–mer Seyfettin",
-    seslendiren: "StÃ¼dyo KaydÄ±",
-    kategori: "HikÃ¢ye",
-    renk: ["#2E3B2B", "#5C7A52"],
-    puan: 4.5,
-    sureDk: 0.3, icerikDurumu: "ozet",
-    ozet: "Koca Ali'nin borÃ§lu olduÄŸu adama karÅŸÄ± verdiÄŸi aÄŸÄ±r bedelin hikÃ¢yesi; minnet ve onur Ã¼zerine sarsÄ±cÄ± bir anlatÄ±.",
-    bolumler: [
-      { ad: "Demirci Koca Ali", dk: 13, metin: "Koca Ali, kasabanÄ±n en usta demircisiydi. Kimseye minneti yoktu; alÄ±n teriyle yaÅŸar, kimsenin ekmeÄŸine el uzatmazdÄ±." },
-      { ad: "Ä°ftira", dk: 12, metin: "Bir gÃ¼n kasabada bir hÄ±rsÄ±zlÄ±k oldu ve iftira Koca Ali'nin Ã¼zerine kaldÄ±. KadÄ±, elinin kesilmesine hÃ¼kmetti." },
-      { ad: "Bedel", dk: 13, metin: "HacÄ± Mehmet diyeti Ã¶deyip onu kurtardÄ± ama her fÄ±rsatta bunu baÅŸÄ±na kakÄ±yordu. Koca Ali sonunda kararÄ±nÄ± verdi." },
-    ],
-  },
-  {
-    id: "sessiz-saatler",
-    yas: "13+ yaÅŸ",
-    baslik: "Sessiz Saatler",
-    yazar: "Okurio YazarlÄ±k Ekibi",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "HikÃ¢ye",
-    renk: ["#2C4A3E", "#6FA287"],
-    puan: 4.7,
-    sureDk: 6.7,
-    contentQualityReview: { status: "approved", note: "2026-08-07: GenÃ§ okurlar/lise/yetiÅŸkin okuma yollarÄ± iÃ§in onaylÄ± 'Tam okuma' Ã¶rneÄŸi eksikti (mevcut iÃ§erikler tanÄ±tÄ±m bÃ¶lÃ¼mÃ¼ydÃ¼); bu Ã¶zgÃ¼n kÄ±sa hikÃ¢ye o boÅŸluÄŸu doldurmak iÃ§in yazÄ±ldÄ±. 2026-08-07: Reyhan AÃ§ar tarafÄ±ndan gÃ¶zden geÃ§irildi ve onaylandÄ±." },
-    ozet: "Bir lise kÃ¼tÃ¼phanesinde kurulan sessiz bir okuma saatinin, bir Ã¶ÄŸrencinin telaÅŸlÄ± yÄ±lÄ±nÄ± nasÄ±l deÄŸiÅŸtirdiÄŸinin Ã¶zgÃ¼n hikÃ¢yesi.",
-    bolumler: [
-      { ad: "Sessiz Saatler'in KapÄ±sÄ±nda", dk: 1.1, metin: "Okulun Ã¼Ã§Ã¼ncÃ¼ katÄ±ndaki kÃ¼tÃ¼phane, Ã¶ÄŸle arasÄ±nda bile neredeyse boÅŸtu. Deniz, ilk kez oraya geldiÄŸinde bunun sadece bir tesadÃ¼f olduÄŸunu dÃ¼ÅŸÃ¼nmÃ¼ÅŸtÃ¼; herkes bahÃ§ede top oynarken ya da kantinde sÄ±rasÄ±nÄ± beklerken, bu geniÅŸ ve loÅŸ oda kimsenin uÄŸramadÄ±ÄŸÄ± unutulmuÅŸ bir kÃ¶ÅŸe gibi duruyordu. Tozlu gÃ¼neÅŸ Ä±ÅŸÄ±ÄŸÄ±, uzun pencerelerden iÃ§eri sÃ¼zÃ¼lÃ¼p raflardaki kitaplarÄ±n sÄ±rtlarÄ±na dÃ¼ÅŸÃ¼yor, havada eski kÃ¢ÄŸÄ±t ve ahÅŸap kokusu asÄ±lÄ± kalÄ±yordu. Ama Ã¼Ã§ gÃ¼n Ã¼st Ã¼ste aynÄ± masaya oturunca Deniz fark etti ki bu sessizlik hiÃ§ de tesadÃ¼f deÄŸildi; kÃ¼tÃ¼phaneci Bora Bey'in Ã¶zenle koruduÄŸu, neredeyse gizli tutulan bir dÃ¼zendi bu. KapÄ±nÄ±n hemen yanÄ±ndaki kÃ¼Ã§Ã¼k tahta tabelada Ã¶zenle el yazÄ±sÄ±yla \"Sessiz Saatler: 12.00-13.00\" yazÄ±yordu, altÄ±nda da daha ince harflerle bir not vardÄ±: \"Burada acele eden yoktur.\" Deniz ilk okuduÄŸunda bu cÃ¼mleyi biraz tuhaf bulmuÅŸtu; okulda her ÅŸey acele etmek Ã¼zerine kuruluydu, bu yÃ¼zden acele etmeyen bir saatin var olabileceÄŸi fikri ona neredeyse gerÃ§ek dÄ±ÅŸÄ± gelmiÅŸti. Yine de her geÃ§en gÃ¼n bu kÃ¶ÅŸeye biraz daha yakÄ±n hissediyordu kendini, sanki oda onu iÃ§eri Ã§aÄŸÄ±rÄ±yordu." },
-      { ad: "Acele Eden Bir YÄ±l", dk: 0.9, metin: "Deniz o yÄ±l pek Ã§ok ÅŸeye acele ediyordu. SÄ±navlar art arda geliyor, kulÃ¼p toplantÄ±larÄ± Ã¶ÄŸle aralarÄ±nÄ± bÃ¶lÃ¼yor, Ã¶ÄŸretmenler bir sonraki Ã¶devi bir Ã¶ncekini teslim etmeden hatÄ±rlatÄ±yordu. Evde de durum farklÄ± deÄŸildi; telefonunun ekranÄ± hiÃ§ sÃ¶nmÃ¼yor, bir bildirim biter bitmez bir yenisi beliriyordu, sanki dÃ¼nya onun sÃ¼rekli bir ÅŸeye yetiÅŸmesini bekliyordu. KÃ¼tÃ¼phaneye girdiÄŸi o ilk Ã¶ÄŸle arasÄ±, telefonunu ceketinin cebinde unutmuÅŸ olduÄŸunu fark etmesi bile iÃ§ine tuhaf, neredeyse suÃ§luluk karÄ±ÅŸÄ±k bir rahatlama vermiÅŸti. KitaplÄ±ÄŸÄ±n en dip rafÄ±ndan, kapaÄŸÄ± gÃ¼neÅŸten solmuÅŸ, sayfa kenarlarÄ± kÄ±vrÄ±lmÄ±ÅŸ bir Ã¶ykÃ¼ kitabÄ± Ã§ekti ve pencere kenarÄ±ndaki eski, yumuÅŸak deri koltuÄŸa oturdu. SayfalarÄ± yavaÅŸÃ§a Ã§evirirken fark etti ki uzun zamandÄ±r ilk kez hiÃ§bir ÅŸey onu bÃ¶lmÃ¼yordu; ne bir bildirim sesi, ne bir arkadaÅŸÄ±nÄ±n sesleniÅŸi, ne de aklÄ±nÄ±n bir kÃ¶ÅŸesinde bÃ¼yÃ¼yen o sÃ¼rekli \"yetiÅŸmeliyim\" hissi. Sadece kelimeler, sayfalar ve kendi nefesinin sesi vardÄ±. Saatin nasÄ±l geÃ§tiÄŸini anlamadÄ± bile; zil Ã§aldÄ±ÄŸÄ±nda neredeyse ÅŸaÅŸkÄ±nlÄ±kla baÅŸÄ±nÄ± kaldÄ±rdÄ±." },
-      { ad: "Bir AlÄ±ÅŸkanlÄ±k DoÄŸuyor", dk: 0.9, metin: "O gÃ¼nden sonra Ã¶ÄŸle aralarÄ± yavaÅŸ yavaÅŸ bir alÄ±ÅŸkanlÄ±ÄŸa dÃ¶nÃ¼ÅŸtÃ¼. Deniz her gÃ¼n aynÄ± saatte kÃ¼tÃ¼phaneye gidiyor, aynÄ± koltuÄŸa oturuyor, bazen sayfalarca okuyor, bazen sadece elindeki kitabÄ± kapatÄ±p pencereden bahÃ§edeki yaÅŸlÄ± Ã§Ä±nar aÄŸacÄ±nÄ± izliyordu. Bir hafta sonra, koltuÄŸun tam karÅŸÄ±sÄ±ndaki masada oturan bir baÅŸka Ã¶ÄŸrenciyi fark etti: sessizce bir not defterine kÃ¼Ã§Ã¼k Ã§izimler yapÄ±yor, arada durup dÃ¼ÅŸÃ¼nceli bir ifadeyle pencereye bakÄ±yordu. Ä°kisi ilk baÅŸlarda birbirine hiÃ§ konuÅŸmadÄ±; sadece gÃ¶z gÃ¶ze geldiklerinde kÃ¼Ã§Ã¼k, anlaÅŸÄ±lÄ±r bir baÅŸ sallamayla selamlaÅŸÄ±yorlardÄ±. Ama aynÄ± sessizliÄŸi, aynÄ± saati, aynÄ± loÅŸ Ä±ÅŸÄ±ÄŸÄ± paylaÅŸÄ±yor olmak, Deniz'e garip bir biÃ§imde artÄ±k yalnÄ±z olmadÄ±ÄŸÄ±nÄ± hissettiriyordu. Sanki bu odada, kelimelerle konuÅŸmadan da anlaÅŸÄ±lan bir dil vardÄ±; kimse kimseyi bir ÅŸeye zorlamÄ±yor, kimse kimseden bir aÃ§Ä±klama beklemiyordu. Zamanla bu sessiz selamlaÅŸmalar Deniz'in gÃ¼nÃ¼nÃ¼n en huzurlu anÄ± hÃ¢line geldi, Ã¶yle ki bazÄ± sabahlar okula sadece o bir saati dÃ¼ÅŸÃ¼nerek gidiyordu." },
-      { ad: "Bora Bey'in SÃ¶zÃ¼", dk: 0.9, metin: "Bir Ã¶ÄŸle arasÄ±, kÃ¼tÃ¼phaneci Bora Bey yavaÅŸÃ§a yanÄ±na yaklaÅŸtÄ± ve elindeki kitabÄ± nazikÃ§e iÅŸaret etti. \"Bu Ã¶ykÃ¼yÃ¼ seviyor musun?\" diye sordu, sesi kÃ¼tÃ¼phanenin sessizliÄŸine uygun, alÃ§ak ve yumuÅŸaktÄ±. Deniz bir an duraksadÄ±, sonra omuz silkti. \"Bilmiyorum, henÃ¼z yarÄ±sÄ±ndayÄ±m. Ama tuhaf bir ÅŸekilde, bitmesini istemiyorum.\" Bora Bey hafifÃ§e gÃ¼lÃ¼msedi, gÃ¶zlerinin kenarÄ±nda ince Ã§izgiler belirdi. \"BazÄ± kitaplar Ã¶yledir,\" dedi, sesi neredeyse bir sÄ±r paylaÅŸÄ±r gibiydi. \"OnlarÄ± hÄ±zlÄ± bitirmek, onlarÄ± hiÃ§ okumamak gibi gelir insana.\" Sonra kendi masasÄ±na doÄŸru dÃ¶nerken ekledi: \"Sessiz Saatler'i ben otuz yÄ±l Ã¶nce, kendi Ã¶ÄŸrenciliÄŸimde bir baÅŸka kÃ¼tÃ¼phaneci kurmuÅŸtu. O da bana tam bunu sÃ¶ylemiÅŸti: acele etmeden okumak, aslÄ±nda kendine acele etmeden zaman ayÄ±rmaktÄ±r.\" Deniz bu sÃ¶zÃ¼ not defterine deÄŸil ama zihnine kaydetti; sanki iÃ§inde uzun zamandÄ±r aradÄ±ÄŸÄ± ama adÄ±nÄ± koyamadÄ±ÄŸÄ± bir ÅŸeyi birden bulmuÅŸ gibiydi. O gÃ¼n eve dÃ¶nerken bile bu cÃ¼mleyi kafasÄ±nda birkaÃ§ kez tekrarladÄ±." },
-      { ad: "KaldÄ±ÄŸÄ± Yerden", dk: 0.8, metin: "Bu sÃ¶z Deniz'in aklÄ±nda akÅŸama kadar, hatta ertesi gÃ¼ne kadar kaldÄ±. O akÅŸam evde, her zamanki gibi ilk iÅŸ telefonunu kontrol etmek yerine, Ã§antasÄ±ndan kitabÄ± Ã§Ä±kardÄ± ve kaldÄ±ÄŸÄ± yerden sessizce okumaya devam etti. Annesi mutfaktan seslendiÄŸinde bile kitaptan gÃ¶zlerini ayÄ±rmadan cevap verdi, sonra kendi kendine gÃ¼ldÃ¼; ilk kez bir ÅŸeyi bitirmek iÃ§in deÄŸil, sadece o anda, o sayfada olmak iÃ§in okuduÄŸunu fark etmiÅŸti. Ertesi gÃ¼n kÃ¼tÃ¼phaneye girerken, karÅŸÄ±sÄ±ndaki masada oturan Ã¶ÄŸrenciye ilk kez gerÃ§ek bir gÃ¼lÃ¼mseme gÃ¶nderdi, Ã¶nceki gÃ¼nlerin ihtiyatlÄ± baÅŸ sallamalarÄ±ndan farklÄ±, sÄ±cak bir gÃ¼lÃ¼msemeydi bu. KarÅŸÄ±lÄ±ÄŸÄ±nda aldÄ±ÄŸÄ± gÃ¼lÃ¼mseme kadar basit bir ÅŸey, o gÃ¼nÃ¼n geri kalanÄ±nÄ± taÅŸÄ±masÄ±na yetmiÅŸti; koridorlarda yÃ¼rÃ¼rken bile omuzlarÄ±ndaki aÄŸÄ±rlÄ±ÄŸÄ±n biraz hafiflediÄŸini hissediyordu. O Ã¶ÄŸrencinin adÄ±nÄ±n Elif olduÄŸunu, aynÄ± hafta sonunda Ã¶ÄŸrendi; kÄ±sa bir \"Ben Elif\" ve karÅŸÄ±lÄ±ÄŸÄ±nda kÄ±sa bir \"Ben Deniz\" yetmiÅŸti tanÄ±ÅŸmaya." },
-      { ad: "Odaya Yeni Gelenler", dk: 0.7, metin: "Haftalar geÃ§tikÃ§e Sessiz Saatler'e gelenlerin sayÄ±sÄ± yavaÅŸ yavaÅŸ, neredeyse fark edilmeden arttÄ±. Ã–nce iki Ã¶ÄŸrenci daha katÄ±ldÄ±, sonra bir tanesi daha, derken loÅŸ oda Ã¶ÄŸle vakti hafif ama sÄ±cak bir dolulukla dolmaya baÅŸladÄ±. Kimse birbirine konuÅŸma zorunluluÄŸu hissetmiyordu; herkes kendi kitabÄ±yla, kendi Ã§izimiyle, kendi dÃ¼ÅŸÃ¼nceleriyle oradaydÄ±, ama yine de bir arada olmanÄ±n verdiÄŸi o tuhaf rahatlÄ±k herkesin yÃ¼zÃ¼nde okunuyordu. Deniz, bir Ã¶ÄŸle arasÄ± baÅŸÄ±nÄ± kaldÄ±rÄ±p etrafÄ±na baktÄ±ÄŸÄ±nda, aynÄ± sessiz odada yedi farklÄ± Ã¶ÄŸrencinin yedi farklÄ± dÃ¼nyaya sessizce daldÄ±ÄŸÄ±nÄ± gÃ¶rdÃ¼ ve bunun, hiÃ§ konuÅŸmadan da bir arada olmanÄ±n gerÃ§ek bir yolu olduÄŸunu o an daha derinden anladÄ±. Bazen biri kitabÄ±nÄ± kapatÄ±p gÃ¶zlerini ovuÅŸturuyor, bir baÅŸkasÄ± sessizce yerinden kalkÄ±p yeni bir kitap seÃ§iyor, kimse kimsenin ritmini bozmuyordu." },
-      { ad: "SÄ±nav HaftasÄ±", dk: 0.7, metin: "DÃ¶nem sonu sÄ±navlarÄ± yaklaÅŸtÄ±kÃ§a okulun geri kalanÄ± iyice gerginleÅŸti; koridorlar daha hÄ±zlÄ± adÄ±mlarla, kantindeki masalar daha yÃ¼ksek sesli konuÅŸmalarla doldu. Ama Sessiz Saatler tuhaf bir biÃ§imde deÄŸiÅŸmedi, hatta biraz daha kalabalÄ±klaÅŸtÄ±. Deniz bir Ã¶ÄŸlen, elindeki ders kitabÄ±nÄ± bir kenara koyup yine o Ã¶ykÃ¼ kitabÄ±na dÃ¶ndÃ¼ÄŸÃ¼nde, Elif'in ona sessizce baktÄ±ÄŸÄ±nÄ± fark etti. \"SÄ±nav Ã§alÄ±ÅŸman gerekmiyor mu?\" diye fÄ±sÄ±ldadÄ± Elif, sesinde yargÄ±lamadan Ã§ok merak vardÄ±. Deniz gÃ¼lÃ¼msedi. \"Gerekiyor. Ama Ã¶nce burada beÅŸ dakika oturmam gerekiyor, sonra daha iyi Ã§alÄ±ÅŸabiliyorum.\" Elif baÅŸÄ±nÄ± salladÄ±, sanki bunu zaten biliyormuÅŸ gibi. O andan sonra ikisi de fark etti ki Sessiz Saatler, sÄ±nav stresinden kaÃ§mak iÃ§in deÄŸil, ona daha gÃ¼Ã§lÃ¼ dÃ¶nebilmek iÃ§in bir mola noktasÄ±ydÄ±." },
-      { ad: "Bir Saatlik Sessizlik", dk: 0.7, metin: "YÄ±l sonuna doÄŸru, okul mÃ¼dÃ¼rÃ¼ bir gÃ¼n kÃ¼tÃ¼phaneye uÄŸradÄ± ve Bora Bey'e Sessiz Saatler hakkÄ±nda sorular sordu; Ã¶ÄŸrenci sayÄ±sÄ±nÄ±n nasÄ±l bu kadar arttÄ±ÄŸÄ±nÄ± merak ediyordu. Bora Bey sadece gÃ¼lÃ¼msedi ve \"Kimseyi zorlamadÄ±k, sadece bir saat sessizlik sunduk\" dedi. Ertesi yÄ±l, tabela yenilendi ve artÄ±k okulun resmi duyuru panosunda da yer aldÄ±; ama Deniz iÃ§in en Ã¶nemli deÄŸiÅŸiklik bu deÄŸildi. Ã–nemli olan, artÄ±k her gÃ¼n, bir saatliÄŸine de olsa, hiÃ§bir ÅŸeyin acele etmediÄŸi bir yer olduÄŸunu bilmesiydi. Bu bilgi, gÃ¼nÃ¼n geri kalanÄ±nÄ± taÅŸÄ±masÄ±nÄ± kolaylaÅŸtÄ±ran kÃ¼Ã§Ã¼k ama ÅŸaÅŸÄ±rtÄ±cÄ± derecede saÄŸlam bir dayanak olmuÅŸtu; ve bazen kendi kendine dÃ¼ÅŸÃ¼ndÃ¼ÄŸÃ¼nde, en bÃ¼yÃ¼k deÄŸiÅŸikliklerin tam da bÃ¶yle, bir saatlik bir sessizlikle baÅŸladÄ±ÄŸÄ±nÄ± anlÄ±yordu." },
-    ],
-  },
-  {
-    id: "keloglan-masallari",
-    baslik: "KeloÄŸlan MasallarÄ±",
-    yazar: "Anonim Halk MasalÄ±",
-    seslendiren: "StÃ¼dyo KaydÄ±",
-    kategori: "Masal",
-    yas: "4-8 yaÅŸ",
-    renk: ["#7A4A1E", "#C98B3D"],
-    puan: 4.8,
-    sureDk: 0.5, icerikDurumu: "ozet",
-    ozet: "Anadolu'nun en sevilen kahramanÄ± KeloÄŸlan'Ä±n aklÄ± ve iyi yÃ¼reÄŸiyle zorluklarÄ±n Ã¼stesinden geldiÄŸi Ã¼Ã§ neÅŸeli masal.",
-    bolumler: [
-      { ad: "KeloÄŸlan ile Sihirli DeÄŸirmen", dk: 17, metin: "Bir varmÄ±ÅŸ bir yokmuÅŸ. Evvel zaman iÃ§inde, kalbur saman iÃ§inde, bir KeloÄŸlan yaÅŸarmÄ±ÅŸ. KeloÄŸlan bir sabah anasÄ±na demiÅŸ ki, ben pazara gidip kÄ±smetimi arayacaÄŸÄ±m." },
-      { ad: "KeloÄŸlan ile Nardaniye HanÄ±m", dk: 18, metin: "KeloÄŸlan yolda yÃ¼rÃ¼rken bir de bakmÄ±ÅŸ, yaÅŸlÄ± bir nine aÄŸÄ±r bir Ã§uvalÄ± taÅŸÄ±maya Ã§alÄ±ÅŸÄ±yor. Hemen koÅŸmuÅŸ, nineciÄŸim dur ben taÅŸÄ±yayÄ±m demiÅŸ. Ä°yilik eden iyilik bulurmuÅŸ." },
-      { ad: "KeloÄŸlan ile PadiÅŸahÄ±n KÄ±zÄ±", dk: 17, metin: "PadiÅŸah, bilmecemi bilen kÄ±zÄ±mÄ± alÄ±r diye Ã¼lkeye tellallar salmÄ±ÅŸ. KeloÄŸlan gÃ¼lmÃ¼ÅŸ, akÄ±l yaÅŸta deÄŸil baÅŸtadÄ±r demiÅŸ ve saraya doÄŸru yola koyulmuÅŸ." },
-    ],
-  },
-  {
-    id: "la-fontaine-fugue",
-    baslik: "La Fontaine'den Fabllar",
-    yazar: "Jean de La Fontaine",
-    seslendiren: "StÃ¼dyo KaydÄ±",
-    kategori: "Masal",
-    yas: "4-8 yaÅŸ",
-    renk: ["#2E5A32", "#6FA05C"],
-    puan: 4.7,
-    sureDk: 0.5, icerikDurumu: "ozet",
-    ozet: "AÄŸustos bÃ¶ceÄŸi ile karÄ±nca, tavÅŸan ile kaplumbaÄŸa ve karga ile tilki. Her biri kÃ¼Ã§Ã¼k bir hayat dersi taÅŸÄ±yan Ã¼Ã§ klasik fabl.",
-    bolumler: [
-      { ad: "AÄŸustos BÃ¶ceÄŸi ile KarÄ±nca", dk: 15, metin: "AÄŸustos bÃ¶ceÄŸi bÃ¼tÃ¼n yaz ÅŸarkÄ± sÃ¶ylemiÅŸ, saz Ã§almÄ±ÅŸ. KarÄ±nca ise durmadan Ã§alÄ±ÅŸmÄ±ÅŸ, kÄ±ÅŸlÄ±k yiyeceÄŸini toplamÄ±ÅŸ. Derken kÄ±ÅŸ gelmiÅŸ, kar her yeri kaplamÄ±ÅŸ." },
-      { ad: "TavÅŸan ile KaplumbaÄŸa", dk: 15, metin: "TavÅŸan, kaplumbaÄŸayla alay edermiÅŸ. Sen mi benimle yarÄ±ÅŸacaksÄ±n demiÅŸ. KaplumbaÄŸa sakin sakin gÃ¼lÃ¼msemiÅŸ, yarÄ±ÅŸalÄ±m da gÃ¶relim demiÅŸ. YavaÅŸ ama kararlÄ± olan kazanÄ±rmÄ±ÅŸ." },
-      { ad: "Karga ile Tilki", dk: 15, metin: "KarganÄ±n aÄŸzÄ±nda bir parÃ§a peynir varmÄ±ÅŸ. Kurnaz tilki aÄŸacÄ±n altÄ±na gelmiÅŸ, ne gÃ¼zel kuÅŸsun sen, sesin de gÃ¼zel midir acaba demiÅŸ. TatlÄ± dile kanmamak gerekirmiÅŸ." },
-    ],
-  },
-  ANDERSEN_STORIES,
-  {
-    id: "ezop-masallari",
-    baslik: "Ezop MasallarÄ±",
-    yazar: "Ezop",
-    seslendiren: "StÃ¼dyo KaydÄ±",
-    kategori: "Masal",
-    yas: "4-8 yaÅŸ",
-    renk: ["#5A3A5E", "#9A6AA0"],
-    puan: 4.6,
-    sureDk: 1.8,
-    contentQualityReview: { status: "approved", note: "2026-08-06: ÃœÃ§ fabl (kamu malÄ± Ezop anlatÄ±larÄ± â€” Okurio'nun Ã¶zgÃ¼n yeniden anlatÄ±mÄ±) tek paragraflÄ±k Ã¶zetten tam anlatÄ±ya geniÅŸletildi. YayÄ±n Ã¶ncesi Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: Reyhan AÃ§ar tarafÄ±ndan iÃ§erik kalitesi onaylandÄ±." },
-    ozet: "Binlerce yÄ±ldÄ±r anlatÄ±lan Ezop bilgeliÄŸi: yalancÄ± Ã§oban, aslan ile fare ve altÄ±n yumurtlayan tavuk. ÃœÃ§ fablÄ±n Okurio uyarlamasÄ±.",
-    bolumler: [
-      { ad: "YalancÄ± Ã‡oban", dk: 1, metin: "Bir Ã§oban, kÃ¶ylÃ¼lere ÅŸaka yapmayÄ± Ã§ok severmiÅŸ. Her gÃ¼n sÃ¼rÃ¼sÃ¼nÃ¼ otlatmaya gÃ¶tÃ¼rÃ¼rmÃ¼ÅŸ ama sÄ±kÄ±lÄ±rmÄ±ÅŸ. Bir gÃ¼n eÄŸlenmek iÃ§in Kurt geliyor diye baÄŸÄ±rmÄ±ÅŸ. KÃ¶ylÃ¼ler koÅŸarak gelmiÅŸ ama ortada kurt yokmuÅŸ. Ã‡oban kahkahalarla gÃ¼lmÃ¼ÅŸ, kÃ¶ylÃ¼ler kÄ±zarak geri dÃ¶nmÃ¼ÅŸ. Ertesi gÃ¼n yine aynÄ± ÅŸakayÄ± yapmÄ±ÅŸ, kÃ¶ylÃ¼ler yine koÅŸmuÅŸ. Bu birkaÃ§ kez tekrarlanmÄ±ÅŸ, kÃ¶ylÃ¼ler artÄ±k ona inanmaz olmuÅŸ. Sonunda gerÃ§ekten bir kurt gelmiÅŸ ve sÃ¼rÃ¼ye saldÄ±rmÄ±ÅŸ. Ã‡oban var gÃ¼cÃ¼yle baÄŸÄ±rmÄ±ÅŸ, Kurt geliyor, gerÃ§ekten geliyor! Ama kÃ¶ylÃ¼ler bu sefer gelmemiÅŸ, yine ÅŸaka sanmÄ±ÅŸlar. Kurt bÃ¼tÃ¼n sÃ¼rÃ¼yÃ¼ kaÃ§Ä±rmÄ±ÅŸ, Ã§oban Ã§ok piÅŸman olmuÅŸ. Yalan sÃ¶ylemek, bir gÃ¼n gerÃ§eÄŸi sÃ¶ylediÄŸinde bile inanÄ±lmamasÄ±na yol aÃ§armÄ±ÅŸ." },
-      { ad: "Aslan ile Fare", dk: 1, metin: "KÃ¼Ã§Ã¼k bir fare, uyuyan bir aslanÄ±n Ã¼zerinde oynaya oynaya gezinirken aslan uyanÄ±vermiÅŸ. Aslan Ã¶fkeyle fareyi penÃ§esinin altÄ±na almÄ±ÅŸ. Fare Ã§ok korkmuÅŸ ve yalvarmÄ±ÅŸ. Beni bÄ±rak, bir gÃ¼n ben de sana yardÄ±m ederim demiÅŸ. Aslan bu kÃ¼Ã§Ã¼cÃ¼k farenin ona nasÄ±l yardÄ±m edebileceÄŸini dÃ¼ÅŸÃ¼nÃ¼p gÃ¼lmÃ¼ÅŸ. Yine de merhamet edip fareyi bÄ±rakmÄ±ÅŸ. Aradan zaman geÃ§miÅŸ, bir gÃ¼n aslan avcÄ±larÄ±n aÄŸÄ±na dÃ¼ÅŸmÃ¼ÅŸ. Ne kadar Ã§abalasa da aÄŸdan kurtulamamÄ±ÅŸ ve kÃ¼kremiÅŸ. Fare bu sesi duymuÅŸ ve koÅŸarak gelmiÅŸ. KÃ¼Ã§Ã¼k diÅŸleriyle aÄŸÄ±n iplerini teker teker kemirmiÅŸ. Sonunda aslan Ã¶zgÃ¼r kalmÄ±ÅŸ. Aslan, kÃ¼Ã§Ã¼k bir dostun bile bÃ¼yÃ¼k bir yardÄ±m yapabileceÄŸini Ã¶ÄŸrenmiÅŸ." },
-      { ad: "AltÄ±n Yumurtlayan Tavuk", dk: 1, metin: "Bir Ã§iftÃ§inin Ã¶zel bir tavuÄŸu varmÄ±ÅŸ, her gÃ¼n altÄ±n bir yumurta yumurtlarmÄ±ÅŸ. Ã‡iftÃ§i bu yumurtalarÄ± satarak zenginleÅŸmiÅŸ. Ama zamanla aÃ§gÃ¶zlÃ¼ olmuÅŸ, daha Ã§ok altÄ±n istemiÅŸ. Bu tavuÄŸun iÃ§inde kesin bir altÄ±n hazinesi vardÄ±r diye dÃ¼ÅŸÃ¼nmÃ¼ÅŸ. Bir gÃ¼n sabÄ±rsÄ±zlanÄ±p tavuÄŸu kesmiÅŸ, iÃ§indeki bÃ¼tÃ¼n altÄ±nÄ± almak istemiÅŸ. Ama tavuÄŸun iÃ§inde hiÃ§ altÄ±n yokmuÅŸ, sadece sÄ±radan bir tavuk iÃ§iymiÅŸ. Ã‡iftÃ§i hem tavuÄŸunu kaybetmiÅŸ hem de gÃ¼nlÃ¼k altÄ±n yumurtadan olmuÅŸ. PiÅŸmanlÄ±kla oturup aÄŸlamÄ±ÅŸ ama artÄ±k Ã§ok geÃ§miÅŸ. KarÄ±sÄ± ona, sabÄ±rlÄ± olsaydÄ±k her gÃ¼n zenginleÅŸecektik demiÅŸ. AÃ§gÃ¶zlÃ¼lÃ¼k, elimizdeki gÃ¼zel ÅŸeyleri bile kaybettirebilirmiÅŸ." },
-    ],
-  },
-  {
-    id: "grimm-masallari",
-    baslik: "Grimm KardeÅŸler MasallarÄ±",
-    yazar: "Jacob ve Wilhelm Grimm",
-    seslendiren: "StÃ¼dyo KaydÄ±",
-    kategori: "Masal",
-    yas: "5-9 yaÅŸ",
-    renk: ["#4A1E2A", "#8C4A5A"],
-    puan: 4.7,
-    sureDk: 2.3,
-    contentQualityReview: { status: "approved", note: "2026-08-06: ÃœÃ§ masal (kamu malÄ± Grimm derlemeleri â€” Okurio'nun Ã¶zgÃ¼n yeniden anlatÄ±mÄ±) tek paragraflÄ±k Ã¶zetten tam anlatÄ±ya geniÅŸletildi. YayÄ±n Ã¶ncesi Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: Reyhan AÃ§ar tarafÄ±ndan iÃ§erik kalitesi onaylandÄ±." },
-    ozet: "Bremen mÄ±zÄ±kacÄ±larÄ±, Hansel ile Gretel ve kurbaÄŸa prens. Grimm KardeÅŸler'in derlediÄŸi Ã¼Ã§ Ã¶lÃ¼msÃ¼z masalÄ±n Okurio uyarlamasÄ±.",
-    bolumler: [
-      { ad: "Bremen MÄ±zÄ±kacÄ±larÄ±", dk: 1, metin: "YaÅŸlanan bir eÅŸek, sahibinin kendisini artÄ±k istemediÄŸini fark etmiÅŸ. Ben Bremen'e gider, mÄ±zÄ±kacÄ± olurum demiÅŸ ve yola Ã§Ä±kmÄ±ÅŸ. Yolda yaÅŸlÄ± bir kÃ¶pekle karÅŸÄ±laÅŸmÄ±ÅŸ, o da sahibinden kaÃ§mÄ±ÅŸ. Ä°kisi birlikte yÃ¼rÃ¼meye devam etmiÅŸ ve bir kedi gÃ¶rmÃ¼ÅŸler. Kedi de artÄ±k fare tutamadÄ±ÄŸÄ± iÃ§in evden kovulmuÅŸ. ÃœÃ§Ã¼ birlikte yola koyulmuÅŸ, derken bir horoz da onlara katÄ±lmÄ±ÅŸ. Horoz da kesilmekten korkup kaÃ§mÄ±ÅŸ. DÃ¶rt arkadaÅŸ akÅŸam olunca bir ormanda Ä±ÅŸÄ±k gÃ¶rmÃ¼ÅŸler. YaklaÅŸÄ±nca bir haydut Ã§etesinin evi olduÄŸunu anlamÄ±ÅŸlar. EÅŸek pencereye, kÃ¶pek eÅŸeÄŸin sÄ±rtÄ±na, kedi kÃ¶peÄŸin sÄ±rtÄ±na, horoz da kedinin Ã¼stÃ¼ne Ã§Ä±kmÄ±ÅŸ. Hep birlikte var gÃ¼Ã§leriyle baÄŸÄ±rmÄ±ÅŸlar. Haydutlar korkunÃ§ bir canavar geldiÄŸini sanÄ±p kaÃ§mÄ±ÅŸlar. DÃ¶rt arkadaÅŸ eve yerleÅŸmiÅŸ ve orada mutlu yaÅŸamÄ±ÅŸlar. HiÃ§biri Bremen'e gitmese de birbirlerini bulmuÅŸlar." },
-      { ad: "Hansel ile Gretel", dk: 1, metin: "Hansel ile Gretel, fakir bir oduncunun Ã§ocuklarÄ±ymÄ±ÅŸ. Bir kÄ±tlÄ±k dÃ¶neminde ormana bÄ±rakÄ±lmÄ±ÅŸlar. Ä°kisi ormanda kaybolmuÅŸlar ve Ã§ok korkmuÅŸlar. Derken karÅŸÄ±larÄ±na ÅŸekerden, kurabiyeden yapÄ±lmÄ±ÅŸ bir ev Ã§Ä±kmÄ±ÅŸ. Sevinerek evden parÃ§alar koparÄ±p yemeye baÅŸlamÄ±ÅŸlar. Ama evin sahibi kÃ¶tÃ¼ bir cadÄ±ymÄ±ÅŸ, Ã§ocuklarÄ± iÃ§eri kilitlemiÅŸ. CadÄ±, Hansel'i ÅŸiÅŸmanlatÄ±p yemek istemiÅŸ. Gretel akÄ±llÄ±ca davranmÄ±ÅŸ ve cadÄ±yÄ± kandÄ±rmÄ±ÅŸ. CadÄ±yÄ± fÄ±rÄ±na itip kardeÅŸini kurtarmÄ±ÅŸ. Ä°kisi cadÄ±nÄ±n evinde altÄ±n ve mÃ¼cevher bulmuÅŸ. Ormandan Ã§Ä±kÄ±ÅŸ yolunu bulmak iÃ§in beyaz taÅŸlarÄ± takip etmiÅŸler. Sonunda evlerine dÃ¶nmÃ¼ÅŸler, babalarÄ± onlarÄ± gÃ¶rÃ¼nce Ã§ok sevinmiÅŸ. Getirdikleri hazineyle bir daha hiÃ§ aÃ§ kalmamÄ±ÅŸlar. Ama her parlayan ÅŸeker, tatlÄ± olmayabilirmiÅŸ, bunu hiÃ§ unutmamÄ±ÅŸlar." },
-      { ad: "KurbaÄŸa Prens", dk: 1, metin: "Bir prensesin en sevdiÄŸi oyuncaÄŸÄ± altÄ±n bir topmuÅŸ. Bir gÃ¼n topunu oynarken kuyuya dÃ¼ÅŸÃ¼rmÃ¼ÅŸ. Prenses Ã§ok Ã¼zÃ¼lmÃ¼ÅŸ ve aÄŸlamaya baÅŸlamÄ±ÅŸ. Derken kuyudan bir kurbaÄŸa Ã§Ä±kmÄ±ÅŸ. Topunu Ã§Ä±karÄ±rÄ±m ama bir ÅŸartÄ±m var demiÅŸ. Benimle arkadaÅŸ ol, sofranda yemek ye, yataÄŸÄ±nda uyu demiÅŸ. Prenses hemen kabul etmiÅŸ ama topunu alÄ±nca sÃ¶zÃ¼nÃ¼ unutmuÅŸ. KurbaÄŸa ertesi gÃ¼n saraya gelmiÅŸ ve sÃ¶zÃ¼nÃ¼ hatÄ±rlatmÄ±ÅŸ. Kral, verilen sÃ¶zÃ¼n tutulmasÄ± gerektiÄŸini sÃ¶ylemiÅŸ. Prenses istemeyerek kurbaÄŸayÄ± sofraya, sonra da odasÄ±na almÄ±ÅŸ. KurbaÄŸa, prensesin verdiÄŸi sÃ¶ze uymasÄ±ndan Ã§ok memnun kalmÄ±ÅŸ. Bir gece kurbaÄŸa aniden yakÄ±ÅŸÄ±klÄ± bir prense dÃ¶nÃ¼ÅŸmÃ¼ÅŸ. KÃ¶tÃ¼ bir bÃ¼yÃ¼ onu kurbaÄŸa yapmÄ±ÅŸ, sadece bir sÃ¶z onu kurtarabilirmiÅŸ. Verilen sÃ¶z tutulurmuÅŸ, Ã§Ã¼nkÃ¼ sÃ¶zÃ¼nde durmak insanÄ± gÃ¼zelleÅŸtirirmiÅŸ. Bu Ã¼Ã§ masal, verilen sÃ¶zlerin ne kadar deÄŸerli olduÄŸunu, dostluÄŸun beklenmedik yerlerden gelebileceÄŸini ve sabÄ±rla Ã§alÄ±ÅŸmanÄ±n karÅŸÄ±lÄ±ÄŸÄ±nÄ± hep verdiÄŸini nesillerdir Ã§ocuklara anlatÄ±r, bÃ¼yÃ¼kanne bÃ¼yÃ¼kbaba dilinden toruna, kuÅŸaktan kuÅŸaÄŸa, her ailede tekrar tekrar yeniden aktarÄ±larak." },
-    ],
-  },
-  {
-    id: "aesop-fables-en",
-    baslik: "Aesop's Fables",
-    yazar: "Aesop",
-    seslendiren: "Studio Recording",
-    kategori: "Masal",
-    dil: "en",
-    yas: "4-8 yaÅŸ",
-    renk: ["#2E4A5A", "#5A8CA0"],
-    puan: 4.7,
-    sureDk: 0.7, icerikDurumu: "ozet",
-    ozet: "Three timeless fables in simple English: the tortoise and the hare, the lion and the mouse, and the boy who cried wolf.",
-    bolumler: [
-      { ad: "The Tortoise and the Hare", dk: 12, metin: "The hare laughed at the slow tortoise. Let us race, said the tortoise with a smile. The hare ran fast, then stopped to sleep under a tree. Slow and steady wins the race." },
-      { ad: "The Lion and the Mouse", dk: 12, metin: "A little mouse ran over a sleeping lion. The lion woke up and caught it. Please let me go, said the mouse, one day I will help you. The lion laughed, but he let the mouse go." },
-      { ad: "The Boy Who Cried Wolf", dk: 12, metin: "A shepherd boy liked to play tricks. Wolf, wolf, he shouted, and the villagers came running. One day a real wolf came. Nobody believed the boy this time." },
-    ],
-  },
-  PETER_RABBIT_FULL,
-  {
-    id: "ugly-duckling-en",
-    baslik: "The Ugly Duckling",
-    yazar: "Hans Christian Andersen",
-    seslendiren: "Studio Recording",
-    kategori: "Masal",
-    dil: "en",
-    yas: "5-9 yaÅŸ",
-    renk: ["#4A3A5E", "#8A6AA8"],
-    puan: 4.7,
-    sureDk: 0.6, icerikDurumu: "ozet",
-    ozet: "Andersen's beloved story about being different, told in short and clear English sentences.",
-    bolumler: [
-      { ad: "The Strange Egg", dk: 11, metin: "On a sunny farm, a mother duck sat on her eggs. One egg was bigger than the others. When it opened, out came a grey and clumsy duckling. He did not look like the rest." },
-      { ad: "A Long Winter", dk: 11, metin: "The other animals laughed at the grey duckling. He felt sad and left the farm. The winter was long and cold, but he did not give up." },
-      { ad: "The Swan", dk: 10, metin: "In spring, the duckling saw beautiful white birds on the lake. He looked at the water and saw his own reflection. He was not an ugly duckling at all. He was a swan." },
-    ],
-  },
-  {
-    id: "fox-and-grapes-en",
-    baslik: "The Fox and the Grapes",
-    yazar: "Aesop Â· Okurio graded retelling",
-    seslendiren: "Oki Reader",
-    kategori: "English Easy",
-    dil: "en",
-    yas: "8-10 yaÅŸ",
-    renk: ["#4A3B2A", "#B07A3A"],
-    puan: 4.8,
-    sureDk: 0.3, icerikDurumu: "ozet",
-    ozet: "A very short A1 fable retold with simple sentences and a gentle question card.",
-    bolumler: [
-      { ad: "The Grapes", dk: 3, metin: "A fox saw some purple grapes. The grapes were high on a tree. The fox jumped once. He jumped twice. He could not reach them." },
-      { ad: "The Choice", dk: 3, metin: "The fox walked away. These grapes are not sweet, he said. But he still looked back. Sometimes we say no when something feels hard." },
-    ],
-  },
-  {
-    id: "lion-and-mouse-graded-en",
-    baslik: "The Lion and the Mouse",
-    yazar: "Aesop Â· Okurio graded retelling",
-    seslendiren: "Oki Reader",
-    kategori: "English Easy",
-    dil: "en",
-    yas: "8-10 yaÅŸ",
-    renk: ["#4C3A1F", "#D59A3C"],
-    puan: 4.8,
-    sureDk: 0.3, icerikDurumu: "ozet",
-    ozet: "A short A1 fable about help, kindness and a small friend who can do something big.",
-    bolumler: [
-      { ad: "The Little Mouse", dk: 3, metin: "A little mouse ran over a sleeping lion. The lion opened one eye. He caught the mouse with his big paw." },
-      { ad: "The Net", dk: 4, metin: "Later, the lion was caught in a net. The little mouse came back. She bit the rope again and again. The lion was free." },
-    ],
-  },
-  {
-    id: "alice-rabbit-hole-en",
-    baslik: "Alice Finds the Rabbit Hole",
-    yazar: "Lewis Carroll Â· Okurio graded retelling",
-    seslendiren: "Oki Reader",
-    kategori: "English Reading",
-    dil: "en",
-    yas: "10-12 yaÅŸ",
-    renk: ["#2E4A5A", "#6FA3B8"],
-    puan: 4.7,
-    sureDk: 0.3, icerikDurumu: "ozet",
-    ozet: "A1-A2 level retelling inspired by Alice's Adventures in Wonderland, focused on curiosity and sequence.",
-    bolumler: [
-      { ad: "A White Rabbit", dk: 5, metin: "Alice sat by her sister. The day was warm and quiet. Then she saw a white rabbit. The rabbit had a watch. I am late, said the rabbit." },
-      { ad: "Down the Hole", dk: 5, metin: "Alice followed the rabbit. She saw a dark hole under the hedge. She stopped for a moment, then went down. The strange adventure began." },
-    ],
-  },
-  {
-    id: "selfish-giant-graded-en",
-    baslik: "The Selfish Giant",
-    yazar: "Oscar Wilde Â· Okurio graded retelling",
-    seslendiren: "Oki Reader",
-    kategori: "English Reading",
-    dil: "en",
-    yas: "10-12 yaÅŸ",
-    renk: ["#2D4A36", "#74A06A"],
-    puan: 4.8,
-    sureDk: 0.4, icerikDurumu: "ozet",
-    ozet: "A gentle A2 retelling about sharing, seasons and change.",
-    bolumler: [
-      { ad: "The Garden", dk: 6, metin: "The children loved the giant's garden. The grass was soft, and the trees were full of flowers. One day the giant came home. This is my garden, he said." },
-      { ad: "Spring Returns", dk: 6, metin: "The garden became cold and quiet. No birds sang in the trees. Then the giant heard a small voice. He opened the gate, and spring came back." },
-    ],
-  },
-  {
-    id: "happy-prince-swallow-en",
-    baslik: "The Happy Prince and the Swallow",
-    yazar: "Oscar Wilde Â· Okurio graded retelling",
-    seslendiren: "Oki Reader",
-    kategori: "English Reading",
-    dil: "en",
-    yas: "12-14 yaÅŸ",
-    renk: ["#3F3A5A", "#8A7CC3"],
-    puan: 4.7,
-    sureDk: 0.4, icerikDurumu: "ozet",
-    ozet: "An A2-B1 bridge retelling about empathy, choice and staying to help.",
-    bolumler: [
-      { ad: "The Statue", dk: 7, metin: "High above the city stood the statue of the Happy Prince. His eyes looked over the streets. At night, a little swallow rested at his feet." },
-      { ad: "The Choice", dk: 7, metin: "The swallow wanted to fly to a warm country. But the Prince asked for help. The swallow looked at the cold city and chose to stay one more night." },
-    ],
-  },
-  {
-    id: "moon-not-star-en",
-    baslik: "The Moon Is Not a Star",
-    yazar: "Okurio English Science",
-    seslendiren: "Oki Reader",
-    kategori: "English Science",
-    dil: "en",
-    yas: "10-12 yaÅŸ",
-    renk: ["#263B5E", "#6A8CC7"],
-    puan: 4.8,
-    sureDk: 0.3, icerikDurumu: "ozet",
-    ozet: "A short A1-A2 science reading that explains the moon, stars and reflected light.",
-    bolumler: [
-      { ad: "Looking Up", dk: 4, metin: "Oki looked at the night sky. The moon was bright, but it was not a star. It did not make its own light." },
-      { ad: "Light", dk: 4, metin: "A star makes light. The moon reflects light from the sun. Lili wrote two words in her notebook: star and moon." },
-    ],
-  },
-  {
-    id: "oki-ayi-gordu",
-    baslik: "Oki Ay'Ä± GÃ¶rdÃ¼",
-    yazar: "Okurio Ã–zgÃ¼n Ä°Ã§erik",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Bilim HikÃ¢yesi",
-    yas: "6-8 yaÅŸ",
-    renk: ["#263B5E", "#6A8CC7"],
-    puan: 4.8,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Oki'nin gece gÃ¶kyÃ¼zÃ¼ne bakarak Ay'Ä± fark ettiÄŸi kÄ±sa ve sakin bilim hikÃ¢yesi.",
-    bolumler: [
-      { ad: "Ay'a BakÄ±yorum", dk: 2, metin: "Oki gece gÃ¶kyÃ¼zÃ¼ne baktÄ±. Ay yumuÅŸak bir Ä±ÅŸÄ±k verdi. Lili, Ay bazen bÃ¼yÃ¼k gÃ¶rÃ¼nÃ¼r, dedi. Oki sessizce takip etti." },
-      { ad: "Birlikte DÃ¼ÅŸÃ¼n", dk: 2, metin: "Ay bir lamba deÄŸildir. GÃ¼neÅŸin Ä±ÅŸÄ±ÄŸÄ±nÄ± bize yansÄ±tÄ±r. Oki bunu duyunca gÃ¶kyÃ¼zÃ¼ne bir daha baktÄ±." },
-    ],
-  },
-  {
-    id: "yildiz-mi-gezegen-mi",
-    baslik: "YÄ±ldÄ±z mÄ±, Gezegen mi?",
-    yazar: "Okurio Ã–zgÃ¼n Ä°Ã§erik",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Bilim HikÃ¢yesi",
-    yas: "8-10 yaÅŸ",
-    renk: ["#203047", "#5978A8"],
-    puan: 4.8,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Oki ve Lili'nin yÄ±ldÄ±z ile gezegen arasÄ±ndaki farkÄ± merak ettiÄŸi kÄ±sa okuma gÃ¼veni metni.",
-    bolumler: [
-      { ad: "Parlayan Noktalar", dk: 3, metin: "Oki teleskopa baktÄ±. GÃ¶kyÃ¼zÃ¼nde pek Ã§ok parlak nokta vardÄ±. Lili, bazÄ±larÄ± yÄ±ldÄ±z, bazÄ±larÄ± gezegen, dedi. Oki bu farkÄ± merak etti." },
-      { ad: "KÃ¼Ã§Ã¼k Bilgi", dk: 3, metin: "YÄ±ldÄ±zlar kendi Ä±ÅŸÄ±ÄŸÄ±nÄ± verir. Gezegenler ise yÄ±ldÄ±zlarÄ±n Ä±ÅŸÄ±ÄŸÄ±nÄ± yansÄ±tÄ±r. Oki defterine iki kelime yazdÄ±: yÄ±ldÄ±z ve gezegen." },
-    ],
-  },
-  {
-    id: "oki-ay-haritasi",
-    baslik: "Oki ve Ay HaritasÄ±",
-    yazar: "Okurio Ã–zgÃ¼n Ä°Ã§erik",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Bilim HikÃ¢yesi",
-    yas: "10-12 yaÅŸ",
-    renk: ["#1F2A44", "#7D8FC5"],
-    puan: 4.8,
-    sureDk: 0.3, icerikDurumu: "ozet",
-    ozet: "Oki'nin Ay yÃ¼zeyini harita gibi dÃ¼ÅŸÃ¼nerek krater, iz ve keÅŸif kavramlarÄ±nÄ± tanÄ±dÄ±ÄŸÄ± akÄ±cÄ± okuma metni.",
-    bolumler: [
-      { ad: "Haritadaki Ä°zler", dk: 4, metin: "Oki, Ay fotoÄŸrafÄ±na uzun uzun baktÄ±. YÃ¼zeyde yuvarlak izler vardÄ±. Nana bunlara krater denir, dedi. Oki, Ay'Ä±n da bir haritasÄ± olabilir mi, diye sordu." },
-      { ad: "KeÅŸif Defteri", dk: 4, metin: "Lili bir defter aÃ§tÄ±. Krater, yÃ¼zey ve keÅŸif kelimelerini yazdÄ±. Toto bir roket resmi Ã§izdi. Oki, okumak bazen gÃ¶kyÃ¼zÃ¼ne bakmak gibidir, dedi." },
-    ],
-  },
-  {
-    id: "japon-masallari",
-    baslik: "Japon MasallarÄ±",
-    yazar: "Japon Halk MasalÄ±",
-    seslendiren: "StÃ¼dyo KaydÄ±",
-    kategori: "Masal",
-    yas: "5-9 yaÅŸ",
-    renk: ["#7A2E38", "#C4606B"],
-    puan: 4.7,
-    sureDk: 2.3,
-    contentQualityReview: { status: "approved", note: "2026-08-06: ÃœÃ§ masal (kamu malÄ± Japon halk anlatÄ±larÄ± â€” Okurio'nun Ã¶zgÃ¼n yeniden anlatÄ±mÄ±) tek paragraflÄ±k Ã¶zetten tam anlatÄ±ya geniÅŸletildi. YayÄ±n Ã¶ncesi Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: Reyhan AÃ§ar tarafÄ±ndan iÃ§erik kalitesi onaylandÄ±." },
-    ozet: "Åeftali Ã§ocuk Momotaro, denizin dibindeki saray ve ay prensesi Kaguya. Japonya'nÄ±n en sevilen Ã¼Ã§ halk masalÄ±nÄ±n Okurio uyarlamasÄ±.",
-    bolumler: [
-      { ad: "Momotaro, Åeftali Ã‡ocuk", dk: 1, metin: "Bir zamanlar Japonya'da yaÅŸlÄ± bir Ã§ift yaÅŸarmÄ±ÅŸ, Ã§ocuklarÄ± yokmuÅŸ. Bir gÃ¼n dere kenarÄ±nda kocaman bir ÅŸeftali bulmuÅŸlar. Åeftaliyi eve gÃ¶tÃ¼rÃ¼p aÃ§tÄ±klarÄ±nda iÃ§inden gÃ¼len bir bebek Ã§Ä±kmÄ±ÅŸ. AdÄ±nÄ± Momotaro, yani ÅŸeftali Ã§ocuk koymuÅŸlar. Momotaro Ã§ok hÄ±zlÄ± bÃ¼yÃ¼mÃ¼ÅŸ, gÃ¼Ã§lÃ¼ ve cesur bir delikanlÄ± olmuÅŸ. Bir gÃ¼n kÃ¶ye kÃ¶tÃ¼lÃ¼k yapan devler olduÄŸunu duymuÅŸ. Anne babasÄ±na, ben bu devleri durduracaÄŸÄ±m, demiÅŸ. YanÄ±na pirinÃ§ kÃ¶ftesi almÄ±ÅŸ ve yola Ã§Ä±kmÄ±ÅŸ. Yolda bir kÃ¶pek, bir maymun ve bir sÃ¼lÃ¼nle karÅŸÄ±laÅŸmÄ±ÅŸ. Onlara kÃ¶ftesinden paylaÅŸmÄ±ÅŸ, Ã¼Ã§Ã¼ de ona arkadaÅŸ olmuÅŸ. Birlikte devlerin adasÄ±na gitmiÅŸler. Momotaro ve arkadaÅŸlarÄ± cesaretle devleri durdurmuÅŸ. Devler Ã¶zÃ¼r dilemiÅŸ ve bir daha kÃ¶ye zarar vermeyeceklerine sÃ¶z vermiÅŸ. Momotaro, hazineleriyle kÃ¶yÃ¼ne dÃ¶nmÃ¼ÅŸ ve herkesle paylaÅŸmÄ±ÅŸ." },
-      { ad: "Urashima Taro", dk: 1, metin: "GenÃ§ balÄ±kÃ§Ä± Urashima Taro, bir gÃ¼n kumsalda Ã§ocuklarÄ±n bir kaplumbaÄŸayla oynadÄ±ÄŸÄ±nÄ± gÃ¶rmÃ¼ÅŸ. Ã‡ocuklar kaplumbaÄŸaya kÃ¶tÃ¼ davranÄ±yormuÅŸ, Taro onu kurtarÄ±p denize bÄ±rakmÄ±ÅŸ. BirkaÃ§ gÃ¼n sonra aynÄ± kaplumbaÄŸa yanÄ±na gelmiÅŸ ve konuÅŸmuÅŸ. Beni kurtardÄ±ÄŸÄ±n iÃ§in teÅŸekkÃ¼r ederim, demiÅŸ, seni denizin dibindeki saraya gÃ¶tÃ¼rmek istiyorum. Taro kaplumbaÄŸanÄ±n sÄ±rtÄ±na binmiÅŸ ve derinlere dalmÄ±ÅŸlar. Deniz sarayÄ± mercanlardan ve incilerden yapÄ±lmÄ±ÅŸ, Ã§ok gÃ¼zelmiÅŸ. Orada bir prensesle tanÄ±ÅŸmÄ±ÅŸ ve gÃ¼nler haftalar gibi geÃ§miÅŸ. Bir sÃ¼re sonra Taro, ailesini Ã¶zlemiÅŸ ve kÃ¶yÃ¼ne dÃ¶nmek istemiÅŸ. Prenses ona kÃ¼Ã§Ã¼k bir kutu vermiÅŸ ama asla aÃ§ma demiÅŸ. Taro kÃ¶yÃ¼ne dÃ¶ndÃ¼ÄŸÃ¼nde her ÅŸey deÄŸiÅŸmiÅŸ, tanÄ±dÄ±ÄŸÄ± kimse kalmamÄ±ÅŸ. MeraklanÄ±p kutuyu aÃ§mÄ±ÅŸ ve iÃ§inden beyaz bir duman Ã§Ä±kmÄ±ÅŸ. Ä°yilik hiÃ§bir zaman unutulmazmÄ±ÅŸ ama zaman herkes iÃ§in farklÄ± akarmÄ±ÅŸ." },
-      { ad: "Ay Prensesi Kaguya", dk: 1, metin: "YaÅŸlÄ± bir bambu kesicisi, ormanda parlayan bir bambu gÃ¶rmÃ¼ÅŸ. Merakla yaklaÅŸÄ±p bambuyu kesmiÅŸ. Ä°Ã§inde avuÃ§ iÃ§i kadar kÃ¼Ã§Ã¼k, Ä±ÅŸÄ±k saÃ§an bir kÄ±z bebek varmÄ±ÅŸ. AdÄ±nÄ± Kaguya koymuÅŸlar ve onu kendi Ã§ocuklarÄ± gibi bÃ¼yÃ¼tmÃ¼ÅŸler. Kaguya bÃ¼yÃ¼dÃ¼kÃ§e inanÄ±lmaz gÃ¼zelleÅŸmiÅŸ, Ã¼lkenin dÃ¶rt bir yanÄ±ndan prensler onunla evlenmek istemiÅŸ. Ama Kaguya hiÃ§birini kabul etmemiÅŸ, gÃ¶zleri hep gÃ¶kyÃ¼zÃ¼ne, Ã¶zellikle Ay'a bakarmÄ±ÅŸ. Bir gece Kaguya, gerÃ§ekte Ay Ã¼lkesinden geldiÄŸini ve geri dÃ¶nmesi gerektiÄŸini aÃ§Ä±klamÄ±ÅŸ. YaÅŸlÄ± Ã§ift Ã§ok Ã¼zÃ¼lmÃ¼ÅŸ ama onu tutamayacaklarÄ±nÄ± bilmiÅŸ. Dolunay gecesi, Ay'dan parlak bir alay inmiÅŸ ve Kaguya'yÄ± almaya gelmiÅŸ. Kaguya, kendisini bÃ¼yÃ¼ten aileye bir mektup ve deÄŸerli bir armaÄŸan bÄ±rakmÄ±ÅŸ. Sonra yavaÅŸÃ§a gÃ¶kyÃ¼zÃ¼ne yÃ¼kselip Ay'a doÄŸru uÃ§muÅŸ. YaÅŸlÄ± Ã§ift, her dolunayda gÃ¶kyÃ¼zÃ¼ne bakÄ±p Kaguya'yÄ± hatÄ±rlarmÄ±ÅŸ. Kaguya'nÄ±n hikÃ¢yesi bugÃ¼n hÃ¢lÃ¢, gÃ¶kyÃ¼zÃ¼ne bakÄ±p uzaklarÄ± merak eden herkese sevgiyle anlatÄ±lÄ±r her dolunayda, yÃ¼zyÄ±llar boyunca deÄŸiÅŸmeden." },
-    ],
-  },
-  {
-    id: "cin-masallari",
-    baslik: "Ã‡in MasallarÄ±",
-    yazar: "Ã‡in Halk MasalÄ±",
-    seslendiren: "StÃ¼dyo KaydÄ±",
-    kategori: "Masal",
-    yas: "5-9 yaÅŸ",
-    renk: ["#6B4A1E", "#B08A3D"],
-    puan: 4.6,
-    sureDk: 2.3,
-    contentQualityReview: { status: "approved", note: "2026-08-06: ÃœÃ§ masal (kamu malÄ± Ã‡in halk anlatÄ±larÄ± â€” Okurio'nun Ã¶zgÃ¼n yeniden anlatÄ±mÄ±) tek paragraflÄ±k Ã¶zetten tam anlatÄ±ya geniÅŸletildi. YayÄ±n Ã¶ncesi Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: Reyhan AÃ§ar tarafÄ±ndan iÃ§erik kalitesi onaylandÄ±." },
-    ozet: "GÃ¶kyÃ¼zÃ¼nde buluÅŸan iki sevgili yÄ±ldÄ±z, daÄŸlarÄ± taÅŸÄ±maya karar veren ihtiyar ve doÄŸuÅŸuyla Ã¼nlenen Maymun Kral. Ã‡in'in binlerce yÄ±llÄ±k Ã¼Ã§ anlatÄ±sÄ±nÄ±n Okurio uyarlamasÄ±.",
-    bolumler: [
-      { ad: "Ã‡oban ile DokumacÄ± KÄ±z", dk: 1, metin: "GÃ¶kyÃ¼zÃ¼nde, Samanyolu'nun iki yakasÄ±nda iki yÄ±ldÄ±z yaÅŸarmÄ±ÅŸ. Biri Ã§alÄ±ÅŸkan bir Ã§oban, Ã¶teki bulutlarÄ± dokuyan usta bir dokumacÄ± kÄ±zmÄ±ÅŸ. Bir gÃ¼n ikisi karÅŸÄ±laÅŸmÄ±ÅŸ ve birbirlerine Ã¢ÅŸÄ±k olmuÅŸlar. EvlenmiÅŸler ve Ã§ok mutlu bir hayat sÃ¼rmÃ¼ÅŸler. Ama iÅŸlerini ihmal etmiÅŸler, Ã§oban sÃ¼rÃ¼sÃ¼ne bakmaz, kÄ±z dokumasÄ±nÄ± dokumaz olmuÅŸ. GÃ¶kyÃ¼zÃ¼nÃ¼n kraliÃ§esi buna kÄ±zmÄ±ÅŸ ve ikisini Samanyolu'nun iki ayrÄ± yakasÄ±na ayÄ±rmÄ±ÅŸ. Ã‡oban ve dokumacÄ± kÄ±z Ã§ok Ã¼zÃ¼lmÃ¼ÅŸ, birbirlerini her gÃ¼n Ã¶zlemiÅŸler. KraliÃ§e onlara acÄ±mÄ±ÅŸ ve yÄ±lda bir kez buluÅŸmalarÄ±na izin vermiÅŸ. Her yÄ±l aynÄ± gecede, dÃ¼nyadaki bÃ¼tÃ¼n saksaÄŸanlar gÃ¶kyÃ¼zÃ¼ne uÃ§armÄ±ÅŸ. KanatlarÄ±nÄ± aÃ§Ä±p Samanyolu Ã¼zerinde bir kÃ¶prÃ¼ kurarlarmÄ±ÅŸ. Ã‡oban ve dokumacÄ± kÄ±z bu kÃ¶prÃ¼den geÃ§ip birbirlerine kavuÅŸurmuÅŸ. O gece yaÄŸan yaÄŸmurun, sevinÃ§ gÃ¶zyaÅŸlarÄ± olduÄŸuna inanÄ±lÄ±rmÄ±ÅŸ." },
-      { ad: "DaÄŸlarÄ± TaÅŸÄ±yan Ä°htiyar", dk: 1, metin: "Doksan yaÅŸÄ±ndaki Yu Gong'un evinin Ã¶nÃ¼nde iki koca daÄŸ varmÄ±ÅŸ. Bu daÄŸlar yÃ¼zÃ¼nden kÃ¶yden ÅŸehre gitmek Ã§ok uzun sÃ¼rermiÅŸ. Bir gÃ¼n ailesini toplamÄ±ÅŸ, bu daÄŸlarÄ± taÅŸÄ±yacaÄŸÄ±z demiÅŸ. Herkes ÅŸaÅŸÄ±rmÄ±ÅŸ, komÅŸularÄ± ona gÃ¼lmÃ¼ÅŸ. Bir ihtiyar iki koca daÄŸÄ± nasÄ±l taÅŸÄ±yabilir ki, demiÅŸler. Yu Gong gÃ¼lÃ¼msemiÅŸ ve kazmasÄ±nÄ± almÄ±ÅŸ. Her gÃ¼n biraz toprak kazÄ±p sepetlerle uzaÄŸa taÅŸÄ±maya baÅŸlamÄ±ÅŸ. OÄŸullarÄ± ve torunlarÄ± da ona katÄ±lmÄ±ÅŸ. KomÅŸular hÃ¢lÃ¢ gÃ¼lÃ¼yormuÅŸ ama Yu Gong hiÃ§ durmamÄ±ÅŸ. Ben bitiremesem de Ã§ocuklarÄ±m devam eder, demiÅŸ, onlar da bitiremezse torunlarÄ± sÃ¼rdÃ¼rÃ¼r. Damla damla gÃ¶l olur, sabÄ±rla koruk helva olurmuÅŸ. GÃ¶kyÃ¼zÃ¼ndeki tanrÄ±lar bu sabrÄ± gÃ¶rmÃ¼ÅŸ ve etkilenmiÅŸ. Sonunda daÄŸlarÄ± kaldÄ±rÄ±p baÅŸka bir yere taÅŸÄ±mÄ±ÅŸlar. Yu Gong'un kÃ¶yÃ¼ artÄ±k ÅŸehre Ã§ok daha yakÄ±nmÄ±ÅŸ." },
-      { ad: "Maymun Kral'Ä±n DoÄŸuÅŸu", dk: 1, metin: "Ã‡iÃ§ekler ve Meyveler DaÄŸÄ±'nÄ±n tepesinde sihirli bir taÅŸ varmÄ±ÅŸ. Bu taÅŸ, gÃ¼neÅŸin ve ayÄ±n Ä±ÅŸÄ±ÄŸÄ±nÄ± binlerce yÄ±l boyunca iÃ§ine Ã§ekmiÅŸ. Bir gÃ¼n taÅŸ Ã§atlamÄ±ÅŸ ve iÃ§inden taÅŸtan bir maymun doÄŸmuÅŸ. GÃ¶zlerinden iki altÄ±n Ä±ÅŸÄ±k fÄ±ÅŸkÄ±rmÄ±ÅŸ ve gÃ¶kyÃ¼zÃ¼ne kadar ulaÅŸmÄ±ÅŸ. KÃ¼Ã§Ã¼k maymun daÄŸdaki diÄŸer maymunlarla oynayarak bÃ¼yÃ¼mÃ¼ÅŸ. Bir gÃ¼n bir ÅŸelalenin ardÄ±ndaki maÄŸarayÄ± keÅŸfetmiÅŸ. Cesaretle ÅŸelalenin iÃ§inden geÃ§ip maÄŸaraya girmiÅŸ. DiÄŸer maymunlar onun cesaretine hayran kalmÄ±ÅŸ ve onu kral seÃ§miÅŸler. Ona Maymun Kral demiÅŸler. Maymun Kral, gÃ¼Ã§ ve bilgelik kazanmak iÃ§in dÃ¼nyayÄ± dolaÅŸmÄ±ÅŸ. Ã–lÃ¼msÃ¼zlÃ¼k sÄ±rlarÄ±nÄ± Ã¶ÄŸrenmiÅŸ ve sihirli bir asa bulmuÅŸ. Asa istediÄŸi zaman bÃ¼yÃ¼yÃ¼p kÃ¼Ã§Ã¼lebiliyormuÅŸ. Maymun Kral'Ä±n maceralarÄ±, Ã‡in'de yÃ¼zyÄ±llardÄ±r Ã§ocuklara ve bÃ¼yÃ¼klere anlatÄ±lÄ±rmÄ±ÅŸ. Bu Ã¼Ã§ hikÃ¢ye, sabrÄ±n, cesaretin ve sevginin insanÄ± nereye gÃ¶tÃ¼rebileceÄŸini hÃ¢lÃ¢ Ã§ocuklara ve bÃ¼yÃ¼klere hatÄ±rlatÄ±r bugÃ¼n bile, yÃ¼zyÄ±llar sonra dÃ¼nyanÄ±n her kÃ¶ÅŸesinde, her nesilde tekrar tekrar yeniden." },
-    ],
-  },
-
-
-  {
-    id: "oki-gunesin-hikayesi",
-    baslik: "Oki ve GÃ¼neÅŸin HikÃ¢yesi",
-    yazar: "Oki Mitoloji Yolu",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Eski Masallar",
-    yas: "3-6 yaÅŸ",
-    renk: ["#6A4A1F", "#F0B44C"],
-    puan: 4.9,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Minik dinleyiciler iÃ§in gÃ¼neÅŸ, sabah ve eski masal ritmiyle gÃ¼venli mitoloji baÅŸlangÄ±cÄ±.",
-    bolumler: [
-      { ad: "Sabah", dk: 1, metin: "Oki sabah uyandÄ±. GÃ¼neÅŸ Ã§Ä±ktÄ±. Oda aydÄ±nlandÄ±. Nana, Ã§ok eski zamanlarda insanlar gÃ¼neÅŸe bakÄ±p hikÃ¢ye anlatÄ±rdÄ±, dedi." },
-      { ad: "IÅŸÄ±k", dk: 2, metin: "Oki Ä±ÅŸÄ±ÄŸÄ± gÃ¶rdÃ¼. Mino Ä±sÄ±ndÄ±. Lili gÃ¼lÃ¼msedi. GÃ¼neÅŸ yavaÅŸÃ§a yÃ¼kseldi. Herkes gÃ¼ne merhaba dedi." },
-    ],
-  },
-  {
-    id: "lili-ay-isigi",
-    baslik: "Lili Ay IÅŸÄ±ÄŸÄ±nÄ± Takip Ediyor",
-    yazar: "Oki Mitoloji Yolu",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Eski Masallar",
-    yas: "5-8 yaÅŸ",
-    renk: ["#263B63", "#88A8E8"],
-    puan: 4.9,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Ay, gece ve sakin takip Ã¼zerine kÄ±sa eski masal anlatÄ±sÄ±.",
-    bolumler: [
-      { ad: "Ay IÅŸÄ±ÄŸÄ±", dk: 2, metin: "Lili gece pencereden baktÄ±. Ay Ä±ÅŸÄ±ÄŸÄ± yere dÃ¼ÅŸtÃ¼. Oki Ä±ÅŸÄ±ÄŸÄ±n yolunu takip etti. Nana, eski masallarda Ay yol gÃ¶sterir, dedi." },
-      { ad: "Yol", dk: 2, metin: "Mino sessiz yÃ¼rÃ¼dÃ¼. Toto acele etmek istedi. Lili, yavaÅŸ gidelim, dedi. Ay Ä±ÅŸÄ±ÄŸÄ± onlara kÃ¼Ã§Ã¼k bir yol Ã§izdi." },
-    ],
-  },
-  {
-    id: "oki-pegasus",
-    baslik: "Oki ve Pegasus",
-    yazar: "Oki Mitoloji Yolu",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Mitoloji",
-    yas: "8-10 yaÅŸ",
-    renk: ["#3D3263", "#9B86D8"],
-    puan: 4.9,
-    sureDk: 0.4, icerikDurumu: "ozet",
-    ozet: "Oki kanatlÄ± at Pegasus ile mitolojiye yumuÅŸak ve macera dolu bir giriÅŸ yapar.",
-    bolumler: [
-      { ad: "KanatlÄ± At", dk: 3, metin: "Oki eski bir kitapta kanatlÄ± bir at resmi gÃ¶rdÃ¼. Nana, bu Pegasus, dedi. Ã‡ok eski hikÃ¢yelerde Pegasus gÃ¶kyÃ¼zÃ¼ne yÃ¼kselen gÃ¼Ã§lÃ¼ bir attÄ±. Oki resme uzun uzun baktÄ±." },
-      { ad: "Cesaret", dk: 3, metin: "Lili, kanatlar ne anlatÄ±r, diye sordu. Nana, bazen cesareti, bazen de hayal kurmayÄ± anlatÄ±r, dedi. Oki o gÃ¼n bir hikÃ¢yenin sadece olay deÄŸil, anlam da taÅŸÄ±dÄ±ÄŸÄ±nÄ± Ã¶ÄŸrendi." },
-    ],
-  },
-  {
-    id: "oki-labirentin-izi",
-    baslik: "Oki ve Labirentin Ä°zi",
-    yazar: "Oki Mitoloji Yolu",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Mitoloji",
-    yas: "10-12 yaÅŸ",
-    renk: ["#4B3B2B", "#B78652"],
-    puan: 4.9,
-    sureDk: 0.4, icerikDurumu: "ozet",
-    ozet: "Labirent, ipucu ve yol bulma temasÄ±yla Ariadne anlatÄ±sÄ±na giriÅŸ.",
-    bolumler: [
-      { ad: "Harita", dk: 3, metin: "Oki kÃ¼tÃ¼phanede kÄ±vrÄ±mlÄ± bir yol Ã§izimi buldu. Ã‡izim bir labirente benziyordu. Lili, insan bÃ¶yle bir yerde yolunu nasÄ±l bulur, diye sordu. Nana, bazÄ± eski hikÃ¢yelerde kÃ¼Ã§Ã¼k bir ip bile yol gÃ¶sterebilir, dedi." },
-      { ad: "Ä°p", dk: 4, metin: "Oki Ã§izimin baÅŸÄ±ndan sonuna parmaÄŸÄ±yla gitti. Bir noktada kayboldu. Lili ince bir ip hayal etti. Oki anladÄ±: bazen zor metinlerde de bir ip gerekir. Bu ip, ana fikir olabilir." },
-    ],
-  },
-  {
-    id: "prometheusun-secimi",
-    baslik: "Prometheusâ€™un SeÃ§imi",
-    yazar: "Oki Mitoloji Yolu",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Mitoloji",
-    yas: "12-14 yaÅŸ",
-    renk: ["#5A2E22", "#D2734A"],
-    puan: 4.9,
-    sureDk: 0.4, icerikDurumu: "ozet",
-    ozet: "Prometheus anlatÄ±sÄ±nda seÃ§im, sorumluluk ve bilgi temasÄ±na genÃ§ okur seviyesinde giriÅŸ.",
-    bolumler: [
-      { ad: "AteÅŸ", dk: 4, metin: "Oki eski bir anlatÄ±da ateÅŸi insanlara veren Prometheusâ€™u okudu. Bu sadece ateÅŸle ilgili deÄŸildi. HikÃ¢ye bilgi, paylaÅŸmak ve sonuÃ§larÄ± gÃ¶ze almak Ã¼zerineydi. Lili, iyi bir seÃ§im bazen zor olabilir, dedi." },
-      { ad: "Bedel", dk: 4, metin: "Toto, neden risk aldÄ±, diye sordu. Nana, bazÄ± hikÃ¢yeler bize kolay cevap vermez, dedi. Oki metni bir daha okudu. Bu kez olaydan Ã§ok karakterin kararÄ±nÄ± dÃ¼ÅŸÃ¼nmeye baÅŸladÄ±." },
-    ],
-  },
-  {
-    id: "ikarus-bugun-ne-anlatir",
-    baslik: "Ikarus BugÃ¼n Ne AnlatÄ±r?",
-    yazar: "Oki Mitoloji Yolu",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Mitolojiden Klasiklere",
-    yas: "14-18 yaÅŸ",
-    renk: ["#26334F", "#D9A24A"],
-    puan: 4.8,
-    sureDk: 0.4, icerikDurumu: "ozet",
-    ozet: "Ikarus anlatÄ±sÄ±nÄ± sÄ±nÄ±r, istek, uyarÄ± ve sembol okuma Ã¼zerinden klasiklere hazÄ±rlÄ±k seviyesinde ele alÄ±r.",
-    bolumler: [
-      { ad: "YÃ¼kselmek", dk: 4, metin: "Ikarusâ€™un hikÃ¢yesi ilk bakÄ±ÅŸta fazla yÃ¼kseÄŸe uÃ§an bir gencin anlatÄ±sÄ±dÄ±r. Fakat bu hikÃ¢ye yalnÄ±zca uÃ§makla ilgili deÄŸildir. SÄ±nÄ±rlarÄ± bilmek, uyarÄ±larÄ± duymak ve isteÄŸin gÃ¼cÃ¼nÃ¼ anlamakla ilgilidir." },
-      { ad: "Sembol", dk: 5, metin: "Oki bu metinde kanatlarÄ±n sadece kanat olmadÄ±ÄŸÄ±nÄ± fark etti. Kanatlar istek, Ã¶zgÃ¼rlÃ¼k ve risk anlamÄ±na gelebilirdi. Bir mitolojik hikÃ¢ye, bazen tek bir olayla birÃ§ok dÃ¼ÅŸÃ¼nceyi aynÄ± anda taÅŸÄ±r." },
-    ],
-  },
-  {
-    id: "ariadnenin-ipi-yetiskin",
-    baslik: "Ariadneâ€™nin Ä°pi: Yol Bulmak",
-    yazar: "Oki Mitoloji Yolu",
-    seslendiren: "Sakin Rehber",
-    kategori: "Mitolojiyle Okumaya DÃ¶nÃ¼ÅŸ",
-    yas: "18+ yaÅŸ",
-    renk: ["#2C3A3B", "#7AA6A1"],
-    puan: 4.8,
-    sureDk: 0.3, icerikDurumu: "ozet",
-    ozet: "YetiÅŸkin odak iÃ§in kÄ±sa mitoloji okumasÄ±: labirent, yÃ¶n bulma ve dÃ¼ÅŸÃ¼nce takibi.",
-    bolumler: [
-      { ad: "Labirent", dk: 4, metin: "Ariadneâ€™nin ipi, eski bir hikÃ¢yede Ã§Ä±kÄ±ÅŸ yolunu bulmaya yardÄ±m eder. BugÃ¼n bu imgeyi karmaÅŸÄ±k metinleri okurken de dÃ¼ÅŸÃ¼nebiliriz. Bir metinde ana fikir, bazen labirentin iÃ§indeki ip gibidir." },
-      { ad: "Yol", dk: 4, metin: "Okumaya dÃ¶nmek de bazen bir labirente girmek gibidir. Her ÅŸeyi bir anda anlamak gerekmez. Bir cÃ¼mle, bir paragraf, bir fikir. KÃ¼Ã§Ã¼k ipuÃ§larÄ± yolu aÃ§ar." },
-    ],
-  },
-  {
-    id: "oki-lili-sahnesi",
-    baslik: "Oki ve Lili Sahnesi",
-    yazar: "Oki Rol SeÃ§erek Oku",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Piyes",
-    yas: "6-8 yaÅŸ",
-    renk: ["#3D4D32", "#93B66A"],
-    puan: 4.9,
-    sureDk: 2.3,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: KÄ±sa taslaktan 6 sahneye geniÅŸletildi (asgari yaÅŸ-bandÄ± kelime hedefini karÅŸÄ±lamak iÃ§in). YayÄ±n Ã¶ncesi Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: Reyhan AÃ§ar tarafÄ±ndan iÃ§erik kalitesi onaylandÄ±. 2026-08-07: Diyalog metni okunabilirlik iÃ§in konuÅŸmacÄ± satÄ±r satÄ±r ayrÄ±ldÄ± (kelimeler deÄŸiÅŸmedi); yeniden Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: \"AnlatÄ±cÄ±:\" etiketi replik metninden kaldÄ±rÄ±ldÄ± (sahne/rol isimleri korundu); kelime sayÄ±sÄ±nÄ± asgari hedefin Ã¼zerinde tutmak iÃ§in ilgili sahnelere kÄ±sa betimleyici anlatÄ±m eklendi; AI Ã¶n-inceleme sonrasÄ± kapanÄ±ÅŸ cÃ¼mleleri hikÃ¢yeye Ã¶zgÃ¼ hale getirilecek ÅŸekilde yeniden yazÄ±ldÄ± (5 hikÃ¢ye arasÄ±ndaki tekrarlayan kalÄ±plar giderildi). Yeniden Reyhan AÃ§ar redaksiyonu bekliyor." },
-    ozet: "Ä°ki karakterli kÄ±sa piyes; Ã§ocuk rol seÃ§erek kÄ±sa repliklerle okuma gÃ¼veni kazanÄ±r. Oki ve Lili, kaybolan Mino'yu izlerini takip ederek bulur, sonra Nana ile birlikte tohum eker.",
-    bolumler: [
-      { ad: "Sahne 1 â€” BahÃ§e KapÄ±sÄ±", dk: 2, metin: "Oki bahÃ§e kapÄ±sÄ±nÄ± aÃ§tÄ±, sabah gÃ¼neÅŸi yapraklara vuruyordu.\n\nOki: Lili, bugÃ¼n bahÃ§ede oynayalÄ±m mÄ±?\n\nLili: Olur, Ã¶nce ellerimi yÄ±kayayÄ±m.\n\nOki: Mino'yu da Ã§aÄŸÄ±ralÄ±m, o da bizimle gelsin.\n\nLili: Mino nerede acaba, sabahtan beri gÃ¶rmedim.\n\nÄ°ki arkadaÅŸ bahÃ§eye birlikte girdi.\n\nOki: Belki Ã§iÃ§eklerin arasÄ±nda saklanÄ±yordur.\n\nLili: Ya da aÄŸacÄ±n gÃ¶lgesinde uyuyordur." },
-      { ad: "Sahne 2 â€” Ä°zin PeÅŸinde", dk: 2, metin: "Lili yerde kÃ¼Ã§Ã¼k pati izleri gÃ¶rdÃ¼.\n\nLili: Bak Oki, izler buradan geÃ§iyor!\n\nOki: HaklÄ±sÄ±n, bu izler taze gÃ¶rÃ¼nÃ¼yor.\n\nLili: Ã–yleyse Mino Ã§ok uzaÄŸa gitmemiÅŸtir.\n\nOki: Ä°zleri takip edelim, adÄ±m adÄ±m gidelim.\n\nÄ°ki arkadaÅŸ izleri dikkatle takip etti.\n\nLili: Ä°zler Ã§iÃ§ek saksÄ±sÄ±nÄ±n arkasÄ±na dÃ¶nÃ¼yor.\n\nOki: O zaman oraya bakalÄ±m." },
-      { ad: "Sahne 3 â€” Mino Bulundu", dk: 2, metin: "Oki bahÃ§enin kÃ¶ÅŸesine baktÄ±.\n\nOki: Mino nerede?\n\nLili: Sandalyenin altÄ±nda olabilir.\n\nMino: Miyav!\n\nKÃ¼Ã§Ã¼k kedi sandalyenin altÄ±ndan Ã§Ä±ktÄ±.\n\nOki: Seni buldum Mino!\n\nLili: Demek burada saklanÄ±yordun.\n\nMino: Miyav, miyav!\n\nOki: KarnÄ±n acÄ±kmÄ±ÅŸ olmalÄ±, hadi mama verelim.\n\nLili: Ben de su kabÄ±nÄ± dolduracaÄŸÄ±m." },
-      { ad: "Sahne 4 â€” ÃœÃ§ ArkadaÅŸ Bir Arada", dk: 2, metin: "Oki, Lili ve Mino bahÃ§enin ortasÄ±nda toplandÄ±.\n\nOki: Bir daha kaybolursan hemen izlerini takip ederiz.\n\nLili: Ã‡Ã¼nkÃ¼ arkadaÅŸlar birbirini her zaman bulur.\n\nMino: Miyav!\n\nÃœÃ§ arkadaÅŸ gÃ¼neÅŸin altÄ±nda birlikte gÃ¼ldÃ¼.\n\nOki: Åimdi hep birlikte oynayalÄ±m mÄ±?\n\nLili: Olur, Ã¶nce Mino'ya top atalÄ±m.\n\nBahÃ§ede kahkahalar yankÄ±landÄ±." },
-      { ad: "Sahne 5 â€” Tohum Ekme", dk: 2, metin: "Ã–ÄŸleden sonra Nana bahÃ§eye kÃ¼Ã§Ã¼k bir sepet getirdi, iÃ§inde tohumlar vardÄ±.\n\nNana: BugÃ¼n birlikte tohum ekelim mi Ã§ocuklar?\n\nOki: Olur Nana, hangi tohumlar bunlar?\n\nNana: Bunlar gÃ¼neÅŸ Ã§iÃ§eÄŸi tohumu, yaz gelince sarÄ± Ã§iÃ§ek aÃ§arlar.\n\nLili: Ben topraÄŸÄ± kazayÄ±m, sen tohumu koy Oki.\n\nOki kÃ¼Ã§Ã¼k bir Ã§ukur kazdÄ± ve tohumu iÃ§ine bÄ±raktÄ±.\n\nMino: Miyav!\n\nMino merakla topraÄŸÄ± kokladÄ± ama kazmaya Ã§alÄ±ÅŸmadÄ±.\n\nLili: Aferin Mino, tohumlarÄ± bozma.\n\nOki: Åimdi su verelim ki bÃ¼yÃ¼sÃ¼nler.\n\nNana: SabÄ±rla beklerseniz bir gÃ¼n Ã§iÃ§ek aÃ§acaklar." },
-      { ad: "Sahne 6 â€” AkÅŸam SofrasÄ±", dk: 2, metin: "AkÅŸam olunca aile bahÃ§edeki masaya oturdu.\n\nOki: Nana, tohumlar ne zaman Ã§iÃ§ek aÃ§ar?\n\nNana: BirkaÃ§ hafta sÃ¼rer ama her gÃ¼n biraz bÃ¼yÃ¼rler.\n\nLili: O zaman her sabah kontrol edelim mi?\n\nOki: Olur, ben ilk Ã§iÃ§eÄŸi kim gÃ¶rdÃ¼yse haber vereceÄŸim.\n\nMino: Miyav!\n\nMino masanÄ±n altÄ±na kÄ±vrÄ±lÄ±p uyumaya baÅŸladÄ±.\n\nLili: BugÃ¼n Ã§ok gÃ¼zel bir gÃ¼ndÃ¼, deÄŸil mi Oki?\n\nOki: Evet, hem Mino'yu bulduk hem tohum ektik.\n\nNana: GÃ¼zel gÃ¼nler bÃ¶yle kÃ¼Ã§Ã¼k anlardan oluÅŸur.\n\nGÃ¶kyÃ¼zÃ¼ kÄ±zÄ±la dÃ¶nerken Ã¼Ã§ arkadaÅŸ gÃ¼lÃ¼msedi.\n\nTopraÄŸa gÃ¶mdÃ¼kleri tohumun bir gÃ¼n bÃ¼yÃ¼yÃ¼p Ã§iÃ§ek aÃ§acaÄŸÄ± gÃ¼nÃ¼ hayal ederek gÃ¼lÃ¼ÅŸtÃ¼ler. Masadaki Ã§aydanlÄ±ktan yÃ¼kselen ince buhar, akÅŸamÄ±n sÄ±caklÄ±ÄŸÄ±nÄ± bahÃ§eye yavaÅŸÃ§a yayÄ±yordu." },
-    ],
-  },
-  {
-    id: "toto-acele-etme-piyesi",
-    baslik: "Toto Acele Etme Piyesi",
-    yazar: "Oki Rol SeÃ§erek Oku",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Piyes",
-    yas: "8-10 yaÅŸ",
-    renk: ["#5A3A24", "#D08A4A"],
-    puan: 4.8,
-    sureDk: 3.2,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: KÄ±sa taslaktan 9 sahnelik bir kule-inÅŸasÄ± ve bahÃ§e-sulama kurgusuna geniÅŸletildi (asgari yaÅŸ-bandÄ± kelime hedefi iÃ§in). YayÄ±n Ã¶ncesi Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: Reyhan AÃ§ar tarafÄ±ndan iÃ§erik kalitesi onaylandÄ±. 2026-08-07: Diyalog metni okunabilirlik iÃ§in konuÅŸmacÄ± satÄ±r satÄ±r ayrÄ±ldÄ± (kelimeler deÄŸiÅŸmedi); yeniden Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: \"AnlatÄ±cÄ±:\" etiketi replik metninden kaldÄ±rÄ±ldÄ± (sahne/rol isimleri korundu); kelime sayÄ±sÄ±nÄ± asgari hedefin Ã¼zerinde tutmak iÃ§in ilgili sahnelere kÄ±sa betimleyici anlatÄ±m eklendi; AI Ã¶n-inceleme sonrasÄ± kapanÄ±ÅŸ cÃ¼mleleri hikÃ¢yeye Ã¶zgÃ¼ hale getirilecek ÅŸekilde yeniden yazÄ±ldÄ± (5 hikÃ¢ye arasÄ±ndaki tekrarlayan kalÄ±plar giderildi). Yeniden Reyhan AÃ§ar redaksiyonu bekliyor." },
-    ozet: "DEHB dostu piyes; acele etmek, durmak ve yeniden denemek Ã¼zerine rol okuma. Toto ve arkadaÅŸlarÄ± bahÃ§ede bir kule kurarken ve Ã§iÃ§ek sularken sabrÄ± Ã¶ÄŸrenir.",
-    bolumler: [
-      { ad: "Ã‡ok HÄ±zlÄ± Plan", dk: 2, metin: "Toto Ã§ok hÄ±zlÄ± koÅŸtu, elinde bir kÃ¢ÄŸÄ±t vardÄ±.\n\nToto: PlanÄ±m hazÄ±r, hemen baÅŸlayalÄ±m!\n\nOki: Ã–nce dinleyelim Toto, planÄ±n ne?\n\nLili: Bir adÄ±m duralÄ±m, acele etmeden anlat.\n\nToto: Tamam, derin nefes alÄ±yorum.\n\nToto durdu ve nefes aldÄ±.\n\nToto: BugÃ¼n bahÃ§ede bir kule yapacaÄŸÄ±z.\n\nOki: GÃ¼zel fikir, ama nasÄ±l baÅŸlayacaÄŸÄ±z?\n\nLili: Ã–nce malzemeleri toplayalÄ±m, sonra planlarÄ±z." },
-      { ad: "YavaÅŸ AdÄ±m", dk: 2, metin: "Mino: Miyav.\n\nToto: Åimdi daha iyi dÃ¼ÅŸÃ¼ndÃ¼m.\n\nOki: GÃ¼zel.\n\nLili: YavaÅŸ adÄ±m da bir adÄ±mdÄ±r.\n\nToto kutularÄ± teker teker taÅŸÄ±maya baÅŸladÄ±.\n\nToto: Ã–nce bÃ¼yÃ¼k kutuyu koyayÄ±m, sonra kÃ¼Ã§Ã¼ÄŸÃ¼ Ã¼stÃ¼ne.\n\nOki: Dikkatli ol, aceleyle dÃ¼ÅŸebilir.\n\nLili: HaklÄ±sÄ±n, yavaÅŸÃ§a yerleÅŸtirelim.\n\nToto derin bir nefes daha aldÄ± ve yavaÅŸÃ§a devam etti." },
-      { ad: "Kule SallanÄ±yor", dk: 2, metin: "Kule birden sallanmaya baÅŸladÄ±.\n\nToto: Aa, Ã§ok hÄ±zlÄ± koydum galiba!\n\nOki: Dur, elini tutma, dÃ¼ÅŸmesin.\n\nLili: Nefes al Toto, telaÅŸlanma.\n\nToto derin bir nefes aldÄ± ve elini yavaÅŸÃ§a Ã§ekti.\n\nToto: Åimdi ne yapmalÄ±yÄ±m?\n\nOki: Alttaki kutuyu dÃ¼zeltelim, sonra tekrar deneriz.\n\nLili: Acele etmeden, adÄ±m adÄ±m." },
-      { ad: "Yeniden Deneme", dk: 2, metin: "ÃœÃ§ arkadaÅŸ kuleyi yavaÅŸÃ§a yeniden kurdu.\n\nToto: Bu sefer her kutuyu kontrol ediyorum.\n\nOki: Aferin, Ã§ok daha saÄŸlam duruyor.\n\nLili: GÃ¶rdÃ¼n mÃ¼, yavaÅŸ olmak hiÃ§ kÃ¶tÃ¼ deÄŸilmiÅŸ.\n\nMino: Miyav!\n\nMino kulenin yanÄ±nda dolaÅŸtÄ± ama devirmedi.\n\nToto: Mino bile dikkatli davranÄ±yor.\n\nOki: SabÄ±rlÄ± olmak herkese iyi gelir." },
-      { ad: "Toto'nun Dersi", dk: 2, metin: "Kule sonunda tamamlandÄ±, gÃ¼neÅŸin altÄ±nda parlÄ±yordu.\n\nToto: Acele etseydim bunu asla bitiremezdik.\n\nLili: Åimdi anladÄ±n mÄ±, durmak da bir adÄ±mdÄ±r.\n\nOki: Bazen yavaÅŸ gitmek, hÄ±zlÄ± gitmekten daha iyidir.\n\nToto: Bir dahaki sefere Ã¶nce derin nefes alacaÄŸÄ±m.\n\nÃœÃ§ arkadaÅŸ kulenin Ã¶nÃ¼nde el ele tutuÅŸtu.\n\nLili: Harika bir iÅŸ Ã§Ä±kardÄ±k, hep birlikte.\n\nToto: TeÅŸekkÃ¼rler, beni durdurduÄŸunuz iÃ§in." },
-      { ad: "Ertesi GÃ¼n Yeni Bir GÃ¶rev", dk: 2, metin: "Ertesi sabah Oki elinde bir kova ile geldi.\n\nOki: BugÃ¼n bahÃ§edeki Ã§iÃ§eklere su verelim mi?\n\nToto: Ben hemen baÅŸlarÄ±m, Ã§ok hÄ±zlÄ± sularÄ±m!\n\nLili: Toto, hatÄ±rla, yavaÅŸ olmak da bir adÄ±mdÄ±r.\n\nToto: HaklÄ±sÄ±n, Ã¶nce derin bir nefes alayÄ±m.\n\nToto yavaÅŸÃ§a kovayÄ± doldurdu ve Ã§iÃ§eklere gitti.\n\nToto: Her Ã§iÃ§eÄŸe biraz su, fazla deÄŸil.\n\nOki: Aferin, Ã§ok dikkatli davranÄ±yorsun.\n\nLili: GÃ¶rdÃ¼n mÃ¼, dÃ¼n Ã¶ÄŸrendiÄŸin ders iÅŸe yaradÄ±." },
-      { ad: "Mino'nun YardÄ±mÄ±", dk: 2, metin: "Mino Ã§iÃ§eklerin arasÄ±nda dolaÅŸÄ±yordu.\n\nMino: Miyav!\n\nToto: Mino, dikkat et, Ã§iÃ§ekleri ezme.\n\nOki: Belki Mino da bize yardÄ±m etmek istiyor.\n\nLili: Ona kÃ¼Ã§Ã¼k bir gÃ¶rev verelim.\n\nToto: Mino, sen de yapraklara bakabilirsin.\n\nMino bir yapraÄŸÄ±n Ã¼stÃ¼ne konan bÃ¶ceÄŸi izledi.\n\nMino: Miyav, miyav!\n\nOki: Bak, Mino da sabÄ±rla bekliyor.\n\nToto: Demek herkes kendi hÄ±zÄ±nda Ã¶ÄŸreniyor." },
-      { ad: "BahÃ§e TamamlandÄ± ve Toto'nun Yeni AlÄ±ÅŸkanlÄ±ÄŸÄ±", dk: 4, metin: "Ã–ÄŸleye doÄŸru bÃ¼tÃ¼n Ã§iÃ§ekler sulanmÄ±ÅŸtÄ±.\n\nOki: BugÃ¼n hiÃ§ acele etmeden bitirdik.\n\nToto: Ve hiÃ§bir Ã§iÃ§eÄŸi ezmedik.\n\nLili: Ã‡Ã¼nkÃ¼ yavaÅŸ ve dikkatli Ã§alÄ±ÅŸtÄ±k.\n\nÃœÃ§ arkadaÅŸ bahÃ§enin ortasÄ±nda oturup mola verdi.\n\nToto: DÃ¼n kuleyi, bugÃ¼n bahÃ§eyi Ã¶ÄŸrendim.\n\nOki: SabÄ±r her iÅŸte iÅŸe yarÄ±yor galiba.\n\nLili: Evet, ve seninle Ã§alÄ±ÅŸmak Ã§ok keyifli Toto.\n\nGÃ¼neÅŸ tepede parlarken Ã¼Ã§Ã¼ de gÃ¼lÃ¼msedi. O akÅŸam Toto gÃ¼nlÃ¼ÄŸÃ¼ne uzun bir not yazdÄ±.\n\nToto: BugÃ¼n Ã¶ÄŸrendim ki acele etmek iÅŸleri bozabilir.\n\nOki: Ama yavaÅŸ olmak da hiÃ§ sÄ±kÄ±cÄ± deÄŸil, deÄŸil mi?\n\nToto: HayÄ±r, hatta daha keyifli, her ÅŸeyi fark ediyorum.\n\nLili: Belki yarÄ±n yeni bir gÃ¶rev daha buluruz.\n\nToto: Ne olursa olsun, Ã¶nce derin bir nefes alacaÄŸÄ±m.\n\nMino: Miyav!\n\nToto gÃ¼lÃ¼mseyerek gÃ¼nlÃ¼ÄŸÃ¼nÃ¼ kapattÄ± ve yavaÅŸÃ§a uykuya daldÄ±.\n\nPencereden giren ay Ä±ÅŸÄ±ÄŸÄ±, bugÃ¼n Ã¶zenle kurduÄŸu kuleyi usulca aydÄ±nlatÄ±yordu. YastÄ±ÄŸÄ±na uzanÄ±rken, sabÄ±rla beklemenin acele etmekten Ã§ok daha tatlÄ± olduÄŸunu dÃ¼ÅŸÃ¼ndÃ¼. Ertesi sabah yeniden bahÃ§eye Ã§Ä±kmayÄ± sabÄ±rla bekliyordu." },
-    ],
-  },
-  {
-    id: "uzay-kulubu-piyesi",
-    baslik: "Uzay KulÃ¼bÃ¼ Piyesi",
-    yazar: "Oki Rol SeÃ§erek Oku",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Piyes",
-    yas: "10-12 yaÅŸ",
-    renk: ["#253A5F", "#6FA7D9"],
-    puan: 4.8,
-    sureDk: 4.5,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: KÄ±sa taslaktan 10 sahneye geniÅŸletildi, bilimsel iÃ§erik (krater, yÄ±ldÄ±z/gezegen farkÄ±, gezegenler, halkalar, gÃ¶kada) derinleÅŸtirildi. YayÄ±n Ã¶ncesi Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: Reyhan AÃ§ar tarafÄ±ndan iÃ§erik kalitesi onaylandÄ±. 2026-08-07: Diyalog metni okunabilirlik iÃ§in konuÅŸmacÄ± satÄ±r satÄ±r ayrÄ±ldÄ± (kelimeler deÄŸiÅŸmedi); yeniden Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: \"AnlatÄ±cÄ±:\" etiketi replik metninden kaldÄ±rÄ±ldÄ± (sahne/rol isimleri korundu); kelime sayÄ±sÄ±nÄ± asgari hedefin Ã¼zerinde tutmak iÃ§in ilgili sahnelere kÄ±sa betimleyici anlatÄ±m eklendi; AI Ã¶n-inceleme sonrasÄ± kapanÄ±ÅŸ cÃ¼mleleri hikÃ¢yeye Ã¶zgÃ¼ hale getirilecek ÅŸekilde yeniden yazÄ±ldÄ± (5 hikÃ¢ye arasÄ±ndaki tekrarlayan kalÄ±plar giderildi). Yeniden Reyhan AÃ§ar redaksiyonu bekliyor." },
-    ozet: "GÃ¶kyÃ¼zÃ¼ konusu ile rol okuma birleÅŸir; Ã§ocuk bilim repliklerini seslendirerek aktif okuma yapar. Uzay KulÃ¼bÃ¼, yÄ±ldÄ±z-gezegen farkÄ±ndan gÃ¶kadalara uzanan bir keÅŸif dizisi yaÅŸar.",
-    bolumler: [
-      { ad: "KulÃ¼p ToplandÄ±", dk: 2, metin: "Uzay KulÃ¼bÃ¼ masanÄ±n etrafÄ±nda toplandÄ±, herkesin elinde bir defter vardÄ±.\n\nOki: Ay haritasÄ±nÄ± getirdim, dÃ¼n gece Ã§izdim.\n\nLili: Kraterleri iÅŸaretledim, her biri farklÄ± bÃ¼yÃ¼klÃ¼kte.\n\nToto: Ben de roket Ã§izdim, Ã¼Ã§ kat yakÄ±t deposu var.\n\nMino: Miyav, yÄ±ldÄ±zlarÄ± saydÄ±m!\n\nHerkes gÃ¼ldÃ¼, Mino'nun sayÄ±mÄ± gerÃ§ek deÄŸildi ama ÅŸirindi.\n\nOki: BugÃ¼n gÃ¶kyÃ¼zÃ¼nÃ¼ daha yakÄ±ndan inceleyelim mi?\n\nLili: Olur, Ã¶nce bir soru listesi yapalÄ±m." },
-      { ad: "Soru", dk: 2, metin: "Oki: YÄ±ldÄ±z mÄ±, gezegen mi, ikisi arasÄ±ndaki fark nedir?\n\nLili: YÄ±ldÄ±z kendi Ä±ÅŸÄ±ÄŸÄ±nÄ± verir, kendi enerjisiyle parlar.\n\nToto: Gezegen Ä±ÅŸÄ±ÄŸÄ± yansÄ±tÄ±r, kendi Ä±ÅŸÄ±ÄŸÄ± yoktur.\n\nKulÃ¼p bir soruyla baÅŸladÄ±, kÃ¼Ã§Ã¼k bir cevapla bÃ¼yÃ¼dÃ¼.\n\nOki: Peki GÃ¼neÅŸ bir yÄ±ldÄ±z mÄ±?\n\nLili: Evet, GÃ¼neÅŸ de bizim en yakÄ±n yÄ±ldÄ±zÄ±mÄ±z.\n\nToto: O zaman DÃ¼nya bir gezegen, Ã¶yle mi?\n\nOki: Kesinlikle, GÃ¼neÅŸ'in etrafÄ±nda dÃ¶nen bir gezegen." },
-      { ad: "Roket PlanÄ± ve Kraterlerin SÄ±rrÄ±", dk: 4, metin: "Toto Ã§izdiÄŸi roketi masaya koydu.\n\nToto: Bu roket Ay'a kadar gidebilir mi sizce?\n\nOki: GerÃ§ek roketler Ã§ok daha bÃ¼yÃ¼k yakÄ±t depolarÄ± taÅŸÄ±r.\n\nLili: Ama senin Ã§izimin de Ã§ok yaratÄ±cÄ±, detaylar harika.\n\nToto: Belki bÃ¼yÃ¼yÃ¼nce gerÃ§ek bir roket tasarlarÄ±m.\n\nMino roketin resmine pati vurdu, sanki onaylÄ±yordu.\n\nMino: Miyav!\n\nOki: Mino da mÃ¼hendis olmak istiyor galiba.\n\nLili: Krater dediÄŸimiz ÅŸey aslÄ±nda bir Ã§ukur.\n\nOki: Ay'a Ã§arpan taÅŸlar bu Ã§ukurlarÄ± oluÅŸturuyor.\n\nToto: Peki neden DÃ¼nya'da bu kadar az krater var?\n\nLili: Ã‡Ã¼nkÃ¼ DÃ¼nya'nÄ±n atmosferi Ã§oÄŸu taÅŸÄ± yakÄ±yor.\n\nOki: Ay'Ä±n atmosferi olmadÄ±ÄŸÄ± iÃ§in izler kalÄ±yor.\n\nKulÃ¼p Ã¼yeleri haritadaki her krateri tek tek iÅŸaretledi.\n\nToto: Bu en bÃ¼yÃ¼k krater, adÄ± ne olsun?\n\nLili: Ona Mino Krateri diyelim, o da kulÃ¼bÃ¼n Ã¼yesi." },
-      { ad: "KulÃ¼bÃ¼n KararÄ±", dk: 2, metin: "GÃ¶kyÃ¼zÃ¼ kararmaya baÅŸlayÄ±nca kulÃ¼p pencereye toplandÄ±.\n\nOki: Bu akÅŸam gerÃ§ek yÄ±ldÄ±zlara bakalÄ±m mÄ±?\n\nLili: Olur, teleskopu getireyim.\n\nToto: Ben de defterime notlar alÄ±rÄ±m.\n\nÃœÃ§ arkadaÅŸ ve Mino, karanlÄ±kta parlayan noktalarÄ± izledi.\n\nOki: Bir soruyla baÅŸladÄ±k, bugÃ¼n Ã§ok ÅŸey Ã¶ÄŸrendik.\n\nLili: GÃ¶kyÃ¼zÃ¼ hiÃ§ bitmeyen bir kitap gibi.\n\nToto: O zaman her hafta yeni bir sayfa okuyalÄ±m.\n\nUzay KulÃ¼bÃ¼, bir sonraki toplantÄ±ya kadar sÃ¶zleÅŸti." },
-      { ad: "Gezegenler SÄ±rayla", dk: 2, metin: "Oki bÃ¼yÃ¼k bir kaÄŸÄ±da gÃ¼neÅŸ sistemini Ã§izdi.\n\nOki: GÃ¼neÅŸ'in etrafÄ±nda sekiz gezegen dÃ¶nÃ¼yor.\n\nLili: Hangileri bunlar, sayabilir misin?\n\nOki: MerkÃ¼r, VenÃ¼s, DÃ¼nya, Mars, JÃ¼piter, SatÃ¼rn, UranÃ¼s ve NeptÃ¼n.\n\nToto: En bÃ¼yÃ¼ÄŸÃ¼ hangisi?\n\nOki: JÃ¼piter en bÃ¼yÃ¼k gezegen, dev bir fÄ±rtÄ±nasÄ± bile var.\n\nLili: Peki en kÃ¼Ã§Ã¼ÄŸÃ¼?\n\nOki: MerkÃ¼r en kÃ¼Ã§Ã¼k ve GÃ¼neÅŸ'e en yakÄ±n olan.\n\nToto: Mino, sen hangi gezegeni seÃ§erdin?\n\nMino: Miyav!\n\nHerkes gÃ¼ldÃ¼, Mino'nun favori gezegeni belli olmadÄ±." },
-      { ad: "SatÃ¼rn'Ã¼n HalkalarÄ±", dk: 2, metin: "Lili: SatÃ¼rn'Ã¼n etrafÄ±ndaki halkalar neden var?\n\nOki: Halkalar aslÄ±nda buz ve taÅŸ parÃ§acÄ±klarÄ±ndan oluÅŸuyor.\n\nToto: Peki neden dÃ¼ÅŸmÃ¼yorlar?\n\nOki: SatÃ¼rn'Ã¼n Ã§ekim gÃ¼cÃ¼ onlarÄ± yÃ¶rÃ¼ngede tutuyor.\n\nLili: Bu gerÃ§ekten inanÄ±lmaz bir ÅŸey.\n\nToto: Ben de bÃ¼yÃ¼yÃ¼nce SatÃ¼rn'Ã¼ teleskopla gÃ¶rmek istiyorum.\n\nLili kitaplÄ±ktan bir gezegenler ansiklopedisi getirdi.\n\nLili: BakÄ±n, burada halkalarÄ±n fotoÄŸrafÄ± var.\n\nOki: GerÃ§ekten Ã§ok gÃ¼zelmiÅŸ, tam bir mÃ¼cevher gibi.\n\nToto: Uzay hiÃ§ bitmeyen bir hazine sandÄ±ÄŸÄ± gibi." },
-      { ad: "YÄ±ldÄ±z HaritasÄ± Ã‡izmek", dk: 2, metin: "KulÃ¼p Ã¼yeleri gece gÃ¶kyÃ¼zÃ¼nÃ¼ izlemeye karar verdi.\n\nOki: Bir yÄ±ldÄ±z haritasÄ± Ã§izelim, gÃ¶rdÃ¼ÄŸÃ¼mÃ¼z her ÅŸeyi iÅŸaretleyelim.\n\nLili: Ben BÃ¼yÃ¼k AyÄ± takÄ±myÄ±ldÄ±zÄ±nÄ± arayacaÄŸÄ±m.\n\nToto: Ben de Kutup YÄ±ldÄ±zÄ±'nÄ± bulmaya Ã§alÄ±ÅŸacaÄŸÄ±m.\n\nÃœÃ§ arkadaÅŸ bahÃ§eye battaniye serdi ve uzandÄ±.\n\nOki: Ä°ÅŸte orada, yedi parlak yÄ±ldÄ±z gÃ¶rÃ¼yor musunuz?\n\nLili: Evet, tam bir kepÃ§e ÅŸekli gibi.\n\nToto: Kutup YÄ±ldÄ±zÄ± hep kuzeyi gÃ¶sterirmiÅŸ, denizciler onunla yÃ¶n bulurmuÅŸ.\n\nMino: Miyav!\n\nMino da gÃ¶kyÃ¼zÃ¼ne bakÄ±p sessizce yattÄ±." },
-      { ad: "KulÃ¼bÃ¼n Yeni Projesi ve GÃ¶kadanÄ±n BÃ¼yÃ¼klÃ¼ÄŸÃ¼", dk: 4, metin: "Ertesi hafta kulÃ¼p yeni bir proje baÅŸlattÄ±.\n\nOki: Kendi mini gÃ¶zlemevimizi kuralÄ±m mÄ±?\n\nLili: Harika fikir, teleskopu balkona yerleÅŸtirebiliriz.\n\nToto: Ben de gÃ¶rdÃ¼klerimizi bir deftere kaydederim.\n\nÃœÃ§ arkadaÅŸ balkona kÃ¼Ã§Ã¼k bir masa taÅŸÄ±dÄ±.\n\nOki: Her hafta bir gezegen veya yÄ±ldÄ±z araÅŸtÄ±racaÄŸÄ±z.\n\nLili: BÃ¶ylece Uzay KulÃ¼bÃ¼ hiÃ§ durmadan Ã¶ÄŸrenmeye devam eder.\n\nToto: Ve her toplantÄ±da yeni bir soru sorarÄ±z.\n\nKulÃ¼p, meraklarÄ±nÄ± asla kaybetmeden bÃ¼yÃ¼meye devam etti. Bir akÅŸam Nana kulÃ¼be katÄ±ldÄ±, elinde eski bir kitap vardÄ±.\n\nNana: Bu kitapta gÃ¶kadalar anlatÄ±lÄ±yor, ister misiniz dinlemek?\n\nOki: Evet Nana, gÃ¶kada nedir tam olarak?\n\nNana: GÃ¶kada, milyonlarca yÄ±ldÄ±zÄ±n bir arada bulunduÄŸu dev bir topluluktur.\n\nLili: Bizim GÃ¼neÅŸ Sistemimiz hangi gÃ¶kadada?\n\nNana: Samanyolu GÃ¶kadasÄ±'nda, ama o da evrende sadece kÃ¼Ã§Ã¼k bir nokta.\n\nToto: Evren o kadar bÃ¼yÃ¼k ki hayal etmek bile zor.\n\nNana: Bu yÃ¼zden merak etmeye hiÃ§ ara vermeyin Ã§ocuklar.\n\nOki: Biz de her hafta yeni bir ÅŸey Ã¶ÄŸrenmeye devam edeceÄŸiz.\n\nMino: Miyav!\n\nKulÃ¼p, gÃ¶kyÃ¼zÃ¼nÃ¼n sonsuzluÄŸu karÅŸÄ±sÄ±nda hep birlikte sessizce hayrete dÃ¼ÅŸtÃ¼.\n\nLili: Bir gÃ¼n belki gerÃ§ek bir gÃ¶kadayÄ± teleskopla gÃ¶rÃ¼rÃ¼z.\n\nToto: O gÃ¼n geldiÄŸinde hepimiz burada olacaÄŸÄ±z.\n\nNana: Sizinle gurur duyuyorum Ã§ocuklar.\n\nBalkondaki teleskop soÄŸuk gece havasÄ±nda usulca parlÄ±yordu, yÄ±ldÄ±zlar sabÄ±rla onlarÄ± bekliyormuÅŸ gibi duruyordu. KulÃ¼p Ã¼yeleri, evrenin bÃ¼yÃ¼klÃ¼ÄŸÃ¼nÃ¼ dÃ¼ÅŸÃ¼nerek uzun sÃ¼re gÃ¶kyÃ¼zÃ¼nÃ¼ izlemeye devam etti. Mino da yÄ±ldÄ±zlara bakarken usulca gÃ¶zlerini kapadÄ±." },
-    ],
-  },
-  {
-    id: "english-hello-card",
-    baslik: "English Words: Hello",
-    yazar: "Okurio English Team",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "English Card",
-    yas: "5-8 yaÅŸ",
-    renk: ["#28425F", "#6FA7D9"],
-    puan: 4.8,
-    sureDk: 3,
-    ozet: "Pre-A1 seviyesinde ilk Ä°ngilizce selamlaÅŸma kelimeleri: hello, bye, please, thank you.",
-    bolumler: [
-      { ad: "Hello", dk: 1, metin: "Hello, Oki. Hello, Lili. Bye, Mino. Thank you, Nana." },
-      { ad: "Please", dk: 1, metin: "Please, Oki. Thank you, Lili. Hello, Mino. Bye, Toto." },
-    ],
-  },
-  {
-    id: "english-sky-words-card",
-    baslik: "English Words: Sky",
-    yazar: "Okurio English Team",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "English Card",
-    yas: "6-8 yaÅŸ",
-    renk: ["#1F3A5C", "#7DA7D9"],
-    puan: 4.8,
-    sureDk: 3,
-    ozet: "GÃ¶kyÃ¼zÃ¼ subjectâ€™i ile uyumlu Pre-A1 kelime kartÄ±: sun, moon, star, sky.",
-    bolumler: [
-      { ad: "Sky Words", dk: 1, metin: "Sun. Moon. Star. Sky. Oki sees the moon. Lili sees a star." },
-      { ad: "Look Up", dk: 1, metin: "Look up. The sky is blue. The sun is bright. The moon is quiet." },
-    ],
-  },
-  {
-    id: "english-colors-card",
-    baslik: "English Words: Colors",
-    yazar: "Okurio English Team",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "English Card",
-    yas: "6-8 yaÅŸ",
-    renk: ["#4A315F", "#A786D9"],
-    puan: 4.8,
-    sureDk: 3,
-    ozet: "Ä°lk renk kelimeleriyle Ã§ok kÄ±sa cÃ¼mleler: red, blue, yellow, green.",
-    bolumler: [
-      { ad: "Colors", dk: 1, metin: "Red ball. Blue sky. Yellow sun. Green leaf. Oki sees a red ball." },
-      { ad: "I See", dk: 1, metin: "I see blue. I see green. Lili sees yellow. Mino sees red." },
-    ],
-  },
-
-  {
-    id: "toto-tak-tak-dedi",
-    baslik: "Toto Tak Tak Dedi",
-    yazar: "Okurio Ä°Ã§erik Ekibi",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ritim Oyunu",
-    yas: "3-5 yaÅŸ",
-    renk: ["#6B4A2B", "#D19A55"],
-    puan: 4.9,
-    sureDk: 3,
-    ozet: "Okuma Ã¶ncesi ritim, ses farkÄ±ndalÄ±ÄŸÄ± ve tekrar iÃ§in kÄ±sa Oki oyunu.",
-    bolumler: [
-      { ad: "Tak Tak", dk: 1, metin: "Toto kapÄ±ya baktÄ±. Tak tak. Oki gÃ¼ldÃ¼. Tak tak. Mino geldi. Miyav dedi." },
-      { ad: "Ses Oyunu", dk: 1, metin: "Tak tak kapÄ±. PÄ±t pÄ±t yaÄŸmur. ÅÄ±p ÅŸÄ±p su. Oki dinledi." },
-    ],
-  },
-  {
-    id: "nana-ritim-oyunu",
-    baslik: "Nanaâ€™nÄ±n Ritim Oyunu",
-    yazar: "Okurio Ä°Ã§erik Ekibi",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Ritim Oyunu",
-    yas: "4-6 yaÅŸ",
-    renk: ["#5B3F73", "#B497D6"],
-    puan: 4.9,
-    sureDk: 3,
-    ozet: "Nana ile tekrar, ritim ve dinleme sÄ±rasÄ± Ã§alÄ±ÅŸmasÄ±.",
-    bolumler: [
-      { ad: "La La", dk: 1, metin: "Nana la la dedi. Lili la la dedi. Oki dinledi. Sonra o da la la dedi." },
-      { ad: "SÄ±ra Bende", dk: 1, metin: "Nana durdu. Oki bekledi. Lili gÃ¼lÃ¼msedi. Åimdi sÄ±ra Okiâ€™deydi." },
-    ],
-  },
-  {
-    id: "oki-hop-hop",
-    baslik: "Oki Hop Hop",
-    yazar: "Okurio Ä°Ã§erik Ekibi",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Tekerleme",
-    yas: "5-7 yaÅŸ",
-    renk: ["#7A4D1F", "#E0A94C"],
-    puan: 4.8,
-    sureDk: 3,
-    ozet: "KÄ±sa tekrar ve ses oyunu: hop, top, dur, bak.",
-    bolumler: [
-      { ad: "Hop Hop", dk: 1, metin: "Oki hop hop dedi. Top hopladÄ±. Toto baktÄ±. Mino saklandÄ±." },
-      { ad: "Top Nerede?", dk: 1, metin: "Top orada. Oki burada. Lili gÃ¼ldÃ¼. Toto durdu." },
-    ],
-  },
-  {
-    id: "oki-ay-siiri",
-    baslik: "Okiâ€™nin Ay Åiiri",
-    yazar: "Okurio Åiir Ekibi",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Åiir",
-    yas: "5-8 yaÅŸ",
-    renk: ["#24385F", "#8FA9D9"],
-    puan: 4.9,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "KÄ±sa dizelerle ay, gece ve sakin takip Ã§alÄ±ÅŸmasÄ±.",
-    bolumler: [
-      { ad: "Ay", dk: 2, metin: "Ay geldi geceye. YavaÅŸÃ§a baktÄ± bize. Oki pencere aÃ§tÄ±. IÅŸÄ±k dÃ¼ÅŸtÃ¼ eline." },
-      { ad: "Sessiz IÅŸÄ±k", dk: 2, metin: "Lili saydÄ± yÄ±ldÄ±zÄ±. Bir, iki, Ã¼Ã§. Mino uyudu usulca. Gece oldu gÃ¼Ã§ deÄŸil, gÃ¼zel." },
-    ],
-  },
-  {
-    id: "yagmur-tip-tip-siiri",
-    baslik: "YaÄŸmur TÄ±p TÄ±p",
-    yazar: "Okurio Åiir Ekibi",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Åiir",
-    yas: "6-8 yaÅŸ",
-    renk: ["#24556B", "#74B7D6"],
-    puan: 4.8,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Ses farkÄ±ndalÄ±ÄŸÄ± iÃ§in yaÄŸmur ritimli kÄ±sa ÅŸiir.",
-    bolumler: [
-      { ad: "TÄ±p TÄ±p", dk: 1, metin: "TÄ±p tÄ±p yaÄŸmur. Camda kÃ¼Ã§Ã¼k ses. Oki dinler. Ä°Ã§inde sakin bir nefes." },
-      { ad: "PÄ±t PÄ±t", dk: 1, metin: "PÄ±t pÄ±t damla. Toprak gÃ¼zel kokar. Lili bakar. Mino patisini saklar." },
-    ],
-  },
-  {
-    id: "gokyuzu-siiri",
-    baslik: "GÃ¶kyÃ¼zÃ¼ Åiiri",
-    yazar: "Okurio Åiir Ekibi",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Åiir",
-    yas: "8-10 yaÅŸ",
-    renk: ["#162B45", "#5F8DC2"],
-    puan: 4.8,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "GÃ¶kyÃ¼zÃ¼ ve yÄ±ldÄ±zlar subjectâ€™i iÃ§in kÄ±sa, gÃ¶rsel ve sakin ÅŸiir.",
-    bolumler: [
-      { ad: "YukarÄ± Bak", dk: 2, metin: "GÃ¶kyÃ¼zÃ¼ mavi bir sayfa gibi aÃ§Ä±ldÄ±. Oki baÅŸÄ±nÄ± kaldÄ±rdÄ±. Bir bulut geÃ§ti. Sonra bir kuÅŸ, sessizce yolunu buldu." },
-      { ad: "YÄ±ldÄ±z Defteri", dk: 2, metin: "Gece olunca gÃ¶kyÃ¼zÃ¼ karardÄ±. Ama karanlÄ±k boÅŸ deÄŸildi. Lili yÄ±ldÄ±zlarÄ± saydÄ±. Her yÄ±ldÄ±z, uzak bir Ä±ÅŸÄ±k gibi parladÄ±." },
-    ],
-  },
-  {
-    id: "ay-bilmecesi",
-    baslik: "Ay Bilmecesi",
-    yazar: "Okurio Ä°Ã§erik Ekibi",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Bilmece",
-    yas: "6-9 yaÅŸ",
-    renk: ["#25304F", "#B6C4E8"],
-    puan: 4.8,
-    sureDk: 3,
-    ozet: "GÃ¶kyÃ¼zÃ¼ subjectâ€™i iÃ§in kÄ±sa tahmin et oyunu.",
-    bolumler: [
-      { ad: "Kimim Ben?", dk: 1, metin: "Gece Ã§Ä±karÄ±m. Bazen ince, bazen yuvarlak gÃ¶rÃ¼nÃ¼rÃ¼m. GÃ¼neÅŸten Ä±ÅŸÄ±k alÄ±rÄ±m. Ben neyim?" },
-      { ad: "Cevap", dk: 1, metin: "Ben Ayâ€™Ä±m. Kendi Ä±ÅŸÄ±ÄŸÄ±mÄ± yapmam. GÃ¼neÅŸin Ä±ÅŸÄ±ÄŸÄ±nÄ± yansÄ±tÄ±rÄ±m." },
-    ],
-  },
-  {
-    id: "yildiz-bilmecesi",
-    baslik: "YÄ±ldÄ±z Bilmecesi",
-    yazar: "Okurio Ä°Ã§erik Ekibi",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Bilmece",
-    yas: "7-10 yaÅŸ",
-    renk: ["#1A2440", "#D8C46A"],
-    puan: 4.8,
-    sureDk: 3,
-    ozet: "YÄ±ldÄ±z kavramÄ±nÄ± basit soru-cevapla anlatan kÄ±sa bilmece.",
-    bolumler: [
-      { ad: "Uzak IÅŸÄ±k", dk: 1, metin: "Ã‡ok uzaktayÄ±m. Gece parlÄ±yor gibi gÃ¶rÃ¼nÃ¼rÃ¼m. Kendi Ä±ÅŸÄ±ÄŸÄ±mÄ± veririm. Ben neyim?" },
-      { ad: "Cevap", dk: 1, metin: "Ben yÄ±ldÄ±zÄ±m. GÃ¼neÅŸ de bir yÄ±ldÄ±zdÄ±r. Bize en yakÄ±n yÄ±ldÄ±z GÃ¼neÅŸâ€™tir." },
-    ],
-  },
-  {
-    id: "tohum-bilmecesi",
-    baslik: "Tohum Bilmecesi",
-    yazar: "Okurio Ä°Ã§erik Ekibi",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Bilmece",
-    yas: "8-10 yaÅŸ",
-    renk: ["#2E4B2F", "#88B06A"],
-    puan: 4.8,
-    sureDk: 3,
-    ozet: "DoÄŸa KulÃ¼bÃ¼ iÃ§in tahmin ve kelime hazinesi oyunu.",
-    bolumler: [
-      { ad: "KÃ¼Ã§Ã¼k BaÅŸlangÄ±Ã§", dk: 1, metin: "Ã‡ok kÃ¼Ã§Ã¼ÄŸÃ¼m. TopraÄŸa dÃ¼ÅŸerim. Su iÃ§erim. Bazen bir Ã§iÃ§eÄŸe, bazen bir aÄŸaca dÃ¶nÃ¼ÅŸÃ¼rÃ¼m. Ben neyim?" },
-      { ad: "Cevap", dk: 1, metin: "Ben tohumum. Bir tohum kÃ¼Ã§Ã¼k baÅŸlar. Ama iÃ§inde bÃ¼yÃ¼k bir yolculuk saklar." },
-    ],
-  },
-  {
-    id: "bir-tohumun-yolculugu",
-    baslik: "Bir Tohumun YolculuÄŸu",
-    yazar: "Okurio DoÄŸa KulÃ¼bÃ¼",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "DoÄŸa Bilimi",
-    yas: "8-10 yaÅŸ",
-    renk: ["#315C3B", "#95C77C"],
-    puan: 4.8,
-    sureDk: 0.3, icerikDurumu: "ozet",
-    ozet: "Bir tohumun toprak, su ve Ä±ÅŸÄ±kla baÅŸlayan yolunu hikÃ¢yeleÅŸtiren kÄ±sa bilim metni.",
-    bolumler: [
-      { ad: "TopraÄŸÄ±n Ä°Ã§inde", dk: 3, metin: "Oki kÃ¼Ã§Ã¼k bir tohum buldu. Tohum avucunda sessizdi. Nana, bu kÃ¼Ã§Ã¼k ÅŸeyin iÃ§inde bir bitkinin yolu var, dedi. Oki tohumu topraÄŸa bÄ±raktÄ±." },
-      { ad: "Ä°lk Yaprak", dk: 3, metin: "YaÄŸmur yaÄŸdÄ±. GÃ¼neÅŸ Ã§Ä±ktÄ±. Bir gÃ¼n topraÄŸÄ±n Ã¼stÃ¼nde yeÅŸil bir nokta belirdi. Lili, bu bir baÅŸlangÄ±Ã§, dedi. Oki her gÃ¼n gelip baktÄ±." },
-    ],
-  },
-  {
-    id: "arilar-neden-dans-eder",
-    baslik: "ArÄ±lar Neden Dans Eder?",
-    yazar: "Okurio DoÄŸa KulÃ¼bÃ¼",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "DoÄŸa Bilimi",
-    yas: "10-12 yaÅŸ",
-    renk: ["#6E551B", "#DDBA45"],
-    puan: 4.8,
-    sureDk: 0.3, icerikDurumu: "ozet",
-    ozet: "ArÄ±larÄ±n yÃ¶n ve yiyecek bilgisini nasÄ±l paylaÅŸtÄ±ÄŸÄ±nÄ± sade bir hikÃ¢yeyle anlatÄ±r.",
-    bolumler: [
-      { ad: "KovanÄ±n Ã–nÃ¼nde", dk: 3, metin: "Oki kovana uzaktan baktÄ±. Bir arÄ± dÃ¶nÃ¼yor, duruyor, sonra tekrar dÃ¶nÃ¼yordu. Toto, bu arÄ± oyun mu oynuyor, diye sordu. Nana gÃ¼lÃ¼msedi: Belki de haber veriyor." },
-      { ad: "Dans Eden Bilgi", dk: 4, metin: "Nana arÄ±larÄ±n bazÄ± hareketlerle yiyeceÄŸin yÃ¶nÃ¼nÃ¼ anlatabildiÄŸini sÃ¶yledi. Lili defterine yazdÄ±: Bazen bir dans, bir harita gibi Ã§alÄ±ÅŸabilir." },
-    ],
-  },
-  {
-    id: "kutup-tilkisi-yolculugu",
-    baslik: "Kutup Tilkisinin YolculuÄŸu",
-    yazar: "Okurio DoÄŸa KulÃ¼bÃ¼",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "DoÄŸa Bilimi",
-    yas: "10-12 yaÅŸ",
-    renk: ["#3B5266", "#D7E7EF"],
-    puan: 4.8,
-    sureDk: 0.3, icerikDurumu: "ozet",
-    ozet: "Kutup tilkisinin Ã§evreye uyumunu ve yol bulma becerisini anlatan sakin bilim hikÃ¢yesi.",
-    bolumler: [
-      { ad: "Beyaz KÃ¼rk", dk: 3, metin: "Lili bir fotoÄŸrafta bembeyaz bir tilki gÃ¶rdÃ¼. Nana, bu kutup tilkisi, dedi. KarÄ±n iÃ§inde fark edilmemek iÃ§in kÃ¼rkÃ¼ ona yardÄ±m eder." },
-      { ad: "Sessiz Yol", dk: 4, metin: "Kutup tilkisi uzun yollar yÃ¼rÃ¼yebilir. SoÄŸuÄŸa dayanÄ±r, izleri takip eder, kÃ¼Ã§Ã¼k sesleri dinler. Oki, doÄŸada her canlÄ±nÄ±n bir yolu var, diye dÃ¼ÅŸÃ¼ndÃ¼." },
-    ],
-  },
-  {
-    id: "mino-nerede-sahnesi",
-    baslik: "Mino Nerede? Sahnesi",
-    yazar: "Okurio Rol Okuma Ekibi",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Piyes",
-    yas: "6-8 yaÅŸ",
-    renk: ["#5B3A2E", "#C89065"],
-    puan: 4.8,
-    sureDk: 2.3,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: KÄ±sa taslaktan 7 sahneye geniÅŸletildi (saklambaÃ§ oyunu kurgusu tamamlandÄ±). YayÄ±n Ã¶ncesi Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: Reyhan AÃ§ar tarafÄ±ndan iÃ§erik kalitesi onaylandÄ±. 2026-08-07: Diyalog metni okunabilirlik iÃ§in konuÅŸmacÄ± satÄ±r satÄ±r ayrÄ±ldÄ± (kelimeler deÄŸiÅŸmedi); yeniden Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: \"AnlatÄ±cÄ±:\" etiketi replik metninden kaldÄ±rÄ±ldÄ± (sahne/rol isimleri korundu); kelime sayÄ±sÄ±nÄ± asgari hedefin Ã¼zerinde tutmak iÃ§in ilgili sahnelere kÄ±sa betimleyici anlatÄ±m eklendi; AI Ã¶n-inceleme sonrasÄ± kapanÄ±ÅŸ cÃ¼mleleri hikÃ¢yeye Ã¶zgÃ¼ hale getirilecek ÅŸekilde yeniden yazÄ±ldÄ± (5 hikÃ¢ye arasÄ±ndaki tekrarlayan kalÄ±plar giderildi). Yeniden Reyhan AÃ§ar redaksiyonu bekliyor." },
-    ozet: "KÄ±sa repliklerle rol alarak okuma pratiÄŸi. Oki, Lili ve Toto, saklambaÃ§ta saklanan Mino'yu ipuÃ§larÄ±nÄ± takip ederek bulur, sonra sÄ±ra deÄŸiÅŸerek oyun sÃ¼rer.",
-    bolumler: [
-      { ad: "Sahne 1 â€” SaklambaÃ§ BaÅŸlÄ±yor", dk: 2, metin: "Oki, Lili ve Toto salonun ortasÄ±nda toplandÄ±.\n\nOki: Hadi saklambaÃ§ oynayalÄ±m, ilk saklanan Mino olsun.\n\nLili: Ben sayarÄ±m, sen de saklan Mino.\n\nToto: Ben de on'a kadar sayabilirim, yardÄ±m ederim.\n\nLili gÃ¶zlerini kapadÄ± ve saymaya baÅŸladÄ±.\n\nLili: Bir, iki, Ã¼Ã§...\n\nOki: Mino, Ã§abuk saklan, geliyoruz!" },
-      { ad: "Sahne 2 â€” Oki BahÃ§eye BaktÄ±", dk: 2, metin: "Oki bahÃ§eye baktÄ±.\n\nOki: Mino nerede?\n\nLili: Sandalyenin altÄ±nda olabilir.\n\nToto: Ben de Ã§iÃ§ek saksÄ±larÄ±na bakarÄ±m.\n\nÃœÃ§ arkadaÅŸ bahÃ§enin her kÃ¶ÅŸesini aradÄ±.\n\nOki: Burada yok, belki mutfaktadÄ±r.\n\nLili: Ya da merdivenin altÄ±nda saklanmÄ±ÅŸtÄ±r.\n\nToto: Hadi birlikte bakalÄ±m." },
-      { ad: "Sahne 3 â€” Ä°pucu Bulundu", dk: 2, metin: "Toto yerde kÃ¼Ã§Ã¼k bir tÃ¼y buldu.\n\nToto: BakÄ±n, burada bir tÃ¼y var!\n\nLili: Demek Mino buradan geÃ§miÅŸ.\n\nOki: O zaman sesini dinleyelim, belki mÄ±rÄ±ldanÄ±yordur.\n\nMino: Miyav!\n\nSes sandalyenin altÄ±ndan geliyordu.\n\nLili: Ä°ÅŸte orada!\n\nOki: Seni buldum Mino!" },
-      { ad: "Sahne 4 â€” SÄ±ra Bende", dk: 2, metin: "KÃ¼Ã§Ã¼k kedi sandalyenin altÄ±ndan Ã§Ä±ktÄ±.\n\nOki: Seni buldum Mino.\n\nLili: SÄ±ra bende, ÅŸimdi ben saklanÄ±yorum.\n\nToto: Ben de seninle geliyorum Lili.\n\nMino: Miyav, miyav!\n\nÃœÃ§ arkadaÅŸ gÃ¼ldÃ¼ ve oyuna yeniden baÅŸladÄ±.\n\nOki: Bu oyunu her gÃ¼n oynayabiliriz.\n\nLili: Ã‡Ã¼nkÃ¼ arkadaÅŸlarla oynamak en gÃ¼zel oyundur." },
-      { ad: "Sahne 5 â€” Yeni Saklanma Yeri", dk: 2, metin: "Ertesi gÃ¼n Ã¼Ã§ arkadaÅŸ yine saklambaÃ§ oynamak istedi.\n\nToto: Bu sefer ben saklanayÄ±m, siz sayÄ±n.\n\nLili: Tamam, Oki ile birlikte sayarÄ±z.\n\nOki: Bir, iki, Ã¼Ã§, dÃ¶rt, beÅŸ...\n\nToto hÄ±zlÄ±ca mutfak dolabÄ±nÄ±n arkasÄ±na saklandÄ±.\n\nMino: Miyav!\n\nMino da Toto'nun yanÄ±na sokuldu, sanki ona eÅŸlik ediyordu.\n\nLili: On'a kadar saydÄ±k, geliyoruz Toto!\n\nOki: MutfaÄŸa bakalÄ±m Ã¶nce." },
-      { ad: "Sahne 6 â€” Herkes Bir Arada", dk: 2, metin: "Oki dolabÄ±n arkasÄ±nda bir gÃ¶lge fark etti.\n\nOki: Bak Lili, orada bir ÅŸey kÄ±pÄ±rdÄ±yor.\n\nLili: Toto olmalÄ±, hadi yaklaÅŸalÄ±m.\n\nToto: YakalandÄ±m!\n\nToto ve Mino birlikte dolabÄ±n arkasÄ±ndan Ã§Ä±ktÄ±.\n\nLili: Mino da mÄ± saklanÄ±yordu?\n\nToto: Evet, bana eÅŸlik etti, hiÃ§ yalnÄ±z deÄŸildim.\n\nOki: Demek ki saklambaÃ§ta bile arkadaÅŸlÄ±k Ã¶nemliymiÅŸ.\n\nDÃ¶rt arkadaÅŸ kahkahalarla mutfaktan Ã§Ä±ktÄ±.\n\nLili: YarÄ±n yine oynayalÄ±m mÄ±?\n\nToto: Elbette, her gÃ¼n yeni bir saklanma yeri buluruz." },
-      { ad: "Sahne 7 â€” Gece Vakti", dk: 2, metin: "AkÅŸam olunca dÃ¶rt arkadaÅŸ verandaya oturdu.\n\nLili: BugÃ¼n en sevdiÄŸim oyun saklambaÃ§ oldu.\n\nOki: Ben de Mino'nun Toto'yla saklanmasÄ±nÄ± Ã§ok sevdim.\n\nToto: Belki yarÄ±n ben de bir ipucu bÄ±rakÄ±rÄ±m.\n\nMino: Miyav!\n\nMino, Toto'nun kucaÄŸÄ±na atlayÄ±p kÄ±vrÄ±ldÄ±.\n\nLili: GÃ¶rÃ¼yorsunuz, en iyi oyunlar arkadaÅŸlarla oynananlar.\n\nOki: YarÄ±n yine buluÅŸalÄ±m mÄ±?\n\nToto: Elbette, saklambaÃ§ hiÃ§ bitmesin.\n\nVerandanÄ±n loÅŸ Ä±ÅŸÄ±ÄŸÄ±nda dÃ¶rt arkadaÅŸ son bir kez daha saklambaÃ§ kurallarÄ±nÄ± fÄ±sÄ±ldayarak konuÅŸtu, kimin nerede saklanacaÄŸÄ±nÄ± planladÄ±lar. Mino yavaÅŸÃ§a mÄ±ÅŸÄ±l mÄ±ÅŸÄ±l uykuya daldÄ± ve kahkahalar zamanla dindi." },
-    ],
-  },
-  {
-    id: "labirentte-uc-ses",
-    baslik: "Labirentte ÃœÃ§ Ses",
-    yazar: "Okurio Rol Okuma Ekibi",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "Piyes",
-    yas: "10-12 yaÅŸ",
-    renk: ["#4D365F", "#9B7BB8"],
-    puan: 4.8,
-    sureDk: 4.5,
-    contentQualityReview: { status: "pending-human-review", note: "2026-08-06: KÄ±sa taslaktan 11 sahneye geniÅŸletildi, ip/sabÄ±r motifi bilmece-bekÃ§i-hazine kurgusuyla tamamlandÄ±. YayÄ±n Ã¶ncesi Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: Reyhan AÃ§ar tarafÄ±ndan iÃ§erik kalitesi onaylandÄ±. 2026-08-07: Diyalog metni okunabilirlik iÃ§in konuÅŸmacÄ± satÄ±r satÄ±r ayrÄ±ldÄ± (kelimeler deÄŸiÅŸmedi); yeniden Reyhan AÃ§ar redaksiyonu bekliyor. 2026-08-07: \"AnlatÄ±cÄ±:\" etiketi replik metninden kaldÄ±rÄ±ldÄ± (sahne/rol isimleri korundu); kelime sayÄ±sÄ±nÄ± asgari hedefin Ã¼zerinde tutmak iÃ§in ilgili sahnelere kÄ±sa betimleyici anlatÄ±m eklendi; AI Ã¶n-inceleme sonrasÄ± kapanÄ±ÅŸ cÃ¼mleleri hikÃ¢yeye Ã¶zgÃ¼ hale getirilecek ÅŸekilde yeniden yazÄ±ldÄ± (5 hikÃ¢ye arasÄ±ndaki tekrarlayan kalÄ±plar giderildi). Yeniden Reyhan AÃ§ar redaksiyonu bekliyor." },
-    ozet: "Mitoloji ve rol okuma birleÅŸimi: Oki, Lili ve Toto, elde ettikleri bir ipi kullanarak labirenti anlamaya, bir bilmeceyi Ã§Ã¶zmeye ve Ã§Ä±kÄ±ÅŸÄ± bulmaya Ã§alÄ±ÅŸÄ±r.",
-    bolumler: [
-      { ad: "Ä°pin BaÅŸÄ±nda", dk: 2, metin: "Oki haritaya baktÄ±, Ã§izgiler birbirine karÄ±ÅŸÄ±yordu.\n\nOki: Labirent Ã§ok karÄ±ÅŸÄ±k, nereden baÅŸlayacaÄŸÄ±z?\n\nLili: O zaman bir iÅŸaret bÄ±rakmalÄ±yÄ±z, yoksa kayboluruz.\n\nToto: Ä°p kullanabiliriz, giriÅŸte bir ucunu baÄŸlarÄ±z!\n\nToto Ã§antasÄ±ndan uzun bir yumak ip Ã§Ä±kardÄ±.\n\nOki: Harika fikir, eski hikÃ¢yelerde de bÃ¶yle yapÄ±lÄ±rmÄ±ÅŸ.\n\nLili: Hangi hikÃ¢yede?\n\nOki: Bir kahraman, labirentten Ã§Ä±kmak iÃ§in ip kullanmÄ±ÅŸ." },
-      { ad: "Yol Bulmak", dk: 2, metin: "Oki: Ä°p bize yolu hatÄ±rlatÄ±r, geldiÄŸimiz yeri unutmayÄ±z.\n\nLili: Bazen bir fikir de ip gibi olur, bizi doÄŸruya baÄŸlar.\n\nToto: O zaman ben ipi tutuyorum, siz yolu bulun.\n\nÃœÃ§ arkadaÅŸ labirentin ilk koridoruna girdi.\n\nOki: SaÄŸa mÄ±, sola mÄ± gitmeliyiz?\n\nLili: Duvara bakalÄ±m, iÅŸaret var mÄ±?\n\nToto: Burada kÃ¼Ã§Ã¼k bir ok iÅŸareti gÃ¶rÃ¼yorum.\n\nOki: O zaman saÄŸa dÃ¶nelim." },
-      { ad: "Ã‡Ä±kmaz Sokak", dk: 2, metin: "Koridorun sonunda duvar Ã§Ä±ktÄ±, yol tÄ±kanmÄ±ÅŸtÄ±.\n\nToto: Bu bir Ã§Ä±kmaz sokak, geri dÃ¶nmeliyiz.\n\nLili: Sorun deÄŸil, ipimiz sayesinde yolumuzu biliyoruz.\n\nOki: HaklÄ±sÄ±n, kaybolmadÄ±k Ã§Ã¼nkÃ¼ iÅŸaretimiz vardÄ±.\n\nÃœÃ§ arkadaÅŸ ipi takip ederek geri dÃ¶ndÃ¼.\n\nToto: Bir dahaki kavÅŸakta farklÄ± bir yÃ¶n deneyelim.\n\nLili: Belki de her denemeden bir ÅŸey Ã¶ÄŸreniriz.\n\nOki: Hatalar da bir tÃ¼r ipucu olabilir." },
-      { ad: "Ortadaki Oda", dk: 2, metin: "ÃœÃ§ arkadaÅŸ sonunda labirentin ortasÄ±ndaki odaya ulaÅŸtÄ±.\n\nOki: Burada eski bir yazÄ± var, okuyalÄ±m mÄ±?\n\nLili: DoÄŸru yolu bulan, sabÄ±rla arayandÄ±r yazÄ±yor.\n\nToto: Demek sabrÄ±mÄ±z bize yol gÃ¶sterdi.\n\nOdanÄ±n ortasÄ±nda kÃ¼Ã§Ã¼k bir pusula duruyordu.\n\nOki: Bu pusula bize Ã§Ä±kÄ±ÅŸÄ± gÃ¶sterebilir.\n\nLili: AlalÄ±m ve ipimizle birlikte geri dÃ¶nelim." },
-      { ad: "Ã‡Ä±kÄ±ÅŸ", dk: 2, metin: "ÃœÃ§ arkadaÅŸ ipi takip ederek giriÅŸe geri dÃ¶ndÃ¼.\n\nToto: BaÅŸardÄ±k, labirentten Ã§Ä±ktÄ±k!\n\nLili: Ã‡Ã¼nkÃ¼ pes etmedik ve birbirimize yardÄ±m ettik.\n\nOki: Ä°p sadece bir yol deÄŸil, bir gÃ¼ven iÅŸaretiydi.\n\nGÃ¼neÅŸ Ä±ÅŸÄ±ÄŸÄ± yÃ¼zlerine vururken Ã¼Ã§Ã¼ de gÃ¼lÃ¼msedi.\n\nToto: Bir dahaki labirentte de birlikte olalÄ±m mÄ±?\n\nLili: Elbette, Ã§Ã¼nkÃ¼ birlikte her yolu buluruz.\n\nOki: Åimdi bu hikÃ¢yeyi Mino'ya da anlatalÄ±m." },
-      { ad: "TaÅŸ Bilmecesi ve Yeni Bir Koridor", dk: 4, metin: "GiriÅŸe dÃ¶nmeden Ã¶nce Ã¼Ã§ arkadaÅŸ bir taÅŸ kapÄ± gÃ¶rdÃ¼.\n\nOki: Burada bir yazÄ± var, bir bilmece galiba.\n\nLili: OkuyalÄ±m bakalÄ±m ne diyor.\n\nOki: IÅŸÄ±ÄŸÄ± olmayan ama karanlÄ±kta yol gÃ¶steren nedir?\n\nToto: Bu zor bir soru, hiÃ§ dÃ¼ÅŸÃ¼nmemiÅŸtim.\n\nLili: Belki de cevap ip deÄŸildir, belki de bir fikirdir.\n\nOki: Ya da gÃ¼vendir, Ã§Ã¼nkÃ¼ gÃ¼ven bize hep yol gÃ¶sterir.\n\nTaÅŸ kapÄ± yavaÅŸÃ§a aÃ§Ä±ldÄ±, cevap doÄŸru olmuÅŸtu.\n\nToto: Demek doÄŸru cevap gÃ¼venmiÅŸ.\n\nKapÄ±nÄ±n ardÄ±nda Ä±ÅŸÄ±ltÄ±lÄ± bir koridor uzanÄ±yordu.\n\nLili: BurasÄ± daha Ã¶nce gÃ¶rmediÄŸimiz bir yer.\n\nOki: Ä°pimiz hÃ¢lÃ¢ bize giriÅŸ yolunu hatÄ±rlatÄ±yor.\n\nToto: O zaman korkmadan ilerleyebiliriz.\n\nDuvarlarda eski resimler ve semboller vardÄ±.\n\nOki: Bu resimler eski bir hikÃ¢yeyi anlatÄ±yor gibi.\n\nLili: Belki de labirenti yapan kiÅŸi bize bir mesaj bÄ±rakmÄ±ÅŸ.\n\nToto: Hadi resimleri takip edelim, belki yolu gÃ¶steriyorlar." },
-      { ad: "BekÃ§i ile KarÅŸÄ±laÅŸma ve Hazine OdasÄ±", dk: 4, metin: "Koridorun sonunda yaÅŸlÄ± bir bekÃ§i oturuyordu.\n\nBekÃ§i: Buraya kadar gelen ilk Ã§ocuklarsÄ±nÄ±z, tebrikler.\n\nOki: Bu labirenti sen mi koruyorsun?\n\nBekÃ§i: Evet, yÃ¼zyÄ±llardÄ±r burada kimseyi gÃ¶rmedim.\n\nLili: Bize Ã§Ä±kÄ±ÅŸÄ± gÃ¶sterir misin?\n\nBekÃ§i: Ã‡Ä±kÄ±ÅŸ zaten sizin elinizde, ipinizi takip edin yeter.\n\nToto: Demek her zaman doÄŸru yoldaydÄ±k.\n\nBekÃ§i: SabÄ±rlÄ± ve dÃ¼rÃ¼st olanlar hep yolunu bulur.\n\nBekÃ§i onlara kÃ¼Ã§Ã¼k bir oda gÃ¶sterdi.\n\nOki: Burada ne var acaba?\n\nLili: Bir sandÄ±k duruyor, aÃ§alÄ±m mÄ±?\n\nSandÄ±ÄŸÄ±n iÃ§inde eski bir harita ve Ã¼Ã§ kÃ¼Ã§Ã¼k madalyon vardÄ±.\n\nToto: Bu madalyonlar bize mi ait?\n\nBekÃ§i: Evet, buraya kadar gelen herkese bir hatÄ±ra bÄ±rakÄ±lÄ±r.\n\nOki: TeÅŸekkÃ¼r ederiz, bu labirent bize Ã§ok ÅŸey Ã¶ÄŸretti.\n\nLili: SabÄ±r, ip ve arkadaÅŸlÄ±k, hepsini burada bulduk." },
-      { ad: "Eve DÃ¶nÃ¼ÅŸ ve Mino'ya Anlatmak", dk: 4, metin: "ÃœÃ§ arkadaÅŸ ipi takip ederek yavaÅŸÃ§a giriÅŸe dÃ¶ndÃ¼.\n\nToto: MadalyonlarÄ±mÄ±zÄ± Mino'ya da gÃ¶stereceÄŸiz.\n\nLili: O da bizimle gurur duyacak.\n\nOki: Bu labirent macerasÄ± hiÃ§ unutmayacaÄŸÄ±mÄ±z bir gÃ¼ndÃ¼.\n\nGÃ¼neÅŸ batarken Ã¼Ã§ arkadaÅŸ el ele eve doÄŸru yÃ¼rÃ¼dÃ¼.\n\nToto: Bir dahaki mitoloji hikÃ¢yesinde de birlikte olalÄ±m mÄ±?\n\nLili: Elbette, Ã§Ã¼nkÃ¼ en gÃ¼zel maceralar birlikte yaÅŸananlardÄ±r.\n\nOki: Åimdi Mino'ya her ÅŸeyi anlatma zamanÄ±.\n\nEve vardÄ±klarÄ±nda Mino onlarÄ± kapÄ±da karÅŸÄ±ladÄ±.\n\nMino: Miyav!\n\nOki: Mino, bugÃ¼n inanÄ±lmaz bir labirenti keÅŸfettik.\n\nLili: Ä°Ã§inde bir bekÃ§i, bir bilmece ve bir hazine vardÄ±.\n\nToto: Sana madalyonumuzu gÃ¶stereceÄŸiz, bak ne kadar parlak.\n\nMino madalyonu merakla kokladÄ± ve pati vurdu.\n\nOki: Belki bir gÃ¼n sen de bizimle bir labirente girersin.\n\nLili: O zaman dÃ¶rdÃ¼mÃ¼z birlikte bir yol buluruz.\n\nToto: Ä°pimiz, sabrÄ±mÄ±z ve arkadaÅŸlÄ±ÄŸÄ±mÄ±zla hiÃ§bir labirent bizi durduramaz.\n\nDÃ¶rt arkadaÅŸ gece boyunca labirent hikÃ¢yesini konuÅŸtu.\n\nMino: Miyav, miyav!\n\nVe hep birlikte yeni bir maceranÄ±n hayalini kurdular.\n\nOki: Bu, hep hatÄ±rlayacaÄŸÄ±mÄ±z gÃ¼zel bir gÃ¼n oldu.\n\nLili: Bir sonraki maceramÄ±zda gÃ¶rÃ¼ÅŸÃ¼rÃ¼z.\n\nToto: Ben ÅŸimdiden heyecanlanÄ±yorum bile, yeni bir labirent nerede acaba diye dÃ¼ÅŸÃ¼nÃ¼yorum.\n\nMutfak masasÄ±nÄ±n etrafÄ±nda toplanÄ±p macerayÄ± tekrar tekrar anlattÄ±lar, her seferinde yeni bir ayrÄ±ntÄ± hatÄ±rlayarak kahkaha attÄ±lar. Mino, madalyonlarÄ±n parÄ±ltÄ±sÄ±nÄ± meraklÄ± gÃ¶zlerle izledi. Toto'nun aklÄ± bir sonraki labirentteydi bile, ve dÃ¶rdÃ¼ de yeni maceranÄ±n planlarÄ±nÄ± heyecanla kurmaya baÅŸladÄ±." },
-    ],
-  },
-  {
-    id: "little-star-poem-en",
-    baslik: "Little Star Poem",
-    yazar: "Okurio English Team",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "English Poem",
-    dil: "en",
-    yas: "6-8 yaÅŸ",
-    renk: ["#1B2C52", "#C9D778"],
-    puan: 4.8,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "Pre-A1 / A1 seviyesinde kÄ±sa Ä°ngilizce yÄ±ldÄ±z ÅŸiiri.",
-    bolumler: [
-      { ad: "Star", dk: 1, metin: "Little star, little light. You are soft in the night. Oki looks up. Lili smiles." },
-      { ad: "Night", dk: 1, metin: "The sky is dark. The star is bright. Mino is quiet. The night is kind." },
-    ],
-  },
-  {
-    id: "moon-poem-en",
-    baslik: "Moon Poem",
-    yazar: "Okurio English Team",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "English Poem",
-    dil: "en",
-    yas: "8-10 yaÅŸ",
-    renk: ["#203656", "#AFC3E8"],
-    puan: 4.8,
-    sureDk: 0.2, icerikDurumu: "ozet",
-    ozet: "A1 seviyesinde ay, gece ve sakin takip ÅŸiiri.",
-    bolumler: [
-      { ad: "Moon", dk: 2, metin: "The moon is not a lamp. The moon is not a star. It takes the sunâ€™s light and sends it from far." },
-      { ad: "Look", dk: 2, metin: "Oki looks at the moon. Lili writes one word: light. Toto whispers, good night." },
-    ],
-  },
-  {
-    id: "space-poem-en",
-    baslik: "Space Poem",
-    yazar: "Okurio English Team",
-    seslendiren: "Oki AnlatÄ±cÄ±",
-    kategori: "English Poem",
-    dil: "en",
-    yas: "10-12 yaÅŸ",
-    renk: ["#161B3E", "#6C86D4"],
-    puan: 4.8,
-    sureDk: 0.3, icerikDurumu: "ozet",
-    ozet: "A1-A2 seviyesinde uzay, soru ve merak ÅŸiiri.",
-    bolumler: [
-      { ad: "Question", dk: 2, metin: "Space is wide. Space is deep. Oki has a question he wants to keep. Where does a comet go? How does a small star glow?" },
-      { ad: "Answer", dk: 2, metin: "Nana says, a question is a door. Read one line, then read one more." },
-    ],
-  },
-
-
-]);
-
-const RAFLAR = [
-  { ad: "Odysseia YolculuklarÄ±", mod: "cocuk", yolIds: ["okuma_guveni_8_10", "genc_okurlar_12_14", "lise_okuma_16_18"], ids: ["odysseia-01-cocuk-truvadan-ayrilis", "odysseia-01-genc-truvadan-ayrilis", "odysseia-01-yetiskin-truvadan-ayrilis"] },
-  { ad: "Tam Okuma OturumlarÄ±", mod: "cocuk", yolIds: ["ilk_harfler_6_7"], ids: ["okurio-1-grup-ses-bahcesi", "okurio-lili-kayip-tohum-haritasi"] },
-  { ad: "Tam Metin Â· Kamu MalÄ±", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["peter-rabbit-en"] },
-  { ad: "Oki Minik Dinleyiciler", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-sesleri-dinliyor", "mino-miyav-dedi", "lili-yildiz-sayiyor", "toto-tak-tak-dedi", "nana-ritim-oyunu"] },
-  // "Oki Pilot HikÃ¢yeleri" rafÄ± 2026-08-06'da kaldÄ±rÄ±ldÄ±: oe-01-mino-neden-uzuldu ve
-  // os-01-toto-bir-an-durdu, pilotCatalogAdapter.js BLOCKED_STORY_IDS listesinde olduÄŸu iÃ§in
-  // katalogda hiÃ§ yoktu; raf boÅŸ/kÄ±rÄ±k gÃ¶rÃ¼nÃ¼yordu. Ä°nsan onayÄ± (Social-Emotional Reading Lead)
-  // tamamlanÄ±p story'ler (veya rewriteQueueStories.js'deki v2 sÃ¼rÃ¼mleri) blok listesinden
-  // Ã§Ä±karÄ±lÄ±nca bu raf yeniden eklenebilir.
-  { ad: "Mikro AlÄ±ÅŸtÄ±rmalar", mod: "cocuk", yolIds: ["okumaya_hazirlik_5_6", "ilk_harfler_6_7"], ids: ["oki-ses-a", "oki-ses-n", "oki-ses-e", "oki-ses-t", "oki-ses-i", "oki-ses-l", "oki-heceler-1", "oki-heceler-2", "oki-kelimeler-1"] },
-  { ad: "Oki Mini HikÃ¢yeler", mod: "cocuk", ids: ["oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
-  { ad: "EditÃ¶rÃ¼n SeÃ§tikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
-  { ad: "Masal Saati", mod: "cocuk", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
-  { ad: "English Corner", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10"], ids: ["fox-and-grapes-en", "lion-and-mouse-graded-en", "aesop-fables-en", "ugly-duckling-en"] },
-  { ad: "English Word Cards", mod: "cocuk", yolIds: ["okumaya_hazirlik_5_6", "ilk_harfler_6_7", "ilk_cumleler_7_8"], ids: ["english-hello-card", "english-sky-words-card", "english-colors-card", "little-star-poem-en"] },
-  { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en", "fox-and-grapes-en", "lion-and-mouse-graded-en", "ugly-duckling-en", "moon-poem-en", "space-poem-en"] },
-  { ad: "Young English Readers", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en"] },
-  { ad: "English Classics Bridge", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en"] },
-  { ad: "GÃ¶kyÃ¼zÃ¼ ve YÄ±ldÄ±zlar", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-ayi-gordu", "yildiz-mi-gezegen-mi", "oki-ay-haritasi", "uzay-kulubu-piyesi", "ay-bilmecesi", "yildiz-bilmecesi", "gokyuzu-siiri"] },
-
-  { ad: "Åiir ve Ritim", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6", "ilk_harfler_6_7", "ilk_cumleler_7_8"], ids: ["toto-tak-tak-dedi", "nana-ritim-oyunu", "oki-hop-hop", "oki-ay-siiri", "yagmur-tip-tip-siiri"] },
-  { ad: "Bilmeceler", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["ay-bilmecesi", "yildiz-bilmecesi", "tohum-bilmecesi"] },
-  { ad: "Oki DoÄŸa KulÃ¼bÃ¼", mod: "cocuk", yolIds: ["okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["bir-tohumun-yolculugu", "arilar-neden-dans-eder", "kutup-tilkisi-yolculugu", "tohum-bilmecesi"] },
-  { ad: "English Poems", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["little-star-poem-en", "moon-poem-en", "space-poem-en"] },
-  { ad: "Eski Zaman MasallarÄ±", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-gunesin-hikayesi", "lili-ay-isigi"] },
-  { ad: "Oki Mitolojiye BaÅŸlÄ±yor", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["oki-pegasus", "oki-labirentin-izi", "labirentte-uc-ses"] },
-  { ad: "Mitoloji ve Kahramanlar", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["prometheusun-secimi", "oki-labirentin-izi", "oki-pegasus", "labirentte-uc-ses"] },
-  { ad: "Mitolojiden Klasiklere", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["ikarus-bugun-ne-anlatir", "prometheusun-secimi", "ariadnenin-ipi-yetiskin"] },
-  { ad: "Mitolojiyle Okumaya DÃ¶nÃ¼ÅŸ", mod: "yetiskin", yolIds: ["yetiskin_odak_18"], ids: ["ariadnenin-ipi-yetiskin", "ikarus-bugun-ne-anlatir"] },
-  { ad: "Rol SeÃ§erek Oku", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-lili-sahnesi", "toto-acele-etme-piyesi", "mino-nerede-sahnesi", "labirentte-uc-ses"] },
-  { ad: "DÃ¼nya MasallarÄ±", mod: "cocuk", ids: ["japon-masallari", "cin-masallari", "grimm-masallari", "andersen-masallari", "ezop-masallari"] },
-  { ad: "KÄ±sa Dinletiler", mod: "yetiskin", ids: ["yuksek-okceler", "pembe-incili-kaftan", "diyet", "sessiz-saatler"] },
-  { ad: "Klasik Romanlar", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "calikusu", "mai-ve-siyah"] },
-];
-
-
-const YOL_SEGMENT_GRUPLARI = {
-  okul_oncesi_3_4: ["okul_oncesi", "dinleme"],
-  okumaya_hazirlik_5_6: ["okumaya_hazirlik", "dinleme", "ses_farkindaligi"],
-  ilk_harfler_6_7: ["ilk_harfler_heceler", "okumaya_hazirlik", "dinleme"],
-  ilk_cumleler_7_8: ["ilk_cumleler", "okuma_guveni", "dinleme"],
-  okuma_guveni_8_10: ["okuma_guveni", "ilk_cumleler", "akici_okuma", "dinleme"],
-  akici_okuma_10_12: ["akici_okuma", "okuma_guveni", "genc_okurlar"],
-  genc_okurlar_12_14: ["genc_okurlar", "klasiklere_hazirlik", "akici_okuma"],
-  klasiklere_hazirlik_14_16: ["klasiklere_hazirlik", "lise_okuma", "genc_okurlar"],
-  lise_okuma_16_18: ["lise_okuma", "klasiklere_hazirlik", "yetiskin_odak"],
-  yetiskin_odak_18: ["yetiskin_odak", "lise_okuma"],
-};
-
-const YOL_ICERIK_TURLERI = {
-  okul_oncesi_3_4: ["dinleme_hikayesi", "mini_hikaye", "masal", "fabl", "dunya_masali", "mitoloji_hikayesi", "tekerleme", "siir"],
-  okumaya_hazirlik_5_6: ["dinleme_hikayesi", "harf_karti", "hece_karti", "english_word_card", "masal", "fabl", "mitoloji_hikayesi", "tekerleme", "siir", "english_poem"],
-  ilk_harfler_6_7: ["harf_karti", "hece_karti", "kelime_karti", "mini_hikaye", "english_word_card", "tekerleme", "siir"],
-  ilk_cumleler_7_8: ["mini_hikaye", "masal", "fabl", "english_word_card", "english_easy", "english_poem", "bilim_hikayesi", "mitoloji_hikayesi", "piyes", "siir", "bilmece", "tekerleme"],
-  okuma_guveni_8_10: ["masal", "fabl", "dunya_masali", "english_easy", "english_poem", "mini_hikaye", "bilim_hikayesi", "doga_bilim", "mitoloji_hikayesi", "piyes", "siir", "bilmece"],
-  akici_okuma_10_12: ["masal", "fabl", "dunya_masali", "english_easy", "english_reading", "english_science", "english_poem", "kisa_hikaye", "bilim_hikayesi", "doga_bilim", "mitoloji_hikayesi", "piyes", "siir", "bilmece"],
-  genc_okurlar_12_14: ["english_easy", "english_reading", "english_science", "english_classic_bridge", "english_poem", "dunya_masali", "kisa_hikaye", "klasik_roman", "bilim_hikayesi", "doga_bilim", "mitoloji_hikayesi", "piyes", "siir", "bilmece"],
-  klasiklere_hazirlik_14_16: ["kisa_hikaye", "klasik_roman", "english_easy", "english_reading", "english_classic_bridge", "mitoloji_hikayesi", "siir"],
-  lise_okuma_16_18: ["kisa_hikaye", "klasik_roman", "english_classic_bridge", "mitoloji_hikayesi", "siir"],
-  yetiskin_odak_18: ["kisa_hikaye", "klasik_roman", "mitoloji_hikayesi", "siir"],
-};
-
-const ICERIK_METADATA = {
-  "odysseia-01-cocuk-truvadan-ayrilis": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni"], okumaEvreleri: ["paragraf", "dinleme"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "odysseia", oql: 3 },
-  "odysseia-01-genc-truvadan-ayrilis": { yasMin: 12, yasMax: 14, segmentler: ["genc_okurlar"], okumaEvreleri: ["uzun_metin", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "odysseia", oql: 5 },
-  "odysseia-01-yetiskin-truvadan-ayrilis": { yasMin: 16, yasMax: 18, segmentler: ["lise_okuma"], okumaEvreleri: ["uzun_metin", "akademik_klasik"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "odysseia", oql: 7 },
-  "okurio-1-grup-ses-bahcesi": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["ses_harf", "hece_kelime", "kisa_cumle", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "rehberli_okuma", oql: 1 },
-  "okurio-lili-kayip-tohum-haritasi": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["ses_harf", "hece_kelime", "kisa_cumle", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "ozgun_hikaye", oql: 1 },
-  "oe-01-mino-neden-uzuldu": { yasMin: 7, yasMax: 9, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf", "dinleme"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "duygu_farkindaligi", oql: 3 },
-  "os-01-toto-bir-an-durdu": { yasMin: 7, yasMax: 9, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf", "dinleme"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", subject: "oz_duzenleme", oql: 3 },
-  "oki-sesleri-dinliyor": { yasMin: 3, yasMax: 4, segmentler: ["okul_oncesi", "dinleme"], okumaEvreleri: ["dinleme"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "dinleme_hikayesi", subject: "oki_minik", oql: 0 },
-  "mino-miyav-dedi": { yasMin: 3, yasMax: 4, segmentler: ["okul_oncesi", "dinleme"], okumaEvreleri: ["dinleme"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "dinleme_hikayesi", subject: "oki_minik", oql: 0 },
-  "lili-yildiz-sayiyor": { yasMin: 3, yasMax: 4, segmentler: ["okul_oncesi", "dinleme"], okumaEvreleri: ["dinleme"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "dinleme_hikayesi", subject: "gokyuzu", oql: 0 },
-  "oki-ses-a": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["a"], heceler: ["an", "al", "at"] },
-  "oki-ses-n": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["n"], heceler: ["an", "en"] },
-  "oki-heceler-1": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler"], okumaEvreleri: ["hece_kelime", "ses_harf", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "hece_karti", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"], heceler: ["an", "en", "al", "el", "at", "et"] },
-  "oki-kelimeler-1": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "kelime_karti", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"], kelimeler: ["ana", "anne", "Ali", "Ela", "at", "el", "tel"] },
-  "oki-ati-taniyor": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
-  "ela-el-ele": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
-  "oki-ses-e": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["e"], heceler: ["en", "el", "et"] },
-  "oki-ses-t": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["t"], heceler: ["at", "et", "it"] },
-  "oki-ses-i": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["i"], heceler: ["il", "in", "it"] },
-  "oki-ses-l": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["l"], heceler: ["al", "el", "il"] },
-  "oki-heceler-2": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler"], okumaEvreleri: ["hece_kelime", "ses_harf", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "hece_karti", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"], heceler: ["al", "el", "il", "in", "it"] },
-  "ali-ile-ela": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
-  "lili-ile-at": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
-  "oki-el-ele": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
-  "mino-nerede": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
-  "nana-anlatiyor": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
-  "keloglan-masallari": { yasMin: 4, yasMax: 8, segmentler: ["okul_oncesi", "okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "masal" },
-  "la-fontaine-fugue": { yasMin: 4, yasMax: 9, segmentler: ["okul_oncesi", "okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "fabl" },
-  "andersen-masallari": { yasMin: 5, yasMax: 10, segmentler: ["okumaya_hazirlik", "ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["dinleme", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "masal" },
-  "ezop-masallari": { yasMin: 4, yasMax: 9, segmentler: ["okul_oncesi", "okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["dinleme", "hece_kelime", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "fabl" },
-  "grimm-masallari": { yasMin: 5, yasMax: 10, segmentler: ["okumaya_hazirlik", "ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["dinleme", "kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "masal" },
-  "japon-masallari": { yasMin: 5, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "dunya_masali" },
-  "cin-masallari": { yasMin: 5, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "dunya_masali" },
-
-  "english-hello-card": { yasMin: 5, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_word_card", subject: "english", oql: 1, cefr: "Pre-A1", targetWords: ["hello", "bye", "please", "thank you"] },
-  "english-sky-words-card": { yasMin: 6, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_word_card", subject: "english", oql: 1, cefr: "Pre-A1", targetWords: ["sun", "moon", "star", "sky"] },
-  "english-colors-card": { yasMin: 6, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_word_card", subject: "english", oql: 1, cefr: "Pre-A1", targetWords: ["red", "blue", "yellow", "green"] },
-  "aesop-fables-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
-  "peter-rabbit-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
-  "ugly-duckling-en": { yasMin: 8, yasMax: 13, segmentler: ["okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
-
-  "fox-and-grapes-en": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_easy", subject: "english", oql: 3, cefr: "A1", targetWords: ["fox", "grapes", "jump", "hard"] },
-  "lion-and-mouse-graded-en": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_easy", subject: "english", oql: 3, cefr: "A1", targetWords: ["lion", "mouse", "net", "help"] },
-  "alice-rabbit-hole-en": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_reading", subject: "english", oql: 4, cefr: "A1-A2", targetWords: ["rabbit", "watch", "follow", "adventure"] },
-  "selfish-giant-graded-en": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_reading", subject: "english", oql: 4, cefr: "A2", targetWords: ["garden", "giant", "spring", "share"] },
-  "happy-prince-swallow-en": { yasMin: 12, yasMax: 16, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma"], okumaEvreleri: ["uzun_metin", "akademik_klasik"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_classic_bridge", subject: "english", oql: 5, cefr: "A2-B1", targetWords: ["statue", "swallow", "city", "choice"] },
-  "moon-not-star-en": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_science", subject: "english", oql: 4, cefr: "A1-A2", targetWords: ["moon", "star", "light", "reflect"] },
-  "oki-ayi-gordu": { yasMin: 6, yasMax: 8, segmentler: ["ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 2 },
-  "yildiz-mi-gezegen-mi": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 3 },
-  "oki-ay-haritasi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 4 },
-
-  "oki-gunesin-hikayesi": { yasMin: 3, yasMax: 6, segmentler: ["okul_oncesi", "okumaya_hazirlik", "dinleme"], okumaEvreleri: ["dinleme", "ses_farkindaligi"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 0 },
-  "lili-ay-isigi": { yasMin: 5, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_cumleler", "dinleme"], okumaEvreleri: ["dinleme", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 1 },
-  "oki-pegasus": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 3 },
-  "oki-labirentin-izi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 4 },
-  "prometheusun-secimi": { yasMin: 12, yasMax: 14, segmentler: ["genc_okurlar", "klasiklere_hazirlik"], okumaEvreleri: ["uzun_metin", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 5 },
-  "ikarus-bugun-ne-anlatir": { yasMin: 14, yasMax: 18, segmentler: ["klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 6 },
-  "ariadnenin-ipi-yetiskin": { yasMin: 18, yasMax: 99, segmentler: ["yetiskin_odak"], okumaEvreleri: ["okumaya_donus", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 8 },
-  "oki-lili-sahnesi": { yasMin: 6, yasMax: 8, segmentler: ["ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "piyes", subject: "rol_okuma", oql: 2 },
-  "toto-acele-etme-piyesi": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "piyes", subject: "rol_okuma", oql: 3 },
-  "uzay-kulubu-piyesi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 4 },
-  "yuksek-okceler": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
-  "pembe-incili-kaftan": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
-  "diyet": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
-  "sessiz-saatler": { yasMin: 13, yasMax: 99, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
-  "calikusu": { yasMin: 12, yasMax: 99, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
-
-  "toto-tak-tak-dedi": { yasMin: 3, yasMax: 5, segmentler: ["okul_oncesi", "okumaya_hazirlik", "dinleme"], okumaEvreleri: ["dinleme", "ses_farkindaligi"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "tekerleme", subject: "ritim", oql: 0 },
-  "nana-ritim-oyunu": { yasMin: 4, yasMax: 6, segmentler: ["okul_oncesi", "okumaya_hazirlik", "dinleme"], okumaEvreleri: ["dinleme", "ses_farkindaligi"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "tekerleme", subject: "ritim", oql: 0 },
-  "oki-hop-hop": { yasMin: 5, yasMax: 7, segmentler: ["okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["dinleme", "ses_harf", "kisa_cumle"], destekler: ["kelime_takibi", "hece_takibi", "odak"], icerikTuru: "tekerleme", subject: "ritim", oql: 1 },
-  "oki-ay-siiri": { yasMin: 5, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_cumleler"], okumaEvreleri: ["dinleme", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "siir", subject: "siir", oql: 1 },
-  "yagmur-tip-tip-siiri": { yasMin: 6, yasMax: 8, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["kisa_cumle", "hece_kelime"], destekler: ["kelime_takibi", "hece_takibi", "odak"], icerikTuru: "siir", subject: "siir", oql: 2 },
-  "gokyuzu-siiri": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "siir", subject: "gokyuzu", oql: 3 },
-  "ay-bilmecesi": { yasMin: 6, yasMax: 9, segmentler: ["ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak"], icerikTuru: "bilmece", subject: "gokyuzu", oql: 2 },
-  "yildiz-bilmecesi": { yasMin: 7, yasMax: 10, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak"], icerikTuru: "bilmece", subject: "gokyuzu", oql: 3 },
-  "tohum-bilmecesi": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf"], destekler: ["kelime_takibi", "odak"], icerikTuru: "bilmece", subject: "doga", oql: 3 },
-  "bir-tohumun-yolculugu": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "doga_bilim", subject: "doga", oql: 3, targetWords: ["tohum", "toprak", "yaprak", "baÅŸlangÄ±Ã§"] },
-  "arilar-neden-dans-eder": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "doga_bilim", subject: "doga", oql: 4, targetWords: ["kovan", "yÃ¶n", "bilgi", "dans"] },
-  "kutup-tilkisi-yolculugu": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "doga_bilim", subject: "doga", oql: 4, targetWords: ["kutup", "uyum", "iz", "yolculuk"] },
-  "mino-nerede-sahnesi": { yasMin: 6, yasMax: 8, segmentler: ["ilk_cumleler", "okuma_guveni"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "piyes", subject: "rol_okuma", oql: 2 },
-  "labirentte-uc-ses": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "piyes", subject: "rol_okuma", oql: 4 },
-  "little-star-poem-en": { yasMin: 6, yasMax: 8, segmentler: ["ilk_cumleler", "okumaya_hazirlik"], okumaEvreleri: ["dinleme", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "english_poem", subject: "english", oql: 1, cefr: "Pre-A1", targetWords: ["star", "light", "night", "sky"] },
-  "moon-poem-en": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_poem", subject: "english", oql: 3, cefr: "A1", targetWords: ["moon", "light", "night", "look"] },
-  "space-poem-en": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_poem", subject: "english", oql: 4, cefr: "A1-A2", targetWords: ["space", "question", "comet", "glow"] },
-  "kurk-mantolu-madonna": { yasMin: 13, yasMax: 99, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
-  "mai-ve-siyah": { yasMin: 13, yasMax: 99, segmentler: ["klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
-};
-
-
-const SORU_BANKASI = {
-  "oki-sesleri-dinliyor": [{ soru: "Oki ne duydu?", secenekler: ["PÄ±t pÄ±t", "GÃ¶k gÃ¼rÃ¼ltÃ¼sÃ¼", "Zil"], cevap: "PÄ±t pÄ±t", destek: "Oki pÄ±t pÄ±t sesini duydu." }],
-  "mino-miyav-dedi": [{ soru: "Kim miyav dedi?", secenekler: ["Mino", "Toto", "Nana"], cevap: "Mino", destek: "Mino miyav dedi." }],
-  "lili-yildiz-sayiyor": [{ soru: "Lili ne gÃ¶rdÃ¼?", secenekler: ["YÄ±ldÄ±z", "Top", "Kalem"], cevap: "YÄ±ldÄ±z", destek: "Lili gÃ¶kyÃ¼zÃ¼nde bir yÄ±ldÄ±z gÃ¶rdÃ¼." }],
-  "oki-ses-a": [{ soru: "Oki hangi sesi duydu?", secenekler: ["a", "m", "o"], cevap: "a", destek: "Oki bugÃ¼n a sesini duydu." }],
-  "oki-ses-n": [{ soru: "Nana hangi sesi sÃ¶yledi?", secenekler: ["n", "a", "l"], cevap: "n", destek: "Nana n sesini sÃ¶yledi." }],
-  "oki-ses-e": [{ soru: "Ela hangi sesi buldu?", secenekler: ["e", "t", "i"], cevap: "e", destek: "Ela e sesini buldu." }],
-  "oki-ses-t": [{ soru: "Toto hangi sesi duydu?", secenekler: ["t", "n", "e"], cevap: "t", destek: "Toto t sesini duydu." }],
-  "oki-ses-i": [{ soru: "Mino hangi sesi duydu?", secenekler: ["i", "a", "t"], cevap: "i", destek: "Mino i sesini duydu." }],
-  "oki-ses-l": [{ soru: "Lili hangi sesi sÃ¶yledi?", secenekler: ["l", "n", "a"], cevap: "l", destek: "Lili l sesini sÃ¶yledi." }],
-  "oki-heceler-1": [{ soru: "Lili hangi heceyi buldu?", secenekler: ["el", "mor", "su"], cevap: "el", destek: "Lili el hecesini buldu." }],
-  "oki-heceler-2": [{ soru: "Bu kartta hangi hece vardÄ±?", secenekler: ["il", "ku", "ra"], cevap: "il", destek: "Bu kartta il hecesi vardÄ±." }],
-  "oki-kelimeler-1": [{ soru: "Oki hangi kelimeleri duydu?", secenekler: ["ana ve anne", "deniz ve ay", "kuÅŸ ve kar"], cevap: "ana ve anne", destek: "Oki ana, anne, Ali ve Ela kelimelerini duydu." }],
-  "oki-ati-taniyor": [{ soru: "Oki ne gÃ¶rdÃ¼?", secenekler: ["AtÄ±", "Topu", "Kalemi"], cevap: "AtÄ±", destek: "HikÃ¢yede Oki atÄ± gÃ¶rdÃ¼." }],
-  "ela-el-ele": [{ soru: "Ela nasÄ±l yÃ¼rÃ¼dÃ¼?", secenekler: ["El ele", "Tek baÅŸÄ±na", "KoÅŸarak"], cevap: "El ele", destek: "Ela el ele yÃ¼rÃ¼dÃ¼." }],
-  "ali-ile-ela": [{ soru: "Ali ne yaptÄ±?", secenekler: ["El salladÄ±", "Uyudu", "SaklandÄ±"], cevap: "El salladÄ±", destek: "Ali el salladÄ±." }],
-  "lili-ile-at": [{ soru: "Lili ne gÃ¶rdÃ¼?", secenekler: ["AtÄ±", "Evi", "Kutu"], cevap: "AtÄ±", destek: "Lili atÄ± gÃ¶rdÃ¼." }],
-  "oki-el-ele": [{ soru: "Oki kiminle el ele yÃ¼rÃ¼dÃ¼?", secenekler: ["Lili", "Robot", "Karga"], cevap: "Lili", destek: "Oki ve Lili el ele yÃ¼rÃ¼dÃ¼." }],
-  "mino-nerede": [{ soru: "Mino nereden Ã§Ä±ktÄ±?", secenekler: ["El altÄ±ndan", "Denizden", "Aydan"], cevap: "El altÄ±ndan", destek: "Mino el altÄ±ndan Ã§Ä±ktÄ±." }],
-  "nana-anlatiyor": [{ soru: "Kim anlattÄ±?", secenekler: ["Nana", "Toto", "Mino"], cevap: "Nana", destek: "HikÃ¢yede Nana anlattÄ±." }],
-
-
-
-  "english-hello-card": [{ soru: "What does Oki say?", secenekler: ["Hello", "Moon", "Red"], cevap: "Hello", destek: "Oki says hello." }],
-  "english-sky-words-card": [{ soru: "Which word means Ay?", secenekler: ["Moon", "Book", "Door"], cevap: "Moon", destek: "Moon means Ay." }],
-  "english-colors-card": [{ soru: "Which word is a color?", secenekler: ["Blue", "Rabbit", "Watch"], cevap: "Blue", destek: "Blue is a color word." }],
-  "fox-and-grapes-en": [{ soru: "What did the fox see?", secenekler: ["Grapes", "A moon", "A book"], cevap: "Grapes", destek: "The fox saw purple grapes high on a tree." }],
-  "lion-and-mouse-graded-en": [{ soru: "Who helped the lion?", secenekler: ["The mouse", "The rabbit", "The giant"], cevap: "The mouse", destek: "The little mouse bit the rope and helped the lion." }],
-  "alice-rabbit-hole-en": [{ soru: "Who did Alice follow?", secenekler: ["A white rabbit", "A bird", "A teacher"], cevap: "A white rabbit", destek: "Alice followed a white rabbit with a watch." }],
-  "selfish-giant-graded-en": [{ soru: "What came back to the garden?", secenekler: ["Spring", "Snow", "A train"], cevap: "Spring", destek: "When the gate opened, spring came back to the garden." }],
-  "happy-prince-swallow-en": [{ soru: "What choice did the swallow make?", secenekler: ["To stay and help", "To hide a book", "To build a boat"], cevap: "To stay and help", destek: "The swallow chose to stay one more night and help." }],
-  "moon-not-star-en": [{ soru: "Does the moon make its own light?", secenekler: ["No, it reflects light", "Yes, like a star", "It is a lamp"], cevap: "No, it reflects light", destek: "The moon reflects light from the sun." }],
-
-
-  "toto-tak-tak-dedi": [{ soru: "Toto hangi sesi duydu?", secenekler: ["Tak tak", "Vuu", "Ding dong"], cevap: "Tak tak", destek: "Toto kapÄ±dan tak tak sesini duydu." }],
-  "nana-ritim-oyunu": [{ soru: "Nana hangi sesi sÃ¶yledi?", secenekler: ["La la", "Moo", "Hop"], cevap: "La la", destek: "Nana ritim oyununda la la dedi." }],
-  "oki-hop-hop": [{ soru: "Top ne yaptÄ±?", secenekler: ["HopladÄ±", "Uyudu", "UÃ§tu"], cevap: "HopladÄ±", destek: "HikÃ¢yede top hopladÄ±." }],
-  "oki-ay-siiri": [{ soru: "Åiirde geceye ne geldi?", secenekler: ["Ay", "Top", "Kalem"], cevap: "Ay", destek: "Åiirde ay geceye geldi." }],
-  "yagmur-tip-tip-siiri": [{ soru: "YaÄŸmur nasÄ±l ses Ã§Ä±kardÄ±?", secenekler: ["TÄ±p tÄ±p", "Miyav", "Hop"], cevap: "TÄ±p tÄ±p", destek: "Åiirde yaÄŸmur tÄ±p tÄ±p dedi." }],
-  "gokyuzu-siiri": [{ soru: "Lili neyi saydÄ±?", secenekler: ["YÄ±ldÄ±zlarÄ±", "AyakkabÄ±larÄ±", "Kalemleri"], cevap: "YÄ±ldÄ±zlarÄ±", destek: "Lili gÃ¶kyÃ¼zÃ¼ndeki yÄ±ldÄ±zlarÄ± saydÄ±." }],
-  "ay-bilmecesi": [{ soru: "Bilmecenin cevabÄ± neydi?", secenekler: ["Ay", "Top", "KapÄ±"], cevap: "Ay", destek: "Gece gÃ¶rÃ¼nen ve GÃ¼neÅŸ Ä±ÅŸÄ±ÄŸÄ±nÄ± yansÄ±tan ÅŸey Ayâ€™dÄ±r." }],
-  "yildiz-bilmecesi": [{ soru: "YÄ±ldÄ±z ne yapar?", secenekler: ["Kendi Ä±ÅŸÄ±ÄŸÄ±nÄ± verir", "Kalem taÅŸÄ±r", "Uyur"], cevap: "Kendi Ä±ÅŸÄ±ÄŸÄ±nÄ± verir", destek: "YÄ±ldÄ±z kendi Ä±ÅŸÄ±ÄŸÄ±nÄ± verir." }],
-  "tohum-bilmecesi": [{ soru: "Toprakta bÃ¼yÃ¼yebilen kÃ¼Ã§Ã¼k baÅŸlangÄ±Ã§ neydi?", secenekler: ["Tohum", "TaÅŸ", "Ay"], cevap: "Tohum", destek: "Tohum topraÄŸa dÃ¼ÅŸer ve bÃ¼yÃ¼yebilir." }],
-  "bir-tohumun-yolculugu": [{ soru: "Tohumun bÃ¼yÃ¼mesine ne yardÄ±m etti?", secenekler: ["YaÄŸmur ve gÃ¼neÅŸ", "KaranlÄ±k kutu", "Sessiz kalem"], cevap: "YaÄŸmur ve gÃ¼neÅŸ", destek: "YaÄŸmur ve gÃ¼neÅŸ tohumun bÃ¼yÃ¼mesine yardÄ±m etti." }],
-  "arilar-neden-dans-eder": [{ soru: "ArÄ±larÄ±n dansÄ± ne anlatabilir?", secenekler: ["YiyeceÄŸin yÃ¶nÃ¼nÃ¼", "KitabÄ±n rengini", "AyakkabÄ± numarasÄ±nÄ±"], cevap: "YiyeceÄŸin yÃ¶nÃ¼nÃ¼", destek: "ArÄ±larÄ±n hareketleri yiyeceÄŸin yÃ¶nÃ¼ hakkÄ±nda bilgi verebilir." }],
-  "kutup-tilkisi-yolculugu": [{ soru: "Kutup tilkisinin beyaz kÃ¼rkÃ¼ ne iÅŸe yarar?", secenekler: ["Karda fark edilmemeye", "UÃ§maya", "MÃ¼zik yapmaya"], cevap: "Karda fark edilmemeye", destek: "Beyaz kÃ¼rk karda saklanmasÄ±na yardÄ±m eder." }],
-  "mino-nerede-sahnesi": [{ soru: "Mino nereden ses verdi?", secenekler: ["Sandalyenin altÄ±ndan", "GÃ¶kyÃ¼zÃ¼nden", "Denizden"], cevap: "Sandalyenin altÄ±ndan", destek: "Sahnede Mino sandalyenin altÄ±ndan miyav dedi." }],
-  "labirentte-uc-ses": [{ soru: "Labirentte yolu hatÄ±rlatmak iÃ§in ne kullanÄ±ldÄ±?", secenekler: ["Ä°p", "Balon", "KaÅŸÄ±k"], cevap: "Ä°p", destek: "Ä°p, labirentte yolu hatÄ±rlatmaya yardÄ±m etti." }],
-  "little-star-poem-en": [{ soru: "What is bright?", secenekler: ["The star", "The chair", "The door"], cevap: "The star", destek: "The poem says the star is bright." }],
-  "moon-poem-en": [{ soru: "What does the moon take?", secenekler: ["The sunâ€™s light", "A red ball", "A book"], cevap: "The sunâ€™s light", destek: "The poem says the moon takes the sunâ€™s light." }],
-  "space-poem-en": [{ soru: "What does Oki have?", secenekler: ["A question", "A hat", "A sandwich"], cevap: "A question", destek: "Oki has a question about space." }],
-  "oki-gunesin-hikayesi": [{ soru: "Oki sabah ne gÃ¶rdÃ¼?", secenekler: ["GÃ¼neÅŸi", "Denizi", "Kalemi"], cevap: "GÃ¼neÅŸi", destek: "Oki sabah gÃ¼neÅŸi gÃ¶rdÃ¼." }],
-  "lili-ay-isigi": [{ soru: "Lili neyi takip etti?", secenekler: ["Ay Ä±ÅŸÄ±ÄŸÄ±nÄ±", "Topu", "Suyu"], cevap: "Ay Ä±ÅŸÄ±ÄŸÄ±nÄ±", destek: "Lili ay Ä±ÅŸÄ±ÄŸÄ±nÄ± takip etti." }],
-  "oki-pegasus": [{ soru: "Pegasus nasÄ±l bir attÄ±?", secenekler: ["KanatlÄ±", "KÃ¼Ã§Ã¼k bir kedi", "Tahta bir oyuncak"], cevap: "KanatlÄ±", destek: "Pegasus eski hikÃ¢yelerde kanatlÄ± bir attÄ±." }],
-  "oki-labirentin-izi": [{ soru: "Labirentte yol bulmaya ne yardÄ±m edebilir?", secenekler: ["Ä°p", "Bulut", "Ayna"], cevap: "Ä°p", destek: "HikÃ¢yede ip, yol bulmaya yardÄ±m eden bir iÅŸaret gibiydi." }],
-  "prometheusun-secimi": [{ soru: "Bu hikÃ¢ye hangi konu Ã¼zerine dÃ¼ÅŸÃ¼ndÃ¼rÃ¼yor?", secenekler: ["SeÃ§im ve sorumluluk", "AyakkabÄ± rengi", "KayÄ±p kalem"], cevap: "SeÃ§im ve sorumluluk", destek: "Prometheus hikÃ¢yesi seÃ§im, bilgi ve sonuÃ§larÄ± dÃ¼ÅŸÃ¼nmeye Ã§aÄŸÄ±rÄ±r." }],
-  "ikarus-bugun-ne-anlatir": [{ soru: "Ikarus hikÃ¢yesinde kanatlar neyi anlatabilir?", secenekler: ["Ä°stek ve risk", "Sadece oyuncak", "Bir masa"], cevap: "Ä°stek ve risk", destek: "Kanatlar bu anlatÄ±da istek, Ã¶zgÃ¼rlÃ¼k ve risk anlamÄ± taÅŸÄ±yabilir." }],
-  "ariadnenin-ipi-yetiskin": [{ soru: "Ariadneâ€™nin ipi metinde neye benzetildi?", secenekler: ["Ana fikre", "KalabalÄ±k bir pazara", "Bir kapÄ±ya"], cevap: "Ana fikre", destek: "Metinde ana fikir, labirentin iÃ§indeki ip gibi dÃ¼ÅŸÃ¼nÃ¼lÃ¼r." }],
-  "oki-lili-sahnesi": [{ soru: "Oki kiminle yÃ¼rÃ¼mek istedi?", secenekler: ["Lili ile", "Robot ile", "Deniz ile"], cevap: "Lili ile", destek: "Oki, Lili ile el ele yÃ¼rÃ¼mek istedi." }],
-  "toto-acele-etme-piyesi": [{ soru: "Toto ne yapÄ±nca daha iyi dÃ¼ÅŸÃ¼ndÃ¼?", secenekler: ["Durup nefes alÄ±nca", "KoÅŸunca", "SaklanÄ±nca"], cevap: "Durup nefes alÄ±nca", destek: "Toto durup derin nefes alÄ±nca daha iyi dÃ¼ÅŸÃ¼ndÃ¼." }],
-  "uzay-kulubu-piyesi": [{ soru: "YÄ±ldÄ±z ne yapar?", secenekler: ["Kendi Ä±ÅŸÄ±ÄŸÄ±nÄ± verir", "Kalem saklar", "KapÄ± aÃ§ar"], cevap: "Kendi Ä±ÅŸÄ±ÄŸÄ±nÄ± verir", destek: "Piyeste yÄ±ldÄ±zÄ±n kendi Ä±ÅŸÄ±ÄŸÄ±nÄ± verdiÄŸi sÃ¶ylendi." }],
-  "oki-ayi-gordu": [{ soru: "Oki gÃ¶kyÃ¼zÃ¼nde ne gÃ¶rdÃ¼?", secenekler: ["Ay'Ä±", "Denizi", "Kalemi"], cevap: "Ay'Ä±", destek: "Oki gece gÃ¶kyÃ¼zÃ¼nde Ay'Ä± gÃ¶rdÃ¼." }],
-  "yildiz-mi-gezegen-mi": [{ soru: "YÄ±ldÄ±zlar ne yapar?", secenekler: ["Kendi Ä±ÅŸÄ±ÄŸÄ±nÄ± verir", "Kalem tutar", "Kitap saklar"], cevap: "Kendi Ä±ÅŸÄ±ÄŸÄ±nÄ± verir", destek: "HikÃ¢yede yÄ±ldÄ±zlarÄ±n kendi Ä±ÅŸÄ±ÄŸÄ±nÄ± verdiÄŸi anlatÄ±ldÄ±." }],
-  "oki-ay-haritasi": [{ soru: "Ay yÃ¼zeyindeki yuvarlak izlere ne denir?", secenekler: ["Krater", "KÃ¶prÃ¼", "Deniz"], cevap: "Krater", destek: "Nana, Ay yÃ¼zeyindeki yuvarlak izlere krater denir, dedi." }],
-};
-
-function kitapSorusu(kitap) {
-  if (!kitap) return null;
-  return SORU_BANKASI[kitap.id]?.[0] || null;
-}
-
-function anaSayfayaDon(setOynaticiAcik, setSekme, setDetayId) {
-  setOynaticiAcik(false);
-  setSekme("ana");
-  setDetayId(null);
-}
-
-const OQL_SEVIYELERI = {
-  0: "Dinleme",
-  1: "Harf-Hece",
-  2: "Ä°lk CÃ¼mle",
-  3: "Okuma GÃ¼veni",
-  4: "AkÄ±cÄ± Okuma",
-  5: "GenÃ§ Okur",
-  6: "Klasiklere HazÄ±rlÄ±k",
-  7: "Lise Okuma",
-  8: "YetiÅŸkin Odak",
-};
-
-function kelimeleriSay(metin = "") {
-  return metin.trim().split(/\s+/).filter(Boolean).length;
-}
-
-function icerikKalitesi(kitap) {
-  const meta = kitapMeta(kitap);
-  const metin = (kitap?.bolumler || []).map((b) => b.metin).join(" ");
-  const toplamKelime = kelimeleriSay(metin);
-  const cumleler = metin.split(/[.!?]+/).map((c) => c.trim()).filter(Boolean);
-  const ortCumle = cumleler.length ? toplamKelime / cumleler.length : 0;
-  const maxCumle = cumleler.reduce((m, c) => Math.max(m, kelimeleriSay(c)), 0);
-  const oql = meta.oql ?? (meta.yasMax <= 7 ? 1 : meta.yasMax <= 10 ? 3 : meta.yasMax <= 12 ? 4 : meta.yasMax <= 14 ? 5 : meta.yasMax <= 18 ? 7 : 8);
-  return { oql, ad: OQL_SEVIYELERI[oql] || "Okuma", toplamKelime, ortCumle, maxCumle };
-}
-
-const OKUMA_YOLLARI = [
-  { id: "okul_oncesi_3_4", baslik: "Minik Dinleyiciler", yas: "3â€“4", mod: "cocuk", evre: "dinleme", hedef: "Dinleme alÄ±ÅŸkanlÄ±ÄŸÄ±, kelime duyarlÄ±lÄ±ÄŸÄ± ve kÄ±sa hikÃ¢ye ritmi", slogan: "Dinle, hayal et, anlat.", rozetAdi: "HikÃ¢ye Tohumu" },
-  { id: "okumaya_hazirlik_5_6", baslik: "Okumaya HazÄ±rlÄ±k", yas: "5â€“6", mod: "cocuk", evre: "dinleme", hedef: "Ses farkÄ±ndalÄ±ÄŸÄ±, ritim, dikkat ve okuma Ã¶ncesi hazÄ±rlÄ±k", slogan: "Sesleri duy, hikÃ¢yeyi takip et.", rozetAdi: "Ses KaÅŸifi" },
-  { id: "ilk_harfler_6_7", baslik: "Ä°lk Harfler ve Heceler", yas: "6â€“7", mod: "cocuk", evre: "hece_kelime", hedef: "MEB harf gruplarÄ±na uygun sesâ€“harfâ€“heceâ€“kelime yolu", slogan: "Sesleri duy, harfleri gÃ¶r, heceleri birleÅŸtir.", rozetAdi: "Hece UstasÄ±" },
-  { id: "ilk_cumleler_7_8", baslik: "Ä°lk CÃ¼mleler", yas: "7â€“8", mod: "cocuk", evre: "kisa_cumle", hedef: "KÄ±sa cÃ¼mle, tekrar, gÃ¼ven ve anlamlÄ± okuma", slogan: "KÄ±sa cÃ¼mlelerle kendi hÄ±zÄ±nda ilerle.", rozetAdi: "CÃ¼mle Yolcusu" },
-  { id: "okuma_guveni_8_10", baslik: "Okuma GÃ¼veni", yas: "8â€“10", mod: "cocuk", evre: "paragraf", hedef: "Okuma pratiÄŸi, satÄ±r takibi, dikkat ve gÃ¼ven", slogan: "Zorlanmadan oku, kaldÄ±ÄŸÄ±n yerden devam et.", rozetAdi: "Sakin Okur" },
-  { id: "akici_okuma_10_12", baslik: "AkÄ±cÄ± Okuma", yas: "10â€“12", mod: "cocuk", evre: "paragraf", hedef: "Paragraf takibi, kÄ±sa Ã¶zet ve daha uzun hikÃ¢yeler", slogan: "ParagrafÄ± takip et, hikÃ¢yeyi yakala.", rozetAdi: "Paragraf Gezgini" },
-  { id: "genc_okurlar_12_14", baslik: "GenÃ§ Okurlar", yas: "12â€“14", mod: "cocuk", evre: "uzun_metin", hedef: "Bilim, mitoloji, macera ve uzun metne geÃ§iÅŸ", slogan: "Uzun metinlere kÃ¼Ã§Ã¼k adÄ±mlarla gir.", rozetAdi: "Metin KaÅŸifi" },
-  { id: "klasiklere_hazirlik_14_16", baslik: "Klasiklere HazÄ±rlÄ±k", yas: "14â€“16", mod: "cocuk", evre: "uzun_metin", hedef: "Klasiklere giriÅŸ, ana fikir ve odaklÄ± okuma", slogan: "Klasiklere hazÄ±r bir okuma ritmi kur.", rozetAdi: "Klasik Yolcusu" },
-  { id: "lise_okuma_16_18", baslik: "Lise Okuma", yas: "16â€“18", mod: "cocuk", evre: "akademik_klasik", hedef: "Klasik, akademik, sÄ±nav ve uzun metin dayanÄ±klÄ±lÄ±ÄŸÄ±", slogan: "Okuma yÃ¼kÃ¼nÃ¼ azalt, metinden kopma.", rozetAdi: "Derin Okur" },
-  { id: "yetiskin_odak_18", baslik: "YetiÅŸkin Odak", yas: "18+", mod: "yetiskin", evre: "okumaya_donus", hedef: "Okumaya dÃ¶nÃ¼ÅŸ, dikkat modu ve gÃ¶rsel konfor", slogan: "Dinle, takip et, okumaya dÃ¶n.", rozetAdi: "Kitap Kurdu" },
-];
-
-const EVRE_SECENEKLERI = [
-  { id: "dinleme", ad: "HenÃ¼z okumuyor, dinliyor" },
-  { id: "ses_harf", ad: "Sesleri ve harfleri tanÄ±yor" },
-  { id: "hece_kelime", ad: "Hece ve kelime okuyor" },
-  { id: "kisa_cumle", ad: "KÄ±sa cÃ¼mle okuyor" },
-  { id: "paragraf", ad: "Paragraf okuyor" },
-  { id: "uzun_metin", ad: "Uzun metinde zorlanÄ±yor" },
-  { id: "akademik_klasik", ad: "Akademik / klasik okuma yapÄ±yor" },
-  { id: "okumaya_donus", ad: "Okumaya geri dÃ¶nmek istiyor" },
-];
-
-
-
-
-const EVRE_SECENEKLERI_BY_YOL = {
-  okul_oncesi_3_4: ["dinleme"],
-  okumaya_hazirlik_5_6: ["dinleme", "ses_harf"],
-  ilk_harfler_6_7: ["ses_harf", "hece_kelime"],
-  ilk_cumleler_7_8: ["hece_kelime", "kisa_cumle"],
-  okuma_guveni_8_10: ["kisa_cumle", "paragraf"],
-  akici_okuma_10_12: ["paragraf", "uzun_metin"],
-  genc_okurlar_12_14: ["paragraf", "uzun_metin"],
-  klasiklere_hazirlik_14_16: ["uzun_metin", "akademik_klasik"],
-  lise_okuma_16_18: ["uzun_metin", "akademik_klasik"],
-  yetiskin_odak_18: ["okumaya_donus", "uzun_metin"],
-};
-const evreSecenekleri = (yolId) => {
-  const izinli = EVRE_SECENEKLERI_BY_YOL[yolId] || EVRE_SECENEKLERI.map((e) => e.id);
-  return EVRE_SECENEKLERI.filter((e) => izinli.includes(e.id));
-};
-
-const SES_TONLARI = [
-  { id: "oki", ad: "Oki AnlatÄ±cÄ±", kisa: "Oki", aciklama: "Ã‡ocuklar iÃ§in sÄ±cak, yumuÅŸak ve tane tane okuma.", rate: 0.88, pitch: 1.08, noktaMs: 620, virgulMs: 230 },
-  { id: "sakin", ad: "Sakin Rehber", kisa: "Sakin", aciklama: "Daha dÃ¼ÅŸÃ¼k tempolu, yorulmadan takip etmeye uygun okuma.", rate: 0.84, pitch: 1.02, noktaMs: 700, virgulMs: 260 },
-  { id: "tane", ad: "Tane Tane", kisa: "Tane", aciklama: "Ä°lk okuma ve hece-kelime takibi iÃ§in belirgin duraklamalÄ± okuma.", rate: 0.76, pitch: 1.05, noktaMs: 780, virgulMs: 300 },
-  { id: "masal", ad: "Masal AnlatÄ±cÄ±sÄ±", kisa: "Masal", aciklama: "Masallar iÃ§in hafif neÅŸeli ve canlÄ± okuma tonu.", rate: 0.9, pitch: 1.12, noktaMs: 640, virgulMs: 240 },
-  { id: "odak", ad: "Odak Modu", kisa: "Odak", aciklama: "YetiÅŸkin ve uzun metinler iÃ§in sade, dengeli ve daha az vurgulu okuma.", rate: 0.96, pitch: 0.98, noktaMs: 520, virgulMs: 180 },
-];
-const sesTonuBul = (id) => SES_TONLARI.find((s) => s.id === id) || SES_TONLARI[0];
-
-const OKUMA_MODLARI = [
-  { id: "dinliyorum", ad: "Dinliyorum", aciklama: "Okurio okur, ben metni takip ederim.", sesli: true, rateCarpan: 1 },
-  { id: "birlikte", ad: "Birlikte Okuyorum", aciklama: "Ses daha yavaÅŸ akar, ben eÅŸlik ederim.", sesli: true, rateCarpan: 0.84 },
-  { id: "kendim", ad: "Kendim Okuyorum", aciklama: "Ses kapanÄ±r; takÄ±ldÄ±ÄŸÄ±m yerde yardÄ±m alÄ±rÄ±m.", sesli: false, rateCarpan: 1 },
-];
-const okumaModuBul = (id) => OKUMA_MODLARI.find((m) => m.id === id) || OKUMA_MODLARI[0];
-const OKUMA_MODU_ANAHTAR = "okurio-okuma-modu-v1";
-
-const DESTEK_SECENEKLERI = [
-  { id: "kelime_takibi", ad: "Kelime takibi" },
-  { id: "hece_takibi", ad: "Hece takibi" },
-  { id: "odak", ad: "Aktif cÃ¼mleyi Ã¶ne Ã§Ä±kar" },
-  { id: "buyuk_yazi", ad: "BÃ¼yÃ¼k yazÄ±" },
-  { id: "genis_aralik", ad: "GeniÅŸ aralÄ±k" },
-  { id: "yumusak_zemin", ad: "YumuÅŸak zemin" },
-  { id: "kisa_hedef", ad: "KÄ±sa gÃ¼nlÃ¼k hedef" },
-];
-
-const VARSAYILAN_OKUMA_YOLU = {
-  secildi: false,
-  yolId: "okuma_guveni_8_10",
-  evreId: "paragraf",
-  destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin", "kisa_hedef"],
-};
-
-const yolBul = (id) => OKUMA_YOLLARI.find((y) => y.id === id) || OKUMA_YOLLARI[4];
-const evreBul = (id) => EVRE_SECENEKLERI.find((e) => e.id === id) || EVRE_SECENEKLERI[4];
-
-const kitapMeta = (kitap) => ICERIK_METADATA[kitap.id] || {
-  yasMin: kitap.kategori === "Masal" ? 5 : 14,
-  yasMax: kitap.kategori === "Masal" ? 10 : 99,
-  segmentler: kitap.kategori === "Masal" ? ["okuma_guveni"] : ["yetiskin_odak"],
-  okumaEvreleri: kitap.kategori === "Masal" ? ["dinleme", "kisa_cumle", "paragraf"] : ["uzun_metin", "okumaya_donus"],
-  destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"],
-  icerikTuru: kitap.kategori.toLowerCase(),
-};
-const icerikSunumu = (kitap) => {
-  const meta = kitapMeta(kitap);
-  const sinif = classifyContent(kitap, {
-    ...meta,
-    minimumFullReadingSeconds: minimumFullReadingSecondsForAge(meta.yasMin),
-  });
-  const seconds = (kitap?.bolumler || []).reduce((toplam, bolum) => toplam + estimateStorySeconds(bolum), 0);
-  if (meta.icerikTuru === "kullanici_metni") {
-    return { ...sinif, seconds, status: "personal-reading", label: "KiÅŸisel metin", deployable: true, blockers: [] };
-  }
-  if (sinif.status === "preparing" || !sinif.deployable) {
-    return { ...sinif, seconds, classificationStatus: sinif.status, status: "preparing", label: "HazÄ±rlanÄ±yor", deployable: false };
-  }
-  return {
-    ...sinif,
-    seconds,
-    label: kitap.icerikDurumu === "tam-metin" && kitap.hakDurumu === "kamu-mali" ? "Tam metin" : sinif.label,
-  };
-};
-const yolSegmentleri = (yolId) => YOL_SEGMENT_GRUPLARI[yolId] || [yolBul(yolId).evre];
-const kitapOkumaYolunaUygunMu = (kitap, yol = VARSAYILAN_OKUMA_YOLU) => {
-  if (!kitap) return false;
-  const yolDetay = yolBul(yol.yolId);
-  const meta = kitapMeta(kitap);
-  const hedefSegmentler = yolSegmentleri(yol.yolId);
-  const izinliTurler = YOL_ICERIK_TURLERI[yol.yolId] || [];
-  const segmentUyumu = meta.segmentler.some((s) => hedefSegmentler.includes(s));
-  const turUyumu = izinliTurler.length === 0 || izinliTurler.includes(meta.icerikTuru);
-  const modUyumu = yolDetay.mod === "yetiskin" ? meta.segmentler.includes("yetiskin_odak") : !meta.segmentler.every((s) => s === "yetiskin_odak");
-  const evreUyumu = !yol.evreId || meta.okumaEvreleri.includes(yol.evreId) || yol.evreId === "dinleme" || yolDetay.mod === "yetiskin";
-  const seviyeUyumu = evaluateStoryForReadingLevel(kitap, meta, yol.yolId).eligible;
-  return segmentUyumu && turUyumu && modUyumu && evreUyumu && seviyeUyumu;
-};
-
-/* ------------------------------------------------------------------ */
-/* YardÄ±mcÄ±lar                                                         */
-/* ------------------------------------------------------------------ */
-const kitapBul = (id) => KATALOG.find((k) => k.id === id);
-const bolumSn = (b) => estimateStorySeconds(b);
-const toplamSn = (kitap) => icerikSunumu(kitap).seconds;
-const bolumBasiSn = (kitap, i) => kitap.bolumler.slice(0, i).reduce((t, b) => t + bolumSn(b), 0);
-
-function kelimeSure(k, hiz) {
-  let ms = (240 + 62 * k.length) / hiz;
-  if (/[.!?â€¦]$/.test(k)) ms += 320 / hiz;
-  else if (/[,;:]$/.test(k)) ms += 140 / hiz;
-  return Math.max(120, ms);
-}
-
-function sureYaz(sn) {
-  sn = Math.max(0, Math.floor(sn));
-  const s = Math.floor(sn / 3600), d = Math.floor((sn % 3600) / 60), sa = sn % 60;
-  return s > 0 ? `${s}:${String(d).padStart(2, "0")}:${String(sa).padStart(2, "0")}` : `${d}:${String(sa).padStart(2, "0")}`;
-}
-
-/* Kitaba Ã¶zgÃ¼ deterministik dalga formu (imza Ã¶ÄŸesi) */
-function dalgaUret(id, n = 56) {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-  const out = [];
-  for (let i = 0; i < n; i++) {
-    h = (h * 1103515245 + 12345) >>> 0;
-    const taban = 0.35 + 0.65 * Math.abs(Math.sin(i * 0.42 + (h % 7)));
-    out.push(Math.min(1, 0.2 + taban * ((h % 100) / 100) * 0.9 + 0.15));
-  }
-  return out;
-}
-
-/* ------------------------------------------------------------------ */
-/* KalÄ±cÄ± durum (window.storage + localStorage fallback)               */
-/* ------------------------------------------------------------------ */
-if (typeof window !== "undefined" && !window.storage) {
-  window.storage = {
-    get: async (key) => {
-      const value = window.localStorage.getItem(key);
-      return value == null ? null : { value };
-    },
-    set: async (key, value) => { window.localStorage.setItem(key, value); },
-  };
-}
-const ANAHTAR = "dinleti-durum-v1";
-const OKUMA_YOLU_ANAHTAR = "okurio-okuma-yolu-v1";
-const SES_TONU_ANAHTAR = "okurio-ses-tonu-v1";
-async function durumOku() {
-  try {
-    const r = await window.storage.get(ANAHTAR);
-    return r ? JSON.parse(r.value) : null;
-  } catch { return null; }
-}
-async function durumYaz(durum) {
-  try { await window.storage.set(ANAHTAR, JSON.stringify(durum)); } catch {}
-}
-
-/* ------------------------------------------------------------------ */
-/* Kendi metnim â€” kiÅŸisel iÃ§erik kalÄ±cÄ±lÄ±ÄŸÄ± ("Benim KitaplÄ±ÄŸÄ±m")        */
-/* 2026-08-06: Daha Ã¶nce kendiMetniAc() eklediÄŸi kitabÄ± yalnÄ±zca        */
-/* Ã§alÄ±ÅŸma anÄ±ndaki KATALOG dizisine ekliyordu; sayfa yenilendiÄŸinde    */
-/* KATALOG sÄ±fÄ±rdan kurulduÄŸu iÃ§in kullanÄ±cÄ±nÄ±n yapÄ±ÅŸtÄ±rdÄ±ÄŸÄ± metin      */
-/* sessizce kayboluyordu ("sonKitap" bile bulunamÄ±yordu). Bu, cihaz     */
-/* yenilenmesine karÅŸÄ± dayanÄ±klÄ±lÄ±k gerektiren bir demoda ciddi bir     */
-/* risktir. KiÅŸisel iÃ§erik hiÃ§bir zaman production KATALOG/RAFLAR ile   */
-/* karÄ±ÅŸmaz, yalnÄ±zca bu cihazda localStorage'da saklanÄ±r.              */
-/* ------------------------------------------------------------------ */
-const KENDI_ICERIK_ANAHTAR = "okurio-kendi-icerik-v1";
-const KENDI_ICERIK_LIMIT = 20;
-async function kendiIceriklerOku() {
-  try {
-    const r = await window.storage.get(KENDI_ICERIK_ANAHTAR);
-    const liste = r ? JSON.parse(r.value) : [];
-    return Array.isArray(liste) ? liste : [];
-  } catch { return []; }
-}
-async function kendiIceriklerYaz(liste) {
-  try {
-    await window.storage.set(KENDI_ICERIK_ANAHTAR, JSON.stringify(liste.slice(0, KENDI_ICERIK_LIMIT)));
-  } catch {}
-}
-/* KATALOG + ICERIK_METADATA'ya, henÃ¼z orada olmayan kayÄ±tlÄ± kiÅŸisel
-   iÃ§erikleri ekler. Sayfa yÃ¼klendiÄŸinde bir kez Ã§aÄŸrÄ±lÄ±r. */
-function kendiIcerikleriKatalogaUygula(liste) {
-  (liste || []).forEach((kayit) => {
-    if (!kayit?.kitap?.id) return;
-    if (!KATALOG.some((k) => k.id === kayit.kitap.id)) KATALOG.unshift(kayit.kitap);
-    if (kayit.metadata) ICERIK_METADATA[kayit.kitap.id] = kayit.metadata;
-  });
-}
-
-/* ------------------------------------------------------------------ */
-/* Kapak bileÅŸeni                                                      */
-/* ------------------------------------------------------------------ */
-function Kapak({ kitap, boyut = 120, radius = 10 }) {
-  const [c1, c2] = kitap.renk;
-  return (
-    <div style={{
-      width: boyut, height: boyut * 1.45, borderRadius: radius, flexShrink: 0,
-      background: `linear-gradient(160deg, ${c2} 0%, ${c1} 70%)`,
-      boxShadow: "0 6px 18px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.08)",
-      display: "flex", flexDirection: "column", justifyContent: "space-between",
-      padding: boyut * 0.09, position: "relative", overflow: "hidden",
-    }}>
-      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: boyut * 0.06, background: "rgba(0,0,0,0.28)" }} />
-      <div style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: "#F2ECDF", fontSize: boyut * 0.115, lineHeight: 1.15, paddingLeft: boyut * 0.06 }}>
-        {kitap.baslik}
-      </div>
-      <div style={{ fontSize: boyut * 0.08, color: "rgba(242,236,223,0.75)", paddingLeft: boyut * 0.06, letterSpacing: "0.04em" }}>
-        {kitap.yazar}
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Dalga formu ilerleme Ã§ubuÄŸu                                         */
-/* ------------------------------------------------------------------ */
-function DalgaBar({ kitap, oran, onSar }) {
-  const dalga = useMemo(() => dalgaUret(kitap.id), [kitap.id]);
-  const ref = useRef(null);
-  const tikla = (e) => {
-    const r = ref.current.getBoundingClientRect();
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-    onSar(Math.min(1, Math.max(0, x / r.width)));
-  };
-  return (
-    <div ref={ref} onClick={tikla} role="slider" aria-label="Ä°lerleme" aria-valuenow={Math.round(oran * 100)}
-      style={{ display: "flex", alignItems: "center", gap: 2, height: 30, cursor: "pointer", touchAction: "none" }}>
-      {dalga.map((y, i) => {
-        const gecti = i / dalga.length <= oran;
-        return <div key={i} style={{
-          flex: 1, height: `${y * 100}%`, borderRadius: 2,
-          background: gecti ? "#E8A33D" : "rgba(242,236,223,0.18)",
-          transition: "background 0.15s",
-        }} />;
-      })}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Ana uygulama                                                        */
-/* ------------------------------------------------------------------ */
-export default function DinletiApp() {
-  const [sekme, setSekme] = useState("ana");          // ana | ara | kitaplik
-  const [detayId, setDetayId] = useState(null);
-  const [oynaticiAcik, setOynaticiAcik] = useState(false);
-  const [arama, setArama] = useState("");
-  const [yukleniyor, setYukleniyor] = useState(true);
-
-  // Ã‡alma durumu
-  const [aktifId, setAktifId] = useState(null);
-  const [pozisyon, setPozisyon] = useState(0);        // saniye, kitap bÃ¼tÃ¼nÃ¼
-  const [caliyor, setCaliyor] = useState(false);
-  const [hiz, setHiz] = useState(1);
-  const [uyku, setUyku] = useState(0);                // kalan sn, 0 = kapalÄ±
-  const [seslendirme, setSeslendirme] = useState(true);
-  const [okumaModu, setOkumaModu] = useState("dinliyorum");
-  const [soruCevabi, setSoruCevabi] = useState(null);
-  const [sesTonu, setSesTonu] = useState("oki");
-  const [favoriler, setFavoriler] = useState([]);
-  const [ilerlemeler, setIlerlemeler] = useState({}); // {id:{pos,ts}}
-
-  // Okuma modu (senkron metin + ses) ve eriÅŸilebilirlik ayarlarÄ±
-  /* KullanÄ±cÄ±nÄ±n seÃ§tiÄŸi okuma ve gÃ¶rsel konfor tercihleri */
-  const PUNTOLAR = [18, 22, 26, 32];
-  const ARALIKLAR = [0, 0.05, 0.1, 0.16];   // em cinsinden harf aralÄ±ÄŸÄ±
-  const SATIRLAR = [1.55, 1.65, 1.75, 1.9];
-  const FONTLAR = [
-    { id: "lexend", ad: "Lexend", aile: "'Lexend', sans-serif" },
-    { id: "varsayilan", ad: "VarsayÄ±lan", aile: "inherit" },
-  ];
-  const fontAile = (id) => (FONTLAR.find((f) => f.id === id) || FONTLAR[0]).aile;
-  const fontAd = (id) => (FONTLAR.find((f) => f.id === id) || FONTLAR[0]).ad;
-  const sonrakiFont = (id) => FONTLAR[(FONTLAR.findIndex((f) => f.id === id) + 1 + FONTLAR.length) % FONTLAR.length].id;
-  const [okumaAcik, setOkumaAcik] = useState(true);
-  const [ayarPaneliAcik, setAyarPaneliAcik] = useState(false);
-  const [bolumlerAcik, setBolumlerAcik] = useState(false);
-  // Okuma profili: birleÅŸimli, YALNIZCA oturum belleÄŸinde tutulur (KVKK veri minimizasyonu â€”
-  // tanÄ± etiketi hiÃ§bir zaman kalÄ±cÄ± depoya yazÄ±lmaz; kalÄ±cÄ± olan yalnÄ±z nÃ¶tr ayar sonuÃ§larÄ±dÄ±r)
-  const [profil, setProfil] = useState({ dis: false, dehb: false, gorsel: false });
-
-  const profilUygula = (yeniProfil) => {
-    setProfil(yeniProfil);
-    // Taban ayardan baÅŸlayÄ±p aktif profillerin birleÅŸimini uygula
-    const a = { punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", biyonik: false };
-    if (yeniProfil.dis) { a.aralik = Math.max(a.aralik, 1); a.vurgu = true; a.tema = "krem"; a.font = "lexend"; }
-    if (yeniProfil.gorsel) { a.punto = 2; a.aralik = Math.max(a.aralik, 1); }
-    if (yeniProfil.dis && yeniProfil.gorsel) a.aralik = 2; // eÅŸzamanlÄ±lÄ±kta sÄ±kÄ±ÅŸÄ±klÄ±k en gÃ¼Ã§lÃ¼ (Liu 2024)
-    if (yeniProfil.dehb) { a.odak = true; a.biyonik = false; }
-    setAyar(a);
-  };
-  const [seri, setSeri] = useState({ sayi: 0, sonGun: "" });
-  const [, setMod] = useState("cocuk"); // geriye dÃ¶nÃ¼k uyumluluk: cocuk | yetiskin
-  const [okumaYolu, setOkumaYolu] = useState(VARSAYILAN_OKUMA_YOLU);
-  const [onboardingAcik, setOnboardingAcik] = useState(false);
-  const [profilMesaji, setProfilMesaji] = useState("");
-  const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", biyonik: false });
-  const [kelimeIx, setKelimeIx] = useState(0);
-  const [kendiMetin, setKendiMetin] = useState("");
-  const [kendiBaslik, setKendiBaslik] = useState("Kendi Metnim");
-  const [kendiMetinMesaji, setKendiMetinMesaji] = useState("");
-  const [kendiMetinYukleniyor, setKendiMetinYukleniyor] = useState(false);
-  const [kendiMetinPaneliAcik, setKendiMetinPaneliAcik] = useState(false);
-  const [kendiIcerikListesi, setKendiIcerikListesi] = useState([]);
-  const [modPaneliAcik, setModPaneliAcik] = useState(false);
-  const [soruKapali, setSoruKapali] = useState(false);
-  const [seciliSozluk, setSeciliSozluk] = useState(null);
-  const sozlukTetikleyiciRef = useRef(null);
-  const okuyucuGeriOdakRef = useRef(null);
-  const kendiMetinGeriOdakRef = useRef(null);
-  const kendiMetinCtaRef = useRef(null);
-  const oncekiOynaticiAcikRef = useRef(false);
-  const readerScrollRef = useRef(null);
-  const readerFollowPauseUntilRef = useRef(0);
-  const readerFollowResumeTimerRef = useRef(null);
-  const readerFollowImmediateRef = useRef(false);
-  const [readerFollowNonce, setReaderFollowNonce] = useState(0);
-
-  const okuyucuyuKapatVeOdakla = () => {
-    setOynaticiAcik(false);
-    window.setTimeout(() => {
-      const kaliciCta = document.querySelector("[data-kendi-metnim] > button");
-      const geri = okuyucuGeriOdakRef.current?.isConnected
-        ? okuyucuGeriOdakRef.current
-        : kendiMetinCtaRef.current?.isConnected
-          ? kendiMetinCtaRef.current
-          : kaliciCta instanceof HTMLElement
-            ? kaliciCta
-            : kendiMetinGeriOdakRef.current;
-      if (geri?.isConnected) geri.focus({ preventScroll: true });
-    }, 0);
-  };
-
-  useLayoutEffect(() => {
-    const kapandi = oncekiOynaticiAcikRef.current && !oynaticiAcik;
-    oncekiOynaticiAcikRef.current = oynaticiAcik;
-    if (!kapandi) return;
-    const kaliciCta = kendiMetinCtaRef.current?.isConnected
-      ? kendiMetinCtaRef.current
-      : document.querySelector("[data-kendi-metnim] > button");
-    if (kaliciCta instanceof HTMLElement) kaliciCta.focus({ preventScroll: true });
-  }, [oynaticiAcik]);
-
-  const okuyucuTakibiniGeciciDurdur = useCallback(() => {
-    if (okumaModu === "kendim") return;
-    readerFollowPauseUntilRef.current = Date.now() + 1800;
-    if (readerFollowResumeTimerRef.current) window.clearTimeout(readerFollowResumeTimerRef.current);
-    readerFollowResumeTimerRef.current = window.setTimeout(() => {
-      readerFollowPauseUntilRef.current = 0;
-      setReaderFollowNonce((n) => n + 1);
-    }, 1850);
-  }, [okumaModu]);
-
-  useEffect(() => () => {
-    if (readerFollowResumeTimerRef.current) window.clearTimeout(readerFollowResumeTimerRef.current);
-  }, []);
-
-
-
-  const sesTonuAyar = useMemo(() => sesTonuBul(sesTonu), [sesTonu]);
-  const okumaModuAyar = useMemo(() => okumaModuBul(okumaModu), [okumaModu]);
-  const etkinSeslendirme = seslendirme && okumaModuAyar.sesli;
-  // v2.4.9: kendiMetniAc callback'i bu deÄŸerleri dependency olarak kullandÄ±ÄŸÄ± iÃ§in
-  // ilk render'da TDZ/ReferenceError oluÅŸmamasÄ± adÄ±na callback'ten Ã¶nce hesaplanÄ±r.
-  const okumaYoluDetay = yolBul(okumaYolu.yolId);
-  const okumaEvreDetay = evreBul(okumaYolu.evreId);
-
-  const destekAyarlariniUygula = (onceki, yol) => {
-    const destekler = new Set(yol?.destekler || []);
-    return {
-      ...onceki,
-      punto: destekler.has("buyuk_yazi") ? Math.max(onceki.punto, 2) : onceki.punto,
-      aralik: destekler.has("genis_aralik") ? Math.max(onceki.aralik, 1) : onceki.aralik,
-      odak: destekler.has("odak") ? true : onceki.odak,
-      vurgu: destekler.has("kelime_takibi") ? true : onceki.vurgu,
-      tema: destekler.has("yumusak_zemin") ? "krem" : onceki.tema,
-    };
-  };
-
-  const kendiMetniAc = useCallback((metin, baslik = "Kendi Metnim") => {
-    const temizMetin = normalizeDocumentText(metin);
-    if (temizMetin.length < 20) { setKendiMetinMesaji("En az birkaÃ§ cÃ¼mlelik dÃ¼z metin ekle."); return; }
-    const id = `kendi-metin-${Date.now()}`;
-    const kelimeSayisi = temizMetin.split(/\s+/).length;
-    const parcalar = temizMetin.match(/[^.!?â€¦]+[.!?â€¦]?/g) || [temizMetin];
-    const bolumler = [];
-    let buf = [];
-    parcalar.forEach((c) => {
-      buf.push(c.trim());
-      if (buf.join(" ").split(/\s+/).length >= 90) {
-        bolumler.push({ ad: `BÃ¶lÃ¼m ${bolumler.length + 1}`, dk: Math.max(1, Math.round(buf.join(" ").split(/\s+/).length / 130)), metin: buf.join(" ") });
-        buf = [];
-      }
-    });
-    if (buf.length) bolumler.push({ ad: `BÃ¶lÃ¼m ${bolumler.length + 1}`, dk: Math.max(1, Math.round(buf.join(" ").split(/\s+/).length / 130)), metin: buf.join(" ") });
-    const kitap = {
-      id, baslik: baslik || "Kendi Metnim", yazar: "KullanÄ±cÄ± Ä°Ã§eriÄŸi", seslendiren: "Oki AnlatÄ±cÄ±", kategori: "Kendi Metnim",
-      yas: okumaYoluDetay.yas || "KiÅŸisel", renk: ["#3B465C", "#9FB3D7"], puan: 5, sureDk: Math.max(1, Math.ceil(kelimeSayisi / 130)),
-      ozet: "Kopyala-yapÄ±ÅŸtÄ±r, PDF, Word veya TXT dosyasÄ±yla eklenen kiÅŸisel kullanÄ±m metni.", bolumler, kullaniciIcerigi: true,
-    };
-    const metadata = { yasMin: 6, yasMax: 99, segmentler: YOL_SEGMENT_GRUPLARI[okumaYolu.yolId] || ["yetiskin_odak"], okumaEvreleri: [okumaYolu.evreId], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kullanici_metni", subject: "kendi_metin", oql: okumaYoluDetay.oql || 4 };
-    if (!KATALOG.some((k) => k.id === id)) KATALOG.unshift(kitap);
-    ICERIK_METADATA[id] = metadata;
-    // "Benim KitaplÄ±ÄŸÄ±m": bu cihazda kalÄ±cÄ± olsun diye localStorage'a da yazÄ±lÄ±r
-    // (yalnÄ±zca bu cihaz â€” production KATALOG/RAFLAR'a hiÃ§bir zaman karÄ±ÅŸmaz).
-    setKendiIcerikListesi((onceki) => {
-      const yeni = [{ kitap, metadata, eklenmeZamani: Date.now() }, ...onceki].slice(0, KENDI_ICERIK_LIMIT);
-      kendiIceriklerYaz(yeni);
-      return yeni;
-    });
-    setAktifId(id); setDetayId(null); setSekme("ana"); setPozisyon(0); setKelimeIx(0); setCaliyor(false); setKendiMetinPaneliAcik(false); setOynaticiAcik(true); setKendiMetin(""); setKendiMetinMesaji("Metin okuma moduna alÄ±ndÄ±.");
-  }, [okumaYolu, okumaYoluDetay]);
-
-  const dosyaMetniYukle = useCallback(async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setKendiMetinYukleniyor(true);
-    setKendiMetinMesaji(`${file.name} cihazÄ±nda okunuyorâ€¦`);
-    try {
-      const result = await extractDocumentText(file);
-      setKendiBaslik(result.title || "Kendi Metnim");
-      setKendiMetin(result.text);
-      setKendiMetinMesaji(`${result.type.toUpperCase()} metni hazÄ±r. Kontrol et ve â€œOkuma moduna alâ€ dÃ¼ÄŸmesine bas.`);
-    } catch (error) {
-      setKendiMetinMesaji(error?.message || "Belge okunamadÄ±. BaÅŸka bir dosya seÃ§.");
-    } finally {
-      setKendiMetinYukleniyor(false);
-      e.target.value = "";
-    }
-  }, []);
-
-  const konusmaRef = useRef(null);
-  const sonKayit = useRef(0);
-  const seslerRef = useRef([]);
-
-  /* Sesler asenkron yÃ¼klenir; Ã¶nbelleÄŸe al ve deÄŸiÅŸiklikleri dinle */
-  useEffect(() => {
-    if (!window.speechSynthesis) return;
-    const yukle = () => { const l = window.speechSynthesis.getVoices(); if (l && l.length) seslerRef.current = l; };
-    yukle();
-    if (typeof window.speechSynthesis.addEventListener === "function") {
-      window.speechSynthesis.addEventListener("voiceschanged", yukle);
-      return () => window.speechSynthesis.removeEventListener("voiceschanged", yukle);
-    }
-    window.speechSynthesis.onvoiceschanged = yukle;
-  }, []);
-
-  /* YazÄ± tipleri */
-  useEffect(() => {
-    const l = document.createElement("link");
-    l.rel = "stylesheet";
-    l.href = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=Lexend:wght@400;500;600&display=swap";
-    document.head.appendChild(l);
-    return () => { document.head.removeChild(l); };
-  }, []);
-
-  /* KalÄ±cÄ± durumu yÃ¼kle */
-  useEffect(() => {
-    (async () => {
-      // KiÅŸisel iÃ§erik (Kendi Metnim) Ã¶nce yÃ¼klenir ki sonKitap kontrolÃ¼
-      // kitapBul() ile onu bulabilsin â€” aksi halde yenilemeden sonra
-      // kullanÄ±cÄ±nÄ±n yapÄ±ÅŸtÄ±rdÄ±ÄŸÄ± metin sessizce kaybolur.
-      const kendiListe = await kendiIceriklerOku();
-      if (kendiListe.length) {
-        kendiIcerikleriKatalogaUygula(kendiListe);
-        setKendiIcerikListesi(kendiListe);
-      }
-      const d = await durumOku();
-      if (d) {
-        setFavoriler(d.favoriler || []);
-        setIlerlemeler(d.ilerlemeler || {});
-        if (d.hiz) setHiz(d.hiz);
-        if (d.sonKitap && kitapBul(d.sonKitap) && icerikSunumu(kitapBul(d.sonKitap)).deployable) {
-          const k = kitapBul(d.sonKitap);
-          const progress = normalizeReadingProgress({
-            sections: k.bolumler,
-            progress: d.ilerlemeler?.[d.sonKitap],
-            durationForSection: bolumSn,
-          });
-          setAktifId(d.sonKitap);
-          setPozisyon(progress.pos);
-          setKelimeIx(progress.wordIndex);
-        }
-      }
-      setYukleniyor(false);
-    })();
-    (async () => {
-      try {
-        const r = await window.storage.get("dinleti-mod-v1");
-        if (r && (r.value === "cocuk" || r.value === "yetiskin")) setMod(r.value);
-      } catch {}
-    })();
-    (async () => {
-      try {
-        const [r, kayitliAyar] = await Promise.all([
-          window.storage.get(OKUMA_YOLU_ANAHTAR),
-          window.storage.get("dinleti-okuma-ayar-v1"),
-        ]);
-        const kayitli = kayitliAyar ? JSON.parse(kayitliAyar.value) : {};
-        if (r) {
-          const y = { ...VARSAYILAN_OKUMA_YOLU, ...JSON.parse(r.value), secildi: true };
-          setOkumaYolu(y);
-          setMod(yolBul(y.yolId).mod);
-          setAyar((e) => destekAyarlariniUygula({ ...e, ...kayitli }, y));
-        } else {
-          setAyar((e) => destekAyarlariniUygula({ ...e, ...kayitli }, VARSAYILAN_OKUMA_YOLU));
-          setOnboardingAcik(true);
-        }
-      } catch { setOnboardingAcik(true); }
-    })();
-    (async () => {
-      try {
-        const r = await window.storage.get(SES_TONU_ANAHTAR);
-        if (r && SES_TONLARI.some((s) => s.id === r.value)) setSesTonu(r.value);
-      } catch {}
-    })();
-    (async () => {
-      try {
-        const r = await window.storage.get(OKUMA_MODU_ANAHTAR);
-        if (r && OKUMA_MODLARI.some((m) => m.id === r.value)) {
-          setOkumaModu(r.value);
-          const m = okumaModuBul(r.value);
-          setSeslendirme(m.sesli);
-        }
-      } catch {}
-    })();
-    (async () => {
-      try {
-        const r = await window.storage.get("dinleti-seri-v1");
-        if (r) setSeri(JSON.parse(r.value));
-      } catch {}
-    })();
-  }, []);
-
-  /* ------------------------------------------------------------------ */
-  /* Alternatif eriÅŸim: bookmarklet + PWA share_target giriÅŸi            */
-  /* 2026-08-06: KullanÄ±cÄ±, herhangi bir web sayfasÄ±ndan seÃ§tiÄŸi metni    */
-  /* (1) bookmarklet ile â€” okurio.../#oku=...&baslik=... hash parametresi */
-  /* ya da (2) Android'de "PaylaÅŸ â†’ Dinleti" ile â€” manifest.json          */
-  /* share_target'Ä±n Ã¼rettiÄŸi ?text=&title=&url= query parametreleriyle   */
-  /* gÃ¶nderebilir. Ä°kisi de aynÄ± "Kendi metnini oku" panelini, metin      */
-  /* Ã¶nceden dolu biÃ§imde aÃ§ar; kullanÄ±cÄ± yine kendi onayÄ±yla "Okuma      */
-  /* moduna al"a basar (otomatik yayÄ±nlama/otomatik okuma baÅŸlatma yok).  */
-  /* iOS/iPad'de Web Share Target desteklenmediÄŸi iÃ§in orada yalnÄ±zca     */
-  /* bookmarklet yolu Ã§alÄ±ÅŸÄ±r â€” index.html'deki apple- meta etiketleri    */
-  /* "Ana Ekrana Ekle" ile bookmarklet'i tam ekran deneyimde kullanÄ±lÄ±r   */
-  /* kÄ±lar.                                                               */
-  /* ------------------------------------------------------------------ */
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const PAYLASIM_METIN_LIMIT = 6000;
-    let baslik = "";
-    let metin = "";
-    let paylasilanUrl = "";
-
-    try {
-      const params = new URLSearchParams(window.location.search);
-      metin = params.get("text") || "";
-      baslik = params.get("title") || "";
-      paylasilanUrl = params.get("url") || "";
-    } catch {}
-
-    if (!metin && window.location.hash) {
-      try {
-        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-        if (hashParams.has("oku")) {
-          // URLSearchParams zaten yÃ¼zde-kodlamayÄ± Ã§Ã¶zer; burada tekrar
-          // decodeURIComponent Ã§aÄŸÄ±rmak Ã§ift-Ã§Ã¶zme hatasÄ±na yol aÃ§ar.
-          metin = hashParams.get("oku") || "";
-          baslik = hashParams.get("baslik") || "";
-        }
-      } catch {}
-    }
-
-    if (!metin && !paylasilanUrl) return;
-
-    if (metin.length > PAYLASIM_METIN_LIMIT) {
-      metin = metin.slice(0, PAYLASIM_METIN_LIMIT);
-    }
-
-    setKendiBaslik(baslik || "PaylaÅŸÄ±lan Metin");
-    setKendiMetin(
-      metin ||
-        `Bu baÄŸlantÄ±dan yalnÄ±zca adres paylaÅŸÄ±ldÄ±, metin gelmedi: ${paylasilanUrl}\n\nOkurio gÃ¼venlik nedeniyle baÄŸlantÄ±daki sayfayÄ± kendisi indiremez. Sayfadaki metni seÃ§ip tekrar paylaÅŸmayÄ± veya buraya yapÄ±ÅŸtÄ±rmayÄ± dene.`,
-    );
-    setKendiMetinPaneliAcik(true);
-
-    // URL'i temizle: hem gizlilik hem de rehydration mantÄ±ÄŸÄ±nÄ±n (sonKitap vb.)
-    // her yenilemede aynÄ± paylaÅŸÄ±lan metni tekrar tekrar aÃ§masÄ±nÄ± Ã¶nlemek iÃ§in.
-    try {
-      const temizUrl = window.location.pathname;
-      window.history.replaceState(null, "", temizUrl);
-    } catch {}
-  }, []);
-
-  /* Okuma ayarlarÄ±nÄ± kaydet */
-  const ilkAyar = useRef(true);
-  useEffect(() => {
-    if (ilkAyar.current) { ilkAyar.current = false; return; }
-    (async () => { try { await window.storage.set("dinleti-okuma-ayar-v1", JSON.stringify(ayar)); } catch {} })();
-  }, [ayar]);
-
-
-  const aktif = aktifId ? kitapBul(aktifId) : null;
-  const toplam = aktif ? toplamSn(aktif) : 0;
-
-  const aktifBolumIx = useMemo(() => {
-    if (!aktif) return 0;
-    let t = 0;
-    for (let i = 0; i < aktif.bolumler.length; i++) {
-      t += bolumSn(aktif.bolumler[i]);
-      if (pozisyon < t) return i;
-    }
-    return aktif.bolumler.length - 1;
-  }, [aktif, pozisyon]);
-
-  useLayoutEffect(() => {
-    if (!oynaticiAcik || !okumaAcik || okumaModu === "kendim") return;
-    if (Date.now() < readerFollowPauseUntilRef.current) return;
-    const container = readerScrollRef.current;
-    const activeWord = container?.querySelector('[data-kelime-ix="' + kelimeIx + '"]');
-    if (!container || !activeWord) return;
-
-    const containerRect = container.getBoundingClientRect();
-    const wordRect = activeWord.getBoundingClientRect();
-    const controls = container.closest("[data-okuma-alani]")?.querySelector("[data-alt-kontrol]");
-    const controlsRect = controls?.getBoundingClientRect();
-    const visualViewportBottom = window.visualViewport?.height ?? window.innerHeight;
-    const occlusionTop = controlsRect && controlsRect.top < containerRect.bottom
-      ? controlsRect.top
-      : Number.POSITIVE_INFINITY;
-    const visibleTop = Math.max(containerRect.top, 0);
-    const visibleBottom = Math.min(containerRect.bottom, visualViewportBottom, occlusionTop);
-    const visibleHeight = Math.max(1, visibleBottom - visibleTop);
-    const wordCenter = wordRect.top + wordRect.height / 2;
-    const safeTop = visibleTop + visibleHeight * 0.40;
-    const safeBottom = visibleTop + visibleHeight * 0.55;
-    const wordIsFullyVisible = wordRect.top >= visibleTop && wordRect.bottom <= visibleBottom;
-    const immediate = readerFollowImmediateRef.current;
-    readerFollowImmediateRef.current = false;
-    if (!immediate && wordIsFullyVisible && wordCenter >= safeTop && wordCenter <= safeBottom) return;
-
-    const target = visibleTop + visibleHeight * 0.475;
-    const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight);
-    const nextTop = Math.max(0, Math.min(maxScroll, container.scrollTop + wordCenter - target));
-    container.scrollTo({ top: nextTop, behavior: immediate ? "auto" : "smooth" });
-  }, [kelimeIx, aktifBolumIx, okumaModu, oynaticiAcik, okumaAcik, ayar.odak, readerFollowNonce]);
-
-  useEffect(() => {
-    setSoruCevabi(null);
-    setSoruKapali(false);
-    setAyarPaneliAcik(false);
-  }, [aktifId, aktifBolumIx]);
-
-  useEffect(() => {
-    if (!oynaticiAcik) return undefined;
-    const aktifOda = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
-    okuyucuGeriOdakRef.current = aktifOda?.isConnected ? aktifOda : kendiMetinGeriOdakRef.current;
-    const oncekiOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const shell = document.querySelector("[data-reader-shell]");
-    const odaklanabilirler = () => shell ? [...shell.querySelectorAll('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')].filter((el) => !el.closest('[aria-hidden="true"]')) : [];
-    const klavye = (event) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        okuyucuyuKapatVeOdakla();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const liste = odaklanabilirler();
-      if (!liste.length) return;
-      const ilk = liste[0];
-      const son = liste[liste.length - 1];
-      if (event.shiftKey && document.activeElement === ilk) { event.preventDefault(); son.focus(); }
-      else if (!event.shiftKey && document.activeElement === son) { event.preventDefault(); ilk.focus(); }
-    };
-    window.addEventListener("keydown", klavye);
-    window.requestAnimationFrame(() => shell?.querySelector('[aria-label="Kapat"]')?.focus());
-    return () => {
-      window.removeEventListener("keydown", klavye);
-      document.body.style.overflow = oncekiOverflow;
-      window.requestAnimationFrame(() => {
-        const geri = okuyucuGeriOdakRef.current?.isConnected
-          ? okuyucuGeriOdakRef.current
-          : kendiMetinCtaRef.current?.isConnected
-            ? kendiMetinCtaRef.current
-            : kendiMetinGeriOdakRef.current;
-        if (geri?.isConnected) geri.focus({ preventScroll: true });
-      });
-    };
-  }, [oynaticiAcik]);
-
-  useEffect(() => {
-    if (!kendiMetinPaneliAcik) return undefined;
-    kendiMetinGeriOdakRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const oncekiOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const panel = document.querySelector("[data-kendi-metin-dialog]");
-    const klavye = (event) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setKendiMetinPaneliAcik(false);
-        return;
-      }
-      if (event.key !== "Tab" || !panel) return;
-      const liste = [...panel.querySelectorAll('button:not([disabled]), input, textarea, [tabindex]:not([tabindex="-1"])')];
-      if (!liste.length) return;
-      const ilk = liste[0];
-      const son = liste[liste.length - 1];
-      if (event.shiftKey && document.activeElement === ilk) { event.preventDefault(); son.focus(); }
-      else if (!event.shiftKey && document.activeElement === son) { event.preventDefault(); ilk.focus(); }
-    };
-    window.addEventListener("keydown", klavye);
-    window.requestAnimationFrame(() => panel?.querySelector('[aria-label="Kendi metin panelini kapat"]')?.focus());
-    return () => {
-      window.removeEventListener("keydown", klavye);
-      document.body.style.overflow = oncekiOverflow;
-      const geri = kendiMetinGeriOdakRef.current;
-      window.requestAnimationFrame(() => geri?.isConnected && geri.focus({ preventScroll: true }));
-    };
-  }, [kendiMetinPaneliAcik]);
-
-  /* Seslendirme (Web Speech) */
-  const zincirNo = useRef(0);
-  const konusmayiDurdur = () => {
-    zincirNo.current += 1; // aktif cÃ¼mle zincirini iptal et
-    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch {}
-    konusmaRef.current = null;
-  };
-  const sonSinir = useRef(0);          // son onboundary olayÄ±nÄ±n zamanÄ± (uyarlanabilir kapÄ±)
-  const kalibrasyon = useRef(1);       // gerÃ§ek TTS temposu / tahmin (bÃ¶lÃ¼m sonunda gÃ¼ncellenir)
-  const konusmayiBaslatRef = useRef(null);
-  const konusmayiBaslat = useCallback((kitap, bolumIx, kelimeBas = 0, modAyar = okumaModuAyar, zorla = false) => {
-    if ((!zorla && !etkinSeslendirme) || !modAyar.sesli || !window.speechSynthesis) return;
-    konusmayiDurdur();
-    sonSinir.current = 0;
-    const benimNo = zincirNo.current;
-    try {
-      const b = kitap.bolumler[bolumIx];
-      const kelimeler = b.metin.trim().split(/\s+/);
-      const cumleler = [];
-      let cbas = 0;
-      kelimeler.forEach((k, i) => { if (/[.!?â€¦]$/.test(k) || i === kelimeler.length - 1) { cumleler.push([cbas, i]); cbas = i + 1; } });
-      const basKelime = Math.min(Math.max(0, kelimeBas), kelimeler.length - 1);
-      let ilkCumle = cumleler.findIndex(([a, z]) => basKelime >= a && basKelime <= z);
-      if (ilkCumle < 0) ilkCumle = 0;
-      const dil = kitap.dil === "en" ? "en-GB" : "tr-TR";
-      const hedef = kitap.dil === "en" ? "en" : "tr";
-      const bolumBaslangic = Date.now();
-      const etkinHiz = Math.max(0.55, Math.min(1.8, hiz * sesTonuAyar.rate * modAyar.rateCarpan));
-      const tahminMs = kelimeler.slice(basKelime).reduce((t, k) => t + kelimeSure(k, etkinHiz), 0);
-      const konumuYaz = (wordIndex) => {
-        const safeWord = Math.max(0, Math.min(kelimeler.length - 1, wordIndex));
-        setKelimeIx(safeWord);
-        setPozisyon(positionFromCursor(kitap.bolumler, bolumIx, safeWord, bolumSn));
-      };
-
-      const sesAta = (u) => {
-        u.lang = dil;
-        u.rate = etkinHiz;
-        u.pitch = sesTonuAyar.pitch;
-        u.volume = 1;
-        let liste = seslerRef.current;
-        if (!liste.length) { try { const l = window.speechSynthesis.getVoices(); if (l && l.length) { seslerRef.current = l; liste = l; } } catch {} }
-        const puanla = (v) => {
-          const ad = (v.name || "").toLowerCase();
-          return (ad.includes("natural") ? 8 : 0) + (/enhanced|premium|neural/.test(ad) ? 6 : 0)
-            + (/google|siri|samantha|yelda|filiz|daniel/.test(ad) ? 3 : 0) + (v.localService === false ? 1 : 0);
-        };
-        const adaylar = liste.filter((v) => v.lang && v.lang.toLowerCase().startsWith(hedef)).sort((a, c) => puanla(c) - puanla(a));
-        if (adaylar[0]) u.voice = adaylar[0];
-      };
-
-      /* CÃ¼mle zinciri: her utterance kÄ±sa tutulur; tarayÄ±cÄ± motorlarÄ±nÄ±n uzun
-         okumayÄ± ~15 sn sonra sessizce kesme kusuru bÃ¶ylece hiÃ§ tetiklenmez.
-         Her cÃ¼mle sonunda vurgu bir sonraki cÃ¼mlenin baÅŸÄ±na hizalanÄ±r. */
-      const konusCumle = (ci, ilkKelimeIx) => {
-        if (zincirNo.current !== benimNo) return;
-        if (ci >= cumleler.length) {
-          if (tahminMs > 1000) {
-            const oran = (Date.now() - bolumBaslangic) / tahminMs;
-            if (oran > 0.4 && oran < 3) kalibrasyon.current = Math.min(2, Math.max(0.5, kalibrasyon.current * 0.6 + oran * 0.4));
-          }
-          if (bolumIx + 1 < kitap.bolumler.length) {
-            setPozisyon(bolumBasiSn(kitap, bolumIx + 1));
-            setKelimeIx(0);
-            if (konusmayiBaslatRef.current) konusmayiBaslatRef.current(kitap, bolumIx + 1, 0);
-          }
-          return;
-        }
-        const [a, z] = cumleler[ci];
-        const basIx = ilkKelimeIx != null ? Math.max(a, ilkKelimeIx) : a;
-        const parca = kelimeler.slice(basIx, z + 1).join(" ");
-        const u = new SpeechSynthesisUtterance(parca);
-        let syncMode = "pending";
-        let syncTimer = null;
-        let fallbackIx = basIx;
-        let timelineStartedAt = 0;
-        let utteranceStartedAt = 0;
-        const nominalSentenceMs = kelimeler.slice(basIx, z + 1)
-          .reduce((total, word) => total + kelimeSure(word, etkinHiz), 0);
-        let timeline = createSpeechWordTimeline(
-          kelimeler.slice(basIx, z + 1),
-          (word) => kelimeSure(word, etkinHiz),
-          kalibrasyon.current,
-        );
-        const timeriDurdur = () => {
-          if (syncTimer) window.clearTimeout(syncTimer);
-          syncTimer = null;
-        };
-        const fallbackAdimi = () => {
-          if (zincirNo.current !== benimNo || syncMode === "boundary") return;
-          syncMode = "fallback";
-          if (!timelineStartedAt) timelineStartedAt = performance.now();
-          const idx = timelineWordFromElapsed({
-            startsAt: timeline,
-            elapsedMs: performance.now() - timelineStartedAt,
-            baseIndex: basIx,
-            currentIndex: fallbackIx,
-            endIndex: z,
-          });
-          if (idx != null) {
-            fallbackIx = idx;
-            konumuYaz(idx);
-          }
-          if (fallbackIx < z) syncTimer = window.setTimeout(fallbackAdimi, 60);
-        };
-        const fallbackBeklet = () => {
-          timeriDurdur();
-          if (!timelineStartedAt) timelineStartedAt = performance.now();
-          syncTimer = window.setTimeout(fallbackAdimi, 60);
-        };
-        sesAta(u);
-        u.onstart = () => {
-          if (zincirNo.current !== benimNo) return;
-          utteranceStartedAt = performance.now();
-          timelineStartedAt = utteranceStartedAt;
-          konumuYaz(basIx);
-          fallbackBeklet();
-        };
-        u.onboundary = (e) => {
-          if (e.name && e.name !== "word") return;
-          const idx = monotonicBoundaryWord({
-            utteranceText: parca,
-            charIndex: Number(e.charIndex),
-            baseIndex: basIx,
-            currentIndex: fallbackIx,
-            endIndex: z,
-          });
-          // Samsung/Android motorlarÄ± bazen charIndex=0 deÄŸerini veya geriye
-          // giden boundary olaylarÄ±nÄ± tekrarlar. Bunlar watchdog'u sÄ±fÄ±rlamaz.
-          if (idx == null) return;
-          syncMode = "boundary";
-          timeriDurdur();
-          sonSinir.current = Date.now();
-          fallbackIx = idx;
-          konumuYaz(idx);
-          const localIndex = idx - basIx;
-          const expectedMs = timeline[localIndex];
-          const observedMs = Number(e.elapsedTime) * 1000;
-          if (expectedMs > 120 && observedMs > 0) {
-            const observedCalibration = Math.max(0.5, Math.min(2, kalibrasyon.current * observedMs / expectedMs));
-            kalibrasyon.current = kalibrasyon.current * 0.75 + observedCalibration * 0.25;
-            timeline = createSpeechWordTimeline(
-              kelimeler.slice(basIx, z + 1),
-              (word) => kelimeSure(word, etkinHiz),
-              kalibrasyon.current,
-            );
-          }
-          timelineStartedAt = performance.now() - timeline[localIndex];
-          // GeÃ§erli boundary akÄ±ÅŸÄ± kesilirse watchdog son doÄŸru kelimeden sÃ¼rer.
-          syncMode = "pending";
-          fallbackBeklet();
-        };
-        u.onend = () => {
-          timeriDurdur();
-          if (zincirNo.current !== benimNo) return;
-          if (utteranceStartedAt && nominalSentenceMs > 300) {
-            const observedRatio = Math.max(0.5, Math.min(2, (performance.now() - utteranceStartedAt) / nominalSentenceMs));
-            kalibrasyon.current = kalibrasyon.current * 0.8 + observedRatio * 0.2;
-          }
-          const sonKelime = kelimeler[z] || "";
-          const duraklama = /[.!?â€¦]$/.test(sonKelime) ? sesTonuAyar.noktaMs : (/[,;:]$/.test(sonKelime) ? sesTonuAyar.virgulMs : 140);
-          window.setTimeout(() => {
-            if (zincirNo.current !== benimNo) return;
-            if (ci + 1 < cumleler.length) { konumuYaz(cumleler[ci + 1][0]); sonSinir.current = Date.now(); }
-            konusCumle(ci + 1, null);
-          }, duraklama);
-        };
-        u.onerror = timeriDurdur;
-        konusmaRef.current = u;
-        window.speechSynthesis.speak(u);
-        // BazÄ± Android motorlarÄ± `start` olayÄ± Ã¼retmez. Bu kÄ±sa bekÃ§i yalnÄ±zca
-        // o durumda zaman Ã§izelgesini baÅŸlatÄ±r; gerÃ§ek `start` gelirse yeniden hizalanÄ±r.
-        syncTimer = window.setTimeout(() => {
-          if (!timelineStartedAt) {
-            utteranceStartedAt = performance.now();
-            timelineStartedAt = utteranceStartedAt;
-          }
-          fallbackAdimi();
-        }, 180);
-      };
-
-      if (basKelime === 0) {
-        // v2.2.2: BÃ¶lÃ¼m baÅŸlÄ±ÄŸÄ±nÄ± seslendirme.
-        // KullanÄ±cÄ± ekranda bÃ¶lÃ¼m adÄ±nÄ± zaten gÃ¶rÃ¼yor; baÅŸlÄ±ÄŸÄ±n okunmasÄ±
-        // Ã¶zellikle Ä°ngilizce kitaplarda metinle sesin karÄ±ÅŸtÄ±ÄŸÄ± algÄ±sÄ±nÄ± yaratÄ±yordu.
-        konusCumle(0, null);
-      } else {
-        konusCumle(ilkCumle, basKelime);
-      }
-    } catch {}
-  }, [etkinSeslendirme, hiz, sesTonuAyar, okumaModuAyar]);
-  useEffect(() => { konusmayiBaslatRef.current = konusmayiBaslat; }, [konusmayiBaslat]);
-
-  /* Tek okuma saati: ilerleme gerÃ§ek kelime boundary/fallback olaylarÄ±ndan gelir.
-     Manuel modda tahmini bir saat Ã§alÄ±ÅŸtÄ±rÄ±lmaz; yalnÄ±z uyku sayacÄ± ilerler. */
-  useEffect(() => {
-    if (!caliyor || !aktif || uyku <= 0) return;
-    const int = setInterval(() => {
-      setUyku((u) => {
-        if (u <= 1) { setCaliyor(false); return 0; }
-        return u - 1;
-      });
-    }, 1000);
-    return () => clearInterval(int);
-  }, [caliyor, aktif, uyku]);
-
-  /* Uyku dolunca konuÅŸmayÄ± da kes */
-  useEffect(() => { if (!caliyor) konusmayiDurdur(); }, [caliyor]);
-
-  /* Kelime vurgusu: bÃ¶lÃ¼m/kitap deÄŸiÅŸince baÅŸa dÃ¶n */
-  useEffect(() => { setSoruCevabi(null); }, [aktifId, aktifBolumIx]);
-
-  /* Ä°lerlemeyi 5 sn'de bir kaydet */
-  useEffect(() => {
-    if (!aktifId) return;
-    const simdi = Date.now();
-    if (simdi - sonKayit.current < 5000 && caliyor) return;
-    sonKayit.current = simdi;
-    setIlerlemeler((eski) => {
-      const yeni = { ...eski, [aktifId]: readingProgressSnapshot({ storyId: aktifId, sections: aktif.bolumler, sectionIndex: aktifBolumIx, wordIndex: kelimeIx, durationForSection: bolumSn, now: simdi }) };
-      durumYaz({ favoriler, ilerlemeler: yeni, hiz, sonKitap: aktifId });
-      return yeni;
-    });
-  }, [pozisyon, aktifId]); // eslint-disable-line
-
-  /* Oynat / duraklat */
-  const kitapUyum = useCallback((k, yol = okumaYolu) => kitapOkumaYolunaUygunMu(k, yol), [okumaYolu]);
-  const uyumluKatalog = useMemo(() => KATALOG.filter((k) => kitapUyum(k)), [kitapUyum]);
-  const uyumluRaflar = useMemo(() => RAFLAR
-    .filter((raf) => !raf.yolIds || raf.yolIds.includes(okumaYolu.yolId))
-    .map((raf) => ({
-      ...raf,
-      ids: raf.ids.filter((id) => {
-        const kitap = kitapBul(id);
-        return kitapUyum(kitap) && icerikSunumu(kitap).deployable;
-      }),
-    }))
-    .filter((raf) => raf.ids.length > 0), [kitapUyum, okumaYolu.yolId]);
-
-  const icerikAuditOzeti = useMemo(() => {
-    const rafSayilari = uyumluRaflar.map((raf) => `${raf.ad}: ${raf.ids.length}`);
-    const bosRaflar = uyumluRaflar.filter((raf) => raf.ids.length === 0).map((raf) => raf.ad);
-    const eksikOql = uyumluKatalog.filter((k) => icerikKalitesi(k).toplamKelime === 0).length;
-    const eksikSoru = uyumluKatalog.filter((k) => !SORU_BANKASI[k.id]).length;
-    const englishSayisi = uyumluKatalog.filter((k) => k.dil === "en").length;
-    return { rafSayilari, bosRaflar, eksikOql, eksikSoru, englishSayisi, toplam: uyumluKatalog.length };
-  }, [uyumluRaflar, uyumluKatalog]);
-
-  const okumaYolunuKaydet = (yeni) => {
-    const temiz = { ...VARSAYILAN_OKUMA_YOLU, ...yeni, secildi: true };
-    const yol = yolBul(temiz.yolId);
-    const aktifKitap = kitapBul(aktifId);
-    const aktifUyumlu = !aktifKitap || kitapOkumaYolunaUygunMu(aktifKitap, temiz);
-    if (!aktifUyumlu) {
-      konusmayiDurdur();
-      setCaliyor(false);
-      setOynaticiAcik(false);
-      setDetayId(null);
-      setAktifId(null);
-      setPozisyon(0);
-      setProfilMesaji("Okuma yolun deÄŸiÅŸti. Ã–nceki iÃ§erik yeni yoluna uygun olmadÄ±ÄŸÄ± iÃ§in durdurdum ve sana uygun iÃ§erikleri gÃ¶steriyorum.");
-    } else if (temiz.yolId !== okumaYolu.yolId || temiz.evreId !== okumaYolu.evreId) {
-      setProfilMesaji("Okuma yolun gÃ¼ncellendi. Sana uygun iÃ§erikleri Ã¶ne aldÄ±m.");
-    }
-    setOkumaYolu(temiz);
-    setAyar((onceki) => destekAyarlariniUygula(onceki, temiz));
-    setMod(yol.mod);
-    setOnboardingAcik(false);
-    (async () => {
-      try {
-        await window.storage.set(OKUMA_YOLU_ANAHTAR, JSON.stringify(temiz));
-        await window.storage.set("dinleti-mod-v1", yol.mod);
-      } catch {}
-    })();
-  };
-
-
-  const seriGuncelle = () => {
-    setSeri((e) => {
-      const bugun = new Date().toISOString().slice(0, 10);
-      if (e.sonGun === bugun) return e;
-      const dun = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-      const yeni = { sayi: e.sonGun === dun ? e.sayi + 1 : 1, sonGun: bugun };
-      (async () => { try { await window.storage.set("dinleti-seri-v1", JSON.stringify(yeni)); } catch {} })();
-      return yeni;
-    });
-  };
-
-  const oynatDegistir = (kitapId) => {
-    const id = kitapId || aktifId;
-    const secilenKitap = kitapBul(id);
-    if (!id || !secilenKitap || !icerikSunumu(secilenKitap).deployable) return;
-    if (id !== aktifId) {
-      konusmayiDurdur();
-      setAktifId(id);
-      const k = kitapBul(id);
-      const progress = normalizeReadingProgress({
-        sections: k.bolumler,
-        progress: ilerlemeler[id],
-        durationForSection: bolumSn,
-      });
-      setPozisyon(progress.pos);
-      setKelimeIx(progress.wordIndex);
-      setCaliyor(true);
-      seriGuncelle();
-      if (etkinSeslendirme) konusmayiBaslat(k, progress.sectionIndex, progress.wordIndex);
-      return;
-    }
-    if (caliyor) {
-      setCaliyor(false); konusmayiDurdur();
-      setIlerlemeler((eski) => {
-        const simdi = Date.now();
-        const yeni = { ...eski, [id]: readingProgressSnapshot({ storyId: id, sections: aktif.bolumler, sectionIndex: aktifBolumIx, wordIndex: kelimeIx, durationForSection: bolumSn, now: simdi }) };
-        durumYaz({ favoriler, ilerlemeler: yeni, hiz, sonKitap: id });
-        return yeni;
-      });
-    }
-    else { setCaliyor(true); seriGuncelle(); if (etkinSeslendirme) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx); }
-  };
-
-  const vurguHizala = (poz, konusmayiYenile = false) => {
-    if (!aktif) return;
-    readerFollowImmediateRef.current = true;
-    readerFollowPauseUntilRef.current = 0;
-    const cursor = cursorFromPosition(aktif.bolumler, poz, bolumSn);
-    setKelimeIx(cursor.wordIndex);
-    if (konusmayiYenile && caliyor && etkinSeslendirme) {
-      konusmayiBaslat(aktif, cursor.sectionIndex, cursor.wordIndex);
-    }
-  };
-  const sar = (sn) => {
-    if (!aktif) return;
-    const yeni = Math.min(toplam, Math.max(0, pozisyon + sn));
-    setPozisyon(yeni);
-    vurguHizala(yeni, true);
-  };
-  const oranaSar = (oran) => {
-    if (!aktif) return;
-    const yeni = Math.floor(oran * toplam);
-    setPozisyon(yeni);
-    vurguHizala(yeni, true);
-  };
-  const oynatKitapBolum = (kitapId, ix) => {
-    const k = kitapBul(kitapId);
-    if (!k || !icerikSunumu(k).deployable) return;
-    konusmayiDurdur();
-    setAktifId(kitapId);
-    setPozisyon(bolumBasiSn(k, ix));
-    readerFollowImmediateRef.current = true;
-    readerFollowPauseUntilRef.current = 0;
-    setKelimeIx(0);
-    setReaderFollowNonce((n) => n + 1);
-    setCaliyor(true);
-    seriGuncelle();
-    if (etkinSeslendirme) konusmayiBaslat(k, ix, 0);
-  };
-
-  const bolumeGit = (ix) => {
-    if (!aktif) return;
-    oynatKitapBolum(aktif.id, ix);
-  };
-
-  const favoriDegistir = (id) => {
-    setFavoriler((f) => {
-      const yeni = f.includes(id) ? f.filter((x) => x !== id) : [...f, id];
-      durumYaz({ favoriler: yeni, ilerlemeler, hiz, sonKitap: aktifId });
-      return yeni;
-    });
-  };
-
-  const hizlar = [0.75, 1, 1.25, 1.5, 2];
-  const hizDegistir = () => {
-    const ix = hizlar.indexOf(hiz);
-    const yeni = hizlar[(ix + 1) % hizlar.length];
-    setHiz(yeni);
-    durumYaz({ favoriler, ilerlemeler, hiz: yeni, sonKitap: aktifId });
-  };
-  const uykular = [0, 15 * 60, 30 * 60, 60 * 60];
-  const sesTonuDegistir = () => {
-    const ix = SES_TONLARI.findIndex((s) => s.id === sesTonu);
-    const yeni = SES_TONLARI[(ix + 1) % SES_TONLARI.length].id;
-    setSesTonu(yeni);
-    (async () => { try { await window.storage.set(SES_TONU_ANAHTAR, yeni); } catch {} })();
-    if (caliyor && aktif && etkinSeslendirme) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx);
-  };
-
-  const okumaModuDegistir = (yeni) => {
-    setOkumaModu(yeni);
-    setModPaneliAcik(false);
-    setSeciliSozluk(null);
-    const m = okumaModuBul(yeni);
-    setSeslendirme(m.sesli);
-    if (!m.sesli) konusmayiDurdur();
-    else if (caliyor && aktif) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx, m, true);
-    (async () => { try { await window.storage.set(OKUMA_MODU_ANAHTAR, yeni); } catch {} })();
-  };
-
-  const sozlukAc = (entry, trigger) => {
-    if (!entry) return;
-    sozlukTetikleyiciRef.current = trigger || null;
-    setSeciliSozluk(entry);
-  };
-
-  const sozlukKapat = () => {
-    const trigger = sozlukTetikleyiciRef.current;
-    const hedefKelime = trigger?.dataset.hedefKelime;
-    const odagiGeriVer = () => {
-      const guncelTrigger = trigger?.isConnected
-        ? trigger
-        : hedefKelime
-          ? document.querySelector(`[data-mobile-stability] [data-hedef-kelime="${hedefKelime}"]`)
-          : null;
-      if (guncelTrigger instanceof HTMLElement) guncelTrigger.focus({ preventScroll: true });
-    };
-    odagiGeriVer();
-    setSeciliSozluk(null);
-    window.setTimeout(() => {
-      odagiGeriVer();
-      sozlukTetikleyiciRef.current = null;
-    }, 0);
-  };
-
-  const kelimeyiSeslendir = (kelime) => {
-    if (!kelime || !window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") return;
-    const okumayaDevamEt = caliyor;
-    const sesAcikti = seslendirme;
-    setCaliyor(false);
-    try { window.speechSynthesis.cancel(); } catch {}
-    const u = new window.SpeechSynthesisUtterance(kelime);
-    u.lang = "tr-TR";
-    u.rate = 0.86;
-    u.pitch = 1;
-    const oncekiDurumaDon = () => {
-      setSeslendirme(sesAcikti);
-      if (okumayaDevamEt && sesAcikti && aktif) {
-        setCaliyor(true);
-        konusmayiBaslat(aktif, aktifBolumIx, kelimeIx);
-      }
-    };
-    u.onend = oncekiDurumaDon;
-    u.onerror = oncekiDurumaDon;
-    window.speechSynthesis.speak(u);
-  };
-
-  const uykuDegistir = () => {
-    const enYakin = uykular.reduce((a, b) => (Math.abs(b - uyku) < Math.abs(a - uyku) ? b : a), 0);
-    const ix = uykular.indexOf(enYakin);
-    setUyku(uykular[(ix + 1) % uykular.length]);
-  };
-
-  /* ------------------------------ Stil ------------------------------ */
-  const S = {
-    fon: "#14181F", kart: "#1C222D", kart2: "#242C3A",
-    metin: "#F2ECDF", soluk: "#8B94A7", vurgu: "#E8A33D",
-  };
-  const govde = { fontFamily: "'Inter', system-ui, sans-serif", background: S.fon, color: S.metin, minHeight: "100vh", width: "100%", maxWidth: 1180, margin: "0 auto", position: "relative", paddingBottom: 150, boxSizing: "border-box" };
-  const baslikStil = { fontFamily: "'Fraunces', serif", fontWeight: 600 };
-
-  if (yukleniyor) {
-    return <div style={{ ...govde, display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
-      <div style={{ color: S.soluk }}>KitaplÄ±k aÃ§Ä±lÄ±yorâ€¦</div>
-    </div>;
-  }
-
-  /* ------------------------- Alt bileÅŸenler ------------------------- */
-
-  const KitapKart = ({ kitap, genis }) => {
-    const meta = kitapMeta(kitap);
-    const kalite = icerikKalitesi(kitap);
-    const sunum = icerikSunumu(kitap);
-    const seviye = evaluateStoryForReadingLevel(kitap, meta, okumaYolu.yolId);
-    const insanIncelemesi = evaluateContentQualityReview(kitap.contentQualityReview, {
-      readingPathId: okumaYolu.yolId,
-    });
-    const ayrintiAc = () => setDetayId(kitap.id);
-    return (
-      <div
-        data-kitap-karti
-        data-story-id={kitap.id}
-        data-content-status={sunum.status}
-        data-reading-enabled={sunum.deployable ? "true" : "false"}
-        data-word-count={seviye.wordCount ?? 0}
-        data-reading-level={okumaYolu.yolId}
-        data-content-review-status={insanIncelemesi.normalized.status}
-        data-publication-ready={insanIncelemesi.publicationReady ? "true" : "false"}
-        role="button"
-        tabIndex={0}
-        aria-label={`${kitap.baslik} ayrÄ±ntÄ±larÄ±nÄ± aÃ§${sunum.deployable ? "" : " Â· hazÄ±rlanÄ±yor"}`}
-        onClick={ayrintiAc}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            ayrintiAc();
-          }
-        }}
-        style={{ cursor: "pointer", width: genis ? "100%" : 128, opacity: sunum.deployable ? 1 : 0.72 }}
-      >
-        <Kapak kitap={kitap} boyut={genis ? 96 : 128} />
-        <div style={{ marginTop: 8, fontSize: 13, fontWeight: 600, lineHeight: 1.3 }}>{kitap.baslik}</div>
-        <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{kitap.yazar}</div>
-        <div data-yas style={{ fontSize: 11, color: S.vurgu, marginTop: 3 }}>
-          {kitap.yas || `${meta.yasMin || ""}${meta.yasMax ? `â€“${meta.yasMax}` : "+"} yaÅŸ`}{kitap.dil === "en" ? ` Â· CEFR ${meta.cefr || "A1"}` : ""}{meta.harfGrubu ? ` Â· ${meta.harfGrubu}. harf grubu` : ""}
-        </div>
-        <div data-icerik-yolu style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{meta.icerikTuru.replace(/_/g, " ")}</div>
-        <div data-content-scope style={{ fontSize: 11, color: sunum.deployable ? S.vurgu : "#D7B778", fontWeight: 700, marginTop: 4 }}>{sunum.label}</div>
-        <OkurioProvenanceStamp stamp={kitap.provenanceStamp} compact />
-        <div data-actual-duration style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{sureYaz(sunum.seconds)} Â· {kalite.toplamKelime} kelime</div>
-        <div data-oql style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>OQL-{kalite.oql} Â· ort. cÃ¼mle {kalite.ortCumle.toFixed(1)}</div>
-      </div>
-    );
-  };
-
-  const DevamKart = () => {
-    const devamlar = Object.entries(ilerlemeler)
-      .filter(([id, v]) => {
-        const kitap = kitapBul(id);
-        const kisiselOkuma = kitap && kitapMeta(kitap).icerikTuru === "kullanici_metni";
-        return v.pos > 10 && kitap && (kisiselOkuma || kitapUyum(kitap)) && icerikSunumu(kitap).deployable;
-      })
-      .sort((a, b) => b[1].ts - a[1].ts);
-    if (devamlar.length === 0) return null;
-    const [id, v] = devamlar[0];
-    const k = kitapBul(id);
-    const oran = v.pos / toplamSn(k);
-    return (
-      <div onClick={() => { setDetayId(null); if (id !== aktifId || !caliyor) oynatDegistir(id); setOynaticiAcik(true); }}
-        style={{ display: "flex", gap: 14, background: S.kart, borderRadius: 16, padding: 14, cursor: "pointer", alignItems: "center", border: `1px solid rgba(232,163,61,0.25)` }}>
-        <Kapak kitap={k} boyut={64} radius={8} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 11, color: S.vurgu, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>KaldÄ±ÄŸÄ±n yerden devam et</div>
-          <div style={{ fontWeight: 600, fontSize: 15 }}>{k.baslik}</div>
-          <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{sureYaz(v.pos)} / {sureYaz(toplamSn(k))}</div>
-          <div style={{ height: 4, background: "rgba(255,255,255,0.1)", borderRadius: 2, marginTop: 8 }}>
-            <div style={{ width: `${oran * 100}%`, height: "100%", background: S.vurgu, borderRadius: 2 }} />
-          </div>
-        </div>
-        <div style={{ width: 42, height: 42, borderRadius: 21, background: S.vurgu, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <Play size={18} color="#14181F" fill="#14181F" style={{ marginLeft: 2 }} />
-        </div>
-      </div>
-    );
-  };
-
-  const RozetYolu = () => {
-    const baslanan = Object.entries(ilerlemeler).filter(([id, v]) => v.pos > 10 && kitapBul(id));
-    const toplamTakipSn = baslanan.reduce((t, [id, v]) => t + Math.min(v.pos || 0, toplamSn(kitapBul(id))), 0);
-    const kazanilan = [
-      { id: "tohum", ad: "Okuma Tohumu", aciklama: "Ä°lk dinlemeyi baÅŸlat", aktif: baslanan.length >= 1 },
-      { id: "filiz", ad: "Takip Filizi", aciklama: "3 farklÄ± iÃ§eriÄŸe dokun", aktif: baslanan.length >= 3 },
-      { id: "yaprak", ad: "Sakin Okur", aciklama: "10 dk takipli okuma", aktif: toplamTakipSn >= 600 },
-      { id: "kurdu", ad: okumaYoluDetay.rozetAdi || "Kitap Kurdu", aciklama: "7 gÃ¼nlÃ¼k dÃ¼zenli ritim", aktif: seri.sayi >= 7 },
-    ];
-    const aktifSayisi = kazanilan.filter((r) => r.aktif).length;
-    return (
-      <div data-rozet-yolu style={{ background: "rgba(255,255,255,0.045)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 14, marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 10 }}>
-          <div>
-            <div style={{ fontSize: 13, color: S.vurgu, fontWeight: 700 }}>Kitap Kurdu YolculuÄŸu</div>
-            <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>Sessiz, baskÄ±sÄ±z ilerleme: {aktifSayisi}/4 rozet aÃ§Ä±ldÄ±.</div>
-          </div>
-          <div style={{ fontSize: 20 }}>ğŸŒ±</div>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-          {kazanilan.map((r) => (
-            <div key={r.id} style={{ borderRadius: 12, padding: "9px 10px", background: r.aktif ? "rgba(232,163,61,0.16)" : "rgba(255,255,255,0.055)", border: r.aktif ? "1px solid rgba(232,163,61,0.32)" : "1px solid rgba(255,255,255,0.06)", color: r.aktif ? S.metin : S.soluk }}>
-              <div style={{ fontSize: 12, fontWeight: 700 }}>{r.aktif ? "âœ“ " : "â—‹ "}{r.ad}</div>
-              <div style={{ fontSize: 11, marginTop: 3, opacity: 0.85 }}>{r.aciklama}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  const OkumaYoluKarti = () => (
-    <div data-okuma-yolu style={{ background: "linear-gradient(135deg, rgba(232,163,61,0.12), rgba(255,255,255,0.035))", border: "1px solid rgba(232,163,61,0.24)", borderRadius: 16, padding: 12, marginBottom: 12 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start" }}>
-        <div>
-          <div style={{ fontSize: 11, color: S.vurgu, letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 700 }}>Okuma yolu</div>
-          <div style={{ ...baslikStil, fontSize: 21, marginTop: 3 }}>{okumaYoluDetay.baslik}</div>
-          <div style={{ color: S.soluk, fontSize: 13, marginTop: 4 }}>{okumaYoluDetay.yas} Â· {okumaEvreDetay.ad}</div>
-        </div>
-        <button onClick={() => setOnboardingAcik(true)} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, color: S.metin, padding: "8px 10px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>DeÄŸiÅŸtir</button>
-      </div>
-      <div style={{ color: S.soluk, fontSize: 12, marginTop: 7 }}>{okumaYolu.destekler.length} destek aktif Â· DÃ¼zenlemek iÃ§in DeÄŸiÅŸtir</div>
-    </div>
-  );
-
-  const AnaSayfa = () => (
-    <main data-page-shell data-home-page style={{ padding: "24px 20px" }}>
-      <div style={{ ...baslikStil, fontSize: 30, marginBottom: 4 }}>Okurio</div>
-      <div style={{ color: S.soluk, fontSize: 14, marginBottom: 14 }}>
-        Her yaÅŸta okumayÄ± kolaylaÅŸtÄ±ran sesli ve takipli okuma arkadaÅŸÄ±.
-        {" "}<span data-surum style={{ fontSize: 11, opacity: 0.6 }}>v{SURUM}</span>
-      </div>
-      <OkumaYoluKarti />
-      {profilMesaji && (
-        <div data-profil-gecis-mesaji style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "rgba(232,163,61,0.12)", border: "1px solid rgba(232,163,61,0.28)", borderRadius: 14, padding: "10px 12px", marginBottom: 14 }}>
-          <div style={{ color: S.vurgu, fontSize: 14, fontWeight: 700 }}>Okuma yolu</div>
-          <div style={{ color: "rgba(242,236,223,0.88)", fontSize: 13, lineHeight: 1.45, flex: 1 }}>{profilMesaji}</div>
-          <button onClick={() => setProfilMesaji("")} aria-label="MesajÄ± kapat" style={{ background: "transparent", border: "none", color: S.soluk, cursor: "pointer", fontSize: 16, lineHeight: 1 }}>Ã—</button>
-        </div>
-      )}
-      <RozetYolu />
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 18 }}>
-        {["Senkron kelime takibi", "Odak modu", "Rahat okuma aralÄ±ÄŸÄ±", "KÄ±sa gÃ¼nlÃ¼k hedef"].map((r) => (
-          <span key={r} style={{ fontSize: 12, color: S.soluk, background: S.kart, borderRadius: 10, padding: "7px 11px" }}>{r}</span>
-        ))}
-      </div>
-      {seri.sayi > 0 && (
-        <div data-seri style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(232,163,61,0.12)", borderRadius: 12, padding: "10px 14px", marginBottom: 14, color: S.vurgu, fontSize: 13 }}>
-          <Flame size={16} /> {seri.sayi} gÃ¼nlÃ¼k okuma ritmi. BugÃ¼n de buradasÄ±n, bu yeterli.
-        </div>
-      )}
-      <DevamKart />
-      {uyumluRaflar.length === 0 && <div data-bos-okuma-yolu style={{ color: S.soluk, fontSize: 14, marginTop: 18 }}>Bu okuma yolunda yaÅŸ ve uzunluk hedefini karÅŸÄ±layan hazÄ±r tam metin bulunmuyor. Okuma yolunu deÄŸiÅŸtirerek mevcut seÃ§kilere bakabilirsin.</div>}
-      {uyumluRaflar.map((raf) => {
-        const hazirIds = raf.ids.filter((id) => icerikSunumu(kitapBul(id)).deployable);
-        const rafOzeti = `${hazirIds.length} hazÄ±r`;
-        return (
-          <div key={raf.ad} data-content-shelf data-shelf-name={raf.ad} style={{ marginTop: 28 }}>
-            <div style={{ ...baslikStil, fontSize: 19, marginBottom: 14 }}>{raf.ad} <span style={{ fontFamily: "Inter, system-ui, sans-serif", color: S.soluk, fontSize: 12, fontWeight: 500 }}>Â· {rafOzeti}</span></div>
-            <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 6 }}>
-              {hazirIds.map((id) => <KitapKart key={id} kitap={kitapBul(id)} />)}
-            </div>
-          </div>
-        );
-      })}
-      <div data-kendi-metnim style={{ marginTop: 32, marginBottom: 18 }}>
-        <button ref={kendiMetinCtaRef} onClick={() => setKendiMetinPaneliAcik(true)} aria-haspopup="dialog" aria-expanded={kendiMetinPaneliAcik} style={{ width: "100%", minHeight: 56, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: S.kart, border: "1px solid rgba(232,163,61,0.22)", borderRadius: 16, padding: "12px 14px", color: S.metin, cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
-          <span>
-            <strong style={{ display: "block", color: S.vurgu, fontSize: 14 }}>Kendi metnini oku</strong>
-            <span style={{ display: "block", color: S.soluk, fontSize: 12, marginTop: 2 }}>Kopyala-yapÄ±ÅŸtÄ±r veya TXT</span>
-          </span>
-          <span aria-hidden="true" style={{ color: S.vurgu, fontSize: 22 }}>ï¼‹</span>
-        </button>
-        {kendiIcerikListesi.length > 0 && (
-          <div data-benim-kitapligim style={{ marginTop: 10 }}>
-            <div style={{ color: S.soluk, fontSize: 12, marginBottom: 6 }}>Benim KitaplÄ±ÄŸÄ±m</div>
-            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
-              {kendiIcerikListesi.slice(0, 5).map((kayit) => (
-                <button
-                  key={kayit.kitap.id}
-                  onClick={() => { setAktifId(kayit.kitap.id); setDetayId(null); setSekme("ana"); setPozisyon(0); setKelimeIx(0); setCaliyor(false); setOynaticiAcik(true); }}
-                  style={{ flexShrink: 0, maxWidth: 160, minHeight: 44, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 10, padding: "8px 12px", color: S.metin, fontSize: 12, textAlign: "left", cursor: "pointer", fontFamily: "inherit", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                >
-                  {kayit.kitap.baslik}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-        {kendiMetinPaneliAcik && (
-          <div data-kendi-metin-backdrop style={{ position: "fixed", inset: 0, zIndex: 60, display: "flex", alignItems: "flex-end", justifyContent: "center", background: "rgba(10,12,16,0.82)" }}>
-            <section role="dialog" aria-modal="true" aria-labelledby="kendi-metin-basligi" data-kendi-metin-dialog style={{ width: "min(720px, 100%)", maxHeight: "min(860px, 96dvh)", display: "flex", flexDirection: "column", background: S.kart, border: "1px solid rgba(255,255,255,0.08)", borderRadius: "22px 22px 0 0", padding: "18px", boxSizing: "border-box", boxShadow: "0 -24px 70px rgba(0,0,0,0.52)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexShrink: 0 }}>
-                <div>
-                  <h2 id="kendi-metin-basligi" style={{ ...baslikStil, fontSize: 24, margin: 0 }}>Kendi metnini oku</h2>
-                  <div style={{ color: S.soluk, fontSize: 13, lineHeight: 1.45, marginTop: 4 }}>Metni yalnÄ±zca bu cihazda okuma gÃ¶rÃ¼nÃ¼mÃ¼ne hazÄ±rlar.</div>
-                </div>
-                <button onClick={() => setKendiMetinPaneliAcik(false)} aria-label="Kendi metin panelini kapat" style={{ width: 44, height: 44, flexShrink: 0, background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 12, color: S.metin, fontSize: 22, cursor: "pointer" }}>Ã—</button>
-              </div>
-              <input value={kendiBaslik} onChange={(e) => setKendiBaslik(e.target.value)} aria-label="Kendi metnim baÅŸlÄ±k" style={{ width: "100%", boxSizing: "border-box", marginTop: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "12px", fontSize: 16, fontFamily: "inherit", flexShrink: 0 }} />
-              <textarea value={kendiMetin} onChange={(e) => setKendiMetin(e.target.value)} placeholder="Metni buraya yapÄ±ÅŸtÄ±r..." aria-label="Kendi metnim" style={{ width: "100%", boxSizing: "border-box", minHeight: "min(48dvh, 420px)", flex: "1 1 auto", marginTop: 10, borderRadius: 12, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "14px", fontSize: 16, lineHeight: 1.55, fontFamily: "inherit", resize: "none" }} />
-              {kendiMetinMesaji && <div aria-live="polite" style={{ color: S.soluk, fontSize: 12, marginTop: 8 }}>{kendiMetinMesaji}</div>}
-              <div data-kendi-metin-actions style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", marginTop: 12, flexShrink: 0 }}>
-                <label aria-disabled={kendiMetinYukleniyor ? "true" : undefined} style={{ minHeight: 44, display: "flex", alignItems: "center", background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "0 12px", cursor: kendiMetinYukleniyor ? "wait" : "pointer", fontSize: 13, opacity: kendiMetinYukleniyor ? 0.7 : 1 }}>{kendiMetinYukleniyor ? "Belge okunuyorâ€¦" : "PDF, Word veya TXT seÃ§"}
-                  <input type="file" aria-label="PDF, Word veya TXT dosyasÄ± seÃ§" accept={SUPPORTED_DOCUMENT_ACCEPT} disabled={kendiMetinYukleniyor} onChange={dosyaMetniYukle} style={{ display: "none" }} />
-                </label>
-                <button disabled={kendiMetinYukleniyor} onClick={() => kendiMetniAc(kendiMetin, kendiBaslik)} style={{ minHeight: 48, background: S.vurgu, color: "#14181F", border: "none", borderRadius: 12, padding: "0 18px", fontWeight: 800, cursor: kendiMetinYukleniyor ? "wait" : "pointer", fontFamily: "inherit", opacity: kendiMetinYukleniyor ? 0.65 : 1 }}>Okuma moduna al</button>
-              </div>
-              <div data-terms style={{ color: S.soluk, fontSize: 11, lineHeight: 1.45, marginTop: 10, opacity: 0.9 }}>
-                YÃ¼klediÄŸin iÃ§eriÄŸin haklarÄ±ndan sen sorumlusun. Okurio metni kiÅŸisel eriÅŸilebilir okuma desteÄŸi iÃ§in iÅŸler; yayÄ±nlamaz veya daÄŸÄ±tmaz.
-              </div>
-            </section>
-          </div>
-        )}
-      </div>
-      <details data-audit-ozet style={{ background: "rgba(255,255,255,0.035)", border: `1px solid ${S.kart2}`, borderRadius: 12, padding: "10px 12px", marginTop: 10 }}>
-        <summary style={{ color: S.soluk, fontSize: 12, cursor: "pointer" }}>Ä°Ã§erik durumu</summary>
-        <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>
-          Bu yolda {icerikAuditOzeti.toplam} uygun iÃ§erik Â· {icerikAuditOzeti.englishSayisi} Ä°ngilizce iÃ§erik Â· {icerikAuditOzeti.bosRaflar.length} hazÄ±rlÄ±k rafÄ±
-        </div>
-      </details>
-    </main>
-  );
-
-  const AramaSayfa = () => {
-    const q = arama.trim().toLowerCase();
-    const evren = uyumluKatalog.filter((kitap) => kitap.publiclyDiscoverable !== false);
-    const sonuc = q ? evren.filter((k) => (k.baslik + " " + k.yazar + " " + k.kategori + " " + (k.ozet || "")).toLowerCase().includes(q)) : evren;
-    return (
-      <main data-page-shell data-search-page style={{ padding: "24px 20px" }}>
-        <div style={{ ...baslikStil, fontSize: 26, marginBottom: 16 }}>Ara</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, background: S.kart, borderRadius: 12, padding: "12px 14px", marginBottom: 20 }}>
-          <Search size={18} color={S.soluk} />
-          <input value={arama} onChange={(e) => setArama(e.target.value)} placeholder="Kitap veya yazar ara"
-            style={{ background: "none", border: "none", outline: "none", color: S.metin, fontSize: 15, flex: 1, fontFamily: "inherit" }} />
-        </div>
-        {sonuc.length === 0 && <div style={{ color: S.soluk, fontSize: 14 }}>SonuÃ§ bulunamadÄ±. BaÅŸka bir kelime dene.</div>}
-        {sonuc.map((k) => (
-          <div key={k.id} role="button" tabIndex={0} onClick={() => setDetayId(k.id)} onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setDetayId(k.id); }
-          }} style={{ display: "flex", gap: 14, padding: "12px 0", cursor: "pointer", borderBottom: "1px solid rgba(255,255,255,0.06)", alignItems: "center" }}>
-            <Kapak kitap={k} boyut={52} radius={6} />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: 15 }}>{k.baslik}</div>
-              <div style={{ fontSize: 12, color: S.soluk, marginTop: 2 }}>{k.yazar} Â· {k.kategori}{k.dil === "en" ? " Â· English" : ""}{k.yas ? ` Â· ${k.yas}` : ""} Â· {sureYaz(toplamSn(k))}</div>
-            </div>
-          </div>
-        ))}
-      </main>
-    );
-  };
-
-  const KitaplikSayfa = () => {
-    const favKitaplar = favoriler.map(kitapBul).filter((k) => k && kitapUyum(k));
-    const devamlar = Object.entries(ilerlemeler).filter(([id, v]) => v.pos > 10 && kitapUyum(kitapBul(id)) && icerikSunumu(kitapBul(id)).deployable).sort((a, b) => b[1].ts - a[1].ts);
-    return (
-      <main data-page-shell data-library-page style={{ padding: "24px 20px" }}>
-        <div style={{ ...baslikStil, fontSize: 26, marginBottom: 20 }}>KitaplÄ±ÄŸÄ±m</div>
-        <div style={{ ...baslikStil, fontSize: 17, marginBottom: 12 }}>Okumaya devam</div>
-        {devamlar.length === 0 && <div style={{ color: S.soluk, fontSize: 14, marginBottom: 20 }}>HenÃ¼z dinlemeye baÅŸlamadÄ±n. Ana sayfadan bir kitap seÃ§.</div>}
-        {devamlar.map(([id, v]) => {
-          const k = kitapBul(id); const oran = v.pos / toplamSn(k);
-          return (
-            <div key={id} role="button" tabIndex={0} onClick={() => setDetayId(id)} onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setDetayId(id); }
-            }} style={{ display: "flex", gap: 14, padding: "10px 0", cursor: "pointer", alignItems: "center" }}>
-              <Kapak kitap={k} boyut={52} radius={6} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: 15 }}>{k.baslik}</div>
-                <div style={{ fontSize: 12, color: S.soluk, margin: "4px 0 6px" }}>%{Math.round(oran * 100)} okundu</div>
-                <div style={{ height: 3, background: "rgba(255,255,255,0.1)", borderRadius: 2 }}>
-                  <div style={{ width: `${oran * 100}%`, height: "100%", background: S.vurgu, borderRadius: 2 }} />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-        <div style={{ ...baslikStil, fontSize: 17, margin: "24px 0 12px" }}>Favoriler</div>
-        {favKitaplar.length === 0 && <div style={{ color: S.soluk, fontSize: 14 }}>Favori eklemedin. Kitap sayfasÄ±ndaki kalp simgesini kullan.</div>}
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          {favKitaplar.map((k) => <KitapKart key={k.id} kitap={k} />)}
-        </div>
-      </main>
-    );
-  };
-
-  const DetaySayfa = () => {
-    const k = kitapBul(detayId);
-    if (!k) return null;
-    const profilUyumlu = kitapUyum(k);
-    const sunum = icerikSunumu(k);
-    const baslatilabilir = profilUyumlu && sunum.deployable;
-    const p = ilerlemeler[k.id]?.pos || 0;
-    const fav = favoriler.includes(k.id);
-    return (
-      <main data-page-shell data-detail-page style={{ padding: "16px 20px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <button onClick={() => setDetayId(null)} aria-label="Geri" style={{ background: S.kart, border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronLeft size={20} /></button>
-          <button onClick={() => favoriDegistir(k.id)} aria-label="Favori" style={{ background: S.kart, border: "none", borderRadius: 10, padding: 8, cursor: "pointer" }}>
-            <Heart size={20} color={fav ? S.vurgu : S.metin} fill={fav ? S.vurgu : "none"} />
-          </button>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}><Kapak kitap={k} boyut={150} radius={12} /></div>
-        <div style={{ ...baslikStil, fontSize: 24, textAlign: "center" }}>{k.baslik}</div>
-        <div style={{ textAlign: "center", color: S.soluk, fontSize: 14, marginTop: 4 }}>{k.yazar}</div>
-        <div style={{ display: "flex", justifyContent: "center", gap: 18, marginTop: 12, fontSize: 12, color: S.soluk }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 5 }}><Clock size={13} /> {sureYaz(toplamSn(k))}</span>
-          <span style={{ display: "flex", alignItems: "center", gap: 5 }}><BookOpen size={13} /> {k.bolumler.length} bÃ¶lÃ¼m</span>
-          <span style={{ color: S.vurgu }}>â˜… {k.puan}</span>
-          {k.yas && <span style={{ background: "rgba(232,163,61,0.15)", color: S.vurgu, borderRadius: 6, padding: "1px 7px" }}>{k.yas}</span>}
-          {k.dil === "en" && <span style={{ background: "rgba(90,140,160,0.25)", color: "#9CCDE0", borderRadius: 6, padding: "1px 7px" }}>English</span>}
-        </div>
-        {!profilUyumlu && (
-          <div data-profil-uyumsuz style={{ marginTop: 14, fontSize: 12, color: S.vurgu, background: "rgba(232,163,61,0.10)", borderRadius: 10, padding: "8px 12px" }}>
-            Bu iÃ§erik mevcut okuma yoluna tam uymuyor. Dinlemek iÃ§in okuma yolunu deÄŸiÅŸtirmen Ã¶nerilir.
-          </div>
-        )}
-        {!sunum.deployable && (
-          <div data-content-preparing style={{ marginTop: 14, fontSize: 13, color: "#E2C58F", background: "rgba(215,183,120,0.10)", border: "1px solid rgba(215,183,120,0.24)", borderRadius: 10, padding: "10px 12px", lineHeight: 1.5 }}>
-            Bu kÄ±sa seÃ§ki henÃ¼z tam bir okuma oturumu deÄŸil. Metin geniÅŸletilip iÃ§erik kontrolÃ¼nden geÃ§ince aÃ§Ä±lacak.
-          </div>
-        )}
-        <button disabled={!baslatilabilir} onClick={() => { if (!baslatilabilir) return; oynatDegistir(k.id); setOynaticiAcik(true); }}
-          style={{ width: "100%", marginTop: 18, background: baslatilabilir ? S.vurgu : "rgba(255,255,255,0.12)", color: baslatilabilir ? "#14181F" : S.soluk, border: "none", borderRadius: 14, padding: "14px 0", fontSize: 15, fontWeight: 600, cursor: baslatilabilir ? "pointer" : "not-allowed", fontFamily: "inherit" }}>
-          {!sunum.deployable ? "HazÄ±rlanÄ±yor" : p > 10 ? `Okumaya devam et Â· ${sureYaz(p)}` : "Okumaya baÅŸla"}
-        </button>
-        <div data-icerik-kapsami={sunum.status} style={{ marginTop: 14, fontSize: 12, color: S.vurgu, background: "rgba(232,163,61,0.10)", borderRadius: 10, padding: "8px 12px", lineHeight: 1.55 }}>
-          {k.icerikDurumu === "tam-metin" && k.hakDurumu === "kamu-mali" ? (
-            <>
-              <strong>Tam metin Â· Kamu malÄ± kaynak.</strong>{" "}
-              <a href={k.kaynak.url} target="_blank" rel="noreferrer" style={{ color: S.vurgu }}>Source of truth: {k.kaynak.ad}</a>
-            </>
-          ) : sunum.status === "full-reading" ? (
-            <><strong>Tam okuma Â· Okurio Ã¶zgÃ¼n iÃ§erik.</strong> GerÃ§ek sÃ¼resi ve kapsamÄ± doÄŸrulanmÄ±ÅŸ eksiksiz bir okuma oturumudur.</>
-          ) : sunum.status === "micro-exercise" ? (
-            <><strong>Mikro alÄ±ÅŸtÄ±rma.</strong> Harf, hece veya kelime Ã§alÄ±ÅŸmasÄ±dÄ±r; hikÃ¢ye ya da tam eser deÄŸildir.</>
-          ) : (
-            <><strong>HazÄ±rlanÄ±yor.</strong> Bu kÄ±sa kayÄ±t tam eser veya tamamlanmÄ±ÅŸ hikÃ¢ye deÄŸildir ve henÃ¼z baÅŸlatÄ±lamaz.</>
-          )}
-        </div>
-        <OkurioProvenanceStamp stamp={k.provenanceStamp} />
-        <div data-kalite-karti style={{ marginTop: 14, fontSize: 12, color: S.soluk, background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "8px 12px" }}>
-          Okuma seviyesi: OQL-{icerikKalitesi(k).oql} Â· {icerikKalitesi(k).ad}{kitapMeta(k).cefr ? ` Â· CEFR ${kitapMeta(k).cefr}` : ""} Â· {icerikKalitesi(k).toplamKelime} kelime Â· gerÃ§ek sÃ¼re {sureYaz(sunum.seconds)} Â· ort. cÃ¼mle {icerikKalitesi(k).ortCumle.toFixed(1)} kelime
-        </div>
-        <div style={{ marginTop: 14, fontSize: 14, lineHeight: 1.6, color: "rgba(242,236,223,0.85)" }}>{k.ozet}</div>
-        <div style={{ ...baslikStil, fontSize: 17, margin: "24px 0 10px" }}>BÃ¶lÃ¼mler</div>
-        {k.bolumler.map((b, i) => {
-          const aktifMi = aktifId === k.id && aktifBolumIx === i;
-          return (
-            <div key={i} role="button" tabIndex={baslatilabilir ? 0 : -1} aria-disabled={!baslatilabilir} onClick={() => { if (!baslatilabilir) return; oynatKitapBolum(k.id, i); setOynaticiAcik(true); }} onKeyDown={(event) => {
-              if (baslatilabilir && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); oynatKitapBolum(k.id, i); setOynaticiAcik(true); }
-            }}
-              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 0", borderBottom: "1px solid rgba(255,255,255,0.06)", cursor: baslatilabilir ? "pointer" : "not-allowed", opacity: baslatilabilir ? 1 : 0.55 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 26, textAlign: "center", color: aktifMi ? S.vurgu : S.soluk, fontSize: 13 }}>{aktifMi ? <Volume2 size={15} /> : i + 1}</div>
-                <div style={{ fontSize: 14, fontWeight: aktifMi ? 600 : 400, color: aktifMi ? S.vurgu : S.metin }}>{b.ad}</div>
-              </div>
-              <div style={{ fontSize: 12, color: S.soluk }}>{sureYaz(bolumSn(b))}</div>
-            </div>
-          );
-        })}
-      </main>
-    );
-  };
-
-  /* Mini oynatÄ±cÄ± */
-  const MiniOynatici = () => {
-    if (!aktif || oynaticiAcik) return null;
-    const oran = toplam ? pozisyon / toplam : 0;
-    return (
-      <div data-mini-player role="button" tabIndex={0} aria-label={`${aktif.baslik} oynatÄ±cÄ±sÄ±nÄ± aÃ§`} onClick={() => setOynaticiAcik(true)} onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setOynaticiAcik(true); }
-      }} style={{ position: "fixed", bottom: 64, left: "50%", transform: "translateX(-50%)", width: "min(1180px, 100%)", padding: "0 10px", boxSizing: "border-box", cursor: "pointer", zIndex: 20 }}>
-        <div style={{ background: S.kart2, borderRadius: 14, padding: "10px 12px", display: "flex", alignItems: "center", gap: 12, boxShadow: "0 -4px 20px rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", left: 0, bottom: 0, height: 2, width: `${oran * 100}%`, background: S.vurgu }} />
-          <Kapak kitap={aktif} boyut={38} radius={5} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{aktif.baslik}</div>
-            <div style={{ fontSize: 11, color: S.soluk }}>{aktif.bolumler[aktifBolumIx].ad}</div>
-          </div>
-          <button onClick={(e) => { e.stopPropagation(); sar(-15); }} aria-label="15 sn geri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", padding: 4 }}><RotateCcw size={18} /></button>
-          <button onClick={(e) => { e.stopPropagation(); oynatDegistir(); }} aria-label={caliyor ? "Duraklat" : "Oynat"}
-            style={{ width: 38, height: 38, borderRadius: 19, background: S.vurgu, border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-            {caliyor ? <Pause size={17} color="#14181F" fill="#14181F" /> : <Play size={17} color="#14181F" fill="#14181F" style={{ marginLeft: 2 }} />}
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  /* Tam ekran oynatÄ±cÄ± */
-  const TamOynatici = () => {
-    if (!aktif || !oynaticiAcik) return null;
-    const oran = toplam ? pozisyon / toplam : 0;
-    const b = aktif.bolumler[aktifBolumIx];
-    const mobilDar = typeof window !== "undefined" && window.innerWidth <= 430;
-    const soruHazir = toplam > 0 && pozisyon >= Math.max(0, toplam - 2);
-    const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
-    return (
-      <div data-reader-backdrop style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.78)" }}>
-        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranÄ±`} data-mobile-stability="v2.8.4" data-reader-shell data-playing={caliyor ? "1" : "0"} data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "var(--okurio-visual-viewport-height, 100dvh)", maxHeight: "var(--okurio-visual-viewport-height, 100dvh)", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
-
-          {/* Ãœst Ã§ubuk */}
-          <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, minHeight: mobilDar ? 44 : undefined }}>
-            <button onClick={okuyucuyuKapatVeOdakla} aria-label="Kapat" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronDown size={20} /></button>
-            <div data-reader-eyebrow style={{ fontSize: mobilDar ? 10 : 12, color: S.soluk, letterSpacing: mobilDar ? "0.06em" : "0.08em", textTransform: "uppercase" }}>Åimdi okunuyor</div>
-            <button data-reader-favorite onClick={() => favoriDegistir(aktif.id)} aria-label="Favori" aria-pressed={favoriler.includes(aktif.id)} style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, cursor: "pointer" }}>
-              <Heart size={18} color={favoriler.includes(aktif.id) ? S.vurgu : S.metin} fill={favoriler.includes(aktif.id) ? S.vurgu : "none"} />
-            </button>
-          </div>
-
-          {/* Kompakt kitap bilgisi */}
-          <div data-kompakt-baslik role="button" tabIndex={0} aria-expanded={bolumlerAcik} aria-controls="okurio-bolum-listesi" onClick={() => setBolumlerAcik(!bolumlerAcik)} onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setBolumlerAcik(!bolumlerAcik); }
-          }} style={{ display: "flex", alignItems: "center", gap: mobilDar ? 7 : 12, margin: mobilDar ? "2px 0 4px" : "8px 0 6px", minHeight: mobilDar ? 54 : undefined, maxHeight: mobilDar ? 60 : undefined, flexShrink: 0, cursor: "pointer" }}>
-            {!mobilDar && <Kapak kitap={aktif} boyut={44} radius={6} />}
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ ...baslikStil, fontSize: mobilDar ? 15 : 16, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{aktif.baslik}</div>
-              <div style={{ color: S.soluk, fontSize: mobilDar ? 11 : 12, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.ad} Â· {aktifBolumIx + 1}/{aktif.bolumler.length} bÃ¶lÃ¼m</div>
-              {!mobilDar && <div data-ses-tonu style={{ color: S.vurgu, fontSize: 11, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{sesTonuAyar.ad}</div>}
-            </div>
-            <ListMusic size={17} color={bolumlerAcik ? S.vurgu : S.soluk} />
-          </div>
-
-          {/* BÃ¶lÃ¼m listesi (katlanÄ±r) */}
-          {bolumlerAcik && (
-            <div id="okurio-bolum-listesi" data-bolum-listesi style={{ flexShrink: 0, maxHeight: 180, overflowY: "auto", background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "4px 12px", marginBottom: 10 }}>
-              {aktif.bolumler.map((bb, i) => (
-                <div key={i} role="button" tabIndex={0} onClick={() => { bolumeGit(i); setBolumlerAcik(false); }} onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") { event.preventDefault(); bolumeGit(i); setBolumlerAcik(false); }
-                }} style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: i < aktif.bolumler.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none", cursor: "pointer", fontSize: 13, color: i === aktifBolumIx ? S.vurgu : S.metin, fontWeight: i === aktifBolumIx ? 600 : 400 }}>
-                  <span>{i + 1}. {bb.ad}</span><span style={{ color: S.soluk, fontSize: 12 }}>{sureYaz(bolumSn(bb))}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* OKUMA ALANI: ekranÄ±n ana yÃ¼zeyi */}
-          <div data-okuma-alani style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: mobilDar ? 10 : 14, position: "relative", display: "flex", flexDirection: "column" }}>
-            <div data-reader-stage-header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginBottom: mobilDar ? 5 : 10, minHeight: mobilDar ? 44 : undefined }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: S.soluk, fontSize: mobilDar ? 11 : 13 }}><BookOpen size={mobilDar ? 13 : 15} /> Okuma gÃ¶rÃ¼nÃ¼mÃ¼</div>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button data-reader-settings-toggle onClick={() => setAyarPaneliAcik(!ayarPaneliAcik)} aria-expanded={ayarPaneliAcik} aria-controls="okurio-okuma-ayarlari"
-                  style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 10px", color: S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
-                  Aa&nbsp; Ayarlar
-                </button>
-                <button data-reader-visibility-toggle onClick={() => setOkumaAcik(!okumaAcik)} aria-label="Okuma gÃ¶rÃ¼nÃ¼mÃ¼nÃ¼ aÃ§ kapat" aria-expanded={okumaAcik} aria-controls="okurio-okuma-icerigi"
-                  style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: "7px 10px", color: S.metin, cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>
-                  {okumaAcik ? "Gizle" : "GÃ¶ster"}
-                </button>
-              </div>
-            </div>
-            {okumaAcik && (() => {
-              const kelimeler = b.metin.trim().split(/\s+/);
-              const cumleler = [];
-              let bas = 0;
-              kelimeler.forEach((k, i) => { if (/[.!?â€¦]$/.test(k) || i === kelimeler.length - 1) { cumleler.push([bas, i]); bas = i + 1; } });
-              const aktifCumle = cumleler.find(([a, z]) => kelimeIx >= a && kelimeIx <= z) || cumleler[0];
-              // Odak desteÄŸi bÃ¶lÃ¼mÃ¼n baÄŸlamÄ±nÄ± yok etmez. Ã–nceki davranÄ±ÅŸ yalnÄ±z
-              // aktif cÃ¼mleyi DOM'a koyduÄŸu iÃ§in tam bir bÃ¶lÃ¼m tek cÃ¼mleymiÅŸ gibi
-              // gÃ¶rÃ¼nÃ¼yordu. BÃ¼tÃ¼n bÃ¶lÃ¼m ekranda kalÄ±r; aktif cÃ¼mle gÃ¶rsel olarak
-              // Ã¶ne Ã§Ä±karÄ±lÄ±r.
-              const gorunecek = kelimeler;
-              const kaydirma = 0;
-              return (
-                <div id="okurio-okuma-icerigi" data-reader-workspace style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden" }}>
-                  <div data-reading-column style={{ height: "100%", minHeight: 0 }}>
-                  <div ref={readerScrollRef} data-okuma-metin="1" data-tema={ayar.tema} data-aktif-cumle={`${aktifCumle[0]}-${aktifCumle[1]}`} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} style={{
-                    fontSize: PUNTOLAR[ayar.punto], letterSpacing: `${ARALIKLAR[ayar.aralik]}em`,
-                    lineHeight: SATIRLAR[ayar.aralik], wordSpacing: `${ARALIKLAR[ayar.aralik] * 2.2}em`,
-                    color: ayar.tema === "krem" ? "#2A2622" : "rgba(242,236,223,0.92)",
-                    background: ayar.tema === "krem" ? "#F2ECDF" : "none",
-                    borderRadius: ayar.tema === "krem" ? 12 : 0,
-                    padding: ayar.tema === "krem" ? "14px 16px" : 0,
-                    fontFamily: fontAile(ayar.font),
-                    textAlign: "left", minHeight: 0, height: "100%", maxHeight: "none", overflowY: "auto", WebkitOverflowScrolling: "touch", touchAction: "pan-y",
-                    scrollBehavior: "smooth", overscrollBehavior: "contain",
-                  }} onTouchStart={okuyucuTakibiniGeciciDurdur} onPointerDown={okuyucuTakibiniGeciciDurdur} onWheel={okuyucuTakibiniGeciciDurdur}>
-                    {gorunecek.map((k, i) => {
-                      const gercekIx = i + kaydirma;
-                      const aktifMi = ayar.vurgu && gercekIx === kelimeIx;
-                      const aktifCumledeMi = gercekIx >= aktifCumle[0] && gercekIx <= aktifCumle[1];
-                      const temiz = k.replace(/[.,!?â€¦;:]+$/u, "");
-                      const son = k.slice(temiz.length);
-                      const n = Math.max(1, Math.ceil(temiz.length * 0.45));
-                      const sozluk = findGlossaryEntry(aktif.id, temiz);
-                      return <span
-                        key={gercekIx}
-                        data-kelime-ix={gercekIx}
-                        data-aktif={aktifMi ? "1" : undefined}
-                        data-hedef-kelime={sozluk ? temiz.toLocaleLowerCase("tr-TR") : undefined}
-                        role={sozluk ? "button" : undefined}
-                        tabIndex={sozluk ? 0 : undefined}
-                        aria-haspopup={sozluk ? "dialog" : undefined}
-                        aria-label={sozluk ? `${temiz} kelimesinin anlamÄ±nÄ± aÃ§` : undefined}
-                        onClick={(event) => sozluk && sozlukAc(sozluk, event.currentTarget)}
-                        onKeyDown={(event) => {
-                          if (sozluk && (event.key === "Enter" || event.key === " ")) {
-                            event.preventDefault();
-                            sozlukAc(sozluk, event.currentTarget);
-                          }
-                        }}
-                        style={{
-                          background: aktifMi ? (ayar.tema === "krem" ? "rgba(201,139,61,0.45)" : "rgba(232,163,61,0.35)") : "none",
-                          borderRadius: 4,
-                          padding: aktifMi ? "0 2px" : 0,
-                          color: aktifMi ? (ayar.tema === "krem" ? "#1A1510" : "#FFF3DC") : undefined,
-                          opacity: ayar.odak && !aktifCumledeMi ? 0.38 : 1,
-                          transition: ayar.odak ? "opacity 160ms ease" : undefined,
-                          cursor: sozluk ? "help" : undefined,
-                          textDecoration: sozluk ? "underline dotted" : undefined,
-                          textUnderlineOffset: sozluk ? 3 : undefined,
-                        }}>
-                        {ayar.biyonik && temiz.length > 3 ? <><strong style={{ fontWeight: 850 }}>{temiz.slice(0, n)}</strong>{temiz.slice(n)}{son}</> : k}{" "}
-                      </span>;
-                    })}
-                  </div>
-                  {seciliSozluk && (
-                    <div data-sozluk-karti style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
-                      <GlossaryCard entry={seciliSozluk} onClose={sozlukKapat} onPronounce={kelimeyiSeslendir} />
-                    </div>
-                  )}
-                  {ayar.odak && <div style={{ fontSize: 11, color: S.soluk, marginTop: 8 }}>Odak modu: cÃ¼mle {cumleler.indexOf(aktifCumle) + 1} / {cumleler.length} Â· bÃ¶lÃ¼mÃ¼n tamamÄ± gÃ¶rÃ¼nÃ¼r</div>}
-                  </div>
-                  <aside id="okurio-okuma-ayarlari" data-reader-settings data-acik={ayarPaneliAcik ? "1" : "0"} aria-label="Okuma ayarlarÄ±" aria-hidden={mobilDar && !ayarPaneliAcik ? "true" : undefined}>
-                  <div data-reader-settings-title style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                    <strong style={{ fontSize: 14 }}>Okuma ayarlarÄ±</strong>
-                    <button data-reader-settings-close onClick={() => setAyarPaneliAcik(false)} aria-label="Okuma ayarlarÄ±nÄ± kapat" style={{ ...cip(false), minWidth: 44, minHeight: 44, justifyContent: "center" }}>Ã—</button>
-                  </div>
-                  <div style={{ marginTop: 8, fontSize: 12, lineHeight: 1.5, color: S.soluk }}>Sunumu kiÅŸiselleÅŸtirir; tanÄ± koymaz, gÃ¶rme kusurunu dÃ¼zeltmez veya tedavi etmez.</div>
-                  <div style={{ marginTop: 14, fontSize: 12, color: S.soluk }}>HazÄ±r destekler (birlikte seÃ§ilebilir):</div>
-                  <div style={{ display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
-                    <button data-profil="dis" onClick={() => profilUygula({ ...profil, dis: !profil.dis })} aria-label="Okuma kolaylÄ±ÄŸÄ± desteÄŸi" aria-pressed={profil.dis} style={cip(profil.dis)}>Okuma kolaylÄ±ÄŸÄ±</button>
-                    <button data-profil="dehb" onClick={() => profilUygula({ ...profil, dehb: !profil.dehb })} aria-label="Dikkat desteÄŸi" aria-pressed={profil.dehb} style={cip(profil.dehb)}>Dikkat DesteÄŸi</button>
-                    <button data-profil="gorsel" onClick={() => profilUygula({ ...profil, gorsel: !profil.gorsel })} aria-label="GÃ¶rsel konfor desteÄŸi" aria-pressed={profil.gorsel} style={cip(profil.gorsel)}>GÃ¶rsel Konfor</button>
-                  </div>
-                  <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                    <button onClick={() => setAyar({ ...ayar, punto: (ayar.punto + 1) % PUNTOLAR.length })} aria-label={`YazÄ± boyutu: ${PUNTOLAR[ayar.punto]} piksel`} style={cip(false)}>
-                      <Type size={13} /> {PUNTOLAR[ayar.punto]} px
-                    </button>
-                    <button onClick={() => setAyar({ ...ayar, aralik: (ayar.aralik + 1) % ARALIKLAR.length })} aria-label={`Harf ve satÄ±r aralÄ±ÄŸÄ±: ${["SÄ±kÄ±", "Rahat", "GeniÅŸ", "Ekstra geniÅŸ"][ayar.aralik]}`} style={cip(false)}>
-                      <AlignJustify size={13} /> AralÄ±k: {["SÄ±kÄ±", "Rahat", "GeniÅŸ", "Ekstra"][ayar.aralik]}
-                    </button>
-                    <button onClick={() => setAyar({ ...ayar, odak: !ayar.odak })} aria-label="Odak modu" aria-pressed={ayar.odak} style={cip(ayar.odak)}>
-                      <Focus size={13} /> Odak modu
-                    </button>
-                    <button onClick={() => setAyar({ ...ayar, vurgu: !ayar.vurgu })} aria-label="Kelime vurgusu" aria-pressed={ayar.vurgu} style={cip(ayar.vurgu)}>
-                      Kelime vurgusu
-                    </button>
-                    <button onClick={() => setAyar({ ...ayar, tema: ayar.tema === "krem" ? "koyu" : "krem" })} aria-label={`Zemin: ${ayar.tema === "krem" ? "Krem" : "Koyu"}`} aria-pressed={ayar.tema === "krem"} style={cip(ayar.tema === "krem")}>
-                      Zemin: {ayar.tema === "krem" ? "Krem" : "Koyu"}
-                    </button>
-                    <button onClick={() => setAyar({ ...ayar, biyonik: !ayar.biyonik })} aria-label="Biyonik vurgu, deneysel" aria-pressed={ayar.biyonik} style={cip(ayar.biyonik)}>
-                      Biyonik vurgu Â· deneysel
-                    </button>
-                    <button onClick={() => setAyar({ ...ayar, font: sonrakiFont(ayar.font) })} aria-label={`YazÄ± tipi: ${fontAd(ayar.font)}`} style={cip(ayar.font === "lexend")}>
-                      YazÄ±: {fontAd(ayar.font)}
-                    </button>
-                  </div>
-                  <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: 12, color: S.soluk }}>Okuma ve ses kontrolleri</div>
-                  <div data-okuma-modu-kompakt style={{ display: "flex", marginTop: 8 }}>
-                    <button onClick={() => setModPaneliAcik((acik) => !acik)} aria-expanded={modPaneliAcik} aria-controls="okurio-okuma-modlari" aria-label={`Okuma modu: ${okumaModuAyar.ad}`} style={{ ...cip(true), width: "100%", minHeight: 44, justifyContent: "center" }}>
-                      Mod: {okumaModuAyar.ad} â–¾
-                    </button>
-                  </div>
-                  {modPaneliAcik && (
-                    <div id="okurio-okuma-modlari" data-okuma-modlari style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                      {OKUMA_MODLARI.map((m) => (
-                        <button key={m.id} data-okuma-modu={m.id} onClick={() => okumaModuDegistir(m.id)} aria-pressed={okumaModu === m.id} title={m.aciklama} style={{ ...cip(okumaModu === m.id), minHeight: 44 }}>
-                          {m.ad}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {!caliyor && <div data-okuma-modu-ipucu style={{ marginTop: 7, color: S.soluk, fontSize: 11, lineHeight: 1.45 }}>{okumaModuAyar.aciklama}</div>}
-                  {okumaModu === "kendim" && (
-                    <div data-kelime-yardimi="1" role="note" style={{ marginTop: 7, color: S.vurgu, fontSize: 11, lineHeight: 1.45 }}>
-                      AltÄ± Ã§izili hedef kelimeye dokunarak kÄ±sa anlamÄ±nÄ± aÃ§.
-                    </div>
-                  )}
-                  <div data-alt-araclar style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
-                    <button onClick={hizDegistir} style={{ ...cip(false), minHeight: 44, padding: "6px 9px" }}><Gauge size={13} /> {hiz}x</button>
-                    <button data-ses-tonu={sesTonu} onClick={sesTonuDegistir} title={sesTonuAyar.aciklama} style={{ ...cip(etkinSeslendirme), minHeight: 44, padding: "6px 9px" }}><Volume2 size={13} /> Ses: {etkinSeslendirme ? sesTonuAyar.kisa : "KapalÄ±"}</button>
-                    <button onClick={uykuDegistir} style={{ ...cip(uyku > 0), minHeight: 44, padding: "6px 9px" }}><Moon size={13} /> {uyku > 0 ? sureYaz(uyku) : "Uyku"}</button>
-                  </div>
-                  </aside>
-                </div>
-              );
-            })()}
-          </div>
-
-
-          {(() => {
-            const soru = kitapSorusu(aktif);
-            if (!soru || !soruHazir || soruKapali) return null;
-            return (
-              <div role="dialog" aria-label="Birlikte dÃ¼ÅŸÃ¼nelim" data-birlikte-dusunelim data-soru-zamani="bolum-sonu" style={{ background: S.kart2, border: "1px solid rgba(232,163,61,0.38)", borderRadius: 16, padding: mobilDar ? "14px" : "16px" }}>
-                <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>Birlikte DÃ¼ÅŸÃ¼nelim</div>
-                <div style={{ fontSize: 14, color: S.metin, fontWeight: 600, marginBottom: 8 }}>{soru.soru}</div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {soru.secenekler.map((secenek) => {
-                    const secildi = soruCevabi === secenek;
-                    return (
-                      <button key={secenek} onClick={() => setSoruCevabi(secenek)} aria-pressed={secildi}
-                        style={{ background: secildi ? "rgba(232,163,61,0.20)" : "rgba(255,255,255,0.08)", border: secildi ? "1px solid rgba(232,163,61,0.52)" : "1px solid rgba(255,255,255,0.08)", borderRadius: 10, minHeight: 44, padding: "8px 10px", color: S.metin, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>
-                        {secenek}
-                      </button>
-                    );
-                  })}
-                </div>
-                {soruCevabi && (
-                  <div data-soru-geri-bildirim aria-live="polite" style={{ marginTop: 10, fontSize: 13, color: "rgba(242,236,223,0.84)", lineHeight: 1.5 }}>
-                    SeÃ§imini gÃ¶rdÃ¼m. {soru.destek} Burada puan yok; metne kendi yorumunla dÃ¶nebilirsin.
-                  </div>
-                )}
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-                  <button onClick={() => setSoruKapali(true)} style={{ ...cip(false), minHeight: 44 }}>Metne dÃ¶n</button>
-                  <button onClick={() => anaSayfayaDon(setOynaticiAcik, setSekme, setDetayId)} style={{ ...cip(true), minHeight: 44 }}>OkumayÄ± bitir</button>
-                </div>
-              </div>
-            );
-          })()}
-
-          {/* ALT KONTROL BLOÄU: sabit */}
-          <div data-alt-kontrol style={{ flexShrink: 0, paddingTop: mobilDar ? 6 : 10 }}>
-            <div data-kompakt-ilerleme data-player-visual="compact-progress" style={{ marginTop: 4 }}>
-              <div
-                role="slider"
-                tabIndex={0}
-                aria-label="Okuma ilerlemesi"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={Math.round(oran * 100)}
-                aria-valuetext={`%${Math.round(oran * 100)} tamamlandÄ±`}
-                onClick={(event) => {
-                  const rect = event.currentTarget.getBoundingClientRect();
-                  oranaSar((event.clientX - rect.left) / rect.width);
-                }}
-                onKeyDown={(event) => {
-                  const step = event.shiftKey ? 0.1 : 0.02;
-                  if (["ArrowLeft", "ArrowDown"].includes(event.key)) { event.preventDefault(); oranaSar(Math.max(0, oran - step)); }
-                  if (["ArrowRight", "ArrowUp"].includes(event.key)) { event.preventDefault(); oranaSar(Math.min(1, oran + step)); }
-                  if (event.key === "Home") { event.preventDefault(); oranaSar(0); }
-                  if (event.key === "End") { event.preventDefault(); oranaSar(1); }
-                }}
-                style={{ height: 44, display: "flex", alignItems: "center", cursor: "pointer", touchAction: "manipulation" }}
-              >
-                <div data-progress-track style={{ width: "100%", height: 8, borderRadius: 999, background: "rgba(255,255,255,0.12)", overflow: "hidden" }}>
-                  <div style={{ width: `${oran * 100}%`, height: "100%", background: S.vurgu }} />
-                </div>
-              </div>
-            </div>
-            <div data-progress-time style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: S.soluk, marginTop: -8 }}>
-              <span>{sureYaz(pozisyon)}</span><span>-{sureYaz(toplam - pozisyon)}</span>
-            </div>
-            <div data-transport-controls style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: mobilDar ? 18 : 22, marginTop: mobilDar ? 6 : 8 }}>
-              <button onClick={() => sar(-15)} aria-label="15 saniye geri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <RotateCcw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>15</span>
-              </button>
-              <button onClick={() => oynatDegistir()} aria-label={caliyor ? "Duraklat" : "Oynat"}
-                style={{ width: mobilDar ? 52 : 58, height: mobilDar ? 52 : 58, borderRadius: mobilDar ? 26 : 29, background: S.vurgu, border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 22px rgba(232,163,61,0.35)" }}>
-                {caliyor ? <Pause size={25} color="#14181F" fill="#14181F" /> : <Play size={25} color="#14181F" fill="#14181F" style={{ marginLeft: 3 }} />}
-              </button>
-              <button onClick={() => sar(30)} aria-label="30 saniye ileri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <RotateCw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>30</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const OnboardingSayfa = () => {
-    const [taslak, setTaslak] = useState({ ...okumaYolu, destekler: [...okumaYolu.destekler] });
-    const yol = yolBul(taslak.yolId);
-    const toggleDestek = (id) => {
-      setTaslak((e) => ({ ...e, destekler: e.destekler.includes(id) ? e.destekler.filter((x) => x !== id) : [...e.destekler, id] }));
-    };
-    return (
-      <main data-page-shell data-onboarding-page style={{ padding: "26px 20px 110px" }}>
-        <div style={{ ...baslikStil, fontSize: 30, marginBottom: 6 }}>Okuma yolunu seÃ§</div>
-        <div style={{ color: S.soluk, fontSize: 14, lineHeight: 1.55, marginBottom: 18 }}>
-          YaÅŸ tek baÅŸÄ±na yeterli deÄŸil. Okurio, yaÅŸ bandÄ±nÄ± okuma evresi, destek ihtiyacÄ± ve okuma moduyla birlikte kullanÄ±r.
-        </div>
-
-        <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>1 Â· Kim iÃ§in?</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 18 }}>
-          {OKUMA_YOLLARI.map((y) => (
-            <button key={y.id} onClick={() => setTaslak((e) => { const izinli = evreSecenekleri(y.id); const yeniEvre = izinli.some((x) => x.id === e.evreId) ? e.evreId : y.evre; return { ...e, yolId: y.id, evreId: yeniEvre }; })} data-yol={y.id}
-              style={{ textAlign: "left", background: taslak.yolId === y.id ? "rgba(232,163,61,0.16)" : S.kart, border: taslak.yolId === y.id ? "1px solid rgba(232,163,61,0.48)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: 12, cursor: "pointer", color: S.metin, fontFamily: "inherit" }}>
-              <div style={{ fontSize: 13, fontWeight: 700 }}>{y.baslik}</div>
-              <div style={{ fontSize: 11, color: S.soluk, marginTop: 3 }}>{y.yas} yaÅŸ{getGradeLabelForYolId(y.id) ? ` Â· ${getGradeLabelForYolId(y.id)}` : ""}</div>
-            </button>
-          ))}
-        </div>
-
-        <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>2 Â· Okuma evresi</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
-          {evreSecenekleri(taslak.yolId).map((e) => (
-            <button key={e.id} onClick={() => setTaslak((t) => ({ ...t, evreId: e.id }))}
-              style={{ minHeight: 44, textAlign: "left", background: taslak.evreId === e.id ? "rgba(232,163,61,0.14)" : S.kart, border: taslak.evreId === e.id ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 12, padding: "11px 12px", color: S.metin, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>
-              {e.ad}
-            </button>
-          ))}
-        </div>
-
-        <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 8 }}>3 Â· Destekler</div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
-          {DESTEK_SECENEKLERI.map((d) => {
-            const secili = taslak.destekler.includes(d.id);
-            return (
-              <button key={d.id} onClick={() => toggleDestek(d.id)}
-                aria-pressed={secili}
-                style={{ minHeight: 44, background: secili ? "rgba(232,163,61,0.17)" : S.kart, border: secili ? "1px solid rgba(232,163,61,0.45)" : "1px solid rgba(255,255,255,0.06)", borderRadius: 999, padding: "9px 12px", color: secili ? S.vurgu : S.soluk, cursor: "pointer", fontFamily: "inherit", fontSize: 12 }}>
-                {secili ? "âœ“ " : ""}{d.ad}
-              </button>
-            );
-          })}
-        </div>
-
-        <div style={{ background: "rgba(255,255,255,0.045)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: 15, marginBottom: 16 }}>
-          <div style={{ color: S.vurgu, fontSize: 12, fontWeight: 700 }}>Profil Ã¶nizlemesi</div>
-          <div style={{ ...baslikStil, fontSize: 21, marginTop: 4 }}>{yol.baslik}</div>
-          <div style={{ color: S.soluk, fontSize: 13, marginTop: 4 }}>{yol.yas} Â· {evreBul(taslak.evreId).ad}</div>
-          <div style={{ color: "rgba(242,236,223,0.86)", fontSize: 14, lineHeight: 1.55, marginTop: 9 }}>{yol.slogan}</div>
-          <div style={{ color: S.soluk, fontSize: 12, marginTop: 10 }}>Rozet yolu: {yol.rozetAdi}. GÃ¼rÃ¼ltÃ¼lÃ¼ Ã¶dÃ¼l deÄŸil; ilerleme ve doygunluk hissi.</div>
-        </div>
-
-        <button onClick={() => okumaYolunuKaydet(taslak)}
-          style={{ width: "100%", background: S.vurgu, color: "#14181F", border: "none", borderRadius: 15, padding: "14px 0", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-          Okuma yolumu baÅŸlat
-        </button>
-      </main>
-    );
-  };
-
-  const AltMenu = () => (
-    <nav data-bottom-nav aria-label="Ana gezinme" style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "min(1180px, 100%)", background: "rgba(20,24,31,0.96)", backdropFilter: "blur(10px)", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", zIndex: 30 }}>
-      {[
-        { id: "ana", ad: "Ana Sayfa", Ico: Home },
-        { id: "ara", ad: "Ara", Ico: Search },
-        { id: "kitaplik", ad: "KitaplÄ±ÄŸÄ±m", Ico: Library },
-      ].map(({ id, ad, Ico }) => (
-        <button key={id} onClick={() => { setSekme(id); setDetayId(null); }}
-          aria-current={sekme === id && !detayId ? "page" : undefined}
-          style={{ flex: 1, background: "none", border: "none", padding: "10px 0 14px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: sekme === id && !detayId ? S.vurgu : S.soluk, fontFamily: "inherit" }}>
-          <Ico size={20} /><span style={{ fontSize: 10 }}>{ad}</span>
-        </button>
-      ))}
-    </nav>
-  );
-
-  return (
-    <div data-app-shell style={govde}>
-      <style>{`@media (pointer: coarse), (hover: none), (max-width: 430px) { [data-app-shell] button { min-width: 44px !important; min-height: 44px !important; } }`}</style>
-      {onboardingAcik ? <OnboardingSayfa /> : detayId ? <DetaySayfa /> : sekme === "ana" ? <AnaSayfa /> : sekme === "ara" ? <AramaSayfa /> : <KitaplikSayfa />}
-      {!onboardingAcik && <MiniOynatici />}
-      {!onboardingAcik && <TamOynatici />}
-      {!onboardingAcik && <AltMenu />}
-    </div>
-  );
-}
+YªçŠx-®éÜj×¢ëiºÚ+Š§j[h‘éÜ¢éíóİ5á:-jZ.¶›­–)Ş³V–×÷'B&V7BÂ²W6U7FFRÂW6TVffV7BÂW6TÆ–÷WDVffV7BÂW6U&VbÂW6TÖVÖòÂW6T6ÆÆ&6²Òg&öÒ'&V7B#°¦–×÷'B²Æ’ÂW6RÂ&÷FFT67rÂ&÷FFT7rÂ†V'BÂ6V&6‚Â†öÖRÂÆ–'&'’Â6†Wg&öäF÷vâÂ6†Wg&öäÆVgBÂÖööâÂvVvRÂÆ—7D×W6–2ÂföÇVÖS"Â&öö´÷VâÂ6Æö6²ÂG—RÂÆ–vä§W7F–g’Âfö7W2ÂfÆÖRÒg&öÒ&ÇV6–FR×&V7B#°¦–×÷'BvÆ÷76'”6&Bg&öÒ"âö6ö×öæVçG2ôvÆ÷76'”6&Bæ§7‚#°¦–×÷'Bö·W&–õ&÷fVææ6U7F×g&öÒ"âö6ö×öæVçG2ôö·W&–õ&÷fVææ6U7F×æ§7‚#°¦–×÷'B²W‡G&7DFö7VÖVçEFW‡BÂæ÷&ÖÆ—¦TFö7VÖVçEFW‡BÂ5Uõ%DTEôDô5TÔTåEô44UBÒg&öÒ"âöFö7VÖVçD–×÷'Bæ§2#°¦–×÷'B²f–æDvÆ÷76'”VçG'’ÂÖW&vU–Æ÷E7F÷&–W2Òg&öÒ"âö6öçFVçB÷–Æ÷D6FÆötFFW"æ§2#°¦–×÷'B²UDU%õ$$$•EôeTÄÂÒg&öÒ"âö6öçFVçBögVÆÅV&Æ–4FöÖ–å7F÷&–W2æ§2#°¦–×÷'B²4ôÕÄUDUôôµU$”õõ4U54”ôå2Òg&öÒ"âö6öçFVçBö6ö×ÆWFTö·W&–õ6W76–öç2æ§2#°¦–×÷'B²äDU%4Tåõ5Dõ$”U2Òg&öÒ"âö6öçFVçBöæFW'6Vå7F÷&–W2æ§2#°¦–×÷'B²6Æ76–g”6öçFVçBÂW7F–ÖFU7F÷'•6V6öæG2Òg&öÒ"âö6öçFVçBö6öçFVçD–çFVw&—G’æ§2#°¦–×÷'B²6V7F–öå&w&‡2Òg&öÒ"âö6öçFVçBö6öçFVçE7G'V7GW&Ræ§2#°¦–×÷'B²WfÇVFU7F÷'”f÷%&VF–ætÆWfVÂÒg&öÒ"âö6öçFVçB÷&VF–ætÆWfVÅöÆ–7’æ§2#°¦–×÷'B²WfÇVFT6öçFVçEVÆ—G•&Wf–WrÒg&öÒ"âö6öçFVçBö6öçFVçEVÆ—G•&Wf–Wræ§2#°¦–×÷'B²vWDw&FTÆ&VÄf÷%–öÄ–BÂÖ–æ–×VÔgVÆÅ&VF–æu6V6öæG4f÷$vRÒg&öÒ"âö6öçFVçB÷66†ööÄw&FTÖ–æræ§2#°¦–×÷'B²7W'6÷$g&öÕ÷6—F–öâÂ÷6—F–öäg&öÔ7W'6÷"Âæ÷&ÖÆ—¦U&VF–æu&öw&W72Â&VF–æu&öw&W756æ6†÷BÂÖöæ÷Föæ–4&÷VæF'•v÷&BÂ7&VFU7VV6…v÷&EF–ÖVÆ–æRÂF–ÖVÆ–æUv÷&Dg&öÔVÆ6VBÒg&öÒ"â÷&VFW"Ö6÷&Ræ§2#° ¢ò¢ÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒ¢ğ¢ò¢¶FÆös¢FVÆ–g6—¢L;Ç&²¶Æ6–¶ÆW&’Â;g&æV²,;fÌ;ÆÒÖWF–æÆW&—–ÆR¢ğ¢ò¢ÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒ¢ğ¦6öç7B5U%TÒÒ#"ã’ã#° ¦6öç7B´DÄôrÒÖW&vU–Æ÷E7F÷&–W2…° ¢ââä4ôÕÄUDUôôµU$”õõ4U54”ôå2À  ¢°¢–C¢&ö¶’×6W6ÆW&’ÖF–æÆ—–÷""À¢&6Æ–³¢$ö¶’6W6ÆW&’F–æÆ—–÷""À¢–¦#¢$ö·W&–òÖ–æ–²F–æÆW––6–ÆW""À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$Ö–æ–²F–æÆVÖR"À¢–3¢#2ÓB–Yò"À¢&Væ³¢²"3TD##‚"Â"4Ct#CTR%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã’Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$Ö–æ–²F–æÆW––6–ÆW"œ:v–â6W2f&¼KæFÌKIüKÂ¼K6F–¶¶BfR|;ÇfVæÆ’FV·&"†–¼:'–W6’â"À¢&öÇVÖÆW#¢°¢²C¢%6W6ÆW&’F–æÆR"ÂF³¢ÂÖWF–ã¢$ö¶’GW&GRâ&—"6W2GW–GRâKBKBâÖ–æò&·LKâö¶’|;ÆÆL;Ââ"ÒÀ¢²C¢%FV·&"F–æÆR"ÂF³¢ÂÖWF–ã¢%KBKBâLKLKâö¶’F–æÆVF’âÖ–æòÖ—–bFVF’âææ–fYü:væÆGLKâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&Ö–æòÖÖ—–bÖFVF’"À¢&6Æ–³¢$Ö–æòÖ—–bFVF’"À¢–¦#¢$ö·W&–òÖ–æ–²F–æÆW––6–ÆW""À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$Ö–æ–²F–æÆVÖR"À¢–3¢#2ÓB–Yò"À¢&Væ³¢²"34cTCR"Â"3„T$Ct2%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã’Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$ö·VÂ;fæ6W6’œ:v–â†—fâ6W6’ÂFV·&"fR¼K6†–¼:'–R<K&<K:vÌKYöÖ<Kâ"À¢&öÇVÖÆW#¢°¢²C¢$Ö—–b"ÂF³¢ÂÖWF–ã¢$Ö–æòÖ—–bFVF’âö¶’&·LKâÆ–Æ’|;ÆÆL;ÂâF÷Fò¬KÆLKâ"ÒÀ¢²C¢$¶–Ò6W6ÆVæF“ò"ÂF³¢ÂÖWF–ã¢$Ö—–bâÖ–æò6W6ÆVæF’âö¶’VÂ6ÆÆLKâææÂF–æÆVF–âÂFVF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&Æ–Æ’×––ÆF—¢×6–—–÷""À¢&6Æ–³¢$Æ–Æ’œKÆLK¢6œK–÷""À¢–¦#¢$ö·W&–òÖ–æ–²F–æÆW––6–ÆW""À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$Ö–æ–²F–æÆVÖR"À¢–3¢#2ÓB–Yò"À¢&Væ³¢²"3#ƒ4cc2"Â"3t4C‚%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã‚Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$|;f·œ;Ç¬;ÂFVÖ<Kæ—V×\Yö²&—"v—&œYó²Ö–æ–²F–æÆW––6–ÆW"œ:v–â6¶–âvV6R†–¼:'–W6’â"À¢&öÇVÖÆW#¢°¢²C¢%œKÆLK¢"ÂF³¢ÂÖWF–ã¢$Æ–Æ’|;lIöR&·LKâ&—"œKÆLK¢|;g&L;Ââö¶’FR&·LKâÖ–æò6W76—¦6R÷GW&GRâ"ÒÀ¢²C¢$vV6R"ÂF³¢ÂÖWF–ã¢%œKÆLK¢&ÆLKâÆ–Æ’6–LKâ&—"Â–¶’âææÂvV6R6¶–âÂFVF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’×6W2Ö"À¢&6Æ–³¢$6W6’"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"3dDb"Â"4ScD"%ÒÀ¢Vã¢Bã’À¢7W&TF³¢"À¢÷¦WC¢#â†&bw'V'Rœ:v–â6W6–æ’GW–Ö–Â|;g&ÖW–RfR¼K6†V6VÆW"œ:v–æFRF¶—WFÖW–R†¬K&Æ–âÖ–·&ò:vÌKYöÖâ"À¢&öÇVÖÆW#¢°¢²C¢%6W6’F–æÆR"ÂF³¢ÂÖWF–ã¢$'V|;Æì;Æâ6W6’â6W6’I÷¬KÜK¢:|K¶¶Vâ:|K¶"ââââö¶’6W6–æ’GW–GRâ"ÒÀ¢²C¢$†&bfR†V6R"ÂF³¢ÂÖWF–ã¢&âââÂâBâVÆ6W6–æ’'VÆGRâö¶’VÂ6ÆÆLKâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’×6W2Öâ"À¢&6Æ–³¢$â6W6’"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"33cTCb"Â"3s„ƒs‚%ÒÀ¢Vã¢Bã’À¢7W&TF³¢"À¢÷¦WC¢$â6W6–æ’öR6W6ÆW&—–ÆR&—&Æ\Y÷F—&W&V²âÂVâfRæv–&’–Æ²†V6VÆW&Rv\:vœYòâ"À¢&öÇVÖÆW#¢°¢²C¢%6W6’F–æÆR"ÂF³¢ÂÖWF–ã¢$'V|;Æì;Æâ6W6’âââ6W6’¼K6fR—V×\Yö²:|K¶"âââââââææâ6W6–æ’<;g–ÆVF’â"ÒÀ¢²C¢$†V6W–Rv\:r"ÂF³¢ÂÖWF–ã¢&fRâ–â–ævVÆF’âââRfRâ–â–ævVÆF’âVââö¶’â†V6W6–æ’F¶—WGF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’Ö†V6VÆW"Ó"À¢&6Æ–³¢&âVâÂVÂBWB"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"333Dcb"Â"3dC“43’%ÒÀ¢Vã¢Bã’À¢7W&TF³¢2À¢÷¦WC¢#â†&bw'V'VçVâ–Æ²†V6VÆW&“¢âÂVâÂÂÂVÂÂBÂWBâ†V6VÆW&’6W6ÆRfRgW&wW–ÆF¶—WFÖR:vÌKYöÖ<Kâ"À¢&öÇVÖÆW#¢°¢²C¢$†V6R¶'FÆ,K"ÂF³¢"ÂÖWF–ã¢&ââVââÂâVÂâBâWBâö¶’†V6VÆW&’FæRFæRF–æÆVF’âÆ–Æ’VÂ†V6W6–æ’'VÆGRâ"ÒÀ¢²C¢%FV·&""ÂF³¢ÂÖWF–ã¢&ââÂâBâVÂâWBâVââ†W"†V6R¼K6&—"LKÖLK"âö¶’–fYü:vF¶—WGF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’Ö¶VÆ–ÖVÆW"Ó"À¢&6Æ–³¢,KÆ²¶VÆ–ÖVÆW#¢æÂææRÂÆ’ÂVÆ"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"3T4#Tb"Â"4st#%ÒÀ¢Vã¢Bã’À¢7W&TF³¢2À¢÷¦WC¢#â†&bw'V'W–Æ·W'VÆ&–ÆVâ–Æ²æÆÖÌK¶VÆ–ÖVÆW&’FìKÖfR¶VÆ–ÖR¶VÆ–ÖRF¶—WFÖR:vÌKYöÖ<Kâ"À¢&öÇVÖÆW#¢°¢²C¢$¶VÆ–ÖR¶'FÆ,K"ÂF³¢"ÂÖWF–ã¢&æâææRâÆ’âVÆâBâVÂâFVÂâö¶’¶VÆ–ÖVÆW&’GW–GRâVÆVÂ6ÆÆLKâ"ÒÀ¢²C¢$¼K6<;ÆÖÆR"ÂF³¢ÂÖWF–ã¢$Æ’LKFìKLKâVÆVÂVÆRâææRFæRFæRæÆGLKâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’ÖF’×Fæ—–÷""À¢&6Æ–³¢$ö¶’LKFìK–÷""À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"3d#4#$"Â"43sƒ#S‚%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$6–âÆ’6FVÆœIö–æFVâ–Æ†ÒÆâÖFÖÖVâ;g¦|;ÆâÂâ†&bw'V'R–ÆR¼K6<;ÆÖÆRF¶—†–¼:'–W6’â"À¢&öÇVÖÆW#¢°¢²C¢$Ö–æ’†–¼:'–R"ÂF³¢2ÂÖWF–ã¢$ö¶’LK|;g&L;ÂâBöæ&·LKâö¶’VÂ6ÆÆLKâÆ–Æ’|;ÆÆL;ÂâææFæRFæRæÆGLKâ"ÒÀ¢²C¢$&—&Æ–·FRFV·&""ÂF³¢ÂÖWF–ã¢$ö¶’LK|;g&L;ÂâBöæ&·LKâö¶’VÂ6ÆÆLKâYæ–ÖF’6VâFR–fYü:vF¶—WBâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&VÆÖVÂÖVÆR"À¢&6Æ–³¢$VÆVÂVÆR"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"3$STT"Â"3s”b%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢,KÆ²¶VÆ–ÖVÆW"fR¼K6<;ÆÖÆVÆW&ÆRÂVÂÖVÆRFVÖ<KìK6¶–âfRFV·&"VFVâ&—"Ö–æ’†–¼:'–W–RL;fì;ÌY÷L;Ç&Vâ;g¦|;Æâœ:vW&–²â"À¢&öÇVÖÆW#¢°¢²C¢$Ö–æ’†–¼:'–R"ÂF³¢2ÂÖWF–ã¢$VÆVÂVÆRœ;Ç,;ÆL;ÂâÆ’LKæÆGLKâö¶’æFVF’âÆ–Æ’VÂ6ÆÆLKâ†W&¶W2FæRFæRö·VGRâ"ÒÀ¢²C¢$&—&Æ–·FRFV·&""ÂF³¢ÂÖWF–ã¢$VÆVÂVÆRâÆ’F&·LKâö¶’VÂ6ÆÆLKâ–fYü:vF¶—VFVÆ–Òâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’×6W2ÖR"À¢&6Æ–³¢$R6W6’"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"3s3T3$R"Â"4C„#CT2%ÒÀ¢Vã¢Bã’À¢7W&TF³¢"À¢÷¦WC¢#â†&bw'V'Rœ:v–æFRR6W6–æ’GW–Ö–Â|;g&ÖW–RfRVÂöVâ†V6VÆW&—–ÆRF¶—WFÖW–R†¬K&Æ–âÖ–·&ò:vÌKYöÖâ"À¢&öÇVÖÆW#¢°¢²C¢%6W6’F–æÆR"ÂF³¢ÂÖWF–ã¢$'V|;Æì;Æâ6W6’RâR6W6’¼K6fR:|K²:|K¶"âRâRâRâÆ–Æ’R6W6–æ’GW–GRâ"ÒÀ¢²C¢$†&bfR†V6R"ÂF³¢ÂÖWF–ã¢&RâVââVÂâWBâVÆR6W6–æ’'VÆGRâö¶’VÂ†V6W6–æ’F¶—WGF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’×6W2×B"À¢&6Æ–³¢%B6W6’"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"3TC4c3""Â"43S„c‚%ÒÀ¢Vã¢Bã’À¢7W&TF³¢"À¢÷¦WC¢%B6W6–æ’¼K6†V6VÆW"œ:v–æFRFìKFâfRBöWBv–&’–Æ²†V6VÆW&R&IöÆ–â:vÌKYöÖâ"À¢&öÇVÖÆW#¢°¢²C¢%6W6’F–æÆR"ÂF³¢ÂÖWF–ã¢$'V|;Æì;Æâ6W6’BâB6W6’¼K6:|K¶"âBâBâBâF÷FòB6W6–æ’GW–GRâ"ÒÀ¢²C¢$†V6W–Rv\:r"ÂF³¢ÂÖWF–ã¢&fRB–â–ævVÆF’âBâRfRB–â–ævVÆF’âWBâö¶’B†V6W6–æ’F¶—WGF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’×6W2Ö’"À¢&6Æ–³¢,K6W6’"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"333CƒT2"Â"3tdd3r%ÒÀ¢Vã¢Bã’À¢7W&TF³¢"À¢÷¦WC¢,K6W6–æ’–Âö–âv–&’¼K6†V6VÆW&ÆR&—&Æ\Y÷F—&VâÂ–fYòfRF¶—Æ’Ö–·&ò:vÌKYöÖâ"À¢&öÇVÖÆW#¢°¢²C¢%6W6’F–æÆR"ÂF³¢ÂÖWF–ã¢$'V|;Æì;Æâ6W6’’âK6W6’–æ6R:|K¶"âKâKâKâÖ–æò’6W6–æ’GW–GRâ"ÒÀ¢²C¢$†&bfR†V6R"ÂF³¢ÂÖWF–ã¢&’â–Ââ–ââ—BâÆ–Æ’–Â†V6W6–æ’'VÆGRâö¶’FæRFæRF¶—WGF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’×6W2ÖÂ"À¢&6Æ–³¢$Â6W6’"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"34CT4"Â"3„T#st2%ÒÀ¢Vã¢Bã’À¢7W&TF³¢"À¢÷¦WC¢$Â6W6–æ’VÂÂÂfR–Â†V6VÆW&—–ÆRFìKFâ6¶–â–Æ²ö·VÖ:vÌKYöÖ<Kâ"À¢&öÇVÖÆW#¢°¢²C¢%6W6’F–æÆR"ÂF³¢ÂÖWF–ã¢$'V|;Æì;Æâ6W6’ÂâÂ6W6’F–Æ–Ö—¦ÆR:|K¶"âÂâÂâÂâÆ–Æ’Â6W6–æ’<;g–ÆVF’â"ÒÀ¢²C¢$†V6W–Rv\:r"ÂF³¢ÂÖWF–ã¢&RfRÂ–â–ævVÆF’âVÂâfRÂ–â–ævVÆF’âÂâ’fRÂ–â–ævVÆF’â–Ââ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’Ö†V6VÆW"Ó""À¢&6Æ–³¢&ÂVÂ–Â–â—B"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"3D4cd""Â"3“Cƒ44b%ÒÀ¢Vã¢Bã’À¢7W&TF³¢2À¢÷¦WC¢#â†&bw'V'Rœ:v–æFR–¶–æ6’†V6R6WF“¢ÂÂVÂÂ–ÂÂ–âÂ—Bâ†V6W–’|;g"ÂGW’fRF¶—WBâ"À¢&öÇVÖÆW#¢°¢²C¢$†V6R¶'FÆ,K"ÂF³¢"ÂÖWF–ã¢&ÂâVÂâ–Ââ–ââ—Bâö¶’†V6VÆW&’F–æÆVF’âÆ–Æ’–Â†V6W6–æ’|;g7FW&F’â"ÒÀ¢²C¢%FV·&""ÂF³¢ÂÖWF–ã¢&ÂâVÂâ–Ââ–ââ—Bâ†W"†V6R&—"¼;Ì:|;Æ²LKÖLK"â–fYü:vF¶—VFVÆ–Òâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&Æ’Ö–ÆRÖVÆ"À¢&6Æ–³¢$Æ’–ÆRVÆ"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"3T$SC""Â"4#“dc„B%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$Æ’fRVÆ¶&·FW&ÆW&—–ÆRÂâw'W†&fÆW&FVâ·W'VÆâ–Æ²<;ÆÖÆVÆW&Rv\:vœYò†–¼:'–W6’â"À¢&öÇVÖÆW#¢°¢²C¢$Ö–æ’†–¼:'–R"ÂF³¢2ÂÖWF–ã¢$Æ’VÂ6ÆÆLKâVÆöçR|;g&L;Ââö¶’F&·LKâÆ–Æ’6¶–â6¶–âæÆGLKâ"ÒÀ¢²C¢$&—&Æ–·FRFV·&""ÂF³¢ÂÖWF–ã¢$Æ’VÂ6ÆÆLKâVÆ|;g&L;Ââö¶’&·LKâYæ–ÖF’&—&Æ–·FRö·W–ÌKÒâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&Æ–Æ’Ö–ÆRÖB"À¢&6Æ–³¢$Æ–Æ’–ÆRB"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"3$cDcCr"Â"3s4““R%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$Æ–Æ’væ–âFÆ¶,YüKÆYöÖ<KìK:vö²¼K6<;ÆÖÆVÆW&ÆRæÆFâÂ|;ÇfVâfW&Vâ–Æ²ö·VÖ†–¼:'–W6’â"À¢&öÇVÖÆW#¢°¢²C¢$Ö–æ’†–¼:'–R"ÂF³¢2ÂÖWF–ã¢$Æ–Æ’LK|;g&L;ÂâBöæ&·LKâÆ–Æ’VÂ6ÆÆLKâö¶’|;ÆÌ;Æ×6VF’âæææÆGLKâ"ÒÀ¢²C¢$&—&Æ–·FRFV·&""ÂF³¢ÂÖWF–ã¢$Æ–Æ’LK|;g&L;ÂâB&·LKâö¶’VÂ6ÆÆLKâFæRFæRF¶—VFVÆ–Òâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’ÖVÂÖVÆR"À¢&6Æ–³¢$ö¶’VÂVÆR"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"34DSs"Â"3sƒ”$D"%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$ö¶’fRÆ–Æ’væ–â&—&Æ–·FRö·VÖFVæW––Ö–æ’ÂVÂVÆRfR6¶–âFV·&&Æ&ÆæÆFâÖ–æ’†–¼:'–Râ"À¢&öÇVÖÆW#¢°¢²C¢$Ö–æ’†–¼:'–R"ÂF³¢2ÂÖWF–ã¢$ö¶’VÂVÆRœ;Ç,;ÆL;ÂâÆ–Æ’VÂGWGGRâÖ–æòöæÆ&&·LKâææ–fYü:vö·VGRâ"ÒÀ¢²C¢$&—&Æ–·FRFV·&""ÂF³¢ÂÖWF–ã¢$ö¶’VÂVÆRâÆ–Æ’VÂGWGGRâÖ–æò&·LKâ&VâFRF¶—VF—–÷'VÒâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&Ö–æòÖæW&VFR"À¢&6Æ–³¢$Ö–æòæW&VFSò"À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"3DSD$B"Â"43#T%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$Ö–æòw—R&–âö¶’væ–â¼K6fR\IöÆVæ6VÆ’†–¼:'–W6“²–Æ²ö·VÖœ:v–â<KìK&ÌK¶VÆ–ÖRfR6¶–âFV·&"â"À¢&öÇVÖÆW#¢°¢²C¢$Ö–æ’†–¼:'–R"ÂF³¢2ÂÖWF–ã¢$Ö–æòVÂÇLKæFâö¶’öçR&LKâÆ–Æ’VÆ—–ÆR|;g7FW&F’âÖ–æò:|K·LKâö¶’|;ÆÆL;Ââ"ÒÀ¢²C¢$&—&Æ–·FRFV·&""ÂF³¢ÂÖWF–ã¢$Ö–æò:|K·LKâö¶’|;ÆÆL;ÂâÆ–Æ’|;g7FW&F’âYæ–ÖF’–fYü:vö·W–÷'VÒâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ææÖæÆF—–÷""À¢&6Æ–³¢$æææÆLK–÷""À¢–¦#¢$ö·W&–òKÆ²ö·VÖ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,KÆ²ö·VÖ"À¢–3¢#bÓr–Yò"À¢&Væ³¢²"3T#4$R"Â"43#„3s%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$æævìKâ–fYòfR|;ÇfVæÆ’æÆLKÜK–Æâw'W†&fÆW&’FV·&"VFVâ¶ìKYò†–¼:'–W6’â"À¢&öÇVÖÆW#¢°¢²C¢$Ö–æ’†–¼:'–R"ÂF³¢2ÂÖWF–ã¢$æææÆGLKâö¶’F–æÆVF’âÆ–Æ’VÂ6ÆÆLKâÆ’LKFìKLKâVÆ|;ÆÆL;Ââ"ÒÀ¢²C¢$&—&Æ–·FRFV·&""ÂF³¢ÂÖWF–ã¢$æææÆGLKâö¶’F–æÆVF’âÆ’LKFìKLKâ&—"LKÒF†FÖÖÆæLKâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&·W&²ÖÖçFöÇRÖÖFöææ"À¢–3¢#2²–Yò"À¢&6Æ–³¢$¼;Ç&²ÖçFöÇRÖFöææ"À¢–¦#¢%6&†GF–âÆ’"À¢6W6ÆVæF—&Vã¢%7L;ÆG–ò¶–LK"À¢¶FVv÷&“¢%&öÖâ"À¢&Væ³¢²"34S$3C"Â"3tDdB%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã‚Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢%&–bVfVæF’væ–â6W76—¢†–LKìKâ&LKæF¶’,;Çœ;Æ²Yö¼Kâ†–¼:'–W6’â&W&Æ–âvFR&YöÆ–âfR&—"6—–‚FVgFW&FR6¶ÌK¶Æâ&—"GWF·Râ"À¢&öÇVÖÆW#¢°¢²C¢$&—&–æ6’,;fÌ;ÆÒ"ÂF³¢CbÂÖWF–ã¢,Yæ–ÖF—–R¶F"FW6L;ÆbWGFœIö–Ò–ç6æÆ&Fâ&—"FæW6’&Væ–Ò;Ç¦W&–ÖFR&VÆ¶’Vâ,;Çœ;Æ²FW6—&’–ÜKY÷LK"â&Fâ–Æ"v\:wFœIö’†ÆFR&—"L;Ç&Ì;Â'RFW6—&FVâ·W'GVÆÖLKÒâ"ÒÀ¢²C¢,K¶–æ6’,;fÌ;ÆÒ"ÂF³¢S"ÂÖWF–ã¢%&–bVfVæF’Â†W"|;Æâ|;g&L;ÌIü;ÆÜ;Ç¢†ÆFR†¶¼KæF†œ:v&—"YöW’&–ÆÖVFœIö–Ö—¢–ç6æÆ&Fâ&—&—–F’âÖ6<KìKâ&YüKæF6W76—¦6R:vÌKYüK"Â¶–×6W–ÆR¶öç\YöÖ¦LKâ"ÒÀ¢²C¢,9Ì:|;Ææ<;Â,;fÌ;ÆÒ"ÂF³¢C‚ÂÖWF–ã¢%6—–‚¶ÌKFVgFW&’VÆ–ÖRÆLKIüKÒ¦ÖâÂœ:v–æFR&—"–ç6ìKâ,;ÇL;Æâ†–LKìKâ6¶ÌKöÆG\I÷VçR&–ÆÖ—–÷&GVÒâ"ÒÀ¢²C¢$L;g&L;Ææ<;Â,;fÌ;ÆÒ"ÂF³¢SRÂÖWF–ã¢$&W&Æ–â6ö¶¶Æ,KæFFöÆYüK&¶VâÂ&—"&W6–Ò6W&v—6–æFR|;g&L;ÌIü;ÆÒòF&Æò¶,YüK<KæFFöçW¶ÆLKÒâ¼;Ç&²ÖçFöÇR&—"¶LKâ÷'G&W6—–F’'Râ"ÒÀ¢²C¢$&\Yö–æ6’,;fÌ;ÆÒ"ÂF³¢S‚ÂÖWF–ã¢$Ö&–VFW"–ÆRFìKYöÖÜK¢†W"YöW–’F\IöœY÷F—&F’âL;Æç–F&Yö¶L;Ç&Ì;Â–ç6æÆ,KâF–YöLKIüKìK–Æ²FVfò¦ÖâæÆLKÒâ"ÒÀ¢²C¢$ÇLKæ<K,;fÌ;ÆÒ"ÂF³¢SrÂÖWF–ã¢%œKÆÆ"6öç&òFVgFW&–â6öâ6–f<KìK:vWf—&FœIö–ÖFRÂ–ç6ìKâ&—"&Yö¶<KìKvW,:vV·FVâFìKÖ<KìKâæR¶F"¦÷"öÆG\I÷VçRL;ÌYü;ÆæL;ÆÒâ"ÒÀ¢²C¢%6öâ,;fÌ;ÆÒ"ÂF³¢SbÂÖWF–ã¢$†–BÂ&¦VâVâ¼K–ÖWFÆ’YöW–ÆW&–æ’Vâ6W76—¢–ç6æÆ,Kâœ:v–æR6¶Æ"â&–bVfVæF’væ–â†–¼:'–W6’&æ'VçR;lI÷&WGF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&6Æ–·W7R"À¢–3¢#"²–Yò"À¢&6Æ–³¢,8vÌK·\Y÷R"À¢–¦#¢%&\YöBçW&’|;ÆçFV¶–â"À¢6W6ÆVæF—&Vã¢%7L;ÆG–ò¶–LK"À¢¶FVv÷&“¢%&öÖâ"À¢&Væ³¢²"3cDSCb"Â"34S„StR%ÒÀ¢Vã¢BãrÀ¢7W&TF³¢ãbÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$fW&–FRvæ–âK7Fæ'VÂvFâæFöÇRw–W¦æâ–öÆ7VÇ\I÷S²&—"vVì:r;lI÷&WFÖVæ–â–FVÆ—¦Ö’Â¼K&|KæÌK¶Æ,KfRF—&Væ6’â"À¢&öÇVÖÆW#¢°¢²C¢$&—&–æ6’¼K<KÒ"ÂF³¢“RÂÖWF–ã¢$L;g&L;Ææ<;Â<KìKgF–LKÒâ–YüKÒöâ–¶’¶F"öÆÖÌKâg&ç<K¦6×VÆÆ–Ö–Ö—¢<;g"ÆV·6’Â&—"|;Æâ&—¦R–¬Kf¦–fW6’fW&ÖœY÷F’â"ÒÀ¢²C¢,K¶–æ6’¼K<KÒ"ÂF³¢“ÂÖWF–ã¢%FW—¦VÖ–â¼;lYö¼;ÆæFRv\:vVâò–¢|;ÆæÆW&’Â†–LKÜKâVâ¶–|K<K¢¦ÖæÆ,K–LKâIö:vÆ&LK&ÖìK"Â·\Yò—WfÆ,KìK|;g¦ÆW&F–Òâ"ÒÀ¢²C¢,9Ì:|;Ææ<;Â¼K<KÒ"ÂF³¢“"ÂÖWF–ã¢$æFöÇRw–v—FÖW–R¶&"fW&FœIö–ÒvV6RÂVæ6W&VÖ–â;fì;ÆæFR6FÆW&6R÷GW&GVÒâK7Fæ'VÂwVâKYüK¶Æ,KW¦·FF—G&—–÷&GRâ"ÒÀ¢²C¢$L;g&L;Ææ<;Â¼K<KÒ"ÂF³¢ƒ‚ÂÖWF–ã¢%¦W–æ–ÆW"¼;gœ;ÆæFV¶’–Æ²|;Æì;ÆÒ†œ:rVçWFÖ–6IüKÒ&—"|;ÆæL;ÂâÖV·FWFVFœIö–Ò–W"ÂœK¼K²&—"öFFâ–&&WGF’â"ÒÀ¢²C¢$&\Yö–æ6’¼K<KÒ"ÂF³¢ƒrÂÖWF–ã¢,8vö7V¶Æ,Kâ|;g¦ÆW&–æFV¶’KYüK²Â,;ÇL;Æâ–÷&wVæÇ\I÷V×RVçWGGW'W–÷&GRâ9lI÷&WFÖVæÆ–²ÂÖ\IöW"–ç6ìKâ¶VæF–æ’'VÆÖ<KFVÖV¶ÖœYòâ"ÒÀ¢²C¢%6öâ¼K<KÒ"ÂF³¢ƒ‚ÂÖWF–ã¢%œKÆÆ"6öç&vW&—–RL;fì;Ç&·LKIüKÖFÂ8vÌK·\Y÷RvçVâ†œ:r7W6ÖLKIüKìKÂ6FV6R&Yö¶FÆÆ&F;gFÖW–’;lI÷&VæFœIö–æ’æÆLKÒâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢'—V·6V²Öö¶6VÆW""À¢–3¢#²–Yò"À¢&6Æ–³¢%œ;Æ·6V²9f¼:vVÆW""À¢–¦#¢,9fÖW"6W–fWGF–â"À¢6W6ÆVæF—&Vã¢%7L;ÆG–ò¶–LK"À¢¶FVv÷&“¢$†–¼:'–R"À¢&Væ³¢²"3D3s#‚"Â"3„3dD%ÒÀ¢Vã¢BãRÀ¢7W&TF³¢ãBÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$†F–6R†ìKÒ|Kâœ;Æ·6V²;f¼:vVÆ’–¶¶,KÆ,K–Æ&YöÆ–âÂWf–æFV¶’vW,:vV¶ÆW&’f&²WFÖW6—–ÆR&—FVâ—&öæ–²&—"†–¼:'–Râ"À¢&öÇVÖÆW#¢°¢²C¢$†–¼:'–Væ–â&YüK"ÂF³¢"ÂÖWF–ã¢$†F–6R†ìKÒÂÇLK–YüKæFâ&W&’œ;Æ·6V²;f¼:vVÆ’–¶¶,KÆ&ÆvW¦ÖW–RÌKYöÜKY÷LKâ9f¼:vW6—¢FW&Æ–²v—–FœIö’¦Öâ¶VæF–æ’ÖW&F—fVæFVâ–æ—–÷&×\Yòv–&’†—76VFW&F’â"ÒÀ¢²C¢$vVÆœYöÖR"ÂF³¢ÂÖWF–ã¢$Wf–æFR†W"YöW’–öÇVæF|;g,;Æì;Ç–÷&GRâ†—¦ÖWL:v–ÆW":vÌKYö¶âÂYü:|KL;Ç,;Ç7BÂ\Yö²—FFÆ—–F’âVâ¬KæFâ†F–6R†ìKÒ;g–ÆR6ìK–÷&GRâ"ÒÀ¢²C¢%6öâ"ÂF³¢ÂÖWF–ã¢$Fö·F÷'VâFg6—–W6—–ÆR;f¼:vW6—¢–¶¶,Kv—–ÖW–R&YöÆœKæ6ÂWf–âœ:v–æFR6W76—¦6RFöÆYüK"öÆGRâKY÷FRò¦Öâ†W"YöW–’|;g&L;Ââ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢'VÖ&RÖ–æ6–Æ’Ö¶gFâ"À¢–3¢#²–Yò"À¢&6Æ–³¢%VÖ&RKæ6–Æ’¶gFâ"À¢–¦#¢,9fÖW"6W–fWGF–â"À¢6W6ÆVæF—&Vã¢%7L;ÆG–ò¶–LK"À¢¶FVv÷&“¢$†–¼:'–R"À¢&Væ³¢²"3T$32"Â"4S#Tb%ÒÀ¢Vã¢BãbÀ¢7W&TF³¢ãBÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$×V‡6–â8vVÆV&’væ–âYæ‚K6Ö–Âv–â6&œKæFfW&FœIö’öçW"FW'6“²wW'W'VâfRFWfÆWB†—6—–WF–æ–â†–¼:'–W6’â"À¢&öÇVÖÆW#¢°¢²C¢$VÌ:v’&ìK–÷""ÂF³¢BÂÖWF–ã¢$F—fæF†W&¶W27W7W–÷&GRâYæ‚K6Ö–ÂvR|;fæFW&–ÆV6V²VÌ:v–æ–â¶–ÒöÆ6IüK†Vì;Ç¢&VÆÆ’F\Iö–ÆF’â'RœYòÂ;fÌ;ÆÖRv—FÖV²¶F"FV†Æ–¶VÆ—–F’â"ÒÀ¢²C¢$×V‡6–â8vVÆV&’"ÂF³¢2ÂÖWF–ã¢$×V‡6–â8vVÆV&’ÂæRÖWf¶’æR6W'fWB\Yö–æFW–F’â6FR–Yö"Â¶–×6W–RW—fÆÆ‚WFÖW¦F’âFV¶Æ–f’GW—Væ6–ÆìK¢&—"Yö'B¶üY÷GRâ"ÒÀ¢²C¢%6&–F"ÂF³¢BÂÖWF–ã¢%FV'&—¢6&œKìKâ¶K<KæFâv—&W&¶Vâ<K'LKæFVÖ&R–æ6–Æ’¶gFìKf&LKâF‡LKâ;fì;ÆæFR¶–×6Röæ–W"|;g7FW&ÖVF’âòF¶gFìKìK:|K¶,K–W&R6W&F’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&Ö’×fR×6—–‚"À¢–3¢#2²–Yò"À¢&6Æ–³¢$Ö’fR6—–‚"À¢–¦#¢$†Æ—B¦—–\Yö¶ÌKv–Â"À¢6W6ÆVæF—&Vã¢%7L;ÆG–ò¶–LK"À¢¶FVv÷&“¢%&öÖâ"À¢&Væ³¢²"3S$D"Â"34CT“’%ÒÀ¢Vã¢BãBÀ¢7W&TF³¢ãRÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$†ÖWB6VÖ–Âv–âÖ’†–ÆÆW&’–ÆR6—–‚vW,:vV¶ÆW&’&<KæF<K¼KYöâ†–LK²6W'fWBÖ’l;ÆçVâL;fæVÖ–æ–âVâFö·Væ¶ÌK&öÖìKâ"À¢&öÇVÖÆW#¢°¢²C¢$&—&–æ6’,;fÌ;ÆÒ"ÂF³¢s‚ÂÖWF–ã¢$†ÖWB6VÖ–ÂÂv¦WFVæ–âÆüYòöF<KæFv\:r6FÆW&R¶F":vÌKYüK"Â†–Æ–æFR,;Çœ;Æ²W6W&–æ–â6–fÆ,KìK·W&&LKâ"ÒÀ¢²C¢,K¶–æ6’,;fÌ;ÆÒ"ÂF³¢sbÂÖWF–ã¢$Ö’&—"vV6VFRÂœKÆLK¦Æ,KâÇLKæFÂ—7F–¶&Æ–â,;ÇL;ÆâfFÆW&’öæ|;ÆÌ;Æ×<;Ç–÷"v–&—–F’â"ÒÀ¢²C¢,9Ì:|;Ææ<;Â,;fÌ;ÆÒ"ÂF³¢s’ÂÖWF–ã¢$ÖF&&÷,:vÆ,KÂ†7FææRÂWf–âv\:v–Ö’âââ†–ÆÆW"&—&W"&—&W"6—–†L;fì;Ç–÷&GRâ"ÒÀ¢²C¢$L;g&L;Ææ<;Â,;fÌ;ÆÒ"ÂF³¢srÂÖWF–ã¢$ÆÖ–vìKâæœYöâ†&W&’vVÆFœIö–æFRÂ†ÖWB6VÖ–ÂVÆ–æFV¶’Ü;Ç7fVFFVÆW&’6ö&–GLKâ"ÒÀ¢²C¢$&\Yö–æ6’,;fÌ;ÆÒ"ÂF³¢s‚ÂÖWF–ã¢%fW"W¦¶ÆYüK&¶VâK7Fæ'VÂwVâKYüK¶Æ,Kæ&·LKâÖ’Œ;ÆÇ–Æ"vW&–FRÂ6—–‚†¶–¶B;fì;ÆæFW–F’â"ÒÀ¢²C¢%6öâ,;fÌ;ÆÒ"ÂF³¢srÂÖWF–ã¢,Kç6â&¦Vâ†–ÆÆW&–æ’|;fÖW&V²–YöÖœK;lI÷&Væ—"â†ÖWB6VÖ–ÂFR;lI÷&VæF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&F—–WB"À¢–3¢#²–Yò"À¢&6Æ–³¢$F—–WB"À¢–¦#¢,9fÖW"6W–fWGF–â"À¢6W6ÆVæF—&Vã¢%7L;ÆG–ò¶–LK"À¢¶FVv÷&“¢$†–¼:'–R"À¢&Væ³¢²"3$S4#$""Â"3T3tS"%ÒÀ¢Vã¢BãRÀ¢7W&TF³¢ã2Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$¶ö6Æ’væ–â&÷,:vÇRöÆG\I÷RFÖ¶,YüKfW&FœIö’IüK"&VFVÆ–â†–¼:'–W6“²Ö–ææWBfRöçW";Ç¦W&–æR6'<K<K&—"æÆLKâ"À¢&öÇVÖÆW#¢°¢²C¢$FVÖ—&6’¶ö6Æ’"ÂF³¢2ÂÖWF–ã¢$¶ö6Æ’Â¶6&ìKâVâW7FFVÖ—&6—6—–F’â¶–×6W–RÖ–ææWF’–ö·GS²ÌKâFW&—–ÆR–Yö"Â¶–×6Væ–âV¶Ö\Iö–æRVÂW¦FÖ¦LKâ"ÒÀ¢²C¢,KgF—&"ÂF³¢"ÂÖWF–ã¢$&—"|;Æâ¶6&F&—"ŒK'<K¦ÌK²öÆGRfR–gF—&¶ö6Æ’væ–â;Ç¦W&–æR¶ÆLKâ¶LKÂVÆ–æ–â¶W6–ÆÖW6–æRŒ;Æ¶ÖWGF’â"ÒÀ¢²C¢$&VFVÂ"ÂF³¢2ÂÖWF–ã¢$†<KÖV†ÖWBF—–WF’;fFW–—öçR·W'F&LKÖ†W"lK'6GF'VçR&YüKæ¶¼K–÷&GRâ¶ö6Æ’6öçVæF¶&,KìKfW&F’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢'6W76—¢×6FÆW""À¢–3¢#2²–Yò"À¢&6Æ–³¢%6W76—¢6FÆW""À¢–¦#¢$ö·W&–ò–¦&ÌK²V¶–&’"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$†–¼:'–R"À¢&Væ³¢²"3$3D4R"Â"3dd#ƒr%ÒÀ¢Vã¢BãrÀ¢7W&TF³¢bãrÀ¢6öçFVçEVÆ—G•&Wf–Ws¢²7FGW3¢&&÷fVB"Âæ÷FS¢###bÓ‚Ós¢vVì:rö·W&Æ"öÆ—6R÷–WFœYö¶–âö·VÖ–öÆÆ,Kœ:v–âöæ–ÌKuFÒö·VÖr;g&æ\Iö’V·6–·F’†ÖWf7WBœ:vW&–¶ÆW"FìKLKÒ,;fÌ;ÆÜ;Ç–L;Â“²'R;g¦|;Æâ¼K6†–¼:'–Rò&üYöÇ\I÷RFöÆGW&Ö²œ:v–â–¬KÆLKâ##bÓ‚Ós¢&W–†â:v"F&lKæFâ|;g¦FVâv\:v—&–ÆF’fRöæ–ÆæLKâ"ÒÀ¢÷¦WC¢$&—"Æ—6R¼;ÇL;Ç†æW6–æFR·W'VÆâ6W76—¢&—"ö·VÖ6F–æ–âÂ&—";lI÷&Væ6–æ–âFVÆYöÌKœKÌKìKæ<KÂF\IöœY÷F—&FœIö–æ–â;g¦|;Æâ†–¼:'–W6’â"À¢&öÇVÖÆW#¢°¢²C¢%6W76—¢6FÆW"v–â¶K<KæF"ÂF³¢ãÂÖWF–ã¢$ö·VÇVâ;Ì:|;Ææ<;Â¶LKæF¶’¼;ÇL;Ç†æRÂ;lIöÆR&<KæF&–ÆRæW&VFW—6R&üY÷GRâFVæ—¢Â–Æ²¶W¢÷&–vVÆFœIö–æFR'VçVâ6FV6R&—"FW6L;ÆböÆG\I÷VçRL;ÌYü;ÆæÜ;ÌY÷L;Ã²†W&¶W2&Œ:vVFRF÷÷–æ&¶Vâ–F¶çF–æFR<K&<KìK&V¶ÆW&¶VâÂ'RvVæœYòfRÆüYòöF¶–×6Væ–â\I÷&ÖLKIüKVçWGVÆ×\Yò&—"¼;lYöRv–&’GW'W–÷&GRâF÷¦ÇR|;Ææ\YòKYüKIüKÂW§VâVæ6W&VÆW&FVâœ:vW&’<;Ç¬;ÆÌ;Ç&fÆ&F¶’¶—FÆ,Kâ<K'FÆ,KæL;ÌYü;Ç–÷"Â†fFW6¶’¼:,IüKBfRŒYö¶ö·W7R<KÌK¶ÌK–÷&GRâÖ;Ì:r|;Æâ;Ç7B;Ç7FR–ìKÖ6–÷GW'Væ6FVæ—¢f&²WGF’¶’'R6W76—¦Æ–²†œ:rFRFW6L;ÆbF\Iö–ÆF“²¼;ÇL;Ç†æV6’&÷&&W’v–â;g¦VæÆR¶÷'VG\I÷RÂæW&VFW—6Rv—¦Æ’GWGVÆâ&—"L;Ç¦VæF’'Râ¶KìKâ†VÖVâ–ìKæF¶’¼;Ì:|;Æ²F‡FF&VÆF;g¦VæÆRVÂ–¬K<K–ÆÂ%6W76—¢6FÆW#¢"ãÓ2ãÂ"–¬K–÷&GRÂÇLKæFFF†–æ6R†&fÆW&ÆR&—"æ÷Bf&LK¢Â$'W&F6VÆRVFVâ–ö·GW"åÂ"FVæ—¢–Æ²ö·VG\I÷VæF'R<;ÆÖÆW–’&—&¢GV†b'VÆ×\Y÷GS²ö·VÆF†W"YöW’6VÆRWFÖV²;Ç¦W&–æR·W'VÇW–GRÂ'Rœ;Ç¦FVâ6VÆRWFÖW–Vâ&—"6F–âf"öÆ&–ÆV6\Iö’f–·&’öææW&VFW—6RvW,:vV²LKYüKvVÆÖœY÷F’â––æRFR†W"v\:vVâ|;Æâ'R¼;lYöW–R&—&¢F†–¼Kâ†—76VF—–÷&GR¶VæF–æ’Â6æ¶’öFöçRœ:vW&’:vIüK,K–÷&GRâ"ÒÀ¢²C¢$6VÆRVFVâ&—"œKÂ"ÂF³¢ã’ÂÖWF–ã¢$FVæ—¢òœKÂV²:vö²YöW–R6VÆRVF—–÷&GRâ<KæfÆ"'B&FvVÆ—–÷"Â·VÌ;ÇF÷ÆçLKÆ,K;lIöÆR&Æ,KìK,;fÌ;Ç–÷"Â;lI÷&WFÖVæÆW"&—"6öç&¶’;fFWf’&—";fæ6V¶–æ’FW6Æ–ÒWFÖVFVâ†LK&ÆLK–÷&GRâWfFRFRGW'VÒf&¶ÌKF\Iö–ÆF“²FVÆVföçVçVâV·&ìK†œ:r<;fæÜ;Ç–÷"Â&—"&–ÆF—&–Ò&—FW"&—FÖW¢&—"–Væ—6’&VÆ—&—–÷&GRÂ6æ¶’L;Æç–öçVâ<;Ç&V¶Æ’&—"YöW–R–WFœYöÖW6–æ’&V¶Æ—–÷&GRâ¼;ÇL;Ç†æW–Rv—&FœIö’ò–Æ²;lIöÆR&<KÂFVÆVföçVçR6V¶WF–æ–â6V&–æFRVçWF×\YòöÆG\I÷VçRf&²WFÖW6’&–ÆRœ:v–æRGV†bÂæW&VFW—6R7\:vÇVÇV²¶,KYüK²&—"&†FÆÖfW&ÖœY÷F’â¶—FÌKIüKâVâF—&lKæFâÂ¶IüK|;Ææ\Y÷FVâ6öÆ×\YòÂ6–f¶Væ&Æ,K¼Kg,KÆÜKYò&—";g–¼;Â¶—F,K:vV·F’fRVæ6W&R¶Væ,KæF¶’W6¶’Â—V×\Yö²FW&’¶öÇG\Iö÷GW&GRâ6–fÆ,K–fYü:v:vWf—&—&¶Vâf&²WGF’¶’W§Vâ¦ÖæLK"–Æ²¶W¢†œ:v&—"YöW’öçR,;fÆÜ;Ç–÷&GS²æR&—"&–ÆF—&–Ò6W6’ÂæR&—"&¶FYüKìKâ6W6ÆVæœYö’ÂæRFR¶ÌKìKâ&—"¼;lYöW6–æFR,;Çœ;Ç–Vâò<;Ç&V¶Æ’Â'–WFœYöÖVÆ—––ÕÂ"†—76’â6FV6R¶VÆ–ÖVÆW"Â6–fÆ"fR¶VæF’æVfW6–æ–â6W6’f&LKâ6F–âæ<KÂv\:wFœIö–æ’æÆÖLK&–ÆS²¦–Â:vÆLKIüKæFæW&VFW—6RYöYö¼KæÌK¶Æ&YüKìK¶ÆLK&LKâ"ÒÀ¢²C¢$&—"ÌKYö¶æÌK²FüI÷W–÷""ÂF³¢ã’ÂÖWF–ã¢$ò|;ÆæFVâ6öç&;lIöÆR&Æ,K–fYò–fYò&—"ÌKYö¶æÌKIöL;fì;ÌY÷L;ÂâFVæ—¢†W"|;Æâ–ìK6GFR¼;ÇL;Ç†æW–Rv–F—–÷"Â–ìK¶öÇG\Iö÷GW'W–÷"Â&¦Vâ6–fÆ&6ö·W–÷"Â&¦Vâ6FV6RVÆ–æFV¶’¶—F,K¶LKVæ6W&VFVâ&Œ:vVFV¶’–YöÌK:|Kæ"Iö<KìK—¦Æ—–÷&GRâ&—"†gF6öç&Â¶öÇG\I÷VâFÒ¶,YüK<KæF¶’Ö6F÷GW&â&—"&Yö¶;lI÷&Væ6—–’f&²WGF“¢6W76—¦6R&—"æ÷BFVgFW&–æR¼;Ì:|;Æ²:v—¦–ÖÆW"–K–÷"Â&FGW'WL;ÌYü;Ææ6VÆ’&—"–fFW–ÆRVæ6W&W–R&¼K–÷&GRâK¶—6’–Æ²&YöÆ&F&—&&—&–æR†œ:r¶öç\YöÖLK²6FV6R|;g¢|;g¦RvVÆF–¶ÆW&–æFR¼;Ì:|;Æ²ÂæÆYüKÌK"&—"&Yò6ÆÆÖ–Æ6VÆÖÆYüK–÷&Æ&LKâÖ–ìK6W76—¦ÆœIö’Â–ìK6F’Â–ìKÆüYòKYüKIüK–ÆYüK–÷"öÆÖ²ÂFVæ—¢vRv&—&—"&œ:v–ÖFR'LK²–ÆìK¢öÆÖLKIüKìK†—76WGF—&—–÷&GRâ6æ¶’'RöFFÂ¶VÆ–ÖVÆW&ÆR¶öç\YöÖFâFæÆYüKÆâ&—"F–Âf&LK²¶–×6R¶–×6W–’&—"YöW–R¦÷&ÆÜK–÷"Â¶–×6R¶–×6VFVâ&—":|K¶ÆÖ&V¶ÆVÖ—–÷&GRâ¦ÖæÆ'R6W76—¢6VÆÖÆYöÖÆ"FVæ—¢v–â|;Æì;Æì;ÆâVâ‡W§W&ÇRìKŒ:&Æ–æRvVÆF’Â;g–ÆR¶’&¬K6&†Æ"ö·VÆ6FV6Rò&—"6F’L;ÌYü;ÆæW&V²v–F—–÷&GRâ"ÒÀ¢²C¢$&÷&&W’v–â<;g¬;Â"ÂF³¢ã’ÂÖWF–ã¢$&—";lIöÆR&<KÂ¼;ÇL;Ç†æV6’&÷&&W’–fYü:v–ìKæ–¶ÆY÷LKfRVÆ–æFV¶’¶—F,Kæ¦–¼:vRœYö&WBWGF’âÂ$'R;g–¼;Çœ;Â6Wf—–÷"×W7VãõÂ"F—–R6÷&GRÂ6W6’¼;ÇL;Ç†æVæ–â6W76—¦ÆœIö–æRW–wVâÂÌ:v²fR—V×\Yö·LKâFVæ—¢&—"âGW&·6LKÂ6öç&ö×W¢6–Æ·F’âÂ$&–ÆÖ—–÷'VÒÂ†Vì;Ç¢–,K<KæFœKÒâÖGV†b&—"YöV¶–ÆFRÂ&—FÖW6–æ’—7FVÖ—–÷'VÒåÂ"&÷&&W’†f–l:vR|;ÆÌ;Æ×6VF’Â|;g¦ÆW&–æ–â¶Væ,KæF–æ6R:v—¦v–ÆW"&VÆ—&F’âÂ$&¬K¶—FÆ";g–ÆVF—"ÅÂ"FVF’Â6W6’æW&VFW—6R&—"<K"–ÆYüK"v–&—–F’âÂ$öæÆ,KŒK¦ÌK&—F—&ÖV²ÂöæÆ,K†œ:rö·VÖÖ²v–&’vVÆ—"–ç6æåÂ"6öç&¶VæF’Ö6<KæFüI÷'RL;fæW&¶VâV¶ÆVF“¢Â%6W76—¢6FÆW"v’&Vâ÷GW¢œKÂ;fæ6RÂ¶VæF’;lI÷&Væ6–ÆœIö–ÖFR&—"&Yö¶¼;ÇL;Ç†æV6’·W&×\Y÷GRâòF&æFÒ'VçR<;g–ÆVÖœY÷F“¢6VÆRWFÖVFVâö·VÖ²Â6ÌKæF¶VæF–æR6VÆRWFÖVFVâ¦ÖâœK&Ö·LK"åÂ"FVæ—¢'R<;g¬;Âæ÷BFVgFW&–æRF\Iö–ÂÖ¦–†æ–æR¶–FWGF“²6æ¶’œ:v–æFRW§Vâ¦ÖæLK"&LKIüKÖLKìK¶÷–ÖLKIüK&—"YöW–’&—&FVâ'VÆ×\Yòv–&—–F’âò|;ÆâWfRL;fæW&¶Vâ&–ÆR'R<;ÆÖÆW–’¶f<KæF&—&¶:r¶W¢FV·&&ÆLKâ"ÒÀ¢²C¢$¶ÆLKIüK–W&FVâ"ÂF³¢ã‚ÂÖWF–ã¢$'R<;g¢FVæ—¢v–â¶ÌKæF¼YöÖ¶F"Â†GFW'FW6’|;ÆæR¶F"¶ÆLKâò¼YöÒWfFRÂ†W"¦Öæ¶’v–&’–Æ²œYòFVÆVföçVçR¶öçG&öÂWFÖV²–W&–æRÂ:vçF<KæFâ¶—F,K:|K¶&LKfR¶ÆLKIüK–W&FVâ6W76—¦6Rö·VÖ–FWfÒWGF’âææW6’×WFf·Fâ6W6ÆVæFœIö–æFR&–ÆR¶—FFâ|;g¦ÆW&–æ’œK&ÖFâ6WffW&F’Â6öç&¶VæF’¶VæF–æR|;ÆÆL;Ã²–Æ²¶W¢&—"YöW–’&—F—&ÖV²œ:v–âF\Iö–ÂÂ6FV6RòæFÂò6–fFöÆÖ²œ:v–âö·VG\I÷VçRf&²WFÖœY÷F’âW'FW6’|;Æâ¼;ÇL;Ç†æW–Rv—&W&¶VâÂ¶,YüK<KæF¶’Ö6F÷GW&â;lI÷&Væ6—–R–Æ²¶W¢vW,:vV²&—"|;ÆÌ;Æ×6VÖR|;fæFW&F’Â;fæ6V¶’|;ÆæÆW&–â–‡F—–FÌK&Yò6ÆÆÖÆ,KæFâf&¶ÌKÂ<K6²&—"|;ÆÌ;Æ×6VÖW–F’'Râ¶,YüKÌKIüKæFÆLKIüK|;ÆÌ;Æ×6VÖR¶F"&6—B&—"YöW’Âò|;Æì;ÆâvW&’¶ÆìKìKFYüKÖ<Kæ–WFÖœY÷F“²¶÷&–F÷&Æ&Fœ;Ç,;Ç&¶Vâ&–ÆRö×W¦Æ,KæF¶’IüK&ÌKIüKâ&—&¢†f–fÆVFœIö–æ’†—76VF—–÷&GRâò;lI÷&Væ6–æ–âLKìKâVÆ–böÆG\I÷VçRÂ–ìK†gF6öçVæF;lI÷&VæF“²¼K6&—"Â$&VâVÆ–eÂ"fR¶,YüKÌKIüKæF¼K6&—"Â$&VâFVæ—¥Â"–WFÖœY÷F’FìKYöÖ–â"ÒÀ¢²C¢$öF––Væ’vVÆVæÆW""ÂF³¢ãrÂÖWF–ã¢$†gFÆ"v\:wF–¼:vR6W76—¢6FÆW"vRvVÆVæÆW&–â6œK<K–fYò–fYòÂæW&VFW—6Rf&²VF–ÆÖVFVâ'GLKâ9fæ6R–¶’;lI÷&Væ6’F†¶LKÆLKÂ6öç&&—"FæW6’F†ÂFW&¶VâÆüYòöF;lIöÆRf·F’†f–bÖ<K6²&—"FöÇVÇV¶ÆFöÆÖ–&YöÆLKâ¶–×6R&—&&—&–æR¶öç\YöÖ¦÷'VæÇVÇ\I÷R†—76WFÖ—–÷&GS²†W&¶W2¶VæF’¶—F,K–ÆÂ¶VæF’:v—¦–Ö—–ÆRÂ¶VæF’L;ÌYü;Ææ6VÆW&—–ÆR÷&F–LKÂÖ––æRFR&—"&FöÆÖìKâfW&FœIö’òGV†b&†FÌK²†W&¶W6–âœ;Ç¬;ÆæFRö·VçW–÷&GRâFVæ—¢Â&—";lIöÆR&<K&YüKìK¶ÆLK,KWG&lKæ&·LKIüKæFÂ–ìK6W76—¢öFF–VF’f&¶ÌK;lI÷&Væ6–æ–â–VF’f&¶ÌKL;Æç––6W76—¦6RFÆLKIüKìK|;g&L;ÂfR'VçVâÂ†œ:r¶öç\YöÖFâF&—"&FöÆÖìKâvW,:vV²&—"–öÇRöÆG\I÷VçRòâF†FW&–æFVâæÆLKâ&¦Vâ&—&’¶—F,KìK¶LK|;g¦ÆW&–æ’÷g\Y÷GW'W–÷"Â&—"&Yö¶<K6W76—¦6R–W&–æFVâ¶Æ¼K–Væ’&—"¶—F6\:v—–÷"Â¶–×6R¶–×6Væ–â&—FÖ–æ’&÷¦×W–÷&GRâ"ÒÀ¢²C¢%<Kæb†gF<K"ÂF³¢ãrÂÖWF–ã¢$L;fæVÒ6öçR<KæfÆ,K–¶ÆY÷LK¼:vö·VÇVâvW&’¶ÆìK—––6RvW&v–æÆ\Y÷F“²¶÷&–F÷&Æ"F†ŒK¦ÌKLKÖÆ&ÆÂ¶çF–æFV¶’Ö6Æ"F†œ;Æ·6V²6W6Æ’¶öç\YöÖÆ&ÆFöÆGRâÖ6W76—¢6FÆW"GV†b&—"&œ:v–ÖFRF\IöœYöÖVF’Â†GF&—&¢F†¶Æ&ÌK¶ÆY÷LKâFVæ—¢&—";lIöÆVâÂVÆ–æFV¶’FW'2¶—F,KìK&—"¶Væ&¶÷—W––æRò;g–¼;Â¶—F,KæL;fæL;ÌIü;ÆæFRÂVÆ–bv–âöæ6W76—¦6R&·LKIüKìKf&²WGF’âÂ%<Kæb:vÌKYöÖâvW&V¶Ö—–÷"×SõÂ"F—–RlK<KÆFLKVÆ–bÂ6W6–æFR–&|KÆÖFâ:vö²ÖW&²f&LKâFVæ—¢|;ÆÌ;Æ×6VF’âÂ$vW&V¶—–÷"âÖ;fæ6R'W&F&\YòF¶–¶÷GW&ÖÒvW&V¶—–÷"Â6öç&F†—–’:vÌKYö&–Æ—–÷'VÒåÂ"VÆ–b&YüKìK6ÆÆLKÂ6æ¶’'VçR¦FVâ&–Æ—–÷&×\Yòv–&’âòæFâ6öç&–¶—6’FRf&²WGF’¶’6W76—¢6FÆW"Â<Kæb7G&W6–æFVâ¶:vÖ²œ:v–âF\Iö–ÂÂöæF†|;Ì:vÌ;ÂL;fæV&–ÆÖV²œ:v–â&—"ÖöÆæö·F<K–LKâ"ÒÀ¢²C¢$&—"6FÆ–²6W76—¦Æ–²"ÂF³¢ãrÂÖWF–ã¢%œKÂ6öçVæFüI÷'RÂö·VÂÜ;ÆL;Ç,;Â&—"|;Æâ¼;ÇL;Ç†æW–R\I÷&LKfR&÷&&W’vR6W76—¢6FÆW"†¶¼KæF6÷'VÆ"6÷&GS²;lI÷&Væ6’6œK<KìKâæ<KÂ'R¶F"'GLKIüKìKÖW&²VF—–÷&GRâ&÷&&W’6FV6R|;ÆÌ;Æ×6VF’fRÂ$¶–×6W–’¦÷&ÆÖLK²Â6FV6R&—"6B6W76—¦Æ–²7VæGVµÂ"FVF’âW'FW6’œKÂÂF&VÆ–Væ–ÆVæF’fR'LK²ö·VÇVâ&W6Ö’GW—W'Ræ÷7VæFF–W"ÆLK²ÖFVæ—¢œ:v–âVâ;fæVÖÆ’F\IöœYö–¶Æ–²'RF\Iö–ÆF’â9fæVÖÆ’öÆâÂ'LK²†W"|;ÆâÂ&—"6FÆœIö–æRFRöÇ6Â†œ:v&—"YöW––â6VÆRWFÖVFœIö’&—"–W"öÆG\I÷VçR&–ÆÖW6—–F’â'R&–Æv’Â|;Æì;ÆâvW&’¶ÆìKìKFYüKÖ<KìK¶öÆ–ÆY÷LK&â¼;Ì:|;Æ²ÖYöYüK'LK<KFW&V6VFR6IöÆÒ&—"F–æ²öÆ×\Y÷GS²fR&¦Vâ¶VæF’¶VæF–æRL;ÌYü;ÆæL;ÌIü;ÆæFRÂVâ,;Çœ;Æ²F\IöœYö–¶Æ–¶ÆW&–âFÒF,;g–ÆRÂ&—"6FÆ–²&—"6W76—¦Æ–¶ÆR&YöÆLKIüKìKæÌK–÷&GRâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&¶VÆövÆâÖÖ6ÆÆ&’"À¢&6Æ–³¢$¶VÆüIöÆâÖ6ÆÆ,K"À¢–¦#¢$æöæ–Ò†Æ²Ö6ÌK"À¢6W6ÆVæF—&Vã¢%7L;ÆG–ò¶–LK"À¢¶FVv÷&“¢$Ö6Â"À¢–3¢#BÓ‚–Yò"À¢&Væ³¢²"3tDR"Â"43“„#4B%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ãRÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$æFöÇRvçVâVâ6Wf–ÆVâ¶‡&ÖìK¶VÆüIöÆâ|Kâ¶ÌKfR—–’œ;Ç&\Iö—–ÆR¦÷&ÇV¶Æ,Kâ;Ç7FW6–æFVâvVÆFœIö’;Ì:ræ\YöVÆ’Ö6Ââ"À¢&öÇVÖÆW#¢°¢²C¢$¶VÆüIöÆâ–ÆR6–†—&Æ’F\Iö—&ÖVâ"ÂF³¢rÂÖWF–ã¢$&—"f&ÜKYò&—"–ö¶×\YòâWgfVÂ¦Öâœ:v–æFRÂ¶Æ'W"6Öâœ:v–æFRÂ&—"¶VÆüIöÆâ–Yö&ÜKYòâ¶VÆüIöÆâ&—"6&‚æ<KæFVÖœYò¶’Â&Vâ¦&v–F—¼K6ÖWF–Ö’&–6IüKÒâ"ÒÀ¢²C¢$¶VÆüIöÆâ–ÆRæ&Fæ—–R†ìKÒ"ÂF³¢‚ÂÖWF–ã¢$¶VÆüIöÆâ–öÆFœ;Ç,;Ç&¶Vâ&—"FR&¶ÜKYòÂ–YöÌK&—"æ–æRIüK"&—":wWfÌKFYüKÖ–:vÌKYüK–÷"â†VÖVâ¶üYö×\YòÂæ–æV6œIö–ÒGW"&VâFYüK–œKÒFVÖœYòâK––Æ–²VFVâ—––Æ–²'VÇW&×\Yòâ"ÒÀ¢²C¢$¶VÆüIöÆâ–ÆRFœYöŒKâ¼K¬K"ÂF³¢rÂÖWF–ã¢%FœYö‚Â&–ÆÖV6VÖ’&–ÆVâ¼K¬KÜKÌK"F—–R;ÆÆ¶W–RFVÆÆÆÆ"6ÆÜKYòâ¶VÆüIöÆâ|;ÆÆÜ;ÌYòÂ¼KÂ–Y÷FF\Iö–Â&Y÷FLK"FVÖœYòfR6&–FüI÷'R–öÆ¶÷—VÆ×\Yòâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ÆÖföçF–æRÖgVwVR"À¢&6Æ–³¢$ÆföçF–æRvFVâf&ÆÆ""À¢–¦#¢$¦VâFRÆföçF–æR"À¢6W6ÆVæF—&Vã¢%7L;ÆG–ò¶–LK"À¢¶FVv÷&“¢$Ö6Â"À¢–3¢#BÓ‚–Yò"À¢&Væ³¢²"3$ST3""Â"3ddT2%ÒÀ¢Vã¢BãrÀ¢7W&TF³¢ãRÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$I÷W7F÷2,;f6\Iö’–ÆR¶,Kæ6ÂFlYöâ–ÆR¶ÇVÖ&IöfR¶&v–ÆRF–Æ¶’â†W"&—&’¼;Ì:|;Æ²&—"†–BFW'6’FYüK–â;Ì:r¶Æ6–²f&Ââ"À¢&öÇVÖÆW#¢°¢²C¢$I÷W7F÷2,;f6\Iö’–ÆR¶,Kæ6"ÂF³¢RÂÖWF–ã¢$I÷W7F÷2,;f6\Iö’,;ÇL;Æâ–¢Yö&¼K<;g–ÆVÖœYòÂ6¢:vÆÜKYòâ¶,Kæ6—6RGW&ÖFâ:vÌKYöÜKYòÂ¼KYöÌK²–—–V6\Iö–æ’F÷ÆÜKYòâFW&¶Vâ¼KYòvVÆÖœYòÂ¶"†W"–W&’¶ÆÜKYòâ"ÒÀ¢²C¢%FlYöâ–ÆR¶ÇVÖ&Iö"ÂF³¢RÂÖWF–ã¢%FlYöâÂ¶ÇVÖ&Iö–ÆÆ’VFW&ÖœYòâ6VâÖ’&Væ–ÖÆR–,KYö6·<KâFVÖœYòâ¶ÇVÖ&Iö6¶–â6¶–â|;ÆÌ;Æ×6VÖœYòÂ–,KYöÌKÒF|;g&VÆ–ÒFVÖœYòâ–fYòÖ¶&&ÌKöÆâ¶¦ìK&ÜKYòâ"ÒÀ¢²C¢$¶&v–ÆRF–Æ¶’"ÂF³¢RÂÖWF–ã¢$¶&vìKâI÷¬KæF&—",:vW–æ—"f&ÜKYòâ·W&æ¢F–Æ¶’Iö<KâÇLKævVÆÖœYòÂæR|;Ç¦VÂ·\Y÷7Vâ6VâÂ6W6–âFR|;Ç¦VÂÖ–F—"6&FVÖœYòâFFÌKF–ÆR¶æÖÖ²vW&V¶—&ÖœYòâ"ÒÀ¢ÒÀ¢ÒÀ¢äDU%4Tåõ5Dõ$”U2À¢°¢–C¢&W¦÷ÖÖ6ÆÆ&’"À¢&6Æ–³¢$W¦÷Ö6ÆÆ,K"À¢–¦#¢$W¦÷"À¢6W6ÆVæF—&Vã¢%7L;ÆG–ò¶–LK"À¢¶FVv÷&“¢$Ö6Â"À¢–3¢#BÓ‚–Yò"À¢&Væ³¢²"3T4TR"Â"3”d%ÒÀ¢Vã¢BãbÀ¢7W&TF³¢ã‚À¢6öçFVçEVÆ—G•&Wf–Ws¢²7FGW3¢&&÷fVB"Âæ÷FS¢###bÓ‚Óc¢9Ì:rf&Â†¶×RÖÌKW¦÷æÆLKÆ,K(	Bö·W&–òvçVâ;g¦|;Æâ–Væ–FVâæÆLKÜK’FV²&w&fÌK²;g¦WGFVâFÒæÆLK–vVæœYöÆWF–ÆF’â–œKâ;fæ6W6’&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â##bÓ‚Ós¢&W–†â:v"F&lKæFâœ:vW&–²¶Æ—FW6’öæ–ÆæLKâ"ÒÀ¢÷¦WC¢$&–æÆW&6RœKÆLK"æÆLKÆâW¦÷&–ÆvVÆœIö“¢–Ææ<K:vö&âÂ6Æâ–ÆRf&RfRÇLKâ—V×W'FÆ–âFgV²â9Ì:rf&ÌKâö·W&–òW–&ÆÖ<Kâ"À¢&öÇVÖÆW#¢°¢²C¢%–Ææ<K8vö&â"ÂF³¢ÂÖWF–ã¢$&—":vö&âÂ¼;g–Ì;ÆÆW&RYö¶–ÖœK:vö²6WfW&ÖœYòâ†W"|;Æâ<;Ç,;Ç<;Æì;Â÷FÆFÖ–|;gL;Ç,;Ç&Ü;ÌYòÖ<K¼KÌK&ÜKYòâ&—"|;Æâ\IöÆVæÖV²œ:v–â·W'BvVÆ—–÷"F—–R&IüK&ÜKYòâ¼;g–Ì;ÆÆW"¶üYö&²vVÆÖœYòÖ÷'FF·W'B–ö¶×\Yòâ8vö&â¶†¶†Æ&Æ|;ÆÆÜ;ÌYòÂ¼;g–Ì;ÆÆW"¼K¦&²vW&’L;fæÜ;ÌYòâW'FW6’|;Æâ––æR–ìKYö¶œK–ÜKYòÂ¼;g–Ì;ÆÆW"––æR¶üYö×\Yòâ'R&—&¶:r¶W¢FV·&&ÆæÜKYòÂ¼;g–Ì;ÆÆW"'LK²öæ–ææÖ¢öÆ×\Yòâ6öçVæFvW,:vV·FVâ&—"·W'BvVÆÖœYòfR<;Ç,;Ç–R6ÆLK&ÜKYòâ8vö&âf"|;Æ<;Ç–ÆR&IüK&ÜKYòÂ·W'BvVÆ—–÷"ÂvW,:vV·FVâvVÆ—–÷"Ö¼;g–Ì;ÆÆW"'R6VfW"vVÆÖVÖœYòÂ––æRYö¶6æÜKYöÆ"â·W'B,;ÇL;Æâ<;Ç,;Çœ;Â¶:|K&ÜKYòÂ:vö&â:vö²œYöÖâöÆ×\Yòâ–Æâ<;g–ÆVÖV²Â&—"|;ÆâvW,:v\Iö’<;g–ÆVFœIö–æFR&–ÆR–æìKÆÖÖ<Kæ–öÂ:v&ÜKYòâ"ÒÀ¢²C¢$6Æâ–ÆRf&R"ÂF³¢ÂÖWF–ã¢$¼;Ì:|;Æ²&—"f&RÂW—W–â&—"6ÆìKâ;Ç¦W&–æFR÷–æ–÷–æ–vW¦–æ—&¶Vâ6ÆâW–ìKfW&ÖœYòâ6Æâ;ff¶W–ÆRf&W–’Vì:vW6–æ–âÇLKæÆÜKYòâf&R:vö²¶÷&¶×\YòfR–Çf&ÜKYòâ&Væ’,K&²Â&—"|;Æâ&VâFR6æ–&LKÒVFW&–ÒFVÖœYòâ6Æâ'R¼;Ì:|;Æ<;Æ²f&Væ–âöææ<KÂ–&LKÒVFV&–ÆV6\Iö–æ’L;ÌYü;Æì;Ç|;ÆÆÜ;ÌYòâ––æRFRÖW&†ÖWBVF—f&W–’,K&¶ÜKYòâ&Fâ¦Öâv\:vÖœYòÂ&—"|;Æâ6Æâf<KÆ,KâIüKæL;ÌYöÜ;ÌYòâæR¶F":v&Æ6FIöFâ·W'GVÆÖÜKYòfR¼;Æ·&VÖœYòâf&R'R6W6’GW–×\YòfR¶üYö&²vVÆÖœYòâ¼;Ì:|;Æ²FœYöÆW&—–ÆRIüKâ—ÆW&–æ’FV¶W"FV¶W"¶VÖ—&ÖœYòâ6öçVæF6Æâ;g¦|;Ç"¶ÆÜKYòâ6ÆâÂ¼;Ì:|;Æ²&—"F÷7GVâ&–ÆR,;Çœ;Æ²&—"–&LKÒ–&–ÆV6\Iö–æ’;lI÷&VæÖœYòâ"ÒÀ¢²C¢$ÇLKâ—V×W'FÆ–âFgV²"ÂF³¢ÂÖWF–ã¢$&—":v–gL:v–æ–â;g¦VÂ&—"Fg\I÷Rf&ÜKYòÂ†W"|;ÆâÇLKâ&—"—V×W'F—V×W'FÆ&ÜKYòâ8v–gL:v’'R—V×W'FÆ,K6F&²¦Væv–æÆ\YöÖœYòâÖ¦ÖæÆ:v|;g¦Ì;ÂöÆ×\YòÂF†:vö²ÇLKâ—7FVÖœYòâ'RFg\I÷Vâœ:v–æFR¶W6–â&—"ÇLKâ†¦–æW6’f&LK"F—–RL;ÌYü;ÆæÜ;ÌYòâ&—"|;Æâ6,K'<K¦ÆìKFg\I÷R¶W6ÖœYòÂœ:v–æFV¶’,;ÇL;ÆâÇLKìKÆÖ²—7FVÖœYòâÖFg\I÷Vâœ:v–æFR†œ:rÇLKâ–ö¶×\YòÂ6FV6R<K&Fâ&—"FgV²œ:v—–ÖœYòâ8v–gL:v’†VÒFg\I÷VçR¶–&WFÖœYò†VÒFR|;ÆæÌ;Æ²ÇLKâ—V×W'FFâöÆ×\YòâœYöÖæÌK¶Æ÷GW'WIöÆÜKYòÖ'LK²:vö²v\:vÖœYòâ¶,K<KöæÂ6,K&ÌKöÇ6–LK²†W"|;Æâ¦Væv–æÆ\YöV6V·F–²FVÖœYòâ:v|;g¦Ì;ÆÌ;Æ²ÂVÆ–Ö—¦FV¶’|;Ç¦VÂYöW–ÆW&’&–ÆR¶–&WGF—&V&–Æ—&ÖœYòâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&w&–ÖÒÖÖ6ÆÆ&’"À¢&6Æ–³¢$w&–ÖÒ¶&F\YöÆW"Ö6ÆÆ,K"À¢–¦#¢$¦6ö"fRv–Æ†VÆÒw&–ÖÒ"À¢6W6ÆVæF—&Vã¢%7L;ÆG–ò¶–LK"À¢¶FVv÷&“¢$Ö6Â"À¢–3¢#RÓ’–Yò"À¢&Væ³¢²"3DS$"Â"3„3DT%ÒÀ¢Vã¢BãrÀ¢7W&TF³¢"ã2À¢6öçFVçEVÆ—G•&Wf–Ws¢²7FGW3¢&&÷fVB"Âæ÷FS¢###bÓ‚Óc¢9Ì:rÖ6Â†¶×RÖÌKw&–ÖÒFW&ÆVÖVÆW&’(	Bö·W&–òvçVâ;g¦|;Æâ–Væ–FVâæÆLKÜK’FV²&w&fÌK²;g¦WGFVâFÒæÆLK–vVæœYöÆWF–ÆF’â–œKâ;fæ6W6’&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â##bÓ‚Ós¢&W–†â:v"F&lKæFâœ:vW&–²¶Æ—FW6’öæ–ÆæLKâ"ÒÀ¢÷¦WC¢$'&VÖVâÜK¬K¶<KÆ,KÂ†ç6VÂ–ÆRw&WFVÂfR·W&&Iö&Vç2âw&–ÖÒ¶&F\YöÆW"v–âFW&ÆVFœIö’;Ì:r;fÌ;Æ×<;Ç¢Ö6ÌKâö·W&–òW–&ÆÖ<Kâ"À¢&öÇVÖÆW#¢°¢²C¢$'&VÖVâÜK¬K¶<KÆ,K"ÂF³¢ÂÖWF–ã¢%–YöÆæâ&—"\YöV²Â6†–&–æ–â¶VæF—6–æ’'LK²—7FVÖVFœIö–æ’f&²WFÖœYòâ&Vâ'&VÖVâvRv–FW"ÂÜK¬K¶<KöÇW'VÒFVÖœYòfR–öÆ:|K¶ÜKYòâ–öÆF–YöÌK&—"¼;gV¶ÆR¶,YüKÆYöÜKYòÂòF6†–&–æFVâ¶:vÜKYòâK¶—6’&—&Æ–·FRœ;Ç,;ÆÖW–RFWfÒWFÖœYòfR&—"¶VF’|;g&Ü;ÌYöÆW"â¶VF’FR'LK²f&RGWFÖLKIüKœ:v–âWfFVâ¶÷gVÆ×\Yòâ9Ì:|;Â&—&Æ–·FR–öÆ¶÷—VÆ×\YòÂFW&¶Vâ&—"†÷&÷¢FöæÆ&¶LKÆÜKYòâ†÷&÷¢F¶W6–ÆÖV·FVâ¶÷&·W¶:vÜKYòâL;g'B&¶FYò¼YöÒöÇVæ6&—"÷&ÖæFKYüK²|;g&Ü;ÌYöÆW"â–¶ÆYüKæ6&—"†–GWB:vWFW6–æ–âWf’öÆG\I÷VçRæÆÜKYöÆ"â\YöV²Væ6W&W–RÂ¼;gV²\Yö\Iö–â<K'LKæÂ¶VF’¼;g\Iö–â<K'LKæÂ†÷&÷¢F¶VF–æ–â;Ç7L;ÆæR:|K¶ÜKYòâ†W&—&Æ–·FRf"|;Ì:vÆW&—–ÆR&IüK&ÜKYöÆ"â†–GWFÆ"¶÷&·Vì:r&—"6æf"vVÆFœIö–æ’6ìK¶:vÜKYöÆ"âL;g'B&¶FYòWfR–W&Æ\YöÖœYòfR÷&F×WFÇR–YöÜKYöÆ"â†œ:v&—&’'&VÖVâvRv—FÖW6RFR&—&&—&ÆW&–æ’'VÆ×\YöÆ"â"ÒÀ¢²C¢$†ç6VÂ–ÆRw&WFVÂ"ÂF³¢ÂÖWF–ã¢$†ç6VÂ–ÆRw&WFVÂÂf¶—"&—"öGVæ7VçVâ:vö7V¶Æ,K–ÜKYòâ&—"¼KFÌK²L;fæVÖ–æFR÷&Öæ,K&¼KÆÜKYöÆ"âK¶—6’÷&ÖæF¶–&öÆ×\YöÆ"fR:vö²¶÷&¶×\YöÆ"âFW&¶Vâ¶,YüKÆ,KæYöV¶W&FVâÂ·W&&—–VFVâ–KÆÜKYò&—"Wb:|K¶ÜKYòâ6Wf–æW&V²WfFVâ,:vÆ"¶÷,K–VÖW–R&YöÆÜKYöÆ"âÖWf–â6†–&’¼;gL;Â&—"6LK–ÜKYòÂ:vö7V¶Æ,Kœ:vW&’¶–Æ—FÆVÖœYòâ6LKÂ†ç6VÂv’YöœYöÖæÆLK–VÖV²—7FVÖœYòâw&WFVÂ¼KÆÌK6Fg&æÜKYòfR6LKœK¶æLK&ÜKYòâ6LKœKlK,Kæ—F—¶&F\Yö–æ’·W'F&ÜKYòâK¶—6’6LKìKâWf–æFRÇLKâfRÜ;Æ6Wf†W"'VÆ×\Yòâ÷&ÖæFâ:|K¼KYò–öÇVçR'VÆÖ²œ:v–â&W–¢FYöÆ,KF¶—WFÖœYöÆW"â6öçVæFWfÆW&–æRL;fæÜ;ÌYöÆW"Â&&Æ,KöæÆ,K|;g,;Ææ6R:vö²6Wf–æÖœYòâvWF—&F–¶ÆW&’†¦–æW–ÆR&—"F††œ:r:r¶ÆÖÜKYöÆ"âÖ†W"&Æ–âYöV¶W"ÂFFÌKöÆÖ–&–Æ—&ÖœYòÂ'VçR†œ:rVçWFÖÜKYöÆ"â"ÒÀ¢²C¢$·W&&Iö&Vç2"ÂF³¢ÂÖWF–ã¢$&—"&Vç6W6–âVâ6WfFœIö’÷—Væ6IüKÇLKâ&—"F÷×\Yòâ&—"|;ÆâF÷VçR÷–æ&¶Vâ·W—W–L;ÌYü;Ç&Ü;ÌYòâ&Vç6W2:vö²;Ç¬;ÆÆÜ;ÌYòfRIöÆÖ–&YöÆÜKYòâFW&¶Vâ·W—VFâ&—"·W&&Iö:|K¶ÜKYòâF÷VçR:|K¶,K,KÒÖ&—"Yö'LKÒf"FVÖœYòâ&Væ–ÖÆR&¶FYòöÂÂ6ög&æF–VÖV²–RÂ–FIüKæFW—RFVÖœYòâ&Vç6W2†VÖVâ¶'VÂWFÖœYòÖF÷VçRÌKæ6<;g¬;Æì;ÂVçWF×\Yòâ·W&&IöW'FW6’|;Æâ6&–vVÆÖœYòfR<;g¬;Æì;Â†LK&ÆFÜKYòâ·&ÂÂfW&–ÆVâ<;g¬;ÆâGWGVÆÖ<KvW&V·FœIö–æ’<;g–ÆVÖœYòâ&Vç6W2—7FVÖW–W&V²·W&&IöœK6ög&–Â6öç&FöF<KæÆÜKYòâ·W&&IöÂ&Vç6W6–âfW&FœIö’<;g¦RW–Ö<KæFâ:vö²ÖVÖçVâ¶ÆÜKYòâ&—"vV6R·W&&Iöæ–FVâ–¼KYüK¶ÌK&—"&Vç6RL;fì;ÌYöÜ;ÌYòâ¼;gL;Â&—",;Çœ;ÂöçR·W&&Iö–ÜKYòÂ6FV6R&—"<;g¢öçR·W'F&&–Æ—&ÖœYòâfW&–ÆVâ<;g¢GWGVÇW&×\YòÂ:|;Ææ¼;Â<;g¬;ÆæFRGW&Ö²–ç6ìK|;Ç¦VÆÆ\Y÷F—&—&ÖœYòâ'R;Ì:rÖ6ÂÂfW&–ÆVâ<;g¦ÆW&–âæR¶F"F\IöW&Æ’öÆG\I÷VçRÂF÷7FÇ\I÷Vâ&V¶ÆVæÖVF–²–W&ÆW&FVâvVÆV&–ÆV6\Iö–æ’fR6,K&Æ:vÌKYöÖìKâ¶,YüKÌKIüKìK†WfW&FœIö–æ’æW6–ÆÆW&F—":vö7V¶Æ&æÆLK"Â,;Çœ;Æ¶ææR,;Çœ;Æ¶&&F–Æ–æFVâF÷'VæÂ·\Yö·Fâ·\YöIöÂ†W"–ÆVFRFV·&"FV·&"–Væ–FVâ·F,KÆ&²â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&W6÷Öf&ÆW2ÖVâ"À¢&6Æ–³¢$W6÷w2f&ÆW2"À¢–¦#¢$W6÷"À¢6W6ÆVæF—&Vã¢%7GVF–ò&V6÷&F–ær"À¢¶FVv÷&“¢$Ö6Â"À¢F–Ã¢&Vâ"À¢–3¢#BÓ‚–Yò"À¢&Væ³¢²"3$SDT"Â"3T„4%ÒÀ¢Vã¢BãrÀ¢7W&TF³¢ãrÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢%F‡&VRF–ÖVÆW72f&ÆW2–â6–×ÆRVævÆ—6ƒ¢F†RF÷'Fö—6RæBF†R†&RÂF†RÆ–öâæBF†RÖ÷W6RÂæBF†R&÷’v†ò7&–VBvöÆbâ"À¢&öÇVÖÆW#¢°¢²C¢%F†RF÷'Fö—6RæBF†R†&R"ÂF³¢"ÂÖWF–ã¢%F†R†&RÆVv†VBBF†R6Æ÷rF÷'Fö—6RâÆWBW2&6RÂ6–BF†RF÷'Fö—6Rv—F‚6Ö–ÆRâF†R†&R&âf7BÂF†Vâ7F÷VBFò6ÆVWVæFW"G&VRâ6Æ÷ræB7FVG’v–ç2F†R&6Râ"ÒÀ¢²C¢%F†RÆ–öâæBF†RÖ÷W6R"ÂF³¢"ÂÖWF–ã¢$Æ—GFÆRÖ÷W6R&â÷fW"6ÆVW–ærÆ–öââF†RÆ–öâvö¶RWæB6Vv‡B—BâÆV6RÆWBÖRvòÂ6–BF†RÖ÷W6RÂöæRF’’v–ÆÂ†VÇ–÷RâF†RÆ–öâÆVv†VBÂ'WB†RÆWBF†RÖ÷W6Rvòâ"ÒÀ¢²C¢%F†R&÷’v†ò7&–VBvöÆb"ÂF³¢"ÂÖWF–ã¢$6†W†W&B&÷’Æ–¶VBFòÆ’G&–6·2âvöÆbÂvöÆbÂ†R6†÷WFVBÂæBF†Rf–ÆÆvW'26ÖR'Vææ–ærâöæRF’&VÂvöÆb6ÖRâæö&öG’&VÆ–WfVBF†R&÷’F†—2F–ÖRâ"ÒÀ¢ÒÀ¢ÒÀ¢UDU%õ$$$•EôeTÄÂÀ¢°¢–C¢'VvÇ’ÖGV6¶Æ–ærÖVâ"À¢&6Æ–³¢%F†RVvÇ’GV6¶Æ–ær"À¢–¦#¢$†ç26‡&—7F–âæFW'6Vâ"À¢6W6ÆVæF—&Vã¢%7GVF–ò&V6÷&F–ær"À¢¶FVv÷&“¢$Ö6Â"À¢F–Ã¢&Vâ"À¢–3¢#RÓ’–Yò"À¢&Væ³¢²"3D4TR"Â"3„d‚%ÒÀ¢Vã¢BãrÀ¢7W&TF³¢ãbÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$æFW'6Vâw2&VÆ÷fVB7F÷'’&÷WB&V–ærF–ffW&VçBÂFöÆB–â6†÷'BæB6ÆV"VævÆ—6‚6VçFVæ6W2â"À¢&öÇVÖÆW#¢°¢²C¢%F†R7G&ævRVvr"ÂF³¢ÂÖWF–ã¢$öâ7Væç’f&ÒÂÖ÷F†W"GV6²6Böâ†W"Vvw2âöæRVvrv2&–vvW"F†âF†R÷F†W'2âv†Vâ—B÷VæVBÂ÷WB6ÖRw&W’æB6ÇV×7’GV6¶Æ–ærâ†RF–Bæ÷BÆöö²Æ–¶RF†R&W7Bâ"ÒÀ¢²C¢$Æöærv–çFW""ÂF³¢ÂÖWF–ã¢%F†R÷F†W"æ–ÖÇ2ÆVv†VBBF†Rw&W’GV6¶Æ–ærâ†RfVÇB6BæBÆVgBF†Rf&ÒâF†Rv–çFW"v2ÆöæræB6öÆBÂ'WB†RF–Bæ÷Bv—fRWâ"ÒÀ¢²C¢%F†R7vâ"ÂF³¢ÂÖWF–ã¢$–â7&–ærÂF†RGV6¶Æ–ær6r&VWF–gVÂv†—FR&—&G2öâF†RÆ¶Râ†RÆöö¶VBBF†RvFW"æB6r†—2÷vâ&VfÆV7F–öââ†Rv2æ÷BâVvÇ’GV6¶Æ–ærBÆÂâ†Rv27vââ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&f÷‚ÖæBÖw&W2ÖVâ"À¢&6Æ–³¢%F†Rf÷‚æBF†Rw&W2"À¢–¦#¢$W6÷+rö·W&–òw&FVB&WFVÆÆ–ær"À¢6W6ÆVæF—&Vã¢$ö¶’&VFW""À¢¶FVv÷&“¢$VævÆ—6‚V7’"À¢F–Ã¢&Vâ"À¢–3¢#‚Ó–Yò"À¢&Væ³¢²"3D4#$"Â"4#t4%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã2Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$fW'’6†÷'Bf&ÆR&WFöÆBv—F‚6–×ÆR6VçFVæ6W2æBvVçFÆRVW7F–öâ6&Bâ"À¢&öÇVÖÆW#¢°¢²C¢%F†Rw&W2"ÂF³¢2ÂÖWF–ã¢$f÷‚6r6öÖRW'ÆRw&W2âF†Rw&W2vW&R†–v‚öâG&VRâF†Rf÷‚§V×VBöæ6Râ†R§V×VBGv–6Râ†R6÷VÆBæ÷B&V6‚F†VÒâ"ÒÀ¢²C¢%F†R6†ö–6R"ÂF³¢2ÂÖWF–ã¢%F†Rf÷‚vÆ¶VBv’âF†W6Rw&W2&Ræ÷B7vVWBÂ†R6–Bâ'WB†R7F–ÆÂÆöö¶VB&6²â6öÖWF–ÖW2vR6’æòv†Vâ6öÖWF†–ærfVVÇ2†&Bâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&Æ–öâÖæBÖÖ÷W6RÖw&FVBÖVâ"À¢&6Æ–³¢%F†RÆ–öâæBF†RÖ÷W6R"À¢–¦#¢$W6÷+rö·W&–òw&FVB&WFVÆÆ–ær"À¢6W6ÆVæF—&Vã¢$ö¶’&VFW""À¢¶FVv÷&“¢$VævÆ—6‚V7’"À¢F–Ã¢&Vâ"À¢–3¢#‚Ó–Yò"À¢&Væ³¢²"3D34b"Â"4CS”42%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã2Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$6†÷'Bf&ÆR&÷WB†VÇÂ¶–æFæW72æB6ÖÆÂg&–VæBv†ò6âFò6öÖWF†–ær&–râ"À¢&öÇVÖÆW#¢°¢²C¢%F†RÆ—GFÆRÖ÷W6R"ÂF³¢2ÂÖWF–ã¢$Æ—GFÆRÖ÷W6R&â÷fW"6ÆVW–ærÆ–öââF†RÆ–öâ÷VæVBöæRW–Râ†R6Vv‡BF†RÖ÷W6Rv—F‚†—2&–rrâ"ÒÀ¢²C¢%F†RæWB"ÂF³¢BÂÖWF–ã¢$ÆFW"ÂF†RÆ–öâv26Vv‡B–âæWBâF†RÆ—GFÆRÖ÷W6R6ÖR&6²â6†R&—BF†R&÷Rv–âæBv–ââF†RÆ–öâv2g&VRâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&Æ–6R×&&&—BÖ†öÆRÖVâ"À¢&6Æ–³¢$Æ–6Rf–æG2F†R&&&—B†öÆR"À¢–¦#¢$ÆWv—26'&öÆÂ+rö·W&–òw&FVB&WFVÆÆ–ær"À¢6W6ÆVæF—&Vã¢$ö¶’&VFW""À¢¶FVv÷&“¢$VævÆ—6‚&VF–ær"À¢F–Ã¢&Vâ"À¢–3¢#Ó"–Yò"À¢&Væ³¢²"3$SDT"Â"3dd4#‚%ÒÀ¢Vã¢BãrÀ¢7W&TF³¢ã2Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$Ô"ÆWfVÂ&WFVÆÆ–ær–ç7—&VB'’Æ–6Rw2GfVçGW&W2–âvöæFW&ÆæBÂfö7W6VBöâ7W&–÷6—G’æB6WVVæ6Râ"À¢&öÇVÖÆW#¢°¢²C¢$v†—FR&&&—B"ÂF³¢RÂÖWF–ã¢$Æ–6R6B'’†W"6—7FW"âF†RF’v2v&ÒæBV–WBâF†Vâ6†R6rv†—FR&&&—BâF†R&&&—B†BvF6‚â’ÒÆFRÂ6–BF†R&&&—Bâ"ÒÀ¢²C¢$F÷vâF†R†öÆR"ÂF³¢RÂÖWF–ã¢$Æ–6RföÆÆ÷vVBF†R&&&—Bâ6†R6rF&²†öÆRVæFW"F†R†VFvRâ6†R7F÷VBf÷"ÖöÖVçBÂF†VâvVçBF÷vââF†R7G&ævRGfVçGW&R&Vvââ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢'6VÆf—6‚Öv–çBÖw&FVBÖVâ"À¢&6Æ–³¢%F†R6VÆf—6‚v–çB"À¢–¦#¢$÷66"v–ÆFR+rö·W&–òw&FVB&WFVÆÆ–ær"À¢6W6ÆVæF—&Vã¢$ö¶’&VFW""À¢¶FVv÷&“¢$VævÆ—6‚&VF–ær"À¢F–Ã¢&Vâ"À¢–3¢#Ó"–Yò"À¢&Væ³¢²"3$CD3b"Â"3sDd%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ãBÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$vVçFÆR"&WFVÆÆ–ær&÷WB6†&–ærÂ6V6öç2æB6†ævRâ"À¢&öÇVÖÆW#¢°¢²C¢%F†Rv&FVâ"ÂF³¢bÂÖWF–ã¢%F†R6†–ÆG&VâÆ÷fVBF†Rv–çBw2v&FVââF†Rw&72v26ögBÂæBF†RG&VW2vW&RgVÆÂöbfÆ÷vW'2âöæRF’F†Rv–çB6ÖR†öÖRâF†—2—2×’v&FVâÂ†R6–Bâ"ÒÀ¢²C¢%7&–ær&WGW&ç2"ÂF³¢bÂÖWF–ã¢%F†Rv&FVâ&V6ÖR6öÆBæBV–WBâæò&—&G26ær–âF†RG&VW2âF†VâF†Rv–çB†V&B6ÖÆÂfö–6Râ†R÷VæVBF†RvFRÂæB7&–ær6ÖR&6²â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&†’×&–æ6R×7vÆÆ÷rÖVâ"À¢&6Æ–³¢%F†R†’&–æ6RæBF†R7vÆÆ÷r"À¢–¦#¢$÷66"v–ÆFR+rö·W&–òw&FVB&WFVÆÆ–ær"À¢6W6ÆVæF—&Vã¢$ö¶’&VFW""À¢¶FVv÷&“¢$VævÆ—6‚&VF–ær"À¢F–Ã¢&Vâ"À¢–3¢#"ÓB–Yò"À¢&Væ³¢²"34c4T"Â"3„t432%ÒÀ¢Vã¢BãrÀ¢7W&TF³¢ãBÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$â"Ô#'&–FvR&WFVÆÆ–ær&÷WBV×F‡’Â6†ö–6RæB7F––ærFò†VÇâ"À¢&öÇVÖÆW#¢°¢²C¢%F†R7FGVR"ÂF³¢rÂÖWF–ã¢$†–v‚&÷fRF†R6—G’7FööBF†R7FGVRöbF†R†’&–æ6Râ†—2W–W2Æöö¶VB÷fW"F†R7G&VWG2âBæ–v‡BÂÆ—GFÆR7vÆÆ÷r&W7FVBB†—2fVWBâ"ÒÀ¢²C¢%F†R6†ö–6R"ÂF³¢rÂÖWF–ã¢%F†R7vÆÆ÷rvçFVBFòfÇ’Fòv&Ò6÷VçG'’â'WBF†R&–æ6R6¶VBf÷"†VÇâF†R7vÆÆ÷rÆöö¶VBBF†R6öÆB6—G’æB6†÷6RFò7F’öæRÖ÷&Ræ–v‡Bâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ÖööâÖæ÷B×7F"ÖVâ"À¢&6Æ–³¢%F†RÖööâ—2æ÷B7F""À¢–¦#¢$ö·W&–òVævÆ—6‚66–Væ6R"À¢6W6ÆVæF—&Vã¢$ö¶’&VFW""À¢¶FVv÷&“¢$VævÆ—6‚66–Væ6R"À¢F–Ã¢&Vâ"À¢–3¢#Ó"–Yò"À¢&Væ³¢²"3#c4#TR"Â"3d„43r%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã2Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$6†÷'BÔ"66–Væ6R&VF–ærF†BW‡Æ–ç2F†RÖööâÂ7F'2æB&VfÆV7FVBÆ–v‡Bâ"À¢&öÇVÖÆW#¢°¢²C¢$Æöö¶–ærW"ÂF³¢BÂÖWF–ã¢$ö¶’Æöö¶VBBF†Ræ–v‡B6·’âF†RÖööâv2'&–v‡BÂ'WB—Bv2æ÷B7F"â—BF–Bæ÷BÖ¶R—G2÷vâÆ–v‡Bâ"ÒÀ¢²C¢$Æ–v‡B"ÂF³¢BÂÖWF–ã¢$7F"Ö¶W2Æ–v‡BâF†RÖööâ&VfÆV7G2Æ–v‡Bg&öÒF†R7VââÆ–Æ’w&÷FRGvòv÷&G2–â†W"æ÷FV&öö³¢7F"æBÖööââ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’Ö–’Öv÷&GR"À¢&6Æ–³¢$ö¶’’|K|;g&L;Â"À¢–¦#¢$ö·W&–ò9g¦|;ÆâK:vW&–²"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$&–Æ–Ò†–¼:'–W6’"À¢–3¢#bÓ‚–Yò"À¢&Væ³¢²"3#c4#TR"Â"3d„43r%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$ö¶’væ–âvV6R|;f·œ;Ç¬;ÆæR&¶&²’|Kf&²WGFœIö’¼K6fR6¶–â&–Æ–Ò†–¼:'–W6’â"À¢&öÇVÖÆW#¢°¢²C¢$’v&¼K–÷'VÒ"ÂF³¢"ÂÖWF–ã¢$ö¶’vV6R|;f·œ;Ç¬;ÆæR&·LKâ’—V×\Yö²&—"KYüK²fW&F’âÆ–Æ’Â’&¦Vâ,;Çœ;Æ²|;g,;Æì;Ç"ÂFVF’âö¶’6W76—¦6RF¶—WGF’â"ÒÀ¢²C¢$&—&Æ–·FRL;ÌYü;Æâ"ÂF³¢"ÂÖWF–ã¢$’&—"ÆÖ&F\Iö–ÆF—"â|;Ææ\Yö–âKYüKIüKìK&—¦R–ç<KLK"âö¶’'VçRGW—Væ6|;f·œ;Ç¬;ÆæR&—"F†&·LKâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢'––ÆF—¢ÖÖ’ÖvW¦VvVâÖÖ’"À¢&6Æ–³¢%œKÆLK¢ÜKÂvW¦VvVâÖ“ò"À¢–¦#¢$ö·W&–ò9g¦|;ÆâK:vW&–²"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$&–Æ–Ò†–¼:'–W6’"À¢–3¢#‚Ó–Yò"À¢&Væ³¢²"3#3Cr"Â"3S“s„‚%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$ö¶’fRÆ–Æ’væ–âœKÆLK¢–ÆRvW¦VvVâ&<KæF¶’f&¼KÖW&²WGFœIö’¼K6ö·VÖ|;ÇfVæ’ÖWFæ’â"À¢&öÇVÖÆW#¢°¢²C¢%&Æ–âæö·FÆ""ÂF³¢2ÂÖWF–ã¢$ö¶’FVÆW6¶÷&·LKâ|;f·œ;Ç¬;ÆæFRV²:vö²&Æ²æö·Ff&LKâÆ–Æ’Â&¬KÆ,KœKÆLK¢Â&¬KÆ,KvW¦VvVâÂFVF’âö¶’'Rf&¼KÖW&²WGF’â"ÒÀ¢²C¢$¼;Ì:|;Æ²&–Æv’"ÂF³¢2ÂÖWF–ã¢%œKÆLK¦Æ"¶VæF’KYüKIüKìKfW&—"âvW¦VvVæÆW"—6RœKÆLK¦Æ,KâKYüKIüKìK–ç<KLK"âö¶’FVgFW&–æR–¶’¶VÆ–ÖR–¦LK¢œKÆLK¢fRvW¦VvVââ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’Ö’Ö†&—F6’"À¢&6Æ–³¢$ö¶’fR’†&—F<K"À¢–¦#¢$ö·W&–ò9g¦|;ÆâK:vW&–²"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$&–Æ–Ò†–¼:'–W6’"À¢–3¢#Ó"–Yò"À¢&Væ³¢²"3c$CB"Â"3tC„d3R%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã2Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$ö¶’væ–â’œ;Ç¦W––æ’†&—Fv–&’L;ÌYü;ÆæW&V²·&FW"Â—¢fR¶\Yö–b¶g&ÖÆ,KìKFìKLKIüK¼K<Kö·VÖÖWFæ’â"À¢&öÇVÖÆW#¢°¢²C¢$†&—FF¶’K¦ÆW""ÂF³¢BÂÖWF–ã¢$ö¶’Â’f÷FüI÷&lKæW§VâW§Vâ&·LKâœ;Ç¦W–FR—Wf&Æ²—¦ÆW"f&LKâææ'VæÆ&·&FW"FVæ—"ÂFVF’âö¶’Â’|KâF&—"†&—F<KöÆ&–Æ—"Ö’ÂF—–R6÷&GRâ"ÒÀ¢²C¢$¶\Yö–bFVgFW&’"ÂF³¢BÂÖWF–ã¢$Æ–Æ’&—"FVgFW":wLKâ·&FW"Âœ;Ç¦W’fR¶\Yö–b¶VÆ–ÖVÆW&–æ’–¦LKâF÷Fò&—"&ö¶WB&W6Ö’:v—¦F’âö¶’Âö·VÖ²&¦Vâ|;f·œ;Ç¬;ÆæR&¶Ö²v–&–F—"ÂFVF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&¦öâÖÖ6ÆÆ&’"À¢&6Æ–³¢$¦öâÖ6ÆÆ,K"À¢–¦#¢$¦öâ†Æ²Ö6ÌK"À¢6W6ÆVæF—&Vã¢%7L;ÆG–ò¶–LK"À¢¶FVv÷&“¢$Ö6Â"À¢–3¢#RÓ’–Yò"À¢&Væ³¢²"3t$S3‚"Â"43Ccd"%ÒÀ¢Vã¢BãrÀ¢7W&TF³¢"ã2À¢6öçFVçEVÆ—G•&Wf–Ws¢²7FGW3¢&&÷fVB"Âæ÷FS¢###bÓ‚Óc¢9Ì:rÖ6Â†¶×RÖÌK¦öâ†Æ²æÆLKÆ,K(	Bö·W&–òvçVâ;g¦|;Æâ–Væ–FVâæÆLKÜK’FV²&w&fÌK²;g¦WGFVâFÒæÆLK–vVæœYöÆWF–ÆF’â–œKâ;fæ6W6’&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â##bÓ‚Ós¢&W–†â:v"F&lKæFâœ:vW&–²¶Æ—FW6’öæ–ÆæLKâ"ÒÀ¢÷¦WC¢,YæVgFÆ’:vö7V²ÖöÖ÷F&òÂFVæ—¦–âF–&–æFV¶’6&’fR’&Vç6W6’¶wW–â¦öç–vìKâVâ6Wf–ÆVâ;Ì:r†Æ²Ö6ÌKìKâö·W&–òW–&ÆÖ<Kâ"À¢&öÇVÖÆW#¢°¢²C¢$ÖöÖ÷F&òÂYæVgFÆ’8vö7V²"ÂF³¢ÂÖWF–ã¢$&—"¦ÖæÆ"¦öç–vF–YöÌK&—":v–gB–Yö&ÜKYòÂ:vö7V¶Æ,K–ö¶×\Yòâ&—"|;ÆâFW&R¶Væ,KæF¶ö6Öâ&—"YöVgFÆ’'VÆ×\YöÆ"âYæVgFÆ—–’WfR|;gL;Ç,;Ç:wLK¶Æ,KæFœ:v–æFVâ|;ÆÆVâ&—"&V&V²:|K¶ÜKYòâLKìKÖöÖ÷F&òÂ–æ’YöVgFÆ’:vö7V²¶÷–×\YöÆ"âÖöÖ÷F&ò:vö²ŒK¦ÌK,;Çœ;ÆÜ;ÌYòÂ|;Ì:vÌ;ÂfR6W7W"&—"FVÆ–¶æÌKöÆ×\Yòâ&—"|;Æâ¼;g–R¼;gL;ÆÌ;Æ²–âFWfÆW"öÆG\I÷VçRGW–×\YòâææR&&<KæÂ&Vâ'RFWfÆW&’GW&GW&6IüKÒÂFVÖœYòâ–ìKæ—&–ì:r¼;fgFW6’ÆÜKYòfR–öÆ:|K¶ÜKYòâ–öÆF&—"¼;gV²Â&—"Ö–×VâfR&—"<;ÆÌ;ÆæÆR¶,YüKÆYöÜKYòâöæÆ&¼;fgFW6–æFVâ–ÆYöÜKYòÂ;Ì:|;ÂFRöæ&¶FYòöÆ×\Yòâ&—&Æ–·FRFWfÆW&–âF<Kæv—FÖœYöÆW"âÖöÖ÷F&òfR&¶FYöÆ,K6W6&WFÆRFWfÆW&’GW&GW&×\YòâFWfÆW";g¬;Ç"F–ÆVÖœYòfR&—"F†¼;g–R¦&"fW&ÖW–V6V¶ÆW&–æR<;g¢fW&ÖœYòâÖöÖ÷F&òÂ†¦–æVÆW&—–ÆR¼;gœ;ÆæRL;fæÜ;ÌYòfR†W&¶W6ÆR–ÆYöÜKYòâ"ÒÀ¢²C¢%W&6†–ÖF&ò"ÂF³¢ÂÖWF–ã¢$vVì:r&ÌK¼:|KW&6†–ÖF&òÂ&—"|;Æâ·V×6ÆF:vö7V¶Æ,Kâ&—"¶ÇVÖ&Iö–Æ÷–æLKIüKìK|;g&Ü;ÌYòâ8vö7V¶Æ"¶ÇVÖ&Iö–¼;gL;ÂFg&ìK–÷&×\YòÂF&òöçR·W'F,KFVæ—¦R,K&¶ÜKYòâ&—&¶:r|;Æâ6öç&–ìK¶ÇVÖ&Iö–ìKævVÆÖœYòfR¶öç\Yö×\Yòâ&Væ’·W'F&LKIüKâœ:v–âF\YöV¶¼;Ç"VFW&–ÒÂFVÖœYòÂ6Væ’FVæ—¦–âF–&–æFV¶’6&–|;gL;Ç&ÖV²—7F—–÷'VÒâF&ò¶ÇVÖ&IöìKâ<K'LKæ&–æÖœYòfRFW&–æÆW&RFÆÜKYöÆ"âFVæ—¢6&œKÖW&6æÆ&FâfR–æ6–ÆW&FVâ–KÆÜKYòÂ:vö²|;Ç¦VÆÖœYòâ÷&F&—"&Vç6W6ÆRFìKYöÜKYòfR|;ÆæÆW"†gFÆ"v–&’v\:vÖœYòâ&—"<;Ç&R6öç&F&òÂ–ÆW6–æ’;g¦ÆVÖœYòfR¼;gœ;ÆæRL;fæÖV²—7FVÖœYòâ&Vç6W2öæ¼;Ì:|;Æ²&—"·WGRfW&ÖœYòÖ6Æ:vÖFVÖœYòâF&ò¼;gœ;ÆæRL;fæL;ÌIü;ÆæFR†W"YöW’F\IöœYöÖœYòÂFìKLKIüK¶–×6R¶ÆÖÜKYòâÖW&¶ÆìK·WGW—R:vÜKYòfRœ:v–æFVâ&W–¢&—"GVÖâ:|K¶ÜKYòâK––Æ–²†œ:v&—"¦ÖâVçWGVÆÖ¦ÜKYòÖ¦Öâ†W&¶W2œ:v–âf&¶ÌK¶&ÜKYòâ"ÒÀ¢²C¢$’&Vç6W6’¶wW–"ÂF³¢ÂÖWF–ã¢%–YöÌK&—"&Ö'R¶W6–6—6’Â÷&ÖæF&Æ–â&—"&Ö'R|;g&Ü;ÌYòâÖW&¶Æ–¶ÆYüK&Ö'W—R¶W6ÖœYòâK:v–æFRg\:rœ:v’¶F"¼;Ì:|;Æ²ÂKYüK²6:vâ&—"¼K¢&V&V²f&ÜKYòâLKìK¶wW–¶÷–×\YöÆ"fRöçR¶VæF’:vö7V¶Æ,Kv–&’,;Çœ;ÇFÜ;ÌYöÆW"â¶wW–,;Çœ;ÆL;Æ¼:vR–æìKÆÖ¢|;Ç¦VÆÆ\YöÖœYòÂ;ÆÆ¶Væ–âL;g'B&—"–ìKæFâ&Vç6ÆW"öçVæÆWfÆVæÖV²—7FVÖœYòâÖ¶wW–†œ:v&—&–æ’¶'VÂWFÖVÖœYòÂ|;g¦ÆW&’†W|;f·œ;Ç¬;ÆæRÂ;g¦VÆÆ–¶ÆR’v&¶&ÜKYòâ&—"vV6R¶wW–ÂvW,:vV·FR’;ÆÆ¶W6–æFVâvVÆFœIö–æ’fRvW&’L;fæÖW6’vW&V·FœIö–æ’:|K¶ÆÜKYòâ–YöÌK:v–gB:vö²;Ç¬;ÆÆÜ;ÌYòÖöçRGWFÖ–6¶Æ,KìK&–ÆÖœYòâFöÇVæ’vV6W6’Â’vFâ&Æ²&—"Æ’–æÖœYòfR¶wW–wœKÆÖ–vVÆÖœYòâ¶wW–Â¶VæF—6–æ’,;Çœ;ÇFVâ–ÆW–R&—"ÖV·GWfRF\IöW&Æ’&—"&ÖIöâ,K&¶ÜKYòâ6öç&–fYü:v|;f·œ;Ç¬;ÆæRœ;Æ·6VÆ—’vFüI÷'R\:v×\Yòâ–YöÌK:v–gBÂ†W"FöÇVæ–F|;f·œ;Ç¬;ÆæR&¼K¶wW–wœK†LK&Æ&ÜKYòâ¶wW–vìKâ†–¼:'–W6’'V|;ÆâŒ:&Ì:"Â|;f·œ;Ç¬;ÆæR&¼KW¦¶Æ,KÖW&²VFVâ†W&¶W6R6Wfv—–ÆRæÆLKÌK"†W"FöÇVæ–FÂœ;Ç§œKÆÆ"&÷—Væ6F\IöœYöÖVFVââ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&6–âÖÖ6ÆÆ&’"À¢&6Æ–³¢,8v–âÖ6ÆÆ,K"À¢–¦#¢,8v–â†Æ²Ö6ÌK"À¢6W6ÆVæF—&Vã¢%7L;ÆG–ò¶–LK"À¢¶FVv÷&“¢$Ö6Â"À¢–3¢#RÓ’–Yò"À¢&Væ³¢²"3d#DR"Â"4#„4B%ÒÀ¢Vã¢BãbÀ¢7W&TF³¢"ã2À¢6öçFVçEVÆ—G•&Wf–Ws¢²7FGW3¢&&÷fVB"Âæ÷FS¢###bÓ‚Óc¢9Ì:rÖ6Â†¶×RÖÌK8v–â†Æ²æÆLKÆ,K(	Bö·W&–òvçVâ;g¦|;Æâ–Væ–FVâæÆLKÜK’FV²&w&fÌK²;g¦WGFVâFÒæÆLK–vVæœYöÆWF–ÆF’â–œKâ;fæ6W6’&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â##bÓ‚Ós¢&W–†â:v"F&lKæFâœ:vW&–²¶Æ—FW6’öæ–ÆæLKâ"ÒÀ¢÷¦WC¢$|;f·œ;Ç¬;ÆæFR'VÇ\Yöâ–¶’6Wfv–Æ’œKÆLK¢ÂFIöÆ,KFYüKÖ–¶&"fW&Vâ–‡F—–"fRFüI÷\Y÷W–Æ;ÆæÆVæVâÖ–×Vâ·&Ââ8v–âv–â&–æÆW&6RœKÆÌK²;Ì:ræÆLK<KìKâö·W&–òW–&ÆÖ<Kâ"À¢&öÇVÖÆW#¢°¢²C¢,8vö&â–ÆRFö·VÖ<K¼K¢"ÂF³¢ÂÖWF–ã¢$|;f·œ;Ç¬;ÆæFRÂ6Öç–öÇRvçVâ–¶’–¶<KæF–¶’œKÆLK¢–Yö&ÜKYòâ&—&’:vÌKYö¶â&—":vö&âÂ;gFV¶’'VÇWFÆ,KFö·W–âW7F&—"Fö·VÖ<K¼K¦ÜKYòâ&—"|;Æâ–¶—6’¶,YüKÆYöÜKYòfR&—&&—&ÆW&–æR:,YüK²öÆ×\YöÆ"âWfÆVæÖœYöÆW"fR:vö²×WFÇR&—"†–B<;Ç&Ü;ÌYöÆW"âÖœYöÆW&–æ’–†ÖÂWFÖœYöÆW"Â:vö&â<;Ç,;Ç<;ÆæR&¶Ö¢Â¼K¢Fö·VÖ<KìKFö·VÖ¢öÆ×\Yòâ|;f·œ;Ç¬;Æì;Æâ·&Æœ:vW6’'Væ¼K¦ÜKYòfR–¶—6–æ’6Öç–öÇRvçVâ–¶’—,K–¶<KæœK&ÜKYòâ8vö&âfRFö·VÖ<K¼K¢:vö²;Ç¬;ÆÆÜ;ÌYòÂ&—&&—&ÆW&–æ’†W"|;Æâ;g¦ÆVÖœYöÆW"â·&Æœ:vRöæÆ&<KÜKYòfRœKÆF&—"¶W¢'VÇ\YöÖÆ,Kæ—¦–âfW&ÖœYòâ†W"œKÂ–ìKvV6VFRÂL;Æç–F¶’,;ÇL;Æâ6·6IöæÆ"|;f·œ;Ç¬;ÆæR\:v&ÜKYòâ¶æFÆ,KìK:|K6Öç–öÇR;Ç¦W&–æFR&—"¼;g,;Â·W&&Æ&ÜKYòâ8vö&âfRFö·VÖ<K¼K¢'R¼;g,;ÆFVâv\:v—&—&&—&ÆW&–æR¶g\Y÷W&×\YòâòvV6R–Iöâ–Iö×W'VâÂ6Wf–ì:r|;g§–YöÆ,KöÆG\I÷Væ–æìKÌK&ÜKYòâ"ÒÀ¢²C¢$FIöÆ,KFYüK–âK‡F—–""ÂF³¢ÂÖWF–ã¢$Fö·6â–YüKæF¶’—RvöærwVâWf–æ–â;fì;ÆæFR–¶’¶ö6FIòf&ÜKYòâ'RFIöÆ"œ;Ç¬;ÆæFVâ¼;g–FVâYöV‡&Rv—FÖV²:vö²W§Vâ<;Ç&W&ÖœYòâ&—"|;Æâ–ÆW6–æ’F÷ÆÜKYòÂ'RFIöÆ,KFYüK–6IüK¢FVÖœYòâ†W&¶W2YöYüK&ÜKYòÂ¶öÜY÷VÆ,Köæ|;ÆÆÜ;ÌYòâ&—"–‡F—–"–¶’¶ö6FIüKæ<KÂFYüK–&–Æ—"¶’ÂFVÖœYöÆW"â—Rvöær|;ÆÌ;Æ×6VÖœYòfR¶¦Ö<KìKÆÜKYòâ†W"|;Æâ&—&¢F÷&²¶¬K6WWFÆW&ÆRW¦IöFYüKÖ–&YöÆÜKYòâüI÷VÆÆ,KfRF÷'VæÆ,KFöæ¶LKÆÜKYòâ¶öÜY÷VÆ"Œ:&Ì:"|;ÆÌ;Ç–÷&×\YòÖ—Rvöær†œ:rGW&ÖÜKYòâ&Vâ&—F—&VÖW6VÒFR:vö7V¶Æ,KÒFWfÒVFW"ÂFVÖœYòÂöæÆ"F&—F—&VÖW§6RF÷'VæÆ,K<;Ç&L;Ç,;Ç"âFÖÆFÖÆ|;fÂöÇW"Â6,K&Æ¶÷'V²†VÇföÇW&×\Yòâ|;f·œ;Ç¬;ÆæFV¶’Fç,KÆ"'R6',K|;g&Ü;ÌYòfRWF¶–ÆVæÖœYòâ6öçVæFFIöÆ,K¶ÆLK,K&Yö¶&—"–W&RFYüKÜKYöÆ"â—RvöærwVâ¼;gœ;Â'LK²YöV‡&R:vö²F†–¼KæÜKYòâ"ÒÀ¢²C¢$Ö–×Vâ·&Â|KâFüI÷\Y÷R"ÂF³¢ÂÖWF–ã¢,8vœ:vV¶ÆW"fRÖW—fVÆW"FIüKvìKâFWW6–æFR6–†—&Æ’&—"FYòf&ÜKYòâ'RFYòÂ|;Ææ\Yö–âfRœKâKYüKIüKìK&–æÆW&6RœKÂ&÷—Væ6œ:v–æR:vV¶ÖœYòâ&—"|;ÆâFYò:vFÆÜKYòfRœ:v–æFVâFY÷Fâ&—"Ö–×VâFüIö×\Yòâ|;g¦ÆW&–æFVâ–¶’ÇLKâKYüK²lKYö¼K&ÜKYòfR|;f·œ;Ç¬;ÆæR¶F"VÆYöÜKYòâ¼;Ì:|;Æ²Ö–×VâFIöF¶’FœIöW"Ö–×VæÆ&Æ÷–æ–&²,;Çœ;ÆÜ;ÌYòâ&—"|;Æâ&—"YöVÆÆVæ–â&LKæF¶’ÖIö&œK¶\YöfWFÖœYòâ6W6&WFÆRYöVÆÆVæ–âœ:v–æFVâv\:v—ÖIö&–v—&ÖœYòâFœIöW"Ö–×VæÆ"öçVâ6W6&WF–æR†—&â¶ÆÜKYòfRöçR·&Â6\:vÖœYöÆW"âöæÖ–×Vâ·&ÂFVÖœYöÆW"âÖ–×Vâ·&ÂÂ|;Ì:rfR&–ÆvVÆ–²¶¦æÖ²œ:v–âL;Æç–œKFöÆYöÜKYòâ9fÌ;Æ×<;Ç¦Ì;Æ²<K&Æ,KìK;lI÷&VæÖœYòfR6–†—&Æ’&—"6'VÆ×\Yòâ6—7FVFœIö’¦Öâ,;Çœ;Çœ;Ç¼;Ì:|;ÆÆV&–Æ—–÷&×\YòâÖ–×Vâ·&Â|KâÖ6W&Æ,KÂ8v–âvFRœ;Ç§œKÆÆ&LK":vö7V¶Æ&fR,;Çœ;Æ¶ÆW&RæÆLKÌK&ÜKYòâ'R;Ì:r†–¼:'–RÂ6',KâÂ6W6&WF–âfR6Wfv–æ–â–ç6ìKæW&W–R|;gL;Ç&V&–ÆV6\Iö–æ’Œ:&Ì:":vö7V¶Æ&fR,;Çœ;Æ¶ÆW&R†LK&ÆLK"'V|;Æâ&–ÆRÂœ;Ç§œKÆÆ"6öç&L;Æç–ìKâ†W"¼;lYöW6–æFRÂ†W"æW6–ÆFRFV·&"FV·&"–Væ–FVââ"ÒÀ¢ÒÀ¢ÒÀ  ¢°¢–C¢&ö¶’ÖwVæW6–âÖ†–¶–W6’"À¢&6Æ–³¢$ö¶’fR|;Ææ\Yö–â†–¼:'–W6’"À¢–¦#¢$ö¶’Ö—FöÆö¦’–öÇR"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$W6¶’Ö6ÆÆ""À¢–3¢#2Ób–Yò"À¢&Væ³¢²"3dDb"Â"4c#CD2%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$Ö–æ–²F–æÆW––6–ÆW"œ:v–â|;Ææ\YòÂ6&‚fRW6¶’Ö6Â&—FÖ—–ÆR|;ÇfVæÆ’Ö—FöÆö¦’&YöÆæ|K<Kâ"À¢&öÇVÖÆW#¢°¢²C¢%6&‚"ÂF³¢ÂÖWF–ã¢$ö¶’6&‚W–æLKâ|;Ææ\Yò:|K·LKâöF–LKæÆæLKâææÂ:vö²W6¶’¦ÖæÆ&F–ç6æÆ"|;Ææ\YöR&¼K†–¼:'–RæÆLK&LKÂFVF’â"ÒÀ¢²C¢$œYüK²"ÂF³¢"ÂÖWF–ã¢$ö¶’KYüKIüK|;g&L;ÂâÖ–æòK<KæLKâÆ–Æ’|;ÆÌ;Æ×6VF’â|;Ææ\Yò–fYü:vœ;Æ·6VÆF’â†W&¶W2|;ÆæRÖW&†&FVF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&Æ–Æ’Ö’Ö—6–v’"À¢&6Æ–³¢$Æ–Æ’’œYüKIüKìKF¶—VF—–÷""À¢–¦#¢$ö¶’Ö—FöÆö¦’–öÇR"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$W6¶’Ö6ÆÆ""À¢–3¢#RÓ‚–Yò"À¢&Væ³¢²"3#c4#c2"Â"3ƒ„„S‚%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$’ÂvV6RfR6¶–âF¶—;Ç¦W&–æR¼K6W6¶’Ö6ÂæÆLK<Kâ"À¢&öÇVÖÆW#¢°¢²C¢$’œYüKIüK"ÂF³¢"ÂÖWF–ã¢$Æ–Æ’vV6RVæ6W&VFVâ&·LKâ’KYüKIüK–W&RL;ÌY÷L;Ââö¶’KYüKIüKâ–öÇVçRF¶—WGF’âææÂW6¶’Ö6ÆÆ&F’–öÂ|;g7FW&—"ÂFVF’â"ÒÀ¢²C¢%–öÂ"ÂF³¢"ÂÖWF–ã¢$Ö–æò6W76—¢œ;Ç,;ÆL;ÂâF÷Fò6VÆRWFÖV²—7FVF’âÆ–Æ’Â–fYòv–FVÆ–ÒÂFVF’â’KYüKIüKöæÆ&¼;Ì:|;Æ²&—"–öÂ:v—¦F’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’×Vv7W2"À¢&6Æ–³¢$ö¶’fRVv7W2"À¢–¦#¢$ö¶’Ö—FöÆö¦’–öÇR"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$Ö—FöÆö¦’"À¢–3¢#‚Ó–Yò"À¢&Væ³¢²"34C3#c2"Â"3”#ƒdC‚%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ãBÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$ö¶’¶æFÌKBVv7W2–ÆRÖ—FöÆö¦—–R—V×\Yö²fRÖ6W&FöÇR&—"v—&œYò–"â"À¢&öÇVÖÆW#¢°¢²C¢$¶æFÌKB"ÂF³¢2ÂÖWF–ã¢$ö¶’W6¶’&—"¶—FF¶æFÌK&—"B&W6Ö’|;g&L;ÂâææÂ'RVv7W2ÂFVF’â8vö²W6¶’†–¼:'–VÆW&FRVv7W2|;f·œ;Ç¬;ÆæRœ;Æ·6VÆVâ|;Ì:vÌ;Â&—"GLKâö¶’&W6ÖRW§VâW§Vâ&·LKâ"ÒÀ¢²C¢$6W6&WB"ÂF³¢2ÂÖWF–ã¢$Æ–Æ’Â¶æFÆ"æRæÆLK"ÂF—–R6÷&GRâææÂ&¦Vâ6W6&WF’Â&¦VâFR†–Â·W&ÖœKæÆLK"ÂFVF’âö¶’ò|;Æâ&—"†–¼:'–Væ–â6FV6RöÆ’F\Iö–ÂÂæÆÒFFYüKLKIüKìK;lI÷&VæF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’ÖÆ&—&VçF–âÖ—¦’"À¢&6Æ–³¢$ö¶’fRÆ&—&VçF–âK¦’"À¢–¦#¢$ö¶’Ö—FöÆö¦’–öÇR"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$Ö—FöÆö¦’"À¢–3¢#Ó"–Yò"À¢&Væ³¢²"3D#4#$""Â"4#sƒcS"%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ãBÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$Æ&—&VçBÂ—V7RfR–öÂ'VÆÖFVÖ<K–Æ&–FæRæÆLK<Kæv—&œYòâ"À¢&öÇVÖÆW#¢°¢²C¢$†&—F"ÂF³¢2ÂÖWF–ã¢$ö¶’¼;ÇL;Ç†æVFR¼Kg,KÖÌK&—"–öÂ:v—¦–Ö’'VÆGRâ8v—¦–Ò&—"Æ&—&VçFR&Vç¦—–÷&GRâÆ–Æ’Â–ç6â,;g–ÆR&—"–W&FR–öÇVçRæ<KÂ'VÇW"ÂF—–R6÷&GRâææÂ&¬KW6¶’†–¼:'–VÆW&FR¼;Ì:|;Æ²&—"—&–ÆR–öÂ|;g7FW&V&–Æ—"ÂFVF’â"ÒÀ¢²C¢,K"ÂF³¢BÂÖWF–ã¢$ö¶’:v—¦–Ö–â&YüKæFâ6öçVæ&ÖIüK–Æv—GF’â&—"æö·FF¶–&öÆGRâÆ–Æ’–æ6R&—"—†–ÂWGF’âö¶’æÆLK¢&¦Vâ¦÷"ÖWF–æÆW&FRFR&—"—vW&V¶—"â'R—Âæf–¶—"öÆ&–Æ—"â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢'&öÖWF†WW7Vâ×6V6–Ö’"À¢&6Æ–³¢%&öÖWF†WW>(	—Vâ6\:v–Ö’"À¢–¦#¢$ö¶’Ö—FöÆö¦’–öÇR"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$Ö—FöÆö¦’"À¢–3¢#"ÓB–Yò"À¢&Væ³¢²"3T$S#""Â"4C#s3D%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ãBÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢%&öÖWF†WW2æÆLK<KæF6\:v–ÒÂ6÷'VÖÇVÇV²fR&–Æv’FVÖ<KævVì:rö·W"6Wf—–W6–æFRv—&œYòâ"À¢&öÇVÖÆW#¢°¢²C¢$F\Yò"ÂF³¢BÂÖWF–ã¢$ö¶’W6¶’&—"æÆLKFF\Yö’–ç6æÆ&fW&Vâ&öÖWF†WW>(	—Rö·VGRâ'R6FV6RF\YöÆR–Æv–Æ’F\Iö–ÆF’â†–¼:'–R&–Æv’Â–ÆYöÖ²fR6öç\:vÆ,K|;g¦RÆÖ²;Ç¦W&–æW–F’âÆ–Æ’Â—–’&—"6\:v–Ò&¦Vâ¦÷"öÆ&–Æ—"ÂFVF’â"ÒÀ¢²C¢$&VFVÂ"ÂF³¢BÂÖWF–ã¢%F÷FòÂæVFVâ&—6²ÆLKÂF—–R6÷&GRâææÂ&¬K†–¼:'–VÆW"&—¦R¶öÆ’6WffW&ÖW¢ÂFVF’âö¶’ÖWFæ’&—"F†ö·VGRâ'R¶W¢öÆ–Fâ:vö²¶&·FW&–â¶&,KìKL;ÌYü;ÆæÖW–R&YöÆLKâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&–¶'W2Ö'VwVâÖæRÖæÆF—""À¢&6Æ–³¢$–¶'W2'V|;ÆâæRæÆLK#ò"À¢–¦#¢$ö¶’Ö—FöÆö¦’–öÇR"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$Ö—FöÆö¦–FVâ¶Æ6–¶ÆW&R"À¢–3¢#BÓ‚–Yò"À¢&Væ³¢²"3#c33Db"Â"4C”#D%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ãBÂ–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$–¶'W2æÆLK<KìK<KìK"Â—7FV²ÂW–,KfR6VÖ&öÂö·VÖ;Ç¦W&–æFVâ¶Æ6–¶ÆW&R†¬K&ÌK²6Wf—–W6–æFRVÆRÌK"â"À¢&öÇVÖÆW#¢°¢²C¢%œ;Æ·6VÆÖV²"ÂF³¢BÂÖWF–ã¢$–¶'W>(	—Vâ†–¼:'–W6’–Æ²&¼KY÷Ff¦Æœ;Æ·6\IöR\:vâ&—"vVæ6–âæÆLK<KLK"âf¶B'R†–¼:'–R–ÆìK¦6\:vÖ¶Æ–Æv–Æ’F\Iö–ÆF—"â<KìK&Æ,K&–ÆÖV²ÂW–,KÆ,KGW–Ö²fR—7F\Iö–â|;Æ<;Æì;ÂæÆÖ¶Æ–Æv–Æ–F—"â"ÒÀ¢²C¢%6VÖ&öÂ"ÂF³¢RÂÖWF–ã¢$ö¶’'RÖWF–æFR¶æFÆ,Kâ6FV6R¶æBöÆÖLKIüKìKf&²WGF’â¶æFÆ"—7FV²Â;g¦|;Ç&Ì;Æ²fR&—6²æÆÜKævVÆV&–Æ—&F’â&—"Ö—FöÆö¦–²†–¼:'–RÂ&¦VâFV²&—"öÆ–Æ&—,:vö²L;ÌYü;Ææ6W–’–ìKæFFYüK"â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&&–FæVæ–âÖ—’×–WF—6¶–â"À¢&6Æ–³¢$&–Fæ^(	–æ–âK“¢–öÂ'VÆÖ²"À¢–¦#¢$ö¶’Ö—FöÆö¦’–öÇR"À¢6W6ÆVæF—&Vã¢%6¶–â&V†&W""À¢¶FVv÷&“¢$Ö—FöÆö¦—–ÆRö·VÖ–L;fì;ÌYò"À¢–3¢#‚²–Yò"À¢&Væ³¢²"3$344""Â"3td%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã2Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢%–WFœYö¶–âöF²œ:v–â¼K6Ö—FöÆö¦’ö·VÖ<K¢Æ&—&VçBÂœ;fâ'VÆÖfRL;ÌYü;Ææ6RF¶–&’â"À¢&öÇVÖÆW#¢°¢²C¢$Æ&—&VçB"ÂF³¢BÂÖWF–ã¢$&–Fæ^(	–æ–â—’ÂW6¶’&—"†–¼:'–VFR:|K¼KYò–öÇVçR'VÆÖ––&LKÒVFW"â'V|;Æâ'R–ÖvW–’¶&ÖYüK²ÖWF–æÆW&’ö·W&¶VâFRL;ÌYü;ÆæV&–Æ—&—¢â&—"ÖWF–æFRæf–¶—"Â&¦VâÆ&—&VçF–âœ:v–æFV¶’—v–&–F—"â"ÒÀ¢²C¢%–öÂ"ÂF³¢BÂÖWF–ã¢$ö·VÖ–L;fæÖV²FR&¦Vâ&—"Æ&—&VçFRv—&ÖV²v–&–F—"â†W"YöW–’&—"æFæÆÖ²vW&V¶ÖW¢â&—"<;ÆÖÆRÂ&—"&w&bÂ&—"f–¶—"â¼;Ì:|;Æ²—\:vÆ,K–öÇR:v"â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’ÖÆ–Æ’×6†æW6’"À¢&6Æ–³¢$ö¶’fRÆ–Æ’6†æW6’"À¢–¦#¢$ö¶’&öÂ6\:vW&V²ö·R"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢%—–W2"À¢–3¢#bÓ‚–Yò"À¢&Væ³¢²"34CDC3""Â"3“4#cd%ÒÀ¢Vã¢Bã’À¢7W&TF³¢"ã2À¢6öçFVçEVÆ—G•&Wf–Ws¢²7FGW3¢'VæF–ærÖ‡VÖâ×&Wf–Wr"Âæ÷FS¢###bÓ‚Óc¢¼K6F6Æ·Fâb6†æW–RvVæœYöÆWF–ÆF’†6v&’–YòÖ&æLK¶VÆ–ÖR†VFVf–æ’¶,YüKÆÖ²œ:v–â’â–œKâ;fæ6W6’&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â##bÓ‚Ós¢&W–†â:v"F&lKæFâœ:vW&–²¶Æ—FW6’öæ–ÆæLKâ##bÓ‚Ós¢F—–ÆörÖWFæ’ö·Væ&–Æ—&Æ–²œ:v–â¶öç\YöÖ<K6LK"6LK"—,KÆLK†¶VÆ–ÖVÆW"F\IöœYöÖVF’“²–Væ–FVâ&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â##bÓ‚Ós¢Â$æÆLK<K¥Â"WF–¶WF’&WÆ–²ÖWFæ–æFVâ¶ÆLK,KÆLK‡6†æR÷&öÂ—6–ÖÆW&’¶÷'VæGR“²¶VÆ–ÖR6œK<KìK6v&’†VFVf–â;Ç¦W&–æFRGWFÖ²œ:v–â–Æv–Æ’6†æVÆW&R¼K6&WF–ÖÆW––6’æÆLKÒV¶ÆVæF“²’;fâÖ–æ6VÆVÖR6öç&<K¶ìKYò<;ÆÖÆVÆW&’†–¼:'–W–R;g¦|;Â†ÆRvWF—&–ÆV6V²YöV¶–ÆFR–Væ–FVâ–¬KÆLKƒR†–¼:'–R&<KæF¶’FV·&&Æ–â¶ÌKÆ"v–FW&–ÆF’’â–Væ–FVâ&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â"ÒÀ¢÷¦WC¢,K¶’¶&·FW&Æ’¼K6—–W3²:vö7V²&öÂ6\:vW&V²¼K6&WÆ–¶ÆW&ÆRö·VÖ|;ÇfVæ’¶¦ìK"âö¶’fRÆ–Æ’Â¶–&öÆâÖ–æòw—R—¦ÆW&–æ’F¶—VFW&V²'VÇW"Â6öç&ææ–ÆR&—&Æ–·FRFö‡VÒV¶W"â"À¢&öÇVÖÆW#¢°¢²C¢%6†æR(	B&Œ:vR¶K<K"ÂF³¢"ÂÖWF–ã¢$ö¶’&Œ:vR¶K<KìK:wLKÂ6&‚|;Ææ\Yö’–&¶Æ&gW'W–÷&GRåÆåÆäö¶“¢Æ–Æ’Â'V|;Æâ&Œ:vVFR÷–æ–ÌKÒÜKõÆåÆäÆ–Æ“¢öÇW"Â;fæ6RVÆÆW&–Ö’œK¶–œKÒåÆåÆäö¶“¢Ö–æòw—RF:vIüK&ÌKÒÂòF&—¦–ÖÆRvVÇ6–âåÆåÆäÆ–Æ“¢Ö–æòæW&VFR6&Â6&‡Fâ&W&’|;g&ÖVF–ÒåÆåÆìK¶’&¶FYò&Œ:vW–R&—&Æ–·FRv—&F’åÆåÆäö¶“¢&VÆ¶’:vœ:vV¶ÆW&–â&<KæF6¶ÆìK–÷&GW"åÆåÆäÆ–Æ“¢–FIö<Kâ|;fÆvW6–æFRW—W–÷&GW"â"ÒÀ¢²C¢%6†æR"(	BK¦–â\Yö–æFR"ÂF³¢"ÂÖWF–ã¢$Æ–Æ’–W&FR¼;Ì:|;Æ²F’—¦ÆW&’|;g&L;ÂåÆåÆäÆ–Æ“¢&²ö¶’Â—¦ÆW"'W&Fâv\:v—–÷"ÆåÆäö¶“¢†¶ÌK<KâÂ'R—¦ÆW"F¦R|;g,;Æì;Ç–÷"åÆåÆäÆ–Æ“¢9g–ÆW—6RÖ–æò:vö²W¦Iöv—FÖVÖœY÷F—"åÆåÆäö¶“¢K¦ÆW&’F¶—VFVÆ–ÒÂLKÒLKÒv–FVÆ–ÒåÆåÆìK¶’&¶FYò—¦ÆW&’F–¶¶FÆRF¶—WGF’åÆåÆäÆ–Æ“¢K¦ÆW":vœ:vV²6·<K<KìKâ&¶<KæL;fì;Ç–÷"åÆåÆäö¶“¢ò¦Öâ÷&–&¶ÌKÒâ"ÒÀ¢²C¢%6†æR2(	BÖ–æò'VÇVæGR"ÂF³¢"ÂÖWF–ã¢$ö¶’&Œ:vVæ–â¼;lYöW6–æR&·LKåÆåÆäö¶“¢Ö–æòæW&VFSõÆåÆäÆ–Æ“¢6æFÇ–Væ–âÇLKæFöÆ&–Æ—"åÆåÆäÖ–æó¢Ö—–bÆåÆä¼;Ì:|;Æ²¶VF’6æFÇ–Væ–âÇLKæFâ:|K·LKåÆåÆäö¶“¢6Væ’'VÆGVÒÖ–æòÆåÆäÆ–Æ“¢FVÖV²'W&F6¶ÆìK–÷&GVâåÆåÆäÖ–æó¢Ö—–bÂÖ—–bÆåÆäö¶“¢¶&ìKâ<K¶ÜKYòöÆÖÌKÂ†F’ÖÖfW&VÆ–ÒåÆåÆäÆ–Æ“¢&VâFR7R¶,KìKFöÆGW&6IüKÒâ"ÒÀ¢²C¢%6†æRB(	B9Ì:r&¶FYò&—"&F"ÂF³¢"ÂÖWF–ã¢$ö¶’ÂÆ–Æ’fRÖ–æò&Œ:vVæ–â÷'F<KæFF÷ÆæLKåÆåÆäö¶“¢&—"F†¶–&öÇW'6â†VÖVâ—¦ÆW&–æ’F¶—VFW&—¢åÆåÆäÆ–Æ“¢8|;Ææ¼;Â&¶FYöÆ"&—&&—&–æ’†W"¦Öâ'VÇW"åÆåÆäÖ–æó¢Ö—–bÆåÆì9Ì:r&¶FYò|;Ææ\Yö–âÇLKæF&—&Æ–·FR|;ÆÆL;ÂåÆåÆäö¶“¢Yæ–ÖF’†W&—&Æ–·FR÷–æ–ÌKÒÜKõÆåÆäÆ–Æ“¢öÇW"Â;fæ6RÖ–æòw–F÷FÌKÒåÆåÆä&Œ:vVFR¶†¶†Æ"–æ¼KÆæLKâ"ÒÀ¢²C¢%6†æRR(	BFö‡VÒV¶ÖR"ÂF³¢"ÂÖWF–ã¢,9lIöÆVFVâ6öç&ææ&Œ:vW–R¼;Ì:|;Æ²&—"6WWBvWF—&F’Âœ:v–æFRFö‡VÖÆ"f&LKåÆåÆäææ¢'V|;Æâ&—&Æ–·FRFö‡VÒV¶VÆ–ÒÖ’:vö7V¶Æ#õÆåÆäö¶“¢öÇW"ææÂ†æv’Fö‡VÖÆ"'VæÆ#õÆåÆäææ¢'VæÆ"|;Ææ\Yò:vœ:v\Iö’Fö‡V×RÂ–¢vVÆ–æ6R6,K:vœ:vV²:v&Æ"åÆåÆäÆ–Æ“¢&VâF÷&IüK¶¦œKÒÂ6VâFö‡V×R¶÷’ö¶’åÆåÆäö¶’¼;Ì:|;Æ²&—":wV·W"¶¦LKfRFö‡V×Rœ:v–æR,K&·LKåÆåÆäÖ–æó¢Ö—–bÆåÆäÖ–æòÖW&¶ÆF÷&IüK¶ö¶ÆLKÖ¶¦Ö–:vÌKYöÖLKåÆåÆäÆ–Æ“¢fW&–âÖ–æòÂFö‡VÖÆ,K&÷¦ÖåÆåÆäö¶“¢Yæ–ÖF’7RfW&VÆ–Ò¶’,;Çœ;Ç<;ÆæÆW"åÆåÆäææ¢6,K&Æ&V¶ÆW'6Væ—¢&—"|;Æâ:vœ:vV²:v6¶Æ"â"ÒÀ¢²C¢%6†æRb(	B¼YöÒ6ög&<K"ÂF³¢"ÂÖWF–ã¢$¼YöÒöÇVæ6–ÆR&Œ:vVFV¶’Ö6–÷GW&GRåÆåÆäö¶“¢ææÂFö‡VÖÆ"æR¦Öâ:vœ:vV²:v#õÆåÆäææ¢&—&¶:r†gF<;Ç&W"Ö†W"|;Æâ&—&¢,;Çœ;Ç&ÆW"åÆåÆäÆ–Æ“¢ò¦Öâ†W"6&‚¶öçG&öÂVFVÆ–ÒÖ“õÆåÆäö¶“¢öÇW"Â&Vâ–Æ²:vœ:v\Iö’¶–Ò|;g&L;Ç—6R†&W"fW&V6\Iö–ÒåÆåÆäÖ–æó¢Ö—–bÆåÆäÖ–æòÖ6ìKâÇLKæ¼Kg,KÌKW—VÖ–&YöÆLKåÆåÆäÆ–Æ“¢'V|;Æâ:vö²|;Ç¦VÂ&—"|;ÆæL;ÂÂF\Iö–ÂÖ’ö¶“õÆåÆäö¶“¢WfWBÂ†VÒÖ–æòw—R'VÆGV²†VÒFö‡VÒV·F–²åÆåÆäææ¢|;Ç¦VÂ|;ÆæÆW",;g–ÆR¼;Ì:|;Æ²æÆ&FâöÇ\Y÷W"åÆåÆä|;f·œ;Ç¬;Â¼K¬KÆL;fæW&¶Vâ;Ì:r&¶FYò|;ÆÌ;Æ×6VF’åÆåÆåF÷&Iö|;fÖL;Æ¶ÆW&’Fö‡V×Vâ&—"|;Æâ,;Çœ;Çœ;Ç:vœ:vV²:v6IüK|;Æì;Â†–ÂVFW&V²|;ÆÌ;ÌY÷L;ÆÆW"âÖ6F¶’:v–FæÌK·Fâœ;Æ·6VÆVâ–æ6R'V†"Â¼YöÜKâ<K6¶ÌKIüKìK&Œ:vW–R–fYü:v–œK–÷&GRâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢'F÷FòÖ6VÆRÖWFÖR×—–W6’"À¢&6Æ–³¢%F÷Fò6VÆRWFÖR—–W6’"À¢–¦#¢$ö¶’&öÂ6\:vW&V²ö·R"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢%—–W2"À¢–3¢#‚Ó–Yò"À¢&Væ³¢²"3T4#B"Â"4C„D%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢2ã"À¢6öçFVçEVÆ—G•&Wf–Ws¢²7FGW3¢'VæF–ærÖ‡VÖâ×&Wf–Wr"Âæ÷FS¢###bÓ‚Óc¢¼K6F6Æ·Fâ’6†æVÆ–²&—"·VÆRÖ–ìYö<KfR&Œ:vR×7VÆÖ·W&wW7VævVæœYöÆWF–ÆF’†6v&’–YòÖ&æLK¶VÆ–ÖR†VFVf’œ:v–â’â–œKâ;fæ6W6’&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â##bÓ‚Ós¢&W–†â:v"F&lKæFâœ:vW&–²¶Æ—FW6’öæ–ÆæLKâ##bÓ‚Ós¢F—–ÆörÖWFæ’ö·Væ&–Æ—&Æ–²œ:v–â¶öç\YöÖ<K6LK"6LK"—,KÆLK†¶VÆ–ÖVÆW"F\IöœYöÖVF’“²–Væ–FVâ&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â##bÓ‚Ós¢Â$æÆLK<K¥Â"WF–¶WF’&WÆ–²ÖWFæ–æFVâ¶ÆLK,KÆLK‡6†æR÷&öÂ—6–ÖÆW&’¶÷'VæGR“²¶VÆ–ÖR6œK<KìK6v&’†VFVf–â;Ç¦W&–æFRGWFÖ²œ:v–â–Æv–Æ’6†æVÆW&R¼K6&WF–ÖÆW––6’æÆLKÒV¶ÆVæF“²’;fâÖ–æ6VÆVÖR6öç&<K¶ìKYò<;ÆÖÆVÆW&’†–¼:'–W–R;g¦|;Â†ÆRvWF—&–ÆV6V²YöV¶–ÆFR–Væ–FVâ–¬KÆLKƒR†–¼:'–R&<KæF¶’FV·&&Æ–â¶ÌKÆ"v–FW&–ÆF’’â–Væ–FVâ&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â"ÒÀ¢÷¦WC¢$DT„"F÷7GR—–W3²6VÆRWFÖV²ÂGW&Ö²fR–Væ–FVâFVæVÖV²;Ç¦W&–æR&öÂö·VÖâF÷FòfR&¶FYöÆ,K&Œ:vVFR&—"·VÆR·W&&¶VâfR:vœ:vV²7VÆ&¶Vâ6',K;lI÷&Væ—"â"À¢&öÇVÖÆW#¢°¢²C¢,8vö²ŒK¦ÌKÆâ"ÂF³¢"ÂÖWF–ã¢%F÷Fò:vö²ŒK¦ÌK¶üY÷GRÂVÆ–æFR&—"¼:,IüKBf&LKåÆåÆåF÷Fó¢ÆìKÒ†¬K"Â†VÖVâ&YöÆ–ÌKÒÆåÆäö¶“¢9fæ6RF–æÆW–VÆ–ÒF÷FòÂÆìKâæSõÆåÆäÆ–Æ“¢&—"LKÒGW&ÌKÒÂ6VÆRWFÖVFVâæÆBåÆåÆåF÷Fó¢FÖÒÂFW&–âæVfW2ÌK–÷'VÒåÆåÆåF÷FòGW&GRfRæVfW2ÆLKåÆåÆåF÷Fó¢'V|;Æâ&Œ:vVFR&—"·VÆR–6IüK¢åÆåÆäö¶“¢|;Ç¦VÂf–¶—"ÂÖæ<KÂ&YöÆ–6IüK£õÆåÆäÆ–Æ“¢9fæ6RÖÇ¦VÖVÆW&’F÷Æ–ÌKÒÂ6öç&ÆæÆ,K¢â"ÒÀ¢²C¢%–fYòLKÒ"ÂF³¢"ÂÖWF–ã¢$Ö–æó¢Ö—–båÆåÆåF÷Fó¢Yæ–ÖF’F†—–’L;ÌYü;ÆæL;ÆÒåÆåÆäö¶“¢|;Ç¦VÂåÆåÆäÆ–Æ“¢–fYòLKÒF&—"LKÖLK"åÆåÆåF÷Fò·WGVÆ,KFV¶W"FV¶W"FYüKÖ–&YöÆLKåÆåÆåF÷Fó¢9fæ6R,;Çœ;Æ²·WGW—R¶÷–œKÒÂ6öç&¼;Ì:|;ÌIü;Â;Ç7L;ÆæRåÆåÆäö¶“¢F–¶¶FÆ’öÂÂ6VÆW–ÆRL;ÌYöV&–Æ—"åÆåÆäÆ–Æ“¢†¶ÌK<KâÂ–fYü:v–W&Æ\Y÷F—&VÆ–ÒåÆåÆåF÷FòFW&–â&—"æVfW2F†ÆLKfR–fYü:vFWfÒWGF’â"ÒÀ¢²C¢$·VÆR6ÆÆìK–÷""ÂF³¢"ÂÖWF–ã¢$·VÆR&—&FVâ6ÆÆæÖ–&YöÆLKåÆåÆåF÷Fó¢Â:vö²ŒK¦ÌK¶÷–GVÒvÆ–&ÆåÆäö¶“¢GW"ÂVÆ–æ’GWFÖÂL;ÌYöÖW6–âåÆåÆäÆ–Æ“¢æVfW2ÂF÷FòÂFVÆYöÆæÖåÆåÆåF÷FòFW&–â&—"æVfW2ÆLKfRVÆ–æ’–fYü:v:vV·F’åÆåÆåF÷Fó¢Yæ–ÖF’æR–ÖÌKœKÓõÆåÆäö¶“¢ÇGF¶’·WGW—RL;Ç¦VÇFVÆ–ÒÂ6öç&FV·&"FVæW&—¢åÆåÆäÆ–Æ“¢6VÆRWFÖVFVâÂLKÒLKÒâ"ÒÀ¢²C¢%–Væ–FVâFVæVÖR"ÂF³¢"ÂÖWF–ã¢,9Ì:r&¶FYò·VÆW–’–fYü:v–Væ–FVâ·W&GRåÆåÆåF÷Fó¢'R6VfW"†W"·WGW—R¶öçG&öÂVF—–÷'VÒåÆåÆäö¶“¢fW&–âÂ:vö²F†6IöÆÒGW'W–÷"åÆåÆäÆ–Æ“¢|;g&L;ÆâÜ;ÂÂ–fYòöÆÖ²†œ:r¼;gL;ÂF\Iö–ÆÖœYòåÆåÆäÖ–æó¢Ö—–bÆåÆäÖ–æò·VÆVæ–â–ìKæFFöÆY÷LKÖFWf—&ÖVF’åÆåÆåF÷Fó¢Ö–æò&–ÆRF–¶¶FÆ’Fg&ìK–÷"åÆåÆäö¶“¢6,K&ÌKöÆÖ²†W&¶W6R—–’vVÆ—"â"ÒÀ¢²C¢%F÷FòvçVâFW'6’"ÂF³¢"ÂÖWF–ã¢$·VÆR6öçVæFFÖÖÆæLKÂ|;Ææ\Yö–âÇLKæF&ÌK–÷&GRåÆåÆåF÷Fó¢6VÆRWG6W–F–Ò'VçR6Æ&—F—&VÖW¦F–²åÆåÆäÆ–Æ“¢Yæ–ÖF’æÆLKâÜKÂGW&Ö²F&—"LKÖLK"åÆåÆäö¶“¢&¦Vâ–fYòv—FÖV²ÂŒK¦ÌKv—FÖV·FVâF†—––F—"åÆåÆåF÷Fó¢&—"F†¶’6VfW&R;fæ6RFW&–âæVfW2Æ6IüKÒåÆåÆì9Ì:r&¶FYò·VÆVæ–â;fì;ÆæFRVÂVÆRGWG\Y÷GRåÆåÆäÆ–Æ“¢†&–¶&—"œYò:|K¶&LK²Â†W&—&Æ–·FRåÆåÆåF÷Fó¢F\YöV¶¼;Ç&ÆW"Â&Væ’GW&GW&G\I÷VçW¢œ:v–ââ"ÒÀ¢²C¢$W'FW6’|;Æâ–Væ’&—"|;g&Wb"ÂF³¢"ÂÖWF–ã¢$W'FW6’6&‚ö¶’VÆ–æFR&—"¶÷f–ÆRvVÆF’åÆåÆäö¶“¢'V|;Æâ&Œ:vVFV¶’:vœ:vV¶ÆW&R7RfW&VÆ–ÒÖ“õÆåÆåF÷Fó¢&Vâ†VÖVâ&YöÆ,KÒÂ:vö²ŒK¦ÌK7VÆ,KÒÆåÆäÆ–Æ“¢F÷FòÂ†LK&ÆÂ–fYòöÆÖ²F&—"LKÖLK"åÆåÆåF÷Fó¢†¶ÌK<KâÂ;fæ6RFW&–â&—"æVfW2ÆœKÒåÆåÆåF÷Fò–fYü:v¶÷fœKFöÆGW&GRfR:vœ:vV¶ÆW&Rv—GF’åÆåÆåF÷Fó¢†W":vœ:v\IöR&—&¢7RÂf¦ÆF\Iö–ÂåÆåÆäö¶“¢fW&–âÂ:vö²F–¶¶FÆ’Fg&ìK–÷'7VâåÆåÆäÆ–Æ“¢|;g&L;ÆâÜ;ÂÂL;Æâ;lI÷&VæFœIö–âFW'2œYöR–&LKâ"ÒÀ¢²C¢$Ö–æòvçVâ–&LKÜK"ÂF³¢"ÂÖWF–ã¢$Ö–æò:vœ:vV¶ÆW&–â&<KæFFöÆYüK–÷&GRåÆåÆäÖ–æó¢Ö—–bÆåÆåF÷Fó¢Ö–æòÂF–¶¶BWBÂ:vœ:vV¶ÆW&’W¦ÖRåÆåÆäö¶“¢&VÆ¶’Ö–æòF&—¦R–&LKÒWFÖV²—7F—–÷"åÆåÆäÆ–Æ“¢öæ¼;Ì:|;Æ²&—"|;g&WbfW&VÆ–ÒåÆåÆåF÷Fó¢Ö–æòÂ6VâFR–&¶Æ&&¶&–Æ—'6–âåÆåÆäÖ–æò&—"–&IüKâ;Ç7L;ÆæR¶öæâ,;f6\Iö’—¦ÆVF’åÆåÆäÖ–æó¢Ö—–bÂÖ—–bÆåÆäö¶“¢&²ÂÖ–æòF6,K&Æ&V¶Æ—–÷"åÆåÆåF÷Fó¢FVÖV²†W&¶W2¶VæF’ŒK¬KæF;lI÷&Væ—–÷"â"ÒÀ¢²C¢$&Œ:vRFÖÖÆæLKfRF÷FòvçVâ–Væ’ÌKYö¶æÌKIüK"ÂF³¢BÂÖWF–ã¢,9lIöÆW–RFüI÷'R,;ÇL;Æâ:vœ:vV¶ÆW"7VÆæÜKY÷LKåÆåÆäö¶“¢'V|;Æâ†œ:r6VÆRWFÖVFVâ&—F—&F–²åÆåÆåF÷Fó¢fR†œ:v&—":vœ:v\Iö’W¦ÖVF–²åÆåÆäÆ–Æ“¢8|;Ææ¼;Â–fYòfRF–¶¶FÆ’:vÌKY÷LK²åÆåÆì9Ì:r&¶FYò&Œ:vVæ–â÷'F<KæF÷GW'WÖöÆfW&F’åÆåÆåF÷Fó¢L;Æâ·VÆW–’Â'V|;Æâ&Œ:vW–’;lI÷&VæF–ÒåÆåÆäö¶“¢6,K"†W"œY÷FRœYöR–,K–÷"vÆ–&åÆåÆäÆ–Æ“¢WfWBÂfR6Væ–æÆR:vÌKYöÖ²:vö²¶W––fÆ’F÷FòåÆåÆä|;Ææ\YòFWVFR&Æ&¶Vâ;Ì:|;ÂFR|;ÆÌ;Æ×6VF’âò¼YöÒF÷Fò|;ÆæÌ;ÌIü;ÆæRW§Vâ&—"æ÷B–¦LKåÆåÆåF÷Fó¢'V|;Æâ;lI÷&VæF–Ò¶’6VÆRWFÖV²œYöÆW&’&÷¦&–Æ—"åÆåÆäö¶“¢Ö–fYòöÆÖ²F†œ:r<K¼K<KF\Iö–ÂÂF\Iö–ÂÖ“õÆåÆåF÷Fó¢†œK"Â†GFF†¶W––fÆ’Â†W"YöW–’f&²VF—–÷'VÒåÆåÆäÆ–Æ“¢&VÆ¶’–,Kâ–Væ’&—"|;g&WbF†'VÇW'W¢åÆåÆåF÷Fó¢æRöÇW'6öÇ7VâÂ;fæ6RFW&–â&—"æVfW2Æ6IüKÒåÆåÆäÖ–æó¢Ö—–bÆåÆåF÷Fò|;ÆÌ;Æ×6W–W&V²|;ÆæÌ;ÌIü;Æì;Â¶GLKfR–fYü:vW–·W–FÆLKåÆåÆåVæ6W&VFVâv—&Vâ’KYüKIüKÂ'V|;Æâ;g¦VæÆR·W&G\I÷R·VÆW–’W7VÆ6–LKæÆLK–÷&GRâ–7LKIüKæW¦ìK&¶VâÂ6,K&Æ&V¶ÆVÖVæ–â6VÆRWFÖV·FVâ:vö²F†FFÌKöÆG\I÷VçRL;ÌYü;ÆæL;ÂâW'FW6’6&‚–Væ–FVâ&Œ:vW–R:|K¶ÖœK6,K&Æ&V¶Æ—–÷&GRâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢'W¦’Ö·VÇV'R×—–W6’"À¢&6Æ–³¢%W¦’·VÌ;Æ,;Â—–W6’"À¢–¦#¢$ö¶’&öÂ6\:vW&V²ö·R"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢%—–W2"À¢–3¢#Ó"–Yò"À¢&Væ³¢²"3#S4Tb"Â"3ddtC’%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢BãRÀ¢6öçFVçEVÆ—G•&Wf–Ws¢²7FGW3¢'VæF–ærÖ‡VÖâ×&Wf–Wr"Âæ÷FS¢###bÓ‚Óc¢¼K6F6Æ·Fâ6†æW–RvVæœYöÆWF–ÆF’Â&–Æ–×6VÂœ:vW&–²†·&FW"ÂœKÆLK¢övW¦VvVâf&¼KÂvW¦VvVæÆW"Â†Æ¶Æ"Â|;f¶F’FW&–æÆ\Y÷F—&–ÆF’â–œKâ;fæ6W6’&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â##bÓ‚Ós¢&W–†â:v"F&lKæFâœ:vW&–²¶Æ—FW6’öæ–ÆæLKâ##bÓ‚Ós¢F—–ÆörÖWFæ’ö·Væ&–Æ—&Æ–²œ:v–â¶öç\YöÖ<K6LK"6LK"—,KÆLK†¶VÆ–ÖVÆW"F\IöœYöÖVF’“²–Væ–FVâ&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â##bÓ‚Ós¢Â$æÆLK<K¥Â"WF–¶WF’&WÆ–²ÖWFæ–æFVâ¶ÆLK,KÆLK‡6†æR÷&öÂ—6–ÖÆW&’¶÷'VæGR“²¶VÆ–ÖR6œK<KìK6v&’†VFVf–â;Ç¦W&–æFRGWFÖ²œ:v–â–Æv–Æ’6†æVÆW&R¼K6&WF–ÖÆW––6’æÆLKÒV¶ÆVæF“²’;fâÖ–æ6VÆVÖR6öç&<K¶ìKYò<;ÆÖÆVÆW&’†–¼:'–W–R;g¦|;Â†ÆRvWF—&–ÆV6V²YöV¶–ÆFR–Væ–FVâ–¬KÆLKƒR†–¼:'–R&<KæF¶’FV·&&Æ–â¶ÌKÆ"v–FW&–ÆF’’â–Væ–FVâ&W–†â:v"&VF·6—–öçR&V¶Æ—–÷"â"ÒÀ¢÷¦WC¢$|;f·œ;Ç¬;Â¶öçW7R–ÆR&öÂö·VÖ&—&Æ\Yö—#²:vö7V²&–Æ–Ò&WÆ–¶ÆW&–æ’6W6ÆVæF—&W&V²·F–bö·VÖ–"âW¦’·VÌ;Æ,;ÂÂœKÆLK¢ÖvW¦VvVâf&¼KæFâ|;f¶FÆ&W¦æâ&—"¶\Yö–bF—¦—6’–Yö"â"À¢&öÇVÖÆW#¢°¢²C¢$·VÌ;ÇF÷ÆæLK"ÂF³¢"ÂÖWF–ã¢%W¦’·VÌ;Æ,;ÂÖ6ìKâWG&lKæFF÷ÆæLKÂ†W&¶W6–âVÆ–æFR&—"FVgFW"f&LKåÆåÆäö¶“¢’†&—F<KìKvWF—&F–ÒÂL;ÆâvV6R:v—¦F–ÒåÆåÆäÆ–Æ“¢·&FW&ÆW&’œYö&WFÆVF–ÒÂ†W"&—&’f&¶ÌK,;Çœ;Æ¶Ì;Æ·FRåÆåÆåF÷Fó¢&VâFR&ö¶WB:v—¦F–ÒÂ;Ì:r¶B–¼KBFW÷7Rf"åÆåÆäÖ–æó¢Ö—–bÂœKÆLK¦Æ,K6–LKÒÆåÆä†W&¶W2|;ÆÆL;ÂÂÖ–æòvçVâ6œKÜKvW,:vV²F\Iö–ÆF’ÖYö—&–æF’åÆåÆäö¶“¢'V|;Æâ|;f·œ;Ç¬;Æì;ÂF†–¼KæFâ–æ6VÆW–VÆ–ÒÖ“õÆåÆäÆ–Æ“¢öÇW"Â;fæ6R&—"6÷'RÆ—7FW6’–ÌKÒâ"ÒÀ¢²C¢%6÷'R"ÂF³¢"ÂÖWF–ã¢$ö¶“¢œKÆLK¢ÜKÂvW¦VvVâÖ’Â–¶—6’&<KæF¶’f&²æVF—#õÆåÆäÆ–Æ“¢œKÆLK¢¶VæF’KYüKIüKìKfW&—"Â¶VæF’VæW&¦—6—–ÆR&Æ"åÆåÆåF÷Fó¢vW¦VvVâKYüKIüK–ç<KLK"Â¶VæF’KYüKIüK–ö·GW"åÆåÆä·VÌ;Ç&—"6÷'W–Æ&YöÆLKÂ¼;Ì:|;Æ²&—"6WfÆ,;Çœ;ÆL;ÂåÆåÆäö¶“¢V¶’|;Ææ\Yò&—"œKÆLK¢ÜKõÆåÆäÆ–Æ“¢WfWBÂ|;Ææ\YòFR&—¦–ÒVâ–¼KâœKÆLK¬KÜK¢åÆåÆåF÷Fó¢ò¦ÖâL;Æç–&—"vW¦VvVâÂ;g–ÆRÖ“õÆåÆäö¶“¢¶W6–æÆ–¶ÆRÂ|;Ææ\Yòv–âWG&lKæFL;fæVâ&—"vW¦VvVââ"ÒÀ¢²C¢%&ö¶WBÆìKfR·&FW&ÆW&–â<K',K"ÂF³¢BÂÖWF–ã¢%F÷Fò:v—¦FœIö’&ö¶WF’Ö6–¶÷–GRåÆåÆåF÷Fó¢'R&ö¶WB’v¶F"v–FV&–Æ—"Ö’6—¦6SõÆåÆäö¶“¢vW,:vV²&ö¶WFÆW":vö²F†,;Çœ;Æ²–¼KBFWöÆ,KFYüK"åÆåÆäÆ–Æ“¢Ö6Væ–â:v—¦–Ö–âFR:vö²–&LK<KÂFWF–Æ"†&–¶åÆåÆåF÷Fó¢&VÆ¶’,;Çœ;Çœ;Ææ6RvW,:vV²&—"&ö¶WBF6&Æ,KÒåÆåÆäÖ–æò&ö¶WF–â&W6Ö–æRF’gW&GRÂ6æ¶’öæ–ÌK–÷&GRåÆåÆäÖ–æó¢Ö—–bÆåÆäö¶“¢Ö–æòFÜ;Æ†VæF—2öÆÖ²—7F—–÷"vÆ–&åÆåÆäÆ–Æ“¢·&FW"FVFœIö–Ö—¢YöW’6ÌKæF&—":wV·W"åÆåÆäö¶“¢’v:v'âFYöÆ"'R:wV·W&Æ,KöÇ\Y÷GW'W–÷"åÆåÆåF÷Fó¢V¶’æVFVâL;Æç–vF'R¶F"¢·&FW"f#õÆåÆäÆ–Æ“¢8|;Ææ¼;ÂL;Æç–vìKâFÖ÷6fW&’:vüI÷RFYüK–¼K–÷"åÆåÆäö¶“¢’|KâFÖ÷6fW&’öÆÖLKIüKœ:v–â—¦ÆW"¶ÌK–÷"åÆåÆä·VÌ;Ç;Ç–VÆW&’†&—FF¶’†W"·&FW&’FV²FV²œYö&WFÆVF’åÆåÆåF÷Fó¢'RVâ,;Çœ;Æ²·&FW"ÂLKæRöÇ7VãõÆåÆäÆ–Æ“¢öæÖ–æò·&FW&’F—–VÆ–ÒÂòF·VÌ;Æ,;Æâ;Ç–W6’â"ÒÀ¢²C¢$·VÌ;Æ,;Æâ¶&,K"ÂF³¢"ÂÖWF–ã¢$|;f·œ;Ç¬;Â¶&&Ö–&YöÆœKæ6·VÌ;ÇVæ6W&W–RF÷ÆæLKåÆåÆäö¶“¢'R¼YöÒvW,:vV²œKÆLK¦Æ&&¶ÌKÒÜKõÆåÆäÆ–Æ“¢öÇW"ÂFVÆW6¶÷RvWF—&W––ÒåÆåÆåF÷Fó¢&VâFRFVgFW&–ÖRæ÷FÆ"ÌK,KÒåÆåÆì9Ì:r&¶FYòfRÖ–æòÂ¶&æÌK·F&Æ–âæö·FÆ,K—¦ÆVF’åÆåÆäö¶“¢&—"6÷'W–Æ&YöÆLK²Â'V|;Æâ:vö²YöW’;lI÷&VæF–²åÆåÆäÆ–Æ“¢|;f·œ;Ç¬;Â†œ:r&—FÖW–Vâ&—"¶—Fv–&’åÆåÆåF÷Fó¢ò¦Öâ†W"†gF–Væ’&—"6–fö·W–ÌKÒåÆåÆåW¦’·VÌ;Æ,;ÂÂ&—"6öç&¶’F÷ÆçLK–¶F"<;g¦Æ\Y÷F’â"ÒÀ¢²C¢$vW¦VvVæÆW"<K&–Æ"ÂF³¢"ÂÖWF–ã¢$ö¶’,;Çœ;Æ²&—"¶IüKF|;Ææ\Yò6—7FVÖ–æ’:v—¦F’åÆåÆäö¶“¢|;Ææ\Yòv–âWG&lKæF6V¶—¢vW¦VvVâL;fì;Ç–÷"åÆåÆäÆ–Æ“¢†æv–ÆW&’'VæÆ"Â6–&–Æ—"Ö—6–ãõÆåÆäö¶“¢ÖW&¼;Ç"ÂfVì;Ç2ÂL;Æç–ÂÖ'2Â¬;Ç—FW"Â6L;Ç&âÂW&ì;Ç2fRæWL;ÆâåÆåÆåF÷Fó¢Vâ,;Çœ;ÌIü;Â†æv—6“õÆåÆäö¶“¢¬;Ç—FW"Vâ,;Çœ;Æ²vW¦VvVâÂFWb&—"lK'LKæ<K&–ÆRf"åÆåÆäÆ–Æ“¢V¶’Vâ¼;Ì:|;ÌIü;ÃõÆåÆäö¶“¢ÖW&¼;Ç"Vâ¼;Ì:|;Æ²fR|;Ææ\YòvRVâ–¼KâöÆâåÆåÆåF÷Fó¢Ö–æòÂ6Vâ†æv’vW¦VvVæ’6\:vW&F–ãõÆåÆäÖ–æó¢Ö—–bÆåÆä†W&¶W2|;ÆÆL;ÂÂÖ–æòvçVâff÷&’vW¦VvVæ’&VÆÆ’öÆÖLKâ"ÒÀ¢²C¢%6L;Ç&â|;Æâ†Æ¶Æ,K"ÂF³¢"ÂÖWF–ã¢$Æ–Æ“¢6L;Ç&â|;ÆâWG&lKæF¶’†Æ¶Æ"æVFVâf#õÆåÆäö¶“¢†Æ¶Æ"6ÌKæF'W¢fRFYò,:v<K¶Æ,KæFâöÇ\Y÷W–÷"åÆåÆåF÷Fó¢V¶’æVFVâL;ÌYöÜ;Ç–÷&Æ#õÆåÆäö¶“¢6L;Ç&â|;Æâ:vV¶–Ò|;Æ<;ÂöæÆ,Kœ;g,;ÆævVFRGWGW–÷"åÆåÆäÆ–Æ“¢'RvW,:vV·FVâ–æìKÆÖ¢&—"YöW’åÆåÆåF÷Fó¢&VâFR,;Çœ;Çœ;Ææ6R6L;Ç&â|;ÂFVÆW6¶÷Æ|;g&ÖV²—7F—–÷'VÒåÆåÆäÆ–Æ’¶—FÌK·Fâ&—"vW¦VvVæÆW"ç6–¶Æ÷VF—6’vWF—&F’åÆåÆäÆ–Æ“¢&¼KâÂ'W&F†Æ¶Æ,Kâf÷FüI÷&lKf"åÆåÆäö¶“¢vW,:vV·FVâ:vö²|;Ç¦VÆÖœYòÂFÒ&—"Ü;Æ6Wf†W"v–&’åÆåÆåF÷Fó¢W¦’†œ:r&—FÖW–Vâ&—"†¦–æR6æLKIüKv–&’â"ÒÀ¢²C¢%œKÆLK¢†&—F<K8v—¦ÖV²"ÂF³¢"ÂÖWF–ã¢$·VÌ;Ç;Ç–VÆW&’vV6R|;f·œ;Ç¬;Æì;Â—¦ÆVÖW–R¶&"fW&F’åÆåÆäö¶“¢&—"œKÆLK¢†&—F<K:v—¦VÆ–ÒÂ|;g&L;ÌIü;ÆÜ;Ç¢†W"YöW–’œYö&WFÆW–VÆ–ÒåÆåÆäÆ–Æ“¢&Vâ,;Çœ;Æ²œKF¼K×œKÆLK¬KìK&–6IüKÒåÆåÆåF÷Fó¢&VâFR·WGWœKÆLK¬KvìK'VÆÖ–:vÌKYö6IüKÒåÆåÆì9Ì:r&¶FYò&Œ:vW–R&GFæ—–R6W&F’fRW¦æLKåÆåÆäö¶“¢KY÷FR÷&FÂ–VF’&Æ²œKÆLK¢|;g,;Ç–÷"×W7VçW£õÆåÆäÆ–Æ“¢WfWBÂFÒ&—"¶W:vRYöV¶Æ’v–&’åÆåÆåF÷Fó¢·WGWœKÆLK¬K†W·W¦W–’|;g7FW&—&ÖœYòÂFVæ—¦6–ÆW"öçVæÆœ;fâ'VÇW&×\YòåÆåÆäÖ–æó¢Ö—–bÆåÆäÖ–æòF|;f·œ;Ç¬;ÆæR&¼K6W76—¦6R–GLKâ"ÒÀ¢²C¢$·VÌ;Æ,;Æâ–Væ’&ö¦W6’fR|;f¶FìKâ,;Çœ;Æ¶Ì;ÌIü;Â"ÂF³¢BÂÖWF–ã¢$W'FW6’†gF·VÌ;Ç–Væ’&—"&ö¦R&YöÆGLKåÆåÆäö¶“¢¶VæF’Ö–æ’|;g¦ÆVÖWf–Ö—¦’·W&ÌKÒÜKõÆåÆäÆ–Æ“¢†&–¶f–¶—"ÂFVÆW6¶÷R&Æ¶öæ–W&Æ\Y÷F—&V&–Æ—&—¢åÆåÆåF÷Fó¢&VâFR|;g&L;Æ¶ÆW&–Ö—¦’&—"FVgFW&R¶–FVFW&–ÒåÆåÆì9Ì:r&¶FYò&Æ¶öæ¼;Ì:|;Æ²&—"Ö6FYüKLKåÆåÆäö¶“¢†W"†gF&—"vW¦VvVâfW–œKÆLK¢&Y÷LK&6IüK¢åÆåÆäÆ–Æ“¢,;g–ÆV6RW¦’·VÌ;Æ,;Â†œ:rGW&ÖFâ;lI÷&VæÖW–RFWfÒVFW"åÆåÆåF÷Fó¢fR†W"F÷ÆçLKF–Væ’&—"6÷'R6÷&,K¢åÆåÆä·VÌ;ÇÂÖW&¶Æ,KìK6Æ¶–&WFÖVFVâ,;Çœ;ÆÖW–RFWfÒWGF’â&—"¼YöÒææ·VÌ;Æ&R¶LKÆLKÂVÆ–æFRW6¶’&—"¶—Ff&LKåÆåÆäææ¢'R¶—FF|;f¶FÆ"æÆLKÌK–÷"Â—7FW"Ö—6–æ—¢F–æÆVÖV³õÆåÆäö¶“¢WfWBææÂ|;f¶FæVF—"FÒöÆ&³õÆåÆäææ¢|;f¶FÂÖ–Ç–öæÆ&6œKÆLK¬Kâ&—"&F'VÇVæG\I÷RFWb&—"F÷ÇVÇV·GW"åÆåÆäÆ–Æ“¢&—¦–Ò|;Ææ\Yò6—7FVÖ–Ö—¢†æv’|;f¶FFõÆåÆäææ¢6Öç–öÇR|;f¶F<KvæFÂÖòFWg&VæFR6FV6R¼;Ì:|;Æ²&—"æö·FåÆåÆåF÷Fó¢Wg&Vâò¶F",;Çœ;Æ²¶’†–ÂWFÖV²&–ÆR¦÷"åÆåÆäææ¢'Rœ;Ç¦FVâÖW&²WFÖW–R†œ:r&fW&ÖW––â:vö7V¶Æ"åÆåÆäö¶“¢&—¢FR†W"†gF–Væ’&—"YöW’;lI÷&VæÖW–RFWfÒVFV6\Iö—¢åÆåÆäÖ–æó¢Ö—–bÆåÆä·VÌ;ÇÂ|;f·œ;Ç¬;Æì;Æâ6öç7W¦Ç\I÷R¶,YüK<KæF†W&—&Æ–·FR6W76—¦6R†—&WFRL;ÌY÷L;ÂåÆåÆäÆ–Æ“¢&—"|;Æâ&VÆ¶’vW,:vV²&—"|;f¶FœKFVÆW6¶÷Æ|;g,;Ç,;Ç¢åÆåÆåF÷Fó¢ò|;ÆâvVÆFœIö–æFR†W–Ö—¢'W&FöÆ6IüK¢åÆåÆäææ¢6—¦–æÆRwW'W"GW—W–÷'VÒ:vö7V¶Æ"åÆåÆä&Æ¶öæF¶’FVÆW6¶÷6üI÷V²vV6R†f<KæFW7VÆ6&ÌK–÷&GRÂœKÆLK¦Æ"6,K&ÆöæÆ,K&V¶Æ—–÷&×\Yòv–&’GW'W–÷&GRâ·VÌ;Ç;Ç–VÆW&’ÂWg&Væ–â,;Çœ;Æ¶Ì;ÌIü;Æì;ÂL;ÌYü;ÆæW&V²W§Vâ<;Ç&R|;f·œ;Ç¬;Æì;Â—¦ÆVÖW–RFWfÒWGF’âÖ–æòFœKÆLK¦Æ&&¶&¶VâW7VÆ6|;g¦ÆW&–æ’¶LKâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&VævÆ—6‚Ö†VÆÆòÖ6&B"À¢&6Æ–³¢$VævÆ—6‚v÷&G3¢†VÆÆò"À¢–¦#¢$ö·W&–òVævÆ—6‚FVÒ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$VævÆ—6‚6&B"À¢–3¢#RÓ‚–Yò"À¢&Væ³¢²"3#ƒC#Tb"Â"3ddtC’%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢2À¢÷¦WC¢%&RÔ6Wf—–W6–æFR–Æ²Kæv–Æ—¦6R6VÆÖÆYöÖ¶VÆ–ÖVÆW&“¢†VÆÆòÂ'–RÂÆV6RÂF†æ²–÷Râ"À¢&öÇVÖÆW#¢°¢²C¢$†VÆÆò"ÂF³¢ÂÖWF–ã¢$†VÆÆòÂö¶’â†VÆÆòÂÆ–Æ’â'–RÂÖ–æòâF†æ²–÷RÂææâ"ÒÀ¢²C¢%ÆV6R"ÂF³¢ÂÖWF–ã¢%ÆV6RÂö¶’âF†æ²–÷RÂÆ–Æ’â†VÆÆòÂÖ–æòâ'–RÂF÷Fòâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&VævÆ—6‚×6·’×v÷&G2Ö6&B"À¢&6Æ–³¢$VævÆ—6‚v÷&G3¢6·’"À¢–¦#¢$ö·W&–òVævÆ—6‚FVÒ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$VævÆ—6‚6&B"À¢–3¢#bÓ‚–Yò"À¢&Væ³¢²"3c4T2"Â"3tDtC’%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢2À¢÷¦WC¢$|;f·œ;Ç¬;Â7V&¦V7N(	–’–ÆRW—VÖÇR&RÔ¶VÆ–ÖR¶'LK¢7VâÂÖööâÂ7F"Â6·’â"À¢&öÇVÖÆW#¢°¢²C¢%6·’v÷&G2"ÂF³¢ÂÖWF–ã¢%7VââÖööââ7F"â6·’âö¶’6VW2F†RÖööââÆ–Æ’6VW27F"â"ÒÀ¢²C¢$Æöö²W"ÂF³¢ÂÖWF–ã¢$Æöö²WâF†R6·’—2&ÇVRâF†R7Vâ—2'&–v‡BâF†RÖööâ—2V–WBâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&VævÆ—6‚Ö6öÆ÷'2Ö6&B"À¢&6Æ–³¢$VævÆ—6‚v÷&G3¢6öÆ÷'2"À¢–¦#¢$ö·W&–òVævÆ—6‚FVÒ"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$VævÆ—6‚6&B"À¢–3¢#bÓ‚–Yò"À¢&Væ³¢²"3D3Tb"Â"4sƒdC’%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢2À¢÷¦WC¢,KÆ²&Væ²¶VÆ–ÖVÆW&—–ÆR:vö²¼K6<;ÆÖÆVÆW#¢&VBÂ&ÇVRÂ–VÆÆ÷rÂw&VVââ"À¢&öÇVÖÆW#¢°¢²C¢$6öÆ÷'2"ÂF³¢ÂÖWF–ã¢%&VB&ÆÂâ&ÇVR6·’â–VÆÆ÷r7Vââw&VVâÆVbâö¶’6VW2&VB&ÆÂâ"ÒÀ¢²C¢$’6VR"ÂF³¢ÂÖWF–ã¢$’6VR&ÇVRâ’6VRw&VVââÆ–Æ’6VW2–VÆÆ÷râÖ–æò6VW2&VBâ"ÒÀ¢ÒÀ¢ÒÀ ¢°¢–C¢'F÷Fò×F²×F²ÖFVF’"À¢&6Æ–³¢%F÷FòF²F²FVF’"À¢–¦#¢$ö·W&–òK:vW&–²V¶–&’"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢%&—F–Ò÷—VçR"À¢–3¢#2ÓR–Yò"À¢&Væ³¢²"3d#D$""Â"4C”SR%ÒÀ¢Vã¢Bã’À¢7W&TF³¢2À¢÷¦WC¢$ö·VÖ;fæ6W6’&—F–ÒÂ6W2f&¼KæFÌKIüKfRFV·&"œ:v–â¼K6ö¶’÷—VçRâ"À¢&öÇVÖÆW#¢°¢²C¢%F²F²"ÂF³¢ÂÖWF–ã¢%F÷Fò¶K–&·LKâF²F²âö¶’|;ÆÆL;ÂâF²F²âÖ–æòvVÆF’âÖ—–bFVF’â"ÒÀ¢²C¢%6W2÷—VçR"ÂF³¢ÂÖWF–ã¢%F²F²¶KâKBKB–Iö×W"âYìKYüK7Râö¶’F–æÆVF’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ææ×&—F–ÒÖ÷—VçR"À¢&6Æ–³¢$ææ(	–ìKâ&—F–Ò÷—VçR"À¢–¦#¢$ö·W&–òK:vW&–²V¶–&’"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢%&—F–Ò÷—VçR"À¢–3¢#BÓb–Yò"À¢&Væ³¢²"3T#4cs2"Â"4#C“tCb%ÒÀ¢Vã¢Bã’À¢7W&TF³¢2À¢÷¦WC¢$ææ–ÆRFV·&"Â&—F–ÒfRF–æÆVÖR<K&<K:vÌKYöÖ<Kâ"À¢&öÇVÖÆW#¢°¢²C¢$ÆÆ"ÂF³¢ÂÖWF–ã¢$ææÆÆFVF’âÆ–Æ’ÆÆFVF’âö¶’F–æÆVF’â6öç&òFÆÆFVF’â"ÒÀ¢²C¢%<K&&VæFR"ÂF³¢ÂÖWF–ã¢$ææGW&GRâö¶’&V¶ÆVF’âÆ–Æ’|;ÆÌ;Æ×6VF’âYæ–ÖF’<K&ö¶(	–FW–F’â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’Ö†÷Ö†÷"À¢&6Æ–³¢$ö¶’†÷†÷"À¢–¦#¢$ö·W&–òK:vW&–²V¶–&’"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢%FV¶W&ÆVÖR"À¢–3¢#RÓr–Yò"À¢&Væ³¢²"3tDCb"Â"4S“D2%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢2À¢÷¦WC¢$¼K6FV·&"fR6W2÷—VçS¢†÷ÂF÷ÂGW"Â&²â"À¢&öÇVÖÆW#¢°¢²C¢$†÷†÷"ÂF³¢ÂÖWF–ã¢$ö¶’†÷†÷FVF’âF÷†÷ÆLKâF÷Fò&·LKâÖ–æò6¶ÆæLKâ"ÒÀ¢²C¢%F÷æW&VFSò"ÂF³¢ÂÖWF–ã¢%F÷÷&Fâö¶’'W&FâÆ–Æ’|;ÆÆL;ÂâF÷FòGW&GRâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&ö¶’Ö’×6–—&’"À¢&6Æ–³¢$ö¶(	–æ–â’Yæ–—&’"À¢–¦#¢$ö·W&–òYæ–—"V¶–&’"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,Yæ–—""À¢–3¢#RÓ‚–Yò"À¢&Væ³¢²"3#C3ƒTb"Â"3„d”C’%ÒÀ¢Vã¢Bã’À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$¼K6F—¦VÆW&ÆR’ÂvV6RfR6¶–âF¶—:vÌKYöÖ<Kâ"À¢&öÇVÖÆW#¢°¢²C¢$’"ÂF³¢"ÂÖWF–ã¢$’vVÆF’vV6W–Râ–fYü:v&·LK&—¦Râö¶’Væ6W&R:wLKâœYüK²L;ÌY÷L;ÂVÆ–æRâ"ÒÀ¢²C¢%6W76—¢œYüK²"ÂF³¢"ÂÖWF–ã¢$Æ–Æ’6–LKœKÆLK¬Kâ&—"Â–¶’Â;Ì:râÖ–æòW—VGRW7VÆ6âvV6RöÆGR|;Ì:rF\Iö–ÂÂ|;Ç¦VÂâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢'–v×W"×F—×F—×6–—&’"À¢&6Æ–³¢%–Iö×W"LKLK"À¢–¦#¢$ö·W&–òYæ–—"V¶–&’"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,Yæ–—""À¢–3¢#bÓ‚–Yò"À¢&Væ³¢²"3#CSSd""Â"3sD#tCb%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢%6W2f&¼KæFÌKIüKœ:v–â–Iö×W"&—F–ÖÆ’¼K6Yö–—"â"À¢&öÇVÖÆW#¢°¢²C¢%LKLK"ÂF³¢ÂÖWF–ã¢%LKLK–Iö×W"â6ÖF¼;Ì:|;Æ²6W2âö¶’F–æÆW"âK:v–æFR6¶–â&—"æVfW2â"ÒÀ¢²C¢%KBKB"ÂF³¢ÂÖWF–ã¢%KBKBFÖÆâF÷&²|;Ç¦VÂ¶ö¶"âÆ–Æ’&¶"âÖ–æòF—6–æ’6¶Æ"â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&vö·—W§R×6–—&’"À¢&6Æ–³¢$|;f·œ;Ç¬;ÂYæ–—&’"À¢–¦#¢$ö·W&–òYæ–—"V¶–&’"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢,Yæ–—""À¢–3¢#‚Ó–Yò"À¢&Væ³¢²"3c$#CR"Â"3Tc„D3"%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã"Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$|;f·œ;Ç¬;ÂfRœKÆLK¦Æ"7V&¦V7N(	–’œ:v–â¼K6Â|;g'6VÂfR6¶–âYö–—"â"À¢&öÇVÖÆW#¢°¢²C¢%—V¶,K&²"ÂF³¢"ÂÖWF–ã¢$|;f·œ;Ç¬;ÂÖf’&—"6–fv–&’:|KÆLKâö¶’&YüKìK¶ÆLK&LKâ&—"'VÇWBv\:wF’â6öç&&—"·\YòÂ6W76—¦6R–öÇVçR'VÆGRâ"ÒÀ¢²C¢%œKÆLK¢FVgFW&’"ÂF³¢"ÂÖWF–ã¢$vV6RöÇVæ6|;f·œ;Ç¬;Â¶&&LKâÖ¶&æÌK²&üYòF\Iö–ÆF’âÆ–Æ’œKÆLK¦Æ,K6–LKâ†W"œKÆLK¢ÂW¦²&—"KYüK²v–&’&ÆLKâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&’Ö&–ÆÖV6W6’"À¢&6Æ–³¢$’&–ÆÖV6W6’"À¢–¦#¢$ö·W&–òK:vW&–²V¶–&’"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$&–ÆÖV6R"À¢–3¢#bÓ’–Yò"À¢&Væ³¢²"3#S3Db"Â"4#d3DS‚%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢2À¢÷¦WC¢$|;f·œ;Ç¬;Â7V&¦V7N(	–’œ:v–â¼K6F†Ö–âWB÷—VçRâ"À¢&öÇVÖÆW#¢°¢²C¢$¶–Ö–Ò&Vãò"ÂF³¢ÂÖWF–ã¢$vV6R:|K¶,KÒâ&¦Vâ–æ6RÂ&¦Vâ—Wf&Æ²|;g,;Æì;Ç,;ÆÒâ|;Ææ\Y÷FVâKYüK²ÌK,KÒâ&VâæW––Óò"ÒÀ¢²C¢$6Wf"ÂF³¢ÂÖWF–ã¢$&Vâ(	œKÒâ¶VæF’KYüKIüKÜK–ÖÒâ|;Ææ\Yö–âKYüKIüKìK–ç<KLK,KÒâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢'––ÆF—¢Ö&–ÆÖV6W6’"À¢&6Æ–³¢%œKÆLK¢&–ÆÖV6W6’"À¢–¦#¢$ö·W&–òK:vW&–²V¶–&’"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$&–ÆÖV6R"À¢–3¢#rÓ–Yò"À¢&Væ³¢²"3#CC"Â"4C„3Cd%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢2À¢÷¦WC¢%œKÆLK¢¶g&ÜKìK&6—B6÷'RÖ6WfÆæÆFâ¼K6&–ÆÖV6Râ"À¢&öÇVÖÆW#¢°¢²C¢%W¦²œYüK²"ÂF³¢ÂÖWF–ã¢,8vö²W¦·FœKÒâvV6R&ÌK–÷"v–&’|;g,;Æì;Ç,;ÆÒâ¶VæF’KYüKIüKÜKfW&—&–Òâ&VâæW––Óò"ÒÀ¢²C¢$6Wf"ÂF³¢ÂÖWF–ã¢$&VâœKÆLK¬KÒâ|;Ææ\YòFR&—"œKÆLK¦LK"â&—¦RVâ–¼KâœKÆLK¢|;Ææ\Yş(	—F—"â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢'Fö‡VÒÖ&–ÆÖV6W6’"À¢&6Æ–³¢%Fö‡VÒ&–ÆÖV6W6’"À¢–¦#¢$ö·W&–òK:vW&–²V¶–&’"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$&–ÆÖV6R"À¢–3¢#‚Ó–Yò"À¢&Væ³¢²"3$SD#$b"Â"3ƒ„#d%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢2À¢÷¦WC¢$FüIö·VÌ;Æ,;Âœ:v–âF†Ö–âfR¶VÆ–ÖR†¦–æW6’÷—VçRâ"À¢&öÇVÖÆW#¢°¢²C¢$¼;Ì:|;Æ²&YöÆæ|K:r"ÂF³¢ÂÖWF–ã¢,8vö²¼;Ì:|;ÌIü;ÆÒâF÷&IöL;ÌYöW&–Òâ7Rœ:vW&–Òâ&¦Vâ&—":vœ:v\IöRÂ&¦Vâ&—"Iö6L;fì;ÌYü;Ç,;ÆÒâ&VâæW––Óò"ÒÀ¢²C¢$6Wf"ÂF³¢ÂÖWF–ã¢$&VâFö‡V×VÒâ&—"Fö‡VÒ¼;Ì:|;Æ²&YöÆ"âÖœ:v–æFR,;Çœ;Æ²&—"–öÆ7VÇV²6¶Æ"â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&&—"×Fö‡V×Vâ×–öÆ7VÇVwR"À¢&6Æ–³¢$&—"Fö‡V×Vâ–öÆ7VÇ\I÷R"À¢–¦#¢$ö·W&–òFüIö·VÌ;Æ,;Â"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$FüIö&–Æ–Ö’"À¢–3¢#‚Ó–Yò"À¢&Væ³¢²"33T34""Â"3“T3st2%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã2Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$&—"Fö‡V×VâF÷&²Â7RfRKYüK¶Æ&YöÆ–â–öÇVçR†–¼:'–VÆ\Y÷F—&Vâ¼K6&–Æ–ÒÖWFæ’â"À¢&öÇVÖÆW#¢°¢²C¢%F÷&IüKâK:v–æFR"ÂF³¢2ÂÖWF–ã¢$ö¶’¼;Ì:|;Æ²&—"Fö‡VÒ'VÆGRâFö‡VÒgV7VæF6W76—¦F’âææÂ'R¼;Ì:|;Æ²YöW––âœ:v–æFR&—"&—F¶–æ–â–öÇRf"ÂFVF’âö¶’Fö‡V×RF÷&Iö,K&·LKâ"ÒÀ¢²C¢,KÆ²–&²"ÂF³¢2ÂÖWF–ã¢%–Iö×W"–IöLKâ|;Ææ\Yò:|K·LKâ&—"|;ÆâF÷&IüKâ;Ç7L;ÆæFR–\Yö–Â&—"æö·F&VÆ—&F’âÆ–Æ’Â'R&—"&YöÆæ|K:rÂFVF’âö¶’†W"|;ÆâvVÆ—&·LKâ"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&&–Æ"ÖæVFVâÖFç2ÖVFW""À¢&6Æ–³¢$,KÆ"æVFVâFç2VFW#ò"À¢–¦#¢$ö·W&–òFüIö·VÌ;Æ,;Â"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$FüIö&–Æ–Ö’"À¢–3¢#Ó"–Yò"À¢&Væ³¢²"3dSSS""Â"4DD$CR%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã2Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$,KÆ,Kâœ;fâfR–—–V6V²&–Æv—6–æ’æ<KÂ–ÆY÷LKIüKìK6FR&—"†–¼:'–W–ÆRæÆLK"â"À¢&öÇVÖÆW#¢°¢²C¢$¶÷fìKâ9fì;ÆæFR"ÂF³¢2ÂÖWF–ã¢$ö¶’¶÷fæW¦·Fâ&·LKâ&—",KL;fì;Ç–÷"ÂGW'W–÷"Â6öç&FV·&"L;fì;Ç–÷&GRâF÷FòÂ'R,K÷—Vâ×R÷–çW–÷"ÂF—–R6÷&GRâææ|;ÆÌ;Æ×6VF“¢&VÆ¶’FR†&W"fW&—–÷"â"ÒÀ¢²C¢$Fç2VFVâ&–Æv’"ÂF³¢BÂÖWF–ã¢$ææ,KÆ,Kâ&¬K†&V¶WFÆW&ÆR–—–V6\Iö–âœ;fì;Æì;ÂæÆF&–ÆFœIö–æ’<;g–ÆVF’âÆ–Æ’FVgFW&–æR–¦LK¢&¦Vâ&—"Fç2Â&—"†&—Fv–&’:vÌKYö&–Æ—"â"ÒÀ¢ÒÀ¢ÒÀ¢°¢–C¢&·WGW×F–Æ¶—6’×–öÆ7VÇVwR"À¢&6Æ–³¢$·WGWF–Æ¶—6–æ–â–öÆ7VÇ\I÷R"À¢–¦#¢$ö·W&–òFüIö·VÌ;Æ,;Â"À¢6W6ÆVæF—&Vã¢$ö¶’æÆLK<K"À¢¶FVv÷&“¢$FüIö&–Æ–Ö’"À¢–3¢#Ó"–Yò"À¢&Væ³¢²"34#S#cb"Â"4CtStTb%ÒÀ¢Vã¢Bã‚À¢7W&TF³¢ã2Â–6W&–´GW'V×S¢&÷¦WB"À¢÷¦WC¢$·WGWF–Æ¶—6–æ–â:vWg&W–RW—V×VçRfR–öÂ'VÆÖ&V6W&—6–æ’æÆFâ6¶–â&–Æ–Ò†–¼:'–W6’â"À¢&öÇVÖÆW#¢°¢²C¢$&W–¢¼;Ç&²"ÂF³¢2ÂÖWF–ã¢$Æ–Æ’&—"f÷FüI÷&gF&VÖ&W–¢&—"F–Æ¶’|;g&L;ÂâææÂ'R·WGWF–Æ¶—6’ÂFVF’â¶,Kâœ:v–æFRf&²]½Ó^-¢G§²ÚîÆ­yÖWE6W&’„¥4ôâç'6R‡"çfÇVR’“°¢Ò6F6‚·Ğ¢Ò’‚“°¢ÒÂµÒ“° ¢ò¢ÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒ¢ğ¢ò¢ÇFW&æF–bW&œYö–Ó¢&öö¶Ö&¶ÆWB²t6†&U÷F&vWBv—&œYö’¢ğ¢ò¢##bÓ‚Óc¢·VÆÆìK<KÂ†W&†æv’&—"vV"6–f<KæFâ6\:wFœIö’ÖWFæ’¢ğ¢ò¢ƒ’&öö¶Ö&¶ÆWB–ÆR(	Bö·W&–òâââò6ö·SÒâââf&6Æ–³Òâââ†6‚&ÖWG&W6’¢ğ¢ò¢–Fƒ"’æG&ö–BvFR%–ÆYò(i"F–æÆWF’"–ÆR(	BÖæ–fW7Bæ§6öâ¢ğ¢ò¢6†&U÷F&vWB|Kâ;Ç&WGFœIö’÷FW‡CÒgF—FÆSÒgW&ÃÒVW'’&ÖWG&VÆW&—–ÆR¢ğ¢ò¢|;fæFW&V&–Æ—"âK¶—6’FR–ìK$¶VæF’ÖWFæ–æ’ö·R"æVÆ–æ’ÂÖWF–â¢ğ¢ò¢;fæ6VFVâFöÇR&œ:v–ÖFR:v#²·VÆÆìK<K––æR¶VæF’öæœK–Æ$ö·VÖ¢ğ¢ò¢ÖöGVæÂ&&6"†÷FöÖF–²–œKæÆÖö÷FöÖF–²ö·VÖ&YöÆFÖ–ö²’â¢ğ¢ò¢”õ2ö•BvFRvV"6†&RF&vWBFW7FV¶ÆVæÖVFœIö’œ:v–â÷&F–ÆìK¦6¢ğ¢ò¢&öö¶Ö&¶ÆWB–öÇR:vÌKYüK"(	B–æFW‚æ‡FÖÂvFV¶’ÆRÒÖWFWF–¶WFÆW&’¢ğ¢ò¢$æV·&æV¶ÆR"–ÆR&öö¶Ö&¶ÆWBv’FÒV·&âFVæW––ÖFR·VÆÆìKÌK"¢ğ¢ò¢¼KÆ"â¢ğ¢ò¢ÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒ¢ğ¢W6TVffV7B‚‚’Óâ°¢–b‡G—Vöbv–æF÷rÓÓÒ'VæFVf–æVB"’&WGW&ã°¢6öç7B”Ä4”ÕôÔUD”åôÄ”Ô•BÒc°¢ÆWB&6Æ–²Ò"#°¢ÆWBÖWF–âÒ"#°¢ÆWB–Æ6–ÆåW&ÂÒ"#° ¢G'’°¢6öç7B&×2ÒæWrU$Å6V&6…&×2‡v–æF÷ræÆö6F–öâç6V&6‚“°¢ÖWF–âÒ&×2ævWB‚'FW‡B"’ÇÂ"#°¢&6Æ–²Ò&×2ævWB‚'F—FÆR"’ÇÂ"#°¢–Æ6–ÆåW&ÂÒ&×2ævWB‚'W&Â"’ÇÂ"#°¢Ò6F6‚·Ğ ¢–b‚ÖWF–âbbv–æF÷ræÆö6F–öâæ†6‚’°¢G'’°¢6öç7B†6…&×2ÒæWrU$Å6V&6…&×2‡v–æF÷ræÆö6F–öâæ†6‚ç&WÆ6R‚õâ2òÂ""’“°¢–b††6…&×2æ†2‚&ö·R"’’°¢òòU$Å6V&6…&×2¦FVâœ;Ç¦FRÖ¶öFÆÖœK:|;g¦W#²'W&FFV·& ¢òòFV6öFUU$”6ö×öæVçB:vIüK&Ö²:v–gBÜ:|;g¦ÖR†F<Kæ–öÂ:v"à¢ÖWF–âÒ†6…&×2ævWB‚&ö·R"’ÇÂ"#°¢&6Æ–²Ò†6…&×2ævWB‚&&6Æ–²"’ÇÂ"#°¢Ğ¢Ò6F6‚·Ğ¢Ğ ¢–b‚ÖWF–âbb–Æ6–ÆåW&Â’&WGW&ã° ¢–b†ÖWF–âæÆVæwF‚â”Ä4”ÕôÔUD”åôÄ”Ô•B’°¢ÖWF–âÒÖWF–âç6Æ–6RƒÂ”Ä4”ÕôÔUD”åôÄ”Ô•B“°¢Ğ ¢6WD¶VæF”&6Æ–²†&6Æ–²ÇÂ%–ÆYüKÆâÖWF–â"“°¢6WD¶VæF”ÖWF–â€¢ÖWF–âÇÀ¢'R&IöÆçLKFâ–ÆìK¦6G&W2–ÆYüKÆLKÂÖWF–âvVÆÖVF“¢G·–Æ6–ÆåW&ÇÕÆåÆäö·W&–ò|;ÇfVæÆ–²æVFVæ—–ÆR&IöÆçLKF¶’6–fœK¶VæF—6’–æF—&VÖW¢â6–fF¶’ÖWFæ’6\:v—FV·&"–ÆYöÖœKfW–'W&––KY÷LK&ÖœKFVæRæÀ¢“°¢6WD¶VæF”ÖWF–åæVÆ”6–²‡G'VR“° ¢òòU$Âv’FVÖ—¦ÆS¢†VÒv—¦Æ–Æ–²†VÒFR&V‡–G&F–öâÖçLKIüKìKâ‡6öä¶—Ff"â¢òò†W"–Væ–ÆVÖVFR–ìK–ÆYüKÆâÖWFæ’FV·&"FV·&":vÖ<KìK;fæÆVÖV²œ:v–âà¢G'’°¢6öç7BFVÖ—¥W&ÂÒv–æF÷ræÆö6F–öâçF†æÖS°¢v–æF÷ræ†—7F÷'’ç&WÆ6U7FFR†çVÆÂÂ""ÂFVÖ—¥W&Â“°¢Ò6F6‚·Ğ¢ÒÂµÒ“° ¢ò¢ö·VÖ–&Æ,KìK¶–FWB¢ğ¢6öç7B–Æ´–"ÒW6U&Vb‡G'VR“°¢W6TVffV7B‚‚’Óâ°¢–b†–Æ´–"æ7W'&VçB’²–Æ´–"æ7W'&VçBÒfÇ6S²&WGW&ã²Ğ¢†7–æ2‚’Óâ²G'’²v—Bv–æF÷rç7F÷&vRç6WB‚&F–æÆWF’Öö·VÖÖ–"×c"Â¥4ôâç7G&–æv–g’†–"’“²Ò6F6‚·ÒÒ’‚“°¢ÒÂ¶–%Ò“°  ¢6öç7B·F–bÒ·F–d–Bò¶—F'VÂ†·F–d–B’¢çVÆÃ°¢6öç7BF÷ÆÒÒ·F–bòF÷ÆÕ6â†·F–b’¢° ¢6öç7B·F–d&öÇVÔ—‚ÒW6TÖVÖò‚‚’Óâ°¢–b‚·F–b’&WGW&â°¢ÆWBBÒ°¢f÷"†ÆWB’Ò²’Â·F–bæ&öÇVÖÆW"æÆVæwFƒ²’²²’°¢B³Ò&öÇVÕ6â†·F–bæ&öÇVÖÆW%¶•Ò“°¢–b‡÷¦—7–öâÂB’&WGW&â“°¢Ğ¢&WGW&â·F–bæ&öÇVÖÆW"æÆVæwF‚Ò°¢ÒÂ¶·F–bÂ÷¦—7–öåÒ“° ¢W6TÆ–÷WDVffV7B‚‚’Óâ°¢–b‚÷–æF–6”6–²ÇÂö·VÖ6–²ÇÂö·VÖÖöGRÓÓÒ&¶VæF–Ò"’&WGW&ã°¢–b„FFRææ÷r‚’Â&VFW$föÆÆ÷uW6UVçF–Å&Vbæ7W'&VçB’&WGW&ã°¢6öç7B6öçF–æW"Ò&VFW%67&öÆÅ&Vbæ7W'&VçC°¢6öç7B7F—fUv÷&BÒ6öçF–æW#òçVW'•6VÆV7F÷"‚u¶FFÖ¶VÆ–ÖRÖ—ƒÒ"r²¶VÆ–ÖT—‚²r%Òr“°¢–b‚6öçF–æW"ÇÂ7F—fUv÷&B’&WGW&ã° ¢6öç7B6öçF–æW%&V7BÒ6öçF–æW"ævWD&÷VæF–æt6Æ–VçE&V7B‚“°¢6öç7Bv÷&E&V7BÒ7F—fUv÷&BævWD&÷VæF–æt6Æ–VçE&V7B‚“°¢6öç7B6öçG&öÇ2Ò6öçF–æW"æ6Æ÷6W7B‚%¶FFÖö·VÖÖÆæ•Ò"“òçVW'•6VÆV7F÷"‚%¶FFÖÇBÖ¶öçG&öÅÒ"“°¢6öç7B6öçG&öÇ5&V7BÒ6öçG&öÇ3òævWD&÷VæF–æt6Æ–VçE&V7B‚“°¢6öç7Bf—7VÅf–Ww÷'D&÷GFöÒÒv–æF÷rçf—7VÅf–Ww÷'Còæ†V–v‡Bóòv–æF÷ræ–ææW$†V–v‡C°¢6öç7Bö66ÇW6–öåF÷Ò6öçG&öÇ5&V7Bbb6öçG&öÇ5&V7BçF÷Â6öçF–æW%&V7Bæ&÷GFöĞ¢ò6öçG&öÇ5&V7BçF÷ ¢¢çVÖ&W"åõ4•D•dUô”äd”ä•E“°¢6öç7Bf—6–&ÆUF÷ÒÖF‚æÖ‚†6öçF–æW%&V7BçF÷Â“°¢6öç7Bf—6–&ÆT&÷GFöÒÒÖF‚æÖ–â†6öçF–æW%&V7Bæ&÷GFöÒÂf—7VÅf–Ww÷'D&÷GFöÒÂö66ÇW6–öåF÷“°¢6öç7Bf—6–&ÆT†V–v‡BÒÖF‚æÖ‚ƒÂf—6–&ÆT&÷GFöÒÒf—6–&ÆUF÷“°¢6öç7Bv÷&D6VçFW"Òv÷&E&V7BçF÷²v÷&E&V7Bæ†V–v‡Bò#°¢6öç7B6fUF÷Òf—6–&ÆUF÷²f—6–&ÆT†V–v‡B¢ãC°¢6öç7B6fT&÷GFöÒÒf—6–&ÆUF÷²f—6–&ÆT†V–v‡B¢ãSS°¢6öç7Bv÷&D—4gVÆÇ•f—6–&ÆRÒv÷&E&V7BçF÷ãÒf—6–&ÆUF÷bbv÷&E&V7Bæ&÷GFöÒÃÒf—6–&ÆT&÷GFöÓ°¢6öç7B–ÖÖVF–FRÒ&VFW$föÆÆ÷t–ÖÖVF–FU&Vbæ7W'&VçC°¢&VFW$föÆÆ÷t–ÖÖVF–FU&Vbæ7W'&VçBÒfÇ6S°¢–b‚–ÖÖVF–FRbbv÷&D—4gVÆÇ•f—6–&ÆRbbv÷&D6VçFW"ãÒ6fUF÷bbv÷&D6VçFW"ÃÒ6fT&÷GFöÒ’&WGW&ã° ¢6öç7BF&vWBÒf—6–&ÆUF÷²f—6–&ÆT†V–v‡B¢ãCsS°¢6öç7BÖ…67&öÆÂÒÖF‚æÖ‚ƒÂ6öçF–æW"ç67&öÆÄ†V–v‡BÒ6öçF–æW"æ6Æ–VçD†V–v‡B“°¢6öç7BæW‡EF÷ÒÖF‚æÖ‚ƒÂÖF‚æÖ–â†Ö…67&öÆÂÂ6öçF–æW"ç67&öÆÅF÷²v÷&D6VçFW"ÒF&vWB’“°¢6öçF–æW"ç67&öÆÅFò‡²F÷¢æW‡EF÷Â&V†f–÷#¢–ÖÖVF–FRò&WFò"¢'6Öö÷F‚"Ò“°¢ÒÂ¶¶VÆ–ÖT—‚Â·F–d&öÇVÔ—‚Âö·VÖÖöGRÂ÷–æF–6”6–²Âö·VÖ6–²Â–"æöF²Â&VFW$föÆÆ÷tæöæ6UÒ“° ¢W6TVffV7B‚‚’Óâ°¢6WE6÷'T6Wf&’†çVÆÂ“°¢6WE6÷'T¶Æ’†fÇ6R“°¢6WD–%æVÆ”6–²†fÇ6R“°¢ÒÂ¶·F–d–BÂ·F–d&öÇVÔ—…Ò“° ¢W6TVffV7B‚‚’Óâ°¢–b‚÷–æF–6”6–²’&WGW&âVæFVf–æVC°¢6öç7B·F–döFÒFö7VÖVçBæ7F—fTVÆVÖVçB–ç7Fæ6Vöb…DÔÄVÆVÖVçBbbFö7VÖVçBæ7F—fTVÆVÖVçBÓÒFö7VÖVçBæ&öG’òFö7VÖVçBæ7F—fTVÆVÖVçB¢çVÆÃ°¢ö·W—V7TvW&”öFµ&Vbæ7W'&VçBÒ·F–döFòæ—46öææV7FVBò·F–döF¢¶VæF”ÖWF–ävW&”öFµ&Vbæ7W'&VçC°¢6öç7Böæ6V¶”÷fW&fÆ÷rÒFö7VÖVçBæ&öG’ç7G–ÆRæ÷fW&fÆ÷s°¢Fö7VÖVçBæ&öG’ç7G–ÆRæ÷fW&fÆ÷rÒ&†–FFVâ#°¢6öç7B6†VÆÂÒFö7VÖVçBçVW'•6VÆV7F÷"‚%¶FF×&VFW"×6†VÆÅÒ"“°¢6öç7BöF¶Ææ&–Æ—&ÆW"Ò‚’Óâ6†VÆÂò²ââç6†VÆÂçVW'•6VÆV7F÷$ÆÂ‚v'WGFöã¦æ÷B…¶F—6&ÆVEÒ’Â¶‡&VeÒÂ·F&–æFW…Ó¦æ÷B…·F&–æFWƒÒ"Ó%Ò’r•Òæf–ÇFW"‚†VÂ’ÓâVÂæ6Æ÷6W7B‚u¶&–Ö†–FFVãÒ'G'VR%Òr’’¢µÓ°¢6öç7B¶Æg–RÒ†WfVçB’Óâ°¢–b†WfVçBæ¶W’ÓÓÒ$W66R"’°¢WfVçBç&WfVçDFVfVÇB‚“°¢ö·W—V7W—T¶EfTöF¶Æ‚“°¢&WGW&ã°¢Ğ¢–b†WfVçBæ¶W’ÓÒ%F""’&WGW&ã°¢6öç7BÆ—7FRÒöF¶Ææ&–Æ—&ÆW"‚“°¢–b‚Æ—7FRæÆVæwF‚’&WGW&ã°¢6öç7B–Æ²ÒÆ—7FU³Ó°¢6öç7B6öâÒÆ—7FU¶Æ—7FRæÆVæwF‚ÒÓ°¢–b†WfVçBç6†–gD¶W’bbFö7VÖVçBæ7F—fTVÆVÖVçBÓÓÒ–Æ²’²WfVçBç&WfVçDFVfVÇB‚“²6öâæfö7W2‚“²Ğ¢VÇ6R–b‚WfVçBç6†–gD¶W’bbFö7VÖVçBæ7F—fTVÆVÖVçBÓÓÒ6öâ’²WfVçBç&WfVçDFVfVÇB‚“²–Æ²æfö7W2‚“²Ğ¢Ó°¢v–æF÷ræFDWfVçDÆ—7FVæW"‚&¶W–F÷vâ"Â¶Æg–R“°¢v–æF÷rç&WVW7Dæ–ÖF–öäg&ÖR‚‚’Óâ6†VÆÃòçVW'•6VÆV7F÷"‚u¶&–ÖÆ&VÃÒ$¶B%Òr“òæfö7W2‚’“°¢&WGW&â‚’Óâ°¢v–æF÷rç&VÖ÷fTWfVçDÆ—7FVæW"‚&¶W–F÷vâ"Â¶Æg–R“°¢Fö7VÖVçBæ&öG’ç7G–ÆRæ÷fW&fÆ÷rÒöæ6V¶”÷fW&fÆ÷s°¢v–æF÷rç&WVW7Dæ–ÖF–öäg&ÖR‚‚’Óâ°¢6öç7BvW&’Òö·W—V7TvW&”öFµ&Vbæ7W'&VçCòæ—46öææV7FV@¢òö·W—V7TvW&”öFµ&Vbæ7W'&Vç@¢¢¶VæF”ÖWF–ä7F&Vbæ7W'&VçCòæ—46öææV7FV@¢ò¶VæF”ÖWF–ä7F&Vbæ7W'&Vç@¢¢¶VæF”ÖWF–ävW&”öFµ&Vbæ7W'&VçC°¢–b†vW&“òæ—46öææV7FVB’vW&’æfö7W2‡²&WfVçE67&öÆÃ¢G'VRÒ“°¢Ò“°¢Ó°¢ÒÂ¶÷–æF–6”6–µÒ“° ¢W6TVffV7B‚‚’Óâ°¢–b‚¶VæF”ÖWF–åæVÆ”6–²’&WGW&âVæFVf–æVC°¢¶VæF”ÖWF–ävW&”öFµ&Vbæ7W'&VçBÒFö7VÖVçBæ7F—fTVÆVÖVçB–ç7Fæ6Vöb…DÔÄVÆVÖVçBòFö7VÖVçBæ7F—fTVÆVÖVçB¢çVÆÃ°¢6öç7Böæ6V¶”÷fW&fÆ÷rÒFö7VÖVçBæ&öG’ç7G–ÆRæ÷fW&fÆ÷s°¢Fö7VÖVçBæ&öG’ç7G–ÆRæ÷fW&fÆ÷rÒ&†–FFVâ#°¢6öç7BæVÂÒFö7VÖVçBçVW'•6VÆV7F÷"‚%¶FFÖ¶VæF’ÖÖWF–âÖF–ÆöuÒ"“°¢6öç7B¶Æg–RÒ†WfVçB’Óâ°¢–b†WfVçBæ¶W’ÓÓÒ$W66R"’°¢WfVçBç&WfVçDFVfVÇB‚“°¢6WD¶VæF”ÖWF–åæVÆ”6–²†fÇ6R“°¢&WGW&ã°¢Ğ¢–b†WfVçBæ¶W’ÓÒ%F""ÇÂæVÂ’&WGW&ã°¢6öç7BÆ—7FRÒ²ââçæVÂçVW'•6VÆV7F÷$ÆÂ‚v'WGFöã¦æ÷B…¶F—6&ÆVEÒ’Â–çWBÂFW‡F&VÂ·F&–æFW…Ó¦æ÷B…·F&–æFWƒÒ"Ó%Ò’r•Ó°¢–b‚Æ—7FRæÆVæwF‚’&WGW&ã°¢6öç7B–Æ²ÒÆ—7FU³Ó°¢6öç7B6öâÒÆ—7FU¶Æ—7FRæÆVæwF‚ÒÓ°¢–b†WfVçBç6†–gD¶W’bbFö7VÖVçBæ7F—fTVÆVÖVçBÓÓÒ–Æ²’²WfVçBç&WfVçDFVfVÇB‚“²6öâæfö7W2‚“²Ğ¢VÇ6R–b‚WfVçBç6†–gD¶W’bbFö7VÖVçBæ7F—fTVÆVÖVçBÓÓÒ6öâ’²WfVçBç&WfVçDFVfVÇB‚“²–Æ²æfö7W2‚“²Ğ¢Ó°¢v–æF÷ræFDWfVçDÆ—7FVæW"‚&¶W–F÷vâ"Â¶Æg–R“°¢v–æF÷rç&WVW7Dæ–ÖF–öäg&ÖR‚‚’ÓâæVÃòçVW'•6VÆV7F÷"‚u¶&–ÖÆ&VÃÒ$¶VæF’ÖWF–âæVÆ–æ’¶B%Òr“òæfö7W2‚’“°¢&WGW&â‚’Óâ°¢v–æF÷rç&VÖ÷fTWfVçDÆ—7FVæW"‚&¶W–F÷vâ"Â¶Æg–R“°¢Fö7VÖVçBæ&öG’ç7G–ÆRæ÷fW&fÆ÷rÒöæ6V¶”÷fW&fÆ÷s°¢6öç7BvW&’Ò¶VæF”ÖWF–ävW&”öFµ&Vbæ7W'&VçC°¢v–æF÷rç&WVW7Dæ–ÖF–öäg&ÖR‚‚’ÓâvW&“òæ—46öææV7FVBbbvW&’æfö7W2‡²&WfVçE67&öÆÃ¢G'VRÒ’“°¢Ó°¢ÒÂ¶¶VæF”ÖWF–åæVÆ”6–µÒ“° ¢ò¢6W6ÆVæF—&ÖR…vV"7VV6‚’¢ğ¢6öç7B¦–æ6—$æòÒW6U&Vbƒ“°¢6öç7B¶öçW6Ö–”GW&GW"Ò‚’Óâ°¢¦–æ6—$æòæ7W'&VçB³Ò²òò·F–b<;ÆÖÆR¦–æ6—&–æ’—FÂW@¢G'’²–b‡v–æF÷rç7VV6…7–çF†W6—2’v–æF÷rç7VV6…7–çF†W6—2æ6æ6VÂ‚“²Ò6F6‚·Ğ¢¶öçW6Ö&Vbæ7W'&VçBÒçVÆÃ°¢Ó°¢6öç7B6öå6–æ—"ÒW6U&Vbƒ“²òò6öâöæ&÷VæF'’öÆœKìKâ¦ÖìK‡W–&Ææ&–Æ—"¶K¢6öç7B¶Æ–'&7–öâÒW6U&Vbƒ“²òòvW,:vV²EE2FV×÷7RòF†Ö–â†,;fÌ;ÆÒ6öçVæF|;Ææ6VÆÆVæ—"¢6öç7B¶öçW6Ö–”&6ÆE&VbÒW6U&Vb†çVÆÂ“°¢6öç7B¶öçW6Ö–”&6ÆBÒW6T6ÆÆ&6²‚†¶—FÂ&öÇVÔ—‚Â¶VÆ–ÖT&2ÒÂÖöD–"Òö·VÖÖöGT–"Â¦÷&ÆÒfÇ6R’Óâ°¢–b‚‚¦÷&ÆbbWF¶–å6W6ÆVæF—&ÖR’ÇÂÖöD–"ç6W6Æ’ÇÂv–æF÷rç7VV6…7–çF†W6—2’&WGW&ã°¢¶öçW6Ö–”GW&GW"‚“°¢6öå6–æ—"æ7W'&VçBÒ°¢6öç7B&Væ–ÔæòÒ¦–æ6—$æòæ7W'&VçC°¢G'’°¢6öç7B"Ò¶—Fæ&öÇVÖÆW%¶&öÇVÔ—…Ó°¢6öç7B¶VÆ–ÖVÆW"Ò"æÖWF–âçG&–Ò‚’ç7Æ—B‚õÇ2²ò“°¢6öç7B7VÖÆVÆW"ÒµÓ°¢ÆWB6&2Ò°¢¶VÆ–ÖVÆW"æf÷$V6‚‚†²Â’’Óâ²–b‚õ²âş(
+eÒBòçFW7B†²’ÇÂ’ÓÓÒ¶VÆ–ÖVÆW"æÆVæwF‚Ò’²7VÖÆVÆW"çW6‚…¶6&2Â•Ò“²6&2Ò’²²ÒÒ“°¢6öç7B&4¶VÆ–ÖRÒÖF‚æÖ–â„ÖF‚æÖ‚ƒÂ¶VÆ–ÖT&2’Â¶VÆ–ÖVÆW"æÆVæwF‚Ò“°¢ÆWB–Æ´7VÖÆRÒ7VÖÆVÆW"æf–æD–æFW‚‚…¶Â¥Ò’Óâ&4¶VÆ–ÖRãÒbb&4¶VÆ–ÖRÃÒ¢“°¢–b†–Æ´7VÖÆRÂ’–Æ´7VÖÆRÒ°¢6öç7BF–ÂÒ¶—FæF–ÂÓÓÒ&Vâ"ò&VâÔt""¢'G"ÕE"#°¢6öç7B†VFVbÒ¶—FæF–ÂÓÓÒ&Vâ"ò&Vâ"¢'G"#°¢6öç7B&öÇVÔ&6Ææv–2ÒFFRææ÷r‚“°¢6öç7BWF¶–ä†—¢ÒÖF‚æÖ‚ƒãSRÂÖF‚æÖ–âƒã‚Â†—¢¢6W5FöçT–"ç&FR¢ÖöD–"ç&FT6'â’“°¢6öç7BF†Ö–ä×2Ò¶VÆ–ÖVÆW"ç6Æ–6R†&4¶VÆ–ÖR’ç&VGV6R‚‡BÂ²’ÓâB²¶VÆ–ÖU7W&R†²ÂWF¶–ä†—¢’Â“°¢6öç7B¶öçV×U–¢Ò‡v÷&D–æFW‚’Óâ°¢6öç7B6fUv÷&BÒÖF‚æÖ‚ƒÂÖF‚æÖ–â†¶VÆ–ÖVÆW"æÆVæwF‚ÒÂv÷&D–æFW‚’“°¢6WD¶VÆ–ÖT—‚‡6fUv÷&B“°¢6WE÷¦—7–öâ‡÷6—F–öäg&öÔ7W'6÷"†¶—Fæ&öÇVÖÆW"Â&öÇVÔ—‚Â6fUv÷&BÂ&öÇVÕ6â’“°¢Ó° ¢6öç7B6W4FÒ‡R’Óâ°¢RæÆærÒF–Ã°¢Rç&FRÒWF¶–ä†—£°¢Rç—F6‚Ò6W5FöçT–"ç—F6ƒ°¢RçföÇVÖRÒ°¢ÆWBÆ—7FRÒ6W6ÆW%&Vbæ7W'&VçC°¢–b‚Æ—7FRæÆVæwF‚’²G'’²6öç7BÂÒv–æF÷rç7VV6…7–çF†W6—2ævWEfö–6W2‚“²–b†ÂbbÂæÆVæwF‚’²6W6ÆW%&Vbæ7W'&VçBÒÃ²Æ—7FRÒÃ²ÒÒ6F6‚·ÒĞ¢6öç7BVæÆÒ‡b’Óâ°¢6öç7BBÒ‡bææÖRÇÂ""’çFôÆ÷vW$66R‚“°¢&WGW&â†Bæ–æ6ÇVFW2‚&æGW&Â"’ò‚¢’²‚öVæ†æ6VGÇ&VÖ—V×ÆæWW&ÂòçFW7B†B’òb¢¢²‚övöövÆWÇ6—&—Ç6ÖçF†Ç–VÆFÆf–Æ—§ÆFæ–VÂòçFW7B†B’ò2¢’²‡bæÆö6Å6W'f–6RÓÓÒfÇ6Rò¢“°¢Ó°¢6öç7BF–Æ"ÒÆ—7FRæf–ÇFW"‚‡b’ÓâbæÆærbbbæÆærçFôÆ÷vW$66R‚’ç7F'G5v—F‚††VFVb’’ç6÷'B‚†Â2’ÓâVæÆ†2’ÒVæÆ†’“°¢–b†F–Æ%³Ò’Rçfö–6RÒF–Æ%³Ó°¢Ó° ¢ò¢<;ÆÖÆR¦–æ6—&“¢†W"WGFW&æ6R¼K6GWGVÇW#²F&œK<KÖ÷F÷&Æ,KìKâW§Và¢ö·VÖœKãR6â6öç&6W76—¦6R¶W6ÖR·W7W'R,;g–ÆV6R†œ:rFWF–¶ÆVæÖW¢à¢†W"<;ÆÖÆR6öçVæFgW&wR&—"6öç&¶’<;ÆÖÆVæ–â&YüKæ†—¦ÆìK"â¢ğ¢6öç7B¶öçW47VÖÆRÒ†6’Â–Æ´¶VÆ–ÖT—‚’Óâ°¢–b‡¦–æ6—$æòæ7W'&VçBÓÒ&Væ–Ôæò’&WGW&ã°¢–b†6’ãÒ7VÖÆVÆW"æÆVæwF‚’°¢–b‡F†Ö–ä×2â’°¢6öç7B÷&âÒ„FFRææ÷r‚’Ò&öÇVÔ&6Ææv–2’òF†Ö–ä×3°¢–b†÷&ââãBbb÷&âÂ2’¶Æ–'&7–öâæ7W'&VçBÒÖF‚æÖ–âƒ"ÂÖF‚æÖ‚ƒãRÂ¶Æ–'&7–öâæ7W'&VçB¢ãb²÷&â¢ãB’“°¢Ğ¢–b†&öÇVÔ—‚²Â¶—Fæ&öÇVÖÆW"æÆVæwF‚’°¢6WE÷¦—7–öâ†&öÇVÔ&6•6â†¶—FÂ&öÇVÔ—‚²’“°¢6WD¶VÆ–ÖT—‚ƒ“°¢–b†¶öçW6Ö–”&6ÆE&Vbæ7W'&VçB’¶öçW6Ö–”&6ÆE&Vbæ7W'&VçB†¶—FÂ&öÇVÔ—‚²Â“°¢Ğ¢&WGW&ã°¢Ğ¢6öç7B¶Â¥ÒÒ7VÖÆVÆW%¶6•Ó°¢6öç7B&4—‚Ò–Æ´¶VÆ–ÖT—‚ÒçVÆÂòÖF‚æÖ‚†Â–Æ´¶VÆ–ÖT—‚’¢°¢6öç7B&6Ò¶VÆ–ÖVÆW"ç6Æ–6R†&4—‚Â¢²’æ¦ö–â‚""“°¢6öç7BRÒæWr7VV6…7–çF†W6—5WGFW&æ6R‡&6“°¢ÆWB7–æ4ÖöFRÒ'VæF–ær#°¢ÆWB7–æ5F–ÖW"ÒçVÆÃ°¢ÆWBfÆÆ&6´—‚Ò&4—ƒ°¢ÆWBF–ÖVÆ–æU7F'FVDBÒ°¢ÆWBWGFW&æ6U7F'FVDBÒ°¢6öç7BæöÖ–æÅ6VçFVæ6T×2Ò¶VÆ–ÖVÆW"ç6Æ–6R†&4—‚Â¢²¢ç&VGV6R‚‡F÷FÂÂv÷&B’ÓâF÷FÂ²¶VÆ–ÖU7W&R‡v÷&BÂWF¶–ä†—¢’Â“°¢ÆWBF–ÖVÆ–æRÒ7&VFU7VV6…v÷&EF–ÖVÆ–æR€¢¶VÆ–ÖVÆW"ç6Æ–6R†&4—‚Â¢²’À¢‡v÷&B’Óâ¶VÆ–ÖU7W&R‡v÷&BÂWF¶–ä†—¢’À¢¶Æ–'&7–öâæ7W'&VçBÀ¢“°¢6öç7BF–ÖW&”GW&GW"Ò‚’Óâ°¢–b‡7–æ5F–ÖW"’v–æF÷ræ6ÆV%F–ÖV÷WB‡7–æ5F–ÖW"“°¢7–æ5F–ÖW"ÒçVÆÃ°¢Ó°¢6öç7BfÆÆ&6´F–Ö’Ò‚’Óâ°¢–b‡¦–æ6—$æòæ7W'&VçBÓÒ&Væ–ÔæòÇÂ7–æ4ÖöFRÓÓÒ&&÷VæF'’"’&WGW&ã°¢7–æ4ÖöFRÒ&fÆÆ&6²#°¢–b‚F–ÖVÆ–æU7F'FVDB’F–ÖVÆ–æU7F'FVDBÒW&f÷&Öæ6Rææ÷r‚“°¢6öç7B–G‚ÒF–ÖVÆ–æUv÷&Dg&öÔVÆ6VB‡°¢7F'G4C¢F–ÖVÆ–æRÀ¢VÆ6VD×3¢W&f÷&Öæ6Rææ÷r‚’ÒF–ÖVÆ–æU7F'FVDBÀ¢&6T–æFWƒ¢&4—‚À¢7W'&VçD–æFWƒ¢fÆÆ&6´—‚À¢VæD–æFWƒ¢¢À¢Ò“°¢–b†–G‚ÒçVÆÂ’°¢fÆÆ&6´—‚Ò–Gƒ°¢¶öçV×U–¢†–G‚“°¢Ğ¢–b†fÆÆ&6´—‚Â¢’7–æ5F–ÖW"Òv–æF÷rç6WEF–ÖV÷WB†fÆÆ&6´F–Ö’Âc“°¢Ó°¢6öç7BfÆÆ&6´&V¶ÆWBÒ‚’Óâ°¢F–ÖW&”GW&GW"‚“°¢–b‚F–ÖVÆ–æU7F'FVDB’F–ÖVÆ–æU7F'FVDBÒW&f÷&Öæ6Rææ÷r‚“°¢7–æ5F–ÖW"Òv–æF÷rç6WEF–ÖV÷WB†fÆÆ&6´F–Ö’Âc“°¢Ó°¢6W4F‡R“°¢Ræöç7F'BÒ‚’Óâ°¢–b‡¦–æ6—$æòæ7W'&VçBÓÒ&Væ–Ôæò’&WGW&ã°¢WGFW&æ6U7F'FVDBÒW&f÷&Öæ6Rææ÷r‚“°¢F–ÖVÆ–æU7F'FVDBÒWGFW&æ6U7F'FVDC°¢¶öçV×U–¢†&4—‚“°¢fÆÆ&6´&V¶ÆWB‚“°¢Ó°¢Ræöæ&÷VæF'’Ò†R’Óâ°¢–b†RææÖRbbRææÖRÓÒ'v÷&B"’&WGW&ã°¢6öç7B–G‚ÒÖöæ÷Föæ–4&÷VæF'•v÷&B‡°¢WGFW&æ6UFW‡C¢&6À¢6†$–æFWƒ¢çVÖ&W"†Ræ6†$–æFW‚’À¢&6T–æFWƒ¢&4—‚À¢7W'&VçD–æFWƒ¢fÆÆ&6´—‚À¢VæD–æFWƒ¢¢À¢Ò“°¢òò6×7VærôæG&ö–BÖ÷F÷&Æ,K&¦Vâ6†$–æFWƒÓF\IöW&–æ’fW–vW&—–P¢òòv–FVâ&÷VæF'’öÆ–Æ,KìKFV·&&Æ"â'VæÆ"vF6†FörwR<KlK&ÆÖ¢à¢–b†–G‚ÓÒçVÆÂ’&WGW&ã°¢7–æ4ÖöFRÒ&&÷VæF'’#°¢F–ÖW&”GW&GW"‚“°¢6öå6–æ—"æ7W'&VçBÒFFRææ÷r‚“°¢fÆÆ&6´—‚Ò–Gƒ°¢¶öçV×U–¢†–G‚“°¢6öç7BÆö6Ä–æFW‚Ò–G‚Ò&4—ƒ°¢6öç7BW‡V7FVD×2ÒF–ÖVÆ–æU¶Æö6Ä–æFW…Ó°¢6öç7Bö'6W'fVD×2ÒçVÖ&W"†RæVÆ6VEF–ÖR’¢°¢–b†W‡V7FVD×2â#bbö'6W'fVD×2â’°¢6öç7Bö'6W'fVD6Æ–'&F–öâÒÖF‚æÖ‚ƒãRÂÖF‚æÖ–âƒ"Â¶Æ–'&7–öâæ7W'&VçB¢ö'6W'fVD×2òW‡V7FVD×2’“°¢¶Æ–'&7–öâæ7W'&VçBÒ¶Æ–'&7–öâæ7W'&VçB¢ãsR²ö'6W'fVD6Æ–'&F–öâ¢ã#S°¢F–ÖVÆ–æRÒ7&VFU7VV6…v÷&EF–ÖVÆ–æR€¢¶VÆ–ÖVÆW"ç6Æ–6R†&4—‚Â¢²’À¢‡v÷&B’Óâ¶VÆ–ÖU7W&R‡v÷&BÂWF¶–ä†—¢’À¢¶Æ–'&7–öâæ7W'&VçBÀ¢“°¢Ğ¢F–ÖVÆ–æU7F'FVDBÒW&f÷&Öæ6Rææ÷r‚’ÒF–ÖVÆ–æU¶Æö6Ä–æFW…Ó°¢òòv\:vW&Æ’&÷VæF'’¼KYüK¶W6–Æ—'6RvF6†För6öâFüI÷'R¶VÆ–ÖVFVâ<;Ç&W"à¢7–æ4ÖöFRÒ'VæF–ær#°¢fÆÆ&6´&V¶ÆWB‚“°¢Ó°¢RæöæVæBÒ‚’Óâ°¢F–ÖW&”GW&GW"‚“°¢–b‡¦–æ6—$æòæ7W'&VçBÓÒ&Væ–Ôæò’&WGW&ã°¢–b‡WGFW&æ6U7F'FVDBbbæöÖ–æÅ6VçFVæ6T×2â3’°¢6öç7Bö'6W'fVE&F–òÒÖF‚æÖ‚ƒãRÂÖF‚æÖ–âƒ"Â‡W&f÷&Öæ6Rææ÷r‚’ÒWGFW&æ6U7F'FVDB’òæöÖ–æÅ6VçFVæ6T×2’“°¢¶Æ–'&7–öâæ7W'&VçBÒ¶Æ–'&7–öâæ7W'&VçB¢ã‚²ö'6W'fVE&F–ò¢ã#°¢Ğ¢6öç7B6öä¶VÆ–ÖRÒ¶VÆ–ÖVÆW%·¥ÒÇÂ"#°¢6öç7BGW&¶ÆÖÒõ²âş(
+eÒBòçFW7B‡6öä¶VÆ–ÖR’ò6W5FöçT–"ææö·F×2¢‚õ²Ã³¥ÒBòçFW7B‡6öä¶VÆ–ÖR’ò6W5FöçT–"çf—&wVÄ×2¢C“°¢v–æF÷rç6WEF–ÖV÷WB‚‚’Óâ°¢–b‡¦–æ6—$æòæ7W'&VçBÓÒ&Væ–Ôæò’&WGW&ã°¢–b†6’²Â7VÖÆVÆW"æÆVæwF‚’²¶öçV×U–¢†7VÖÆVÆW%¶6’²Õ³Ò“²6öå6–æ—"æ7W'&VçBÒFFRææ÷r‚“²Ğ¢¶öçW47VÖÆR†6’²ÂçVÆÂ“°¢ÒÂGW&¶ÆÖ“°¢Ó°¢RæöæW'&÷"ÒF–ÖW&”GW&GW#°¢¶öçW6Ö&Vbæ7W'&VçBÒS°¢v–æF÷rç7VV6…7–çF†W6—2ç7V²‡R“°¢òò&¬KæG&ö–BÖ÷F÷&Æ,K7F'FöÆœK;Ç&WFÖW¢â'R¼K6&V¼:v’–ÆìK¦6¢òòòGW'VÖF¦Öâ:v—¦VÆvW6–æ’&YöÆLK#²vW,:vV²7F'FvVÆ—'6R–Væ–FVâ†—¦ÆìK"à¢7–æ5F–ÖW"Òv–æF÷rç6WEF–ÖV÷WB‚‚’Óâ°¢–b‚F–ÖVÆ–æU7F'FVDB’°¢WGFW&æ6U7F'FVDBÒW&f÷&Öæ6Rææ÷r‚“°¢F–ÖVÆ–æU7F'FVDBÒWGFW&æ6U7F'FVDC°¢Ğ¢fÆÆ&6´F–Ö’‚“°¢ÒÂƒ“°¢Ó° ¢–b†&4¶VÆ–ÖRÓÓÒ’°¢òòc"ã"ã#¢,;fÌ;ÆÒ&YöÌKIüKìK6W6ÆVæF—&ÖRà¢òò·VÆÆìK<KV·&æF,;fÌ;ÆÒLKìK¦FVâ|;g,;Ç–÷#²&YöÌKIüKâö·VæÖ<K¢òò;g¦VÆÆ–¶ÆRKæv–Æ—¦6R¶—FÆ&FÖWF–æÆR6W6–â¶,KY÷LKIüKÆ|K<KìK–&LK–÷&GRà¢¶öçW47VÖÆRƒÂçVÆÂ“°¢ÒVÇ6R°¢¶öçW47VÖÆR†–Æ´7VÖÆRÂ&4¶VÆ–ÖR“°¢Ğ¢Ò6F6‚·Ğ¢ÒÂ¶WF¶–å6W6ÆVæF—&ÖRÂ†—¢Â6W5FöçT–"Âö·VÖÖöGT–%Ò“°¢W6TVffV7B‚‚’Óâ²¶öçW6Ö–”&6ÆE&Vbæ7W'&VçBÒ¶öçW6Ö–”&6ÆC²ÒÂ¶¶öçW6Ö–”&6ÆEÒ“° ¢ò¢FV²ö·VÖ6F“¢–ÆW&ÆVÖRvW,:vV²¶VÆ–ÖR&÷VæF'’öfÆÆ&6²öÆ–Æ,KæFâvVÆ—"à¢ÖçVVÂÖöFFF†Ö–æ’&—"6B:vÌKY÷LK,KÆÖ£²–ÆìK¢W–·R6–<K–ÆW&ÆW"â¢ğ¢W6TVffV7B‚‚’Óâ°¢–b‚6Æ—–÷"ÇÂ·F–bÇÂW–·RÃÒ’&WGW&ã°¢6öç7B–çBÒ6WD–çFW'fÂ‚‚’Óâ°¢6WEW–·R‚‡R’Óâ°¢–b‡RÃÒ’²6WD6Æ—–÷"†fÇ6R“²&WGW&â²Ğ¢&WGW&âRÒ°¢Ò“°¢ÒÂ“°¢&WGW&â‚’Óâ6ÆV$–çFW'fÂ†–çB“°¢ÒÂ¶6Æ—–÷"Â·F–bÂW–·UÒ“° ¢ò¢W–·RFöÇVæ6¶öç\YöÖœKF¶W2¢ğ¢W6TVffV7B‚‚’Óâ²–b‚6Æ—–÷"’¶öçW6Ö–”GW&GW"‚“²ÒÂ¶6Æ—–÷%Ò“° ¢ò¢¶VÆ–ÖRgW&wW7S¢,;fÌ;ÆÒö¶—FF\IöœYö–æ6R&YöL;fâ¢ğ¢W6TVffV7B‚‚’Óâ²6WE6÷'T6Wf&’†çVÆÂ“²ÒÂ¶·F–d–BÂ·F–d&öÇVÔ—…Ò“° ¢ò¢KÆW&ÆVÖW–’R6âvFR&—"¶–FWB¢ğ¢W6TVffV7B‚‚’Óâ°¢–b‚·F–d–B’&WGW&ã°¢6öç7B6–ÖF’ÒFFRææ÷r‚“°¢–b‡6–ÖF’Ò6öä¶–—Bæ7W'&VçBÂSbb6Æ—–÷"’&WGW&ã°¢6öä¶–—Bæ7W'&VçBÒ6–ÖF“°¢6WD–ÆW&ÆVÖVÆW"‚†W6¶’’Óâ°¢6öç7B–Væ’Ò²ââæW6¶’Â¶·F–d–EÓ¢&VF–æu&öw&W756æ6†÷B‡²7F÷'”–C¢·F–d–BÂ6V7F–öç3¢·F–bæ&öÇVÖÆW"Â6V7F–öä–æFWƒ¢·F–d&öÇVÔ—‚Âv÷&D–æFWƒ¢¶VÆ–ÖT—‚ÂGW&F–öäf÷%6V7F–öã¢&öÇVÕ6âÂæ÷s¢6–ÖF’Ò’Ó°¢GW'VÕ–¢‡²ff÷&–ÆW"Â–ÆW&ÆVÖVÆW#¢–Væ’Â†—¢Â6öä¶—F¢·F–d–BÒ“°¢&WGW&â–Væ“°¢Ò“°¢ÒÂ·÷¦—7–öâÂ·F–d–EÒ“²òòW6Æ–çBÖF—6&ÆRÖÆ–æP ¢ò¢÷–æBòGW&¶ÆB¢ğ¢6öç7B¶—FW—VÒÒW6T6ÆÆ&6²‚†²Â–öÂÒö·VÖ–öÇR’Óâ¶—Fö·VÖ–öÇVæW–wVä×R†²Â–öÂ’Â¶ö·VÖ–öÇUÒ“°¢6öç7BW—VÖÇT¶FÆörÒW6TÖVÖò‚‚’Óâ´DÄôræf–ÇFW"‚†²’Óâ¶—FW—VÒ†²’’Â¶¶—FW—VÕÒ“°¢6öç7BW—VÖÇU&fÆ"ÒW6TÖVÖò‚‚’Óâ$dÄ ¢æf–ÇFW"‚‡&b’Óâ&bç–öÄ–G2ÇÂ&bç–öÄ–G2æ–æ6ÇVFW2†ö·VÖ–öÇRç–öÄ–B’¢æÖ‚‡&b’Óâ‡°¢ââç&bÀ¢–G3¢&bæ–G2æf–ÇFW"‚†–B’Óâ°¢6öç7B¶—FÒ¶—F'VÂ†–B“°¢&WGW&â¶—FW—VÒ†¶—F’bb–6W&–µ7VçV×R†¶—F’æFWÆ÷–&ÆS°¢Ò’À¢Ò’¢æf–ÇFW"‚‡&b’Óâ&bæ–G2æÆVæwF‚â’Â¶¶—FW—VÒÂö·VÖ–öÇRç–öÄ–EÒ“° ¢6öç7B–6W&–´VF—D÷¦WF’ÒW6TÖVÖò‚‚’Óâ°¢6öç7B&e6––Æ&’ÒW—VÖÇU&fÆ"æÖ‚‡&b’ÓâG·&bæGÓ¢G·&bæ–G2æÆVæwF‡Ö“°¢6öç7B&÷5&fÆ"ÒW—VÖÇU&fÆ"æf–ÇFW"‚‡&b’Óâ&bæ–G2æÆVæwF‚ÓÓÒ’æÖ‚‡&b’Óâ&bæB“°¢6öç7BV·6–´÷ÂÒW—VÖÇT¶FÆöræf–ÇFW"‚†²’Óâ–6W&–´¶Æ—FW6’†²’çF÷ÆÔ¶VÆ–ÖRÓÓÒ’æÆVæwFƒ°¢6öç7BV·6–µ6÷'RÒW—VÖÇT¶FÆöræf–ÇFW"‚†²’Óâ4õ%Uô$ä´4•¶²æ–EÒ’æÆVæwFƒ°¢6öç7BVævÆ—6…6–—6’ÒW—VÖÇT¶FÆöræf–ÇFW"‚†²’Óâ²æF–ÂÓÓÒ&Vâ"’æÆVæwFƒ°¢&WGW&â²&e6––Æ&’Â&÷5&fÆ"ÂV·6–´÷ÂÂV·6–µ6÷'RÂVævÆ—6…6–—6’ÂF÷ÆÓ¢W—VÖÇT¶FÆöræÆVæwF‚Ó°¢ÒÂ·W—VÖÇU&fÆ"ÂW—VÖÇT¶FÆöuÒ“° ¢6öç7Bö·VÖ–öÇVçT¶–FWBÒ‡–Væ’’Óâ°¢6öç7BFVÖ—¢Ò²ââåd%4””ÄåôôµTÔõ”ôÅRÂââç–Væ’Â6V6–ÆF“¢G'VRÓ°¢6öç7B–öÂÒ–öÄ'VÂ‡FVÖ—¢ç–öÄ–B“°¢6öç7B·F–d¶—FÒ¶—F'VÂ†·F–d–B“°¢6öç7B·F–eW—VÖÇRÒ·F–d¶—FÇÂ¶—Fö·VÖ–öÇVæW–wVä×R†·F–d¶—FÂFVÖ—¢“°¢–b‚·F–eW—VÖÇR’°¢¶öçW6Ö–”GW&GW"‚“°¢6WD6Æ—–÷"†fÇ6R“°¢6WD÷–æF–6”6–²†fÇ6R“°¢6WDFWF”–B†çVÆÂ“°¢6WD·F–d–B†çVÆÂ“°¢6WE÷¦—7–öâƒ“°¢6WE&öf–ÄÖW6¦’‚$ö·VÖ–öÇVâF\IöœY÷F’â9fæ6V¶’œ:vW&–²–Væ’–öÇVæW–wVâöÆÖLKIüKœ:v–âGW&GW&GVÒfR6æW–wVâœ:vW&–¶ÆW&’|;g7FW&—–÷'VÒâ"“°¢ÒVÇ6R–b‡FVÖ—¢ç–öÄ–BÓÒö·VÖ–öÇRç–öÄ–BÇÂFVÖ—¢æWg&T–BÓÒö·VÖ–öÇRæWg&T–B’°¢6WE&öf–ÄÖW6¦’‚$ö·VÖ–öÇVâ|;Ææ6VÆÆVæF’â6æW–wVâœ:vW&–¶ÆW&’;fæRÆLKÒâ"“°¢Ğ¢6WDö·VÖ–öÇR‡FVÖ—¢“°¢6WD–"‚†öæ6V¶’’ÓâFW7FV´–&Æ&–æ•W–wVÆ†öæ6V¶’ÂFVÖ—¢’“°¢6WDÖöB‡–öÂæÖöB“°¢6WDöæ&ö&F–æt6–²†fÇ6R“°¢†7–æ2‚’Óâ°¢G'’°¢v—Bv–æF÷rç7F÷&vRç6WB„ôµTÔõ”ôÅUôä…D"Â¥4ôâç7G&–æv–g’‡FVÖ—¢’“°¢v—Bv–æF÷rç7F÷&vRç6WB‚&F–æÆWF’ÖÖöB×c"Â–öÂæÖöB“°¢Ò6F6‚·Ğ¢Ò’‚“°¢Ó°  ¢6öç7B6W&”wVæ6VÆÆRÒ‚’Óâ°¢6WE6W&’‚†R’Óâ°¢6öç7B'VwVâÒæWrFFR‚’çFô•4õ7G&–ær‚’ç6Æ–6RƒÂ“°¢–b†Rç6öäwVâÓÓÒ'VwVâ’&WGW&âS°¢6öç7BGVâÒæWrFFR„FFRææ÷r‚’ÒƒcC’çFô•4õ7G&–ær‚’ç6Æ–6RƒÂ“°¢6öç7B–Væ’Ò²6–“¢Rç6öäwVâÓÓÒGVâòRç6–’²¢Â6öäwVã¢'VwVâÓ°¢†7–æ2‚’Óâ²G'’²v—Bv–æF÷rç7F÷&vRç6WB‚&F–æÆWF’×6W&’×c"Â¥4ôâç7G&–æv–g’‡–Væ’’“²Ò6F6‚·ÒÒ’‚“°¢&WGW&â–Væ“°¢Ò“°¢Ó° ¢6öç7B÷–æDFVv—7F—"Ò†¶—F–B’Óâ°¢6öç7B–BÒ¶—F–BÇÂ·F–d–C°¢6öç7B6V6–ÆVä¶—FÒ¶—F'VÂ†–B“°¢–b‚–BÇÂ6V6–ÆVä¶—FÇÂ–6W&–µ7VçV×R‡6V6–ÆVä¶—F’æFWÆ÷–&ÆR’&WGW&ã°¢–b†–BÓÒ·F–d–B’°¢¶öçW6Ö–”GW&GW"‚“°¢6WD·F–d–B†–B“°¢6öç7B²Ò¶—F'VÂ†–B“°¢6öç7B&öw&W72Òæ÷&ÖÆ—¦U&VF–æu&öw&W72‡°¢6V7F–öç3¢²æ&öÇVÖÆW"À¢&öw&W73¢–ÆW&ÆVÖVÆW%¶–EÒÀ¢GW&F–öäf÷%6V7F–öã¢&öÇVÕ6âÀ¢Ò“°¢6WE÷¦—7–öâ‡&öw&W72ç÷2“°¢6WD¶VÆ–ÖT—‚‡&öw&W72çv÷&D–æFW‚“°¢6WD6Æ—–÷"‡G'VR“°¢6W&”wVæ6VÆÆR‚“°¢–b†WF¶–å6W6ÆVæF—&ÖR’¶öçW6Ö–”&6ÆB†²Â&öw&W72ç6V7F–öä–æFW‚Â&öw&W72çv÷&D–æFW‚“°¢&WGW&ã°¢Ğ¢–b†6Æ—–÷"’°¢6WD6Æ—–÷"†fÇ6R“²¶öçW6Ö–”GW&GW"‚“°¢6WD–ÆW&ÆVÖVÆW"‚†W6¶’’Óâ°¢6öç7B6–ÖF’ÒFFRææ÷r‚“°¢6öç7B–Væ’Ò²ââæW6¶’Â¶–EÓ¢&VF–æu&öw&W756æ6†÷B‡²7F÷'”–C¢–BÂ6V7F–öç3¢·F–bæ&öÇVÖÆW"Â6V7F–öä–æFWƒ¢·F–d&öÇVÔ—‚Âv÷&D–æFWƒ¢¶VÆ–ÖT—‚ÂGW&F–öäf÷%6V7F–öã¢&öÇVÕ6âÂæ÷s¢6–ÖF’Ò’Ó°¢GW'VÕ–¢‡²ff÷&–ÆW"Â–ÆW&ÆVÖVÆW#¢–Væ’Â†—¢Â6öä¶—F¢–BÒ“°¢&WGW&â–Væ“°¢Ò“°¢Ğ¢VÇ6R²6WD6Æ—–÷"‡G'VR“²6W&”wVæ6VÆÆR‚“²–b†WF¶–å6W6ÆVæF—&ÖR’¶öçW6Ö–”&6ÆB†·F–bÂ·F–d&öÇVÔ—‚Â¶VÆ–ÖT—‚“²Ğ¢Ó° ¢6öç7BgW&wT†—¦ÆÒ‡÷¢Â¶öçW6Ö–•–Væ–ÆRÒfÇ6R’Óâ°¢–b‚·F–b’&WGW&ã°¢&VFW$föÆÆ÷t–ÖÖVF–FU&Vbæ7W'&VçBÒG'VS°¢&VFW$föÆÆ÷uW6UVçF–Å&Vbæ7W'&VçBÒ°¢6öç7B7W'6÷"Ò7W'6÷$g&öÕ÷6—F–öâ†·F–bæ&öÇVÖÆW"Â÷¢Â&öÇVÕ6â“°¢6WD¶VÆ–ÖT—‚†7W'6÷"çv÷&D–æFW‚“°¢–b†¶öçW6Ö–•–Væ–ÆRbb6Æ—–÷"bbWF¶–å6W6ÆVæF—&ÖR’°¢¶öçW6Ö–”&6ÆB†·F–bÂ7W'6÷"ç6V7F–öä–æFW‚Â7W'6÷"çv÷&D–æFW‚“°¢Ğ¢Ó°¢6öç7B6"Ò‡6â’Óâ°¢–b‚·F–b’&WGW&ã°¢6öç7B–Væ’ÒÖF‚æÖ–â‡F÷ÆÒÂÖF‚æÖ‚ƒÂ÷¦—7–öâ²6â’“°¢6WE÷¦—7–öâ‡–Væ’“°¢gW&wT†—¦Æ‡–Væ’ÂG'VR“°¢Ó°¢6öç7B÷&æ6"Ò†÷&â’Óâ°¢–b‚·F–b’&WGW&ã°¢6öç7B–Væ’ÒÖF‚æfÆö÷"†÷&â¢F÷ÆÒ“°¢6WE÷¦—7–öâ‡–Væ’“°¢gW&wT†—¦Æ‡–Væ’ÂG'VR“°¢Ó°¢6öç7B÷–æD¶—F&öÇVÒÒ†¶—F–BÂ—‚’Óâ°¢6öç7B²Ò¶—F'VÂ†¶—F–B“°¢–b‚²ÇÂ–6W&–µ7VçV×R†²’æFWÆ÷–&ÆR’&WGW&ã°¢¶öçW6Ö–”GW&GW"‚“°¢6WD·F–d–B†¶—F–B“°¢6WE÷¦—7–öâ†&öÇVÔ&6•6â†²Â—‚’“°¢&VFW$föÆÆ÷t–ÖÖVF–FU&Vbæ7W'&VçBÒG'VS°¢&VFW$föÆÆ÷uW6UVçF–Å&Vbæ7W'&VçBÒ°¢6WD¶VÆ–ÖT—‚ƒ“°¢6WE&VFW$föÆÆ÷tæöæ6R‚†â’Óââ²“°¢6WD6Æ—–÷"‡G'VR“°¢6W&”wVæ6VÆÆR‚“°¢–b†WF¶–å6W6ÆVæF—&ÖR’¶öçW6Ö–”&6ÆB†²Â—‚Â“°¢Ó° ¢6öç7B&öÇVÖTv—BÒ†—‚’Óâ°¢–b‚·F–b’&WGW&ã°¢÷–æD¶—F&öÇVÒ†·F–bæ–BÂ—‚“°¢Ó° ¢6öç7Bff÷&”FVv—7F—"Ò†–B’Óâ°¢6WDff÷&–ÆW"‚†b’Óâ°¢6öç7B–Væ’Òbæ–æ6ÇVFW2†–B’òbæf–ÇFW"‚‡‚’Óâ‚ÓÒ–B’¢²ââæbÂ–EÓ°¢GW'VÕ–¢‡²ff÷&–ÆW#¢–Væ’Â–ÆW&ÆVÖVÆW"Â†—¢Â6öä¶—F¢·F–d–BÒ“°¢&WGW&â–Væ“°¢Ò“°¢Ó° ¢6öç7B†—¦Æ"Ò³ãsRÂÂã#RÂãRÂ%Ó°¢6öç7B†—¤FVv—7F—"Ò‚’Óâ°¢6öç7B—‚Ò†—¦Æ"æ–æFW„öb††—¢“°¢6öç7B–Væ’Ò†—¦Æ%²†—‚²’R†—¦Æ"æÆVæwF…Ó°¢6WD†—¢‡–Væ’“°¢GW'VÕ–¢‡²ff÷&–ÆW"Â–ÆW&ÆVÖVÆW"Â†—£¢–Væ’Â6öä¶—F¢·F–d–BÒ“°¢Ó°¢6öç7BW–·VÆ"Ò³ÂR¢cÂ3¢cÂc¢cÓ°¢6öç7B6W5FöçTFVv—7F—"Ò‚’Óâ°¢6öç7B—‚Ò4U5õDôäÄ$’æf–æD–æFW‚‚‡2’Óâ2æ–BÓÓÒ6W5FöçR“°¢6öç7B–Væ’Ò4U5õDôäÄ$•²†—‚²’R4U5õDôäÄ$’æÆVæwF…Òæ–C°¢6WE6W5FöçR‡–Væ’“°¢†7–æ2‚’Óâ²G'’²v—Bv–æF÷rç7F÷&vRç6WB…4U5õDôåUôä…D"Â–Væ’“²Ò6F6‚·ÒÒ’‚“°¢–b†6Æ—–÷"bb·F–bbbWF¶–å6W6ÆVæF—&ÖR’¶öçW6Ö–”&6ÆB†·F–bÂ·F–d&öÇVÔ—‚Â¶VÆ–ÖT—‚“°¢Ó° ¢6öç7Bö·VÖÖöGTFVv—7F—"Ò‡–Væ’’Óâ°¢6WDö·VÖÖöGR‡–Væ’“°¢6WDÖöEæVÆ”6–²†fÇ6R“°¢6WE6V6–Æ•6÷¦ÇV²†çVÆÂ“°¢6öç7BÒÒö·VÖÖöGT'VÂ‡–Væ’“°¢6WE6W6ÆVæF—&ÖR†Òç6W6Æ’“°¢–b‚Òç6W6Æ’’¶öçW6Ö–”GW&GW"‚“°¢VÇ6R–b†6Æ—–÷"bb·F–b’¶öçW6Ö–”&6ÆB†·F–bÂ·F–d&öÇVÔ—‚Â¶VÆ–ÖT—‚ÂÒÂG'VR“°¢†7–æ2‚’Óâ²G'’²v—Bv–æF÷rç7F÷&vRç6WB„ôµTÔôÔôEUôä…D"Â–Væ’“²Ò6F6‚·ÒÒ’‚“°¢Ó° ¢6öç7B6÷¦ÇV´2Ò†VçG'’ÂG&–vvW"’Óâ°¢–b‚VçG'’’&WGW&ã°¢6÷¦ÇVµFWF–¶ÆW––6•&Vbæ7W'&VçBÒG&–vvW"ÇÂçVÆÃ°¢6WE6V6–Æ•6÷¦ÇV²†VçG'’“°¢Ó° ¢6öç7B6÷¦ÇV´¶BÒ‚’Óâ°¢6öç7BG&–vvW"Ò6÷¦ÇVµFWF–¶ÆW––6•&Vbæ7W'&VçC°¢6öç7B†VFVd¶VÆ–ÖRÒG&–vvW#òæFF6WBæ†VFVd¶VÆ–ÖS°¢6öç7BöFv”vW&•fW"Ò‚’Óâ°¢6öç7BwVæ6VÅG&–vvW"ÒG&–vvW#òæ—46öææV7FV@¢òG&–vvW ¢¢†VFVd¶VÆ–ÖP¢òFö7VÖVçBçVW'•6VÆV7F÷"†¶FFÖÖö&–ÆR×7F&–Æ—G•Ò¶FFÖ†VFVbÖ¶VÆ–ÖSÒ"G¶†VFVd¶VÆ–ÖWÒ%Ö¢¢çVÆÃ°¢–b†wVæ6VÅG&–vvW"–ç7Fæ6Vöb…DÔÄVÆVÖVçB’wVæ6VÅG&–vvW"æfö7W2‡²&WfVçE67&öÆÃ¢G'VRÒ“°¢Ó°¢öFv”vW&•fW"‚“°¢6WE6V6–Æ•6÷¦ÇV²†çVÆÂ“°¢v–æF÷rç6WEF–ÖV÷WB‚‚’Óâ°¢öFv”vW&•fW"‚“°¢6÷¦ÇVµFWF–¶ÆW––6•&Vbæ7W'&VçBÒçVÆÃ°¢ÒÂ“°¢Ó° ¢6öç7B¶VÆ–ÖW–•6W6ÆVæF—"Ò†¶VÆ–ÖR’Óâ°¢–b‚¶VÆ–ÖRÇÂv–æF÷rç7VV6…7–çF†W6—2ÇÂG—Vöbv–æF÷rå7VV6…7–çF†W6—5WGFW&æ6RÓÒ&gVæ7F–öâ"’&WGW&ã°¢6öç7Bö·VÖ–FWfÔWBÒ6Æ—–÷#°¢6öç7B6W46–·F’Ò6W6ÆVæF—&ÖS°¢6WD6Æ—–÷"†fÇ6R“°¢G'’²v–æF÷rç7VV6…7–çF†W6—2æ6æ6VÂ‚“²Ò6F6‚·Ğ¢6öç7BRÒæWrv–æF÷rå7VV6…7–çF†W6—5WGFW&æ6R†¶VÆ–ÖR“°¢RæÆærÒ'G"ÕE"#°¢Rç&FRÒãƒc°¢Rç—F6‚Ò°¢6öç7Böæ6V¶”GW'VÖFöâÒ‚’Óâ°¢6WE6W6ÆVæF—&ÖR‡6W46–·F’“°¢–b†ö·VÖ–FWfÔWBbb6W46–·F’bb·F–b’°¢6WD6Æ—–÷"‡G'VR“°¢¶öçW6Ö–”&6ÆB†·F–bÂ·F–d&öÇVÔ—‚Â¶VÆ–ÖT—‚“°¢Ğ¢Ó°¢RæöæVæBÒöæ6V¶”GW'VÖFöã°¢RæöæW'&÷"Òöæ6V¶”GW'VÖFöã°¢v–æF÷rç7VV6…7–çF†W6—2ç7V²‡R“°¢Ó° ¢6öç7BW–·TFVv—7F—"Ò‚’Óâ°¢6öç7BVå–¶–âÒW–·VÆ"ç&VGV6R‚†Â"’Óâ„ÖF‚æ'2†"ÒW–·R’ÂÖF‚æ'2†ÒW–·R’ò"¢’Â“°¢6öç7B—‚ÒW–·VÆ"æ–æFW„öb†Vå–¶–â“°¢6WEW–·R‡W–·VÆ%²†—‚²’RW–·VÆ"æÆVæwF…Ò“°¢Ó° ¢ò¢ÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒ7F–ÂÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒ¢ğ¢6öç7B2Ò°¢föã¢"3Cƒb"Â¶'C¢"33##$B"Â¶'C#¢"3#C$34"À¢ÖWF–ã¢"4c$T4Db"Â6öÇV³¢"3„#“Dr"ÂgW&wS¢"4S„34B"À¢Ó°¢6öç7Bv÷fFRÒ²föçDfÖ–Ç“¢"t–çFW"rÂ7—7FVÒ×V’Â6ç2×6W&–b"Â&6¶w&÷VæC¢2æföâÂ6öÆ÷#¢2æÖWF–âÂÖ–ä†V–v‡C¢#f‚"Âv–GFƒ¢#R"ÂÖ…v–GFƒ¢ƒÂÖ&v–ã¢#WFò"Â÷6—F–öã¢'&VÆF—fR"ÂFF–æt&÷GFöÓ¢SÂ&÷…6—¦–æs¢&&÷&FW"Ö&÷‚"Ó°¢6öç7B&6Æ–µ7F–ÂÒ²föçDfÖ–Ç“¢"tg&Væ6W2rÂ6W&–b"ÂföçEvV–v‡C¢cÓ° ¢–b‡—V¶ÆVæ—–÷"’°¢&WGW&âÆF—b7G–ÆS×·²ââæv÷fFRÂF—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Â§W7F–g”6öçFVçC¢&6VçFW""ÂÖ–ä†V–v‡C¢#f‚"×Óà¢ÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²×Óä¶—FÌK²:|KÌK–÷.(
+cÂöF—cà¢ÂöF—cã°¢Ğ ¢ò¢ÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÇB&–Æ\YöVæÆW"ÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒÒ¢ğ ¢6öç7B¶—F¶'BÒ‡²¶—FÂvVæ—2Ò’Óâ°¢6öç7BÖWFÒ¶—FÖWF†¶—F“°¢6öç7B¶Æ—FRÒ–6W&–´¶Æ—FW6’†¶—F“°¢6öç7B7VçVÒÒ–6W&–µ7VçV×R†¶—F“°¢6öç7B6Wf—–RÒWfÇVFU7F÷'”f÷%&VF–ætÆWfVÂ†¶—FÂÖWFÂö·VÖ–öÇRç–öÄ–B“°¢6öç7B–ç6ä–æ6VÆVÖW6’ÒWfÇVFT6öçFVçEVÆ—G•&Wf–Wr†¶—Fæ6öçFVçEVÆ—G•&Wf–WrÂ°¢&VF–æuF„–C¢ö·VÖ–öÇRç–öÄ–BÀ¢Ò“°¢6öç7B—&–çF”2Ò‚’Óâ6WDFWF”–B†¶—Fæ–B“°¢&WGW&â€¢ÆF—`¢FFÖ¶—FÖ¶'F¢FF×7F÷'’Ö–C×¶¶—Fæ–GĞ¢FFÖ6öçFVçB×7FGW3×·7VçVÒç7FGW7Ğ¢FF×&VF–ærÖVæ&ÆVC×·7VçVÒæFWÆ÷–&ÆRò'G'VR"¢&fÇ6R'Ğ¢FF×v÷&BÖ6÷VçC×·6Wf—–Rçv÷&D6÷VçBóòĞ¢FF×&VF–ærÖÆWfVÃ×¶ö·VÖ–öÇRç–öÄ–GĞ¢FFÖ6öçFVçB×&Wf–Wr×7FGW3×¶–ç6ä–æ6VÆVÖW6’ææ÷&ÖÆ—¦VBç7FGW7Ğ¢FF×V&Æ–6F–öâ×&VG“×¶–ç6ä–æ6VÆVÖW6’çV&Æ–6F–öå&VG’ò'G'VR"¢&fÇ6R'Ğ¢&öÆSÒ&'WGFöâ ¢F$–æFWƒ×³Ğ¢&–ÖÆ&VÃ×¶G¶¶—Fæ&6Æ–·Ò—,KçLKÆ,KìK:rG·7VçVÒæFWÆ÷–&ÆRò""¢"+r†¬K&ÆìK–÷"'ÖĞ¢öä6Æ–6³×¶—&–çF”7Ğ¢öä¶W”F÷vã×²†WfVçB’Óâ°¢–b†WfVçBæ¶W’ÓÓÒ$VçFW""ÇÂWfVçBæ¶W’ÓÓÒ""’°¢WfVçBç&WfVçDFVfVÇB‚“°¢—&–çF”2‚“°¢Ğ¢×Ğ¢7G–ÆS×·²7W'6÷#¢'ö–çFW""Âv–GFƒ¢vVæ—2ò#R"¢#‚Â÷6—G“¢7VçVÒæFWÆ÷–&ÆRò¢ãs"×Ğ¢à¢Ä¶²¶—F×¶¶—FÒ&÷—WC×¶vVæ—2ò“b¢#‡Òóà¢ÆF—b7G–ÆS×·²Ö&v–åF÷¢‚ÂföçE6—¦S¢2ÂföçEvV–v‡C¢cÂÆ–æT†V–v‡C¢ã2×Óç¶¶—Fæ&6Æ–·ÓÂöF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢"Â6öÆ÷#¢2ç6öÇV²ÂÖ&v–åF÷¢"×Óç¶¶—Fç–¦'ÓÂöF—cà¢ÆF—bFF×–27G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢2çgW&wRÂÖ&v–åF÷¢2×Óà¢¶¶—Fç–2ÇÂG¶ÖWFç–4Ö–âÇÂ"'ÒG¶ÖWFç–4Ö‚ò(	2G¶ÖWFç–4Ö‡Ö¢"²'Ò–Yö×¶¶—FæF–ÂÓÓÒ&Vâ"ò+r4Te"G¶ÖWFæ6Vg"ÇÂ$'Ö¢"'×¶ÖWFæ†&dw'V'Rò+rG¶ÖWFæ†&dw'V'WÒâ†&bw'V'V¢"'Ğ¢ÂöF—cà¢ÆF—bFFÖ–6W&–²×–öÇR7G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢2ç6öÇV²ÂÖ&v–åF÷¢"×Óç¶ÖWFæ–6W&–µGW'Rç&WÆ6R‚õòörÂ""—ÓÂöF—cà¢ÆF—bFFÖ6öçFVçB×66÷R7G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢7VçVÒæFWÆ÷–&ÆRò2çgW&wR¢"4Ct#ss‚"ÂföçEvV–v‡C¢sÂÖ&v–åF÷¢B×Óç·7VçVÒæÆ&VÇÓÂöF—cà¢Äö·W&–õ&÷fVææ6U7F×7F××¶¶—Fç&÷fVææ6U7F×Ò6ö×7Bóà¢ÆF—bFFÖ7GVÂÖGW&F–öâ7G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢2ç6öÇV²ÂÖ&v–åF÷¢"×Óç·7W&U–¢‡7VçVÒç6V6öæG2—Ò+r¶¶Æ—FRçF÷ÆÔ¶VÆ–ÖWÒ¶VÆ–ÖSÂöF—cà¢ÆF—bFFÖ÷Â7G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢2ç6öÇV²ÂÖ&v–åF÷¢"×ÓäõÂ×¶¶Æ—FRæ÷ÇÒ+r÷'Bâ<;ÆÖÆR¶¶Æ—FRæ÷'D7VÖÆRçFôf—†VBƒ—ÓÂöF—cà¢ÂöF—cà¢“°¢Ó° ¢6öç7BFWfÔ¶'BÒ‚’Óâ°¢6öç7BFWfÖÆ"Òö&¦V7BæVçG&–W2†–ÆW&ÆVÖVÆW"¢æf–ÇFW"‚…¶–BÂeÒ’Óâ°¢6öç7B¶—FÒ¶—F'VÂ†–B“°¢6öç7B¶—6—6VÄö·VÖÒ¶—Fbb¶—FÖWF†¶—F’æ–6W&–µGW'RÓÓÒ&·VÆÆæ–6•öÖWFæ’#°¢&WGW&âbç÷2âbb¶—Fbb†¶—6—6VÄö·VÖÇÂ¶—FW—VÒ†¶—F’’bb–6W&–µ7VçV×R†¶—F’æFWÆ÷–&ÆS°¢Ò¢ç6÷'B‚†Â"’Óâ%³ÒçG2Ò³ÒçG2“°¢–b†FWfÖÆ"æÆVæwF‚ÓÓÒ’&WGW&âçVÆÃ°¢6öç7B¶–BÂeÒÒFWfÖÆ%³Ó°¢6öç7B²Ò¶—F'VÂ†–B“°¢6öç7B÷&âÒbç÷2òF÷ÆÕ6â†²“°¢&WGW&â€¢ÆF—böä6Æ–6³×²‚’Óâ²6WDFWF”–B†çVÆÂ“²–b†–BÓÒ·F–d–BÇÂ6Æ—–÷"’÷–æDFVv—7F—"†–B“²6WD÷–æF–6”6–²‡G'VR“²×Ğ¢7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢BÂ&6¶w&÷VæC¢2æ¶'BÂ&÷&FW%&F—W3¢bÂFF–æs¢BÂ7W'6÷#¢'ö–çFW""ÂÆ–vä—FV×3¢&6VçFW""Â&÷&FW#¢‚6öÆ–B&v&ƒ#3"Ãc2ÃcÃã#R–×Óà¢Ä¶²¶—F×¶·Ò&÷—WC×³cGÒ&F—W3×³‡Òóà¢ÆF—b7G–ÆS×·²fÆWƒ¢ÂÖ–åv–GFƒ¢×Óà¢ÆF—b7G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢2çgW&wRÂÆWGFW%76–æs¢#ã†VÒ"ÂFW‡EG&ç6f÷&Ó¢'WW&66R"ÂÖ&v–ä&÷GFöÓ¢B×Óä¶ÆLKIüKâ–W&FVâFWfÒWCÂöF—cà¢ÆF—b7G–ÆS×·²föçEvV–v‡C¢cÂföçE6—¦S¢R×Óç¶²æ&6Æ–·ÓÂöF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢"Â6öÆ÷#¢2ç6öÇV²ÂÖ&v–åF÷¢"×Óç·7W&U–¢‡bç÷2—Òò·7W&U–¢‡F÷ÆÕ6â†²’—ÓÂöF—cà¢ÆF—b7G–ÆS×·²†V–v‡C¢BÂ&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃã’"Â&÷&FW%&F—W3¢"ÂÖ&v–åF÷¢‚×Óà¢ÆF—b7G–ÆS×·²v–GFƒ¢G¶÷&â¢ÒVÂ†V–v‡C¢#R"Â&6¶w&÷VæC¢2çgW&wRÂ&÷&FW%&F—W3¢"×Òóà¢ÂöF—cà¢ÂöF—cà¢ÆF—b7G–ÆS×·²v–GFƒ¢C"Â†V–v‡C¢C"Â&÷&FW%&F—W3¢#Â&6¶w&÷VæC¢2çgW&wRÂF—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Â§W7F–g”6öçFVçC¢&6VçFW""ÂfÆW…6‡&–æ³¢×Óà¢ÅÆ’6—¦S×³‡Ò6öÆ÷#Ò"3Cƒb"f–ÆÃÒ"3Cƒb"7G–ÆS×·²Ö&v–äÆVgC¢"×Òóà¢ÂöF—cà¢ÂöF—cà¢“°¢Ó° ¢6öç7B&÷¦WE–öÇRÒ‚’Óâ°¢6öç7B&6ÆæâÒö&¦V7BæVçG&–W2†–ÆW&ÆVÖVÆW"’æf–ÇFW"‚…¶–BÂeÒ’Óâbç÷2âbb¶—F'VÂ†–B’“°¢6öç7BF÷ÆÕF¶—6âÒ&6Ææâç&VGV6R‚‡BÂ¶–BÂeÒ’ÓâB²ÖF‚æÖ–â‡bç÷2ÇÂÂF÷ÆÕ6â†¶—F'VÂ†–B’’’Â“°¢6öç7B¶¦æ–ÆâÒ°¢²–C¢'Fö‡VÒ"ÂC¢$ö·VÖFö‡V×R"Â6–¶ÆÖ¢,KÆ²F–æÆVÖW–’&YöÆB"Â·F–c¢&6ÆæâæÆVæwF‚ãÒÒÀ¢²–C¢&f–Æ—¢"ÂC¢%F¶—f–Æ—¦’"Â6–¶ÆÖ¢#2f&¶ÌKœ:vW&œIöRFö·Vâ"Â·F–c¢&6ÆæâæÆVæwF‚ãÒ2ÒÀ¢²–C¢'–&²"ÂC¢%6¶–âö·W""Â6–¶ÆÖ¢#F²F¶—Æ’ö·VÖ"Â·F–c¢F÷ÆÕF¶—6âãÒcÒÀ¢²–C¢&·W&GR"ÂC¢ö·VÖ–öÇTFWF’ç&÷¦WDF’ÇÂ$¶—F·W&GR"Â6–¶ÆÖ¢#r|;ÆæÌ;Æ²L;Ç¦VæÆ’&—F–Ò"Â·F–c¢6W&’ç6–’ãÒrÒÀ¢Ó°¢6öç7B·F–e6–—6’Ò¶¦æ–Æâæf–ÇFW"‚‡"’Óâ"æ·F–b’æÆVæwFƒ°¢&WGW&â€¢ÆF—bFF×&÷¦WB×–öÇR7G–ÆS×·²&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃãCR’"Â&÷&FW#¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃãr’"Â&÷&FW%&F—W3¢bÂFF–æs¢BÂÖ&v–ä&÷GFöÓ¢b×Óà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"ÂÆ–vä—FV×3¢&6VçFW""Âv¢ÂÖ&v–ä&÷GFöÓ¢×Óà¢ÆF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢2Â6öÆ÷#¢2çgW&wRÂföçEvV–v‡C¢s×Óä¶—F·W&GR–öÆ7VÇ\I÷SÂöF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢"Â6öÆ÷#¢2ç6öÇV²ÂÖ&v–åF÷¢"×Óå6W76—¢Â&6¼K<K¢–ÆW&ÆVÖS¢¶·F–e6–—6—ÒóB&÷¦WB:|KÆLKãÂöF—cà¢ÂöF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢#×Óï	øËÂöF—cà¢ÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&w&–B"Âw&–EFV×ÆFT6öÇVÖç3¢#g"g""Âv¢‚×Óà¢¶¶¦æ–ÆâæÖ‚‡"’Óâ€¢ÆF—b¶W“×·"æ–GÒ7G–ÆS×·²&÷&FW%&F—W3¢"ÂFF–æs¢#—‚‚"Â&6¶w&÷VæC¢"æ·F–bò'&v&ƒ#3"Ãc2ÃcÃãb’"¢'&v&ƒ#SRÃ#SRÃ#SRÃãSR’"Â&÷&FW#¢"æ·F–bò#‚6öÆ–B&v&ƒ#3"Ãc2ÃcÃã3"’"¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃãb’"Â6öÆ÷#¢"æ·F–bò2æÖWF–â¢2ç6öÇV²×Óà¢ÆF—b7G–ÆS×·²föçE6—¦S¢"ÂföçEvV–v‡C¢s×Óç·"æ·F–bò.)É2"¢.)x²'×·"æGÓÂöF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢ÂÖ&v–åF÷¢2Â÷6—G“¢ãƒR×Óç·"æ6–¶ÆÖÓÂöF—cà¢ÂöF—cà¢’—Ğ¢ÂöF—cà¢ÂöF—cà¢“°¢Ó° ¢6öç7Bö·VÖ–öÇT¶'F’Ò‚’Óâ€¢ÆF—bFFÖö·VÖ×–öÇR7G–ÆS×·²&6¶w&÷VæC¢&Æ–æV"Öw&F–VçBƒ3VFVrÂ&v&ƒ#3"Ãc2ÃcÃã"’Â&v&ƒ#SRÃ#SRÃ#SRÃã3R’’"Â&÷&FW#¢#‚6öÆ–B&v&ƒ#3"Ãc2ÃcÃã#B’"Â&÷&FW%&F—W3¢bÂFF–æs¢"ÂÖ&v–ä&÷GFöÓ¢"×Óà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"Âv¢"ÂÆ–vä—FV×3¢&fÆW‚×7F'B"×Óà¢ÆF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢2çgW&wRÂÆWGFW%76–æs¢#ã†VÒ"ÂFW‡EG&ç6f÷&Ó¢'WW&66R"ÂföçEvV–v‡C¢s×Óäö·VÖ–öÇSÂöF—cà¢ÆF—b7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢#ÂÖ&v–åF÷¢2×Óç¶ö·VÖ–öÇTFWF’æ&6Æ–·ÓÂöF—cà¢ÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢2ÂÖ&v–åF÷¢B×Óç¶ö·VÖ–öÇTFWF’ç–7Ò+r¶ö·VÖWg&TFWF’æGÓÂöF—cà¢ÂöF—cà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WDöæ&ö&F–æt6–²‡G'VR—Ò7G–ÆS×·²&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃã‚’"Â&÷&FW#¢&æöæR"Â&÷&FW%&F—W3¢Â6öÆ÷#¢2æÖWF–âÂFF–æs¢#‡‚‚"ÂföçE6—¦S¢"Â7W'6÷#¢'ö–çFW""ÂföçDfÖ–Ç“¢&–æ†W&—B"×ÓäF\IöœY÷F—#Âö'WGFöãà¢ÂöF—cà¢ÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢"ÂÖ&v–åF÷¢r×Óç¶ö·VÖ–öÇRæFW7FV¶ÆW"æÆVæwF‡ÒFW7FV²·F–b+rL;Ç¦VæÆVÖV²œ:v–âF\IöœY÷F—#ÂöF—cà¢ÂöF—cà¢“° ¢6öç7Bæ6–fÒ‚’Óâ€¢ÆÖ–âFF×vR×6†VÆÂFFÖ†öÖR×vR7G–ÆS×·²FF–æs¢##G‚#‚"×Óà¢ÆF—b7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢3ÂÖ&v–ä&÷GFöÓ¢B×Óäö·W&–óÂöF—cà¢ÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢BÂÖ&v–ä&÷GFöÓ¢B×Óà¢†W"–Y÷Fö·VÖœK¶öÆ–ÆY÷LK&â6W6Æ’fRF¶—Æ’ö·VÖ&¶FYüKà¢²"'ÓÇ7âFF×7W'VÒ7G–ÆS×·²föçE6—¦S¢Â÷6—G“¢ãb×Óçgµ5U%T×ÓÂ÷7ãà¢ÂöF—cà¢Äö·VÖ–öÇT¶'F’óà¢·&öf–ÄÖW6¦’bb€¢ÆF—bFF×&öf–ÂÖvV6—2ÖÖW6¦’7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢ÂÆ–vä—FV×3¢&fÆW‚×7F'B"Â&6¶w&÷VæC¢'&v&ƒ#3"Ãc2ÃcÃã"’"Â&÷&FW#¢#‚6öÆ–B&v&ƒ#3"Ãc2ÃcÃã#‚’"Â&÷&FW%&F—W3¢BÂFF–æs¢#‚'‚"ÂÖ&v–ä&÷GFöÓ¢B×Óà¢ÆF—b7G–ÆS×·²6öÆ÷#¢2çgW&wRÂföçE6—¦S¢BÂföçEvV–v‡C¢s×Óäö·VÖ–öÇSÂöF—cà¢ÆF—b7G–ÆS×·²6öÆ÷#¢'&v&ƒ#C"Ã#3bÃ##2Ããƒ‚’"ÂföçE6—¦S¢2ÂÆ–æT†V–v‡C¢ãCRÂfÆWƒ¢×Óç·&öf–ÄÖW6¦—ÓÂöF—cà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WE&öf–ÄÖW6¦’‚""—Ò&–ÖÆ&VÃÒ$ÖW6¬K¶B"7G–ÆS×·²&6¶w&÷VæC¢'G&ç7&VçB"Â&÷&FW#¢&æöæR"Â6öÆ÷#¢2ç6öÇV²Â7W'6÷#¢'ö–çFW""ÂföçE6—¦S¢bÂÆ–æT†V–v‡C¢×Óì9sÂö'WGFöãà¢ÂöF—cà¢—Ğ¢Å&÷¦WE–öÇRóà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢‚ÂfÆW…w&¢'w&"ÂÖ&v–ä&÷GFöÓ¢‚×Óà¢µ²%6Væ·&öâ¶VÆ–ÖRF¶–&’"Â$öF²ÖöGR"Â%&†Bö·VÖ&ÌKIüK"Â$¼K6|;ÆæÌ;Æ²†VFVb%ÒæÖ‚‡"’Óâ€¢Ç7â¶W“×·'Ò7G–ÆS×·²föçE6—¦S¢"Â6öÆ÷#¢2ç6öÇV²Â&6¶w&÷VæC¢2æ¶'BÂ&÷&FW%&F—W3¢ÂFF–æs¢#w‚‚"×Óç·'ÓÂ÷7ãà¢’—Ğ¢ÂöF—cà¢·6W&’ç6–’âbb€¢ÆF—bFF×6W&’7G–ÆS×·²F—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Âv¢‚Â&6¶w&÷VæC¢'&v&ƒ#3"Ãc2ÃcÃã"’"Â&÷&FW%&F—W3¢"ÂFF–æs¢#‚G‚"ÂÖ&v–ä&÷GFöÓ¢BÂ6öÆ÷#¢2çgW&wRÂföçE6—¦S¢2×Óà¢ÄfÆÖR6—¦S×³gÒóâ·6W&’ç6–—Ò|;ÆæÌ;Æ²ö·VÖ&—FÖ’â'V|;ÆâFR'W&F<KâÂ'R–WFW&Æ’à¢ÂöF—cà¢—Ğ¢ÄFWfÔ¶'Bóà¢·W—VÖÇU&fÆ"æÆVæwF‚ÓÓÒbbÆF—bFFÖ&÷2Öö·VÖ×–öÇR7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢BÂÖ&v–åF÷¢‚×Óä'Rö·VÖ–öÇVæF–YòfRW§VæÇV²†VFVf–æ’¶,YüKÆ–â†¬K"FÒÖWF–â'VÇVæ×W–÷"âö·VÖ–öÇVçRF\IöœY÷F—&W&V²ÖWf7WB6\:v¶–ÆW&R&¶&–Æ—'6–âãÂöF—cçĞ¢·W—VÖÇU&fÆ"æÖ‚‡&b’Óâ°¢6öç7B†¦—$–G2Ò&bæ–G2æf–ÇFW"‚†–B’Óâ–6W&–µ7VçV×R†¶—F'VÂ†–B’’æFWÆ÷–&ÆR“°¢6öç7B&d÷¦WF’ÒG¶†¦—$–G2æÆVæwF‡Ò†¬K&°¢&WGW&â€¢ÆF—b¶W“×·&bæGÒFFÖ6öçFVçB×6†VÆbFF×6†VÆbÖæÖS×·&bæGÒ7G–ÆS×·²Ö&v–åF÷¢#‚×Óà¢ÆF—b7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢’ÂÖ&v–ä&÷GFöÓ¢B×Óç·&bæGÒÇ7â7G–ÆS×·²föçDfÖ–Ç“¢$–çFW"Â7—7FVÒ×V’Â6ç2×6W&–b"Â6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢"ÂföçEvV–v‡C¢S×Óì+r·&d÷¦WF—ÓÂ÷7ããÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢bÂ÷fW&fÆ÷uƒ¢&WFò"ÂFF–æt&÷GFöÓ¢b×Óà¢¶†¦—$–G2æÖ‚†–B’ÓâÄ¶—F¶'B¶W“×¶–GÒ¶—F×¶¶—F'VÂ†–B—Òóâ—Ğ¢ÂöF—cà¢ÂöF—cà¢“°¢Ò—Ğ¢ÆF—bFFÖ¶VæF’ÖÖWFæ–Ò7G–ÆS×·²Ö&v–åF÷¢3"ÂÖ&v–ä&÷GFöÓ¢‚×Óà¢Æ'WGFöâ&Vc×¶¶VæF”ÖWF–ä7F&VgÒöä6Æ–6³×²‚’Óâ6WD¶VæF”ÖWF–åæVÆ”6–²‡G'VR—Ò&–Ö†7÷WÒ&F–Æör"&–ÖW‡æFVC×¶¶VæF”ÖWF–åæVÆ”6–·Ò7G–ÆS×·²v–GFƒ¢#R"ÂÖ–ä†V–v‡C¢SbÂF—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"Âv¢"Â&6¶w&÷VæC¢2æ¶'BÂ&÷&FW#¢#‚6öÆ–B&v&ƒ#3"Ãc2ÃcÃã#"’"Â&÷&FW%&F—W3¢bÂFF–æs¢#'‚G‚"Â6öÆ÷#¢2æÖWF–âÂ7W'6÷#¢'ö–çFW""ÂföçDfÖ–Ç“¢&–æ†W&—B"ÂFW‡DÆ–vã¢&ÆVgB"×Óà¢Ç7ãà¢Ç7G&öær7G–ÆS×·²F—7Æ“¢&&Æö6²"Â6öÆ÷#¢2çgW&wRÂföçE6—¦S¢B×Óä¶VæF’ÖWFæ–æ’ö·SÂ÷7G&öæsà¢Ç7â7G–ÆS×·²F—7Æ“¢&&Æö6²"Â6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢"ÂÖ&v–åF÷¢"×Óä¶÷–Æ×–KY÷LK"fW–E…CÂ÷7ãà¢Â÷7ãà¢Ç7â&–Ö†–FFVãÒ'G'VR"7G–ÆS×·²6öÆ÷#¢2çgW&wRÂföçE6—¦S¢#"×ÓîûÈ³Â÷7ãà¢Âö'WGFöãà¢¶¶VæF”–6W&–´Æ—7FW6’æÆVæwF‚âbb€¢ÆF—bFFÖ&Væ–ÒÖ¶—FÆ–v–Ò7G–ÆS×·²Ö&v–åF÷¢×Óà¢ÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢"ÂÖ&v–ä&÷GFöÓ¢b×Óä&Væ–Ò¶—FÌKIüKÓÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢‚Â÷fW&fÆ÷uƒ¢&WFò"ÂFF–æt&÷GFöÓ¢B×Óà¢¶¶VæF”–6W&–´Æ—7FW6’ç6Æ–6RƒÂR’æÖ‚†¶–—B’Óâ€¢Æ'WGFöà¢¶W“×¶¶–—Bæ¶—Fæ–GĞ¢öä6Æ–6³×²‚’Óâ²6WD·F–d–B†¶–—Bæ¶—Fæ–B“²6WDFWF”–B†çVÆÂ“²6WE6V¶ÖR‚&æ"“²6WE÷¦—7–öâƒ“²6WD¶VÆ–ÖT—‚ƒ“²6WD6Æ—–÷"†fÇ6R“²6WD÷–æF–6”6–²‡G'VR“²×Ğ¢7G–ÆS×·²fÆW…6‡&–æ³¢ÂÖ…v–GFƒ¢cÂÖ–ä†V–v‡C¢CBÂ&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃãR’"Â&÷&FW#¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃã’"Â&÷&FW%&F—W3¢ÂFF–æs¢#‡‚'‚"Â6öÆ÷#¢2æÖWF–âÂföçE6—¦S¢"ÂFW‡DÆ–vã¢&ÆVgB"Â7W'6÷#¢'ö–çFW""ÂföçDfÖ–Ç“¢&–æ†W&—B"Â÷fW&fÆ÷s¢&†–FFVâ"ÂFW‡D÷fW&fÆ÷s¢&VÆÆ—6—2"Âv†—FU76S¢&æ÷w&"×Ğ¢à¢¶¶–—Bæ¶—Fæ&6Æ–·Ğ¢Âö'WGFöãà¢’—Ğ¢ÂöF—cà¢ÂöF—cà¢—Ğ¢¶¶VæF”ÖWF–åæVÆ”6–²bb€¢ÆF—bFFÖ¶VæF’ÖÖWF–âÖ&6¶G&÷7G–ÆS×·²÷6—F–öã¢&f—†VB"Â–ç6WC¢Â¤–æFWƒ¢cÂF—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&fÆW‚ÖVæB"Â§W7F–g”6öçFVçC¢&6VçFW""Â&6¶w&÷VæC¢'&v&ƒÃ"ÃbÃãƒ"’"×Óà¢Ç6V7F–öâ&öÆSÒ&F–Æör"&–ÖÖöFÃÒ'G'VR"&–ÖÆ&VÆÆVF'“Ò&¶VæF’ÖÖWF–âÖ&6Æ–v’"FFÖ¶VæF’ÖÖWF–âÖF–Æör7G–ÆS×·²v–GFƒ¢&Ö–âƒs#‚ÂR’"ÂÖ„†V–v‡C¢&Ö–âƒƒc‚Â“fGf‚’"ÂF—7Æ“¢&fÆW‚"ÂfÆW„F—&V7F–öã¢&6öÇVÖâ"Â&6¶w&÷VæC¢2æ¶'BÂ&÷&FW#¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃã‚’"Â&÷&FW%&F—W3¢##'‚#'‚"ÂFF–æs¢#‡‚"Â&÷…6—¦–æs¢&&÷&FW"Ö&÷‚"Â&÷…6†F÷s¢#Ó#G‚s‚&v&ƒÃÃÃãS"’"×Óà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"ÂÆ–vä—FV×3¢&fÆW‚×7F'B"Âv¢"ÂfÆW…6‡&–æ³¢×Óà¢ÆF—cà¢Æƒ"–CÒ&¶VæF’ÖÖWF–âÖ&6Æ–v’"7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢#BÂÖ&v–ã¢×Óä¶VæF’ÖWFæ–æ’ö·SÂöƒ#à¢ÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢2ÂÆ–æT†V–v‡C¢ãCRÂÖ&v–åF÷¢B×ÓäÖWFæ’–ÆìK¦6'R6–†¦Fö·VÖ|;g,;Æì;ÆÜ;ÆæR†¬K&Æ"ãÂöF—cà¢ÂöF—cà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WD¶VæF”ÖWF–åæVÆ”6–²†fÇ6R—Ò&–ÖÆ&VÃÒ$¶VæF’ÖWF–âæVÆ–æ’¶B"7G–ÆS×·²v–GFƒ¢CBÂ†V–v‡C¢CBÂfÆW…6‡&–æ³¢Â&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃã‚’"Â&÷&FW#¢&æöæR"Â&÷&FW%&F—W3¢"Â6öÆ÷#¢2æÖWF–âÂföçE6—¦S¢#"Â7W'6÷#¢'ö–çFW""×Óì9sÂö'WGFöãà¢ÂöF—cà¢Æ–çWBfÇVS×¶¶VæF”&6Æ–·Òöä6†ævS×²†R’Óâ6WD¶VæF”&6Æ–²†RçF&vWBçfÇVR—Ò&–ÖÆ&VÃÒ$¶VæF’ÖWFæ–Ò&YöÌK²"7G–ÆS×·²v–GFƒ¢#R"Â&÷…6—¦–æs¢&&÷&FW"Ö&÷‚"ÂÖ&v–åF÷¢bÂ&÷&FW%&F—W3¢"Â&÷&FW#¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃã’"Â&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃãR’"Â6öÆ÷#¢2æÖWF–âÂFF–æs¢#'‚"ÂföçE6—¦S¢bÂföçDfÖ–Ç“¢&–æ†W&—B"ÂfÆW…6‡&–æ³¢×Òóà¢ÇFW‡F&VfÇVS×¶¶VæF”ÖWF–çÒöä6†ævS×²†R’Óâ6WD¶VæF”ÖWF–â†RçF&vWBçfÇVR—ÒÆ6V†öÆFW#Ò$ÖWFæ’'W&––KY÷LK"âââ"&–ÖÆ&VÃÒ$¶VæF’ÖWFæ–Ò"7G–ÆS×·²v–GFƒ¢#R"Â&÷…6—¦–æs¢&&÷&FW"Ö&÷‚"ÂÖ–ä†V–v‡C¢&Ö–âƒC†Gf‚ÂC#‚’"ÂfÆWƒ¢#WFò"ÂÖ&v–åF÷¢Â&÷&FW%&F—W3¢"Â&÷&FW#¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃã’"Â&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃãR’"Â6öÆ÷#¢2æÖWF–âÂFF–æs¢#G‚"ÂföçE6—¦S¢bÂÆ–æT†V–v‡C¢ãSRÂföçDfÖ–Ç“¢&–æ†W&—B"Â&W6—¦S¢&æöæR"×Òóà¢¶¶VæF”ÖWF–äÖW6¦’bbÆF—b&–ÖÆ—fSÒ'öÆ—FR"7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢"ÂÖ&v–åF÷¢‚×Óç¶¶VæF”ÖWF–äÖW6¦—ÓÂöF—cçĞ¢ÆF—bFFÖ¶VæF’ÖÖWF–âÖ7F–öç27G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢‚ÂÆ–vä—FV×3¢&6VçFW""Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"ÂfÆW…w&¢'w&"ÂÖ&v–åF÷¢"ÂfÆW…6‡&–æ³¢×Óà¢ÆÆ&VÂ&–ÖF—6&ÆVC×¶¶VæF”ÖWF–å—V¶ÆVæ—–÷"ò'G'VR"¢VæFVf–æVGÒ7G–ÆS×·²Ö–ä†V–v‡C¢CBÂF—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Â&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃã‚’"Â&÷&FW%&F—W3¢ÂFF–æs¢#'‚"Â7W'6÷#¢¶VæF”ÖWF–å—V¶ÆVæ—–÷"ò'v—B"¢'ö–çFW""ÂföçE6—¦S¢2Â÷6—G“¢¶VæF”ÖWF–å—V¶ÆVæ—–÷"òãr¢×Óç¶¶VæF”ÖWF–å—V¶ÆVæ—–÷"ò$&VÆvRö·VçW–÷.(
+b"¢%DbÂv÷&BfW–E…B6\:r'Ğ¢Æ–çWBG—SÒ&f–ÆR"&–ÖÆ&VÃÒ%DbÂv÷&BfW–E…BF÷7–<K6\:r"66WC×µ5Uõ%DTEôDô5TÔTåEô44UGÒF—6&ÆVC×¶¶VæF”ÖWF–å—V¶ÆVæ—–÷'Òöä6†ævS×¶F÷7–ÖWFæ•—V¶ÆWÒ7G–ÆS×·²F—7Æ“¢&æöæR"×Òóà¢ÂöÆ&VÃà¢Æ'WGFöâF—6&ÆVC×¶¶VæF”ÖWF–å—V¶ÆVæ—–÷'Òöä6Æ–6³×²‚’Óâ¶VæF”ÖWFæ”2†¶VæF”ÖWF–âÂ¶VæF”&6Æ–²—Ò7G–ÆS×·²Ö–ä†V–v‡C¢C‚Â&6¶w&÷VæC¢2çgW&wRÂ6öÆ÷#¢"3Cƒb"Â&÷&FW#¢&æöæR"Â&÷&FW%&F—W3¢"ÂFF–æs¢#‡‚"ÂföçEvV–v‡C¢ƒÂ7W'6÷#¢¶VæF”ÖWF–å—V¶ÆVæ—–÷"ò'v—B"¢'ö–çFW""ÂföçDfÖ–Ç“¢&–æ†W&—B"Â÷6—G“¢¶VæF”ÖWF–å—V¶ÆVæ—–÷"òãcR¢×Óäö·VÖÖöGVæÃÂö'WGFöãà¢ÂöF—cà¢ÆF—bFF×FW&×27G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢ÂÆ–æT†V–v‡C¢ãCRÂÖ&v–åF÷¢Â÷6—G“¢ã’×Óà¢œ;Æ¶ÆVFœIö–âœ:vW&œIö–â†¶Æ,KæFâ6Vâ6÷'VÖÇW7Vââö·W&–òÖWFæ’¶œYö—6VÂW&œYö–ÆV&–Æ—"ö·VÖFW7F\Iö’œ:v–âœYöÆW#²–œKæÆÖ¢fW–FIüKFÖ¢à¢ÂöF—cà¢Â÷6V7F–öãà¢ÂöF—cà¢—Ğ¢ÂöF—cà¢ÆFWF–Ç2FFÖVF—BÖ÷¦WB7G–ÆS×·²&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃã3R’"Â&÷&FW#¢‚6öÆ–BGµ2æ¶'C'ÖÂ&÷&FW%&F—W3¢"ÂFF–æs¢#‚'‚"ÂÖ&v–åF÷¢×Óà¢Ç7VÖÖ'’7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢"Â7W'6÷#¢'ö–çFW""×ÓìK:vW&–²GW'V×SÂ÷7VÖÖ'“à¢ÆF—b7G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢2ç6öÇV²ÂÖ&v–åF÷¢‚×Óà¢'R–öÆF¶–6W&–´VF—D÷¦WF’çF÷Æ×ÒW–wVâœ:vW&–²+r¶–6W&–´VF—D÷¦WF’æVævÆ—6…6–—6—ÒKæv–Æ—¦6Rœ:vW&–²+r¶–6W&–´VF—D÷¦WF’æ&÷5&fÆ"æÆVæwF‡Ò†¬K&ÌK²&lK¢ÂöF—cà¢ÂöFWF–Ç3à¢ÂöÖ–ãà¢“° ¢6öç7B&Ö6–fÒ‚’Óâ°¢6öç7BÒ&ÖçG&–Ò‚’çFôÆ÷vW$66R‚“°¢6öç7BWg&VâÒW—VÖÇT¶FÆöræf–ÇFW"‚†¶—F’Óâ¶—FçV&Æ–6Ç”F—66÷fW&&ÆRÓÒfÇ6R“°¢6öç7B6öçV2ÒòWg&Vâæf–ÇFW"‚†²’Óâ†²æ&6Æ–²²""²²ç–¦"²""²²æ¶FVv÷&’²""²†²æ÷¦WBÇÂ""’’çFôÆ÷vW$66R‚’æ–æ6ÇVFW2‡’’¢Wg&Vã°¢&WGW&â€¢ÆÖ–âFF×vR×6†VÆÂFF×6V&6‚×vR7G–ÆS×·²FF–æs¢##G‚#‚"×Óà¢ÆF—b7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢#bÂÖ&v–ä&÷GFöÓ¢b×Óä&ÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Âv¢Â&6¶w&÷VæC¢2æ¶'BÂ&÷&FW%&F—W3¢"ÂFF–æs¢#'‚G‚"ÂÖ&v–ä&÷GFöÓ¢#×Óà¢Å6V&6‚6—¦S×³‡Ò6öÆ÷#×µ2ç6öÇV·Òóà¢Æ–çWBfÇVS×¶&ÖÒöä6†ævS×²†R’Óâ6WD&Ö†RçF&vWBçfÇVR—ÒÆ6V†öÆFW#Ò$¶—FfW––¦"& ¢7G–ÆS×·²&6¶w&÷VæC¢&æöæR"Â&÷&FW#¢&æöæR"Â÷WFÆ–æS¢&æöæR"Â6öÆ÷#¢2æÖWF–âÂföçE6—¦S¢RÂfÆWƒ¢ÂföçDfÖ–Ç“¢&–æ†W&—B"×Òóà¢ÂöF—cà¢·6öçV2æÆVæwF‚ÓÓÒbbÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢B×Óå6öç\:r'VÇVæÖLKâ&Yö¶&—"¶VÆ–ÖRFVæRãÂöF—cçĞ¢·6öçV2æÖ‚†²’Óâ€¢ÆF—b¶W“×¶²æ–GÒ&öÆSÒ&'WGFöâ"F$–æFWƒ×³Òöä6Æ–6³×²‚’Óâ6WDFWF”–B†²æ–B—Òöä¶W”F÷vã×²†WfVçB’Óâ°¢–b†WfVçBæ¶W’ÓÓÒ$VçFW""ÇÂWfVçBæ¶W’ÓÓÒ""’²WfVçBç&WfVçDFVfVÇB‚“²6WDFWF”–B†²æ–B“²Ğ¢×Ò7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢BÂFF–æs¢#'‚"Â7W'6÷#¢'ö–çFW""Â&÷&FW$&÷GFöÓ¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃãb’"ÂÆ–vä—FV×3¢&6VçFW""×Óà¢Ä¶²¶—F×¶·Ò&÷—WC×³S'Ò&F—W3×³gÒóà¢ÆF—b7G–ÆS×·²fÆWƒ¢×Óà¢ÆF—b7G–ÆS×·²föçEvV–v‡C¢cÂföçE6—¦S¢R×Óç¶²æ&6Æ–·ÓÂöF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢"Â6öÆ÷#¢2ç6öÇV²ÂÖ&v–åF÷¢"×Óç¶²ç–¦'Ò+r¶²æ¶FVv÷&—×¶²æF–ÂÓÓÒ&Vâ"ò"+rVævÆ—6‚"¢"'×¶²ç–2ò+rG¶²ç–7Ö¢"'Ò+r·7W&U–¢‡F÷ÆÕ6â†²’—ÓÂöF—cà¢ÂöF—cà¢ÂöF—cà¢’—Ğ¢ÂöÖ–ãà¢“°¢Ó° ¢6öç7B¶—FÆ–µ6–fÒ‚’Óâ°¢6öç7Bfd¶—FÆ"Òff÷&–ÆW"æÖ†¶—F'VÂ’æf–ÇFW"‚†²’Óâ²bb¶—FW—VÒ†²’“°¢6öç7BFWfÖÆ"Òö&¦V7BæVçG&–W2†–ÆW&ÆVÖVÆW"’æf–ÇFW"‚…¶–BÂeÒ’Óâbç÷2âbb¶—FW—VÒ†¶—F'VÂ†–B’’bb–6W&–µ7VçV×R†¶—F'VÂ†–B’’æFWÆ÷–&ÆR’ç6÷'B‚†Â"’Óâ%³ÒçG2Ò³ÒçG2“°¢&WGW&â€¢ÆÖ–âFF×vR×6†VÆÂFFÖÆ–'&'’×vR7G–ÆS×·²FF–æs¢##G‚#‚"×Óà¢ÆF—b7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢#bÂÖ&v–ä&÷GFöÓ¢#×Óä¶—FÌKIüKÓÂöF—cà¢ÆF—b7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢rÂÖ&v–ä&÷GFöÓ¢"×Óäö·VÖ–FWfÓÂöF—cà¢¶FWfÖÆ"æÆVæwF‚ÓÓÒbbÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢BÂÖ&v–ä&÷GFöÓ¢#×Óä†Vì;Ç¢F–æÆVÖW–R&YöÆÖLKââæ6–fFâ&—"¶—F6\:rãÂöF—cçĞ¢¶FWfÖÆ"æÖ‚…¶–BÂeÒ’Óâ°¢6öç7B²Ò¶—F'VÂ†–B“²6öç7B÷&âÒbç÷2òF÷ÆÕ6â†²“°¢&WGW&â€¢ÆF—b¶W“×¶–GÒ&öÆSÒ&'WGFöâ"F$–æFWƒ×³Òöä6Æ–6³×²‚’Óâ6WDFWF”–B†–B—Òöä¶W”F÷vã×²†WfVçB’Óâ°¢–b†WfVçBæ¶W’ÓÓÒ$VçFW""ÇÂWfVçBæ¶W’ÓÓÒ""’²WfVçBç&WfVçDFVfVÇB‚“²6WDFWF”–B†–B“²Ğ¢×Ò7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢BÂFF–æs¢#‚"Â7W'6÷#¢'ö–çFW""ÂÆ–vä—FV×3¢&6VçFW""×Óà¢Ä¶²¶—F×¶·Ò&÷—WC×³S'Ò&F—W3×³gÒóà¢ÆF—b7G–ÆS×·²fÆWƒ¢×Óà¢ÆF—b7G–ÆS×·²föçEvV–v‡C¢cÂföçE6—¦S¢R×Óç¶²æ&6Æ–·ÓÂöF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢"Â6öÆ÷#¢2ç6öÇV²ÂÖ&v–ã¢#G‚g‚"×ÓâW´ÖF‚ç&÷VæB†÷&â¢—Òö·VæGSÂöF—cà¢ÆF—b7G–ÆS×·²†V–v‡C¢2Â&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃã’"Â&÷&FW%&F—W3¢"×Óà¢ÆF—b7G–ÆS×·²v–GFƒ¢G¶÷&â¢ÒVÂ†V–v‡C¢#R"Â&6¶w&÷VæC¢2çgW&wRÂ&÷&FW%&F—W3¢"×Òóà¢ÂöF—cà¢ÂöF—cà¢ÂöF—cà¢“°¢Ò—Ğ¢ÆF—b7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢rÂÖ&v–ã¢##G‚'‚"×Óäff÷&–ÆW#ÂöF—cà¢¶fd¶—FÆ"æÆVæwF‚ÓÓÒbbÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢B×Óäff÷&’V¶ÆVÖVF–ââ¶—F6–f<KæF¶’¶Ç6–ÖvW6–æ’·VÆÆâãÂöF—cçĞ¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢bÂfÆW…w&¢'w&"×Óà¢¶fd¶—FÆ"æÖ‚†²’ÓâÄ¶—F¶'B¶W“×¶²æ–GÒ¶—F×¶·Òóâ—Ğ¢ÂöF—cà¢ÂöÖ–ãà¢“°¢Ó° ¢6öç7BFWF•6–fÒ‚’Óâ°¢6öç7B²Ò¶—F'VÂ†FWF”–B“°¢–b‚²’&WGW&âçVÆÃ°¢6öç7B&öf–ÅW—VÖÇRÒ¶—FW—VÒ†²“°¢6öç7B7VçVÒÒ–6W&–µ7VçV×R†²“°¢6öç7B&6ÆF–Æ&–Æ—"Ò&öf–ÅW—VÖÇRbb7VçVÒæFWÆ÷–&ÆS°¢6öç7BÒ–ÆW&ÆVÖVÆW%¶²æ–EÓòç÷2ÇÂ°¢6öç7BfbÒff÷&–ÆW"æ–æ6ÇVFW2†²æ–B“°¢&WGW&â€¢ÆÖ–âFF×vR×6†VÆÂFFÖFWF–Â×vR7G–ÆS×·²FF–æs¢#g‚#‚"×Óà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"ÂÆ–vä—FV×3¢&6VçFW""ÂÖ&v–ä&÷GFöÓ¢b×Óà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WDFWF”–B†çVÆÂ—Ò&–ÖÆ&VÃÒ$vW&’"7G–ÆS×·²&6¶w&÷VæC¢2æ¶'BÂ&÷&FW#¢&æöæR"Â&÷&FW%&F—W3¢ÂFF–æs¢‚Â6öÆ÷#¢2æÖWF–âÂ7W'6÷#¢'ö–çFW""×ÓãÄ6†Wg&öäÆVgB6—¦S×³#ÒóãÂö'WGFöãà¢Æ'WGFöâöä6Æ–6³×²‚’Óâff÷&”FVv—7F—"†²æ–B—Ò&–ÖÆ&VÃÒ$ff÷&’"7G–ÆS×·²&6¶w&÷VæC¢2æ¶'BÂ&÷&FW#¢&æöæR"Â&÷&FW%&F—W3¢ÂFF–æs¢‚Â7W'6÷#¢'ö–çFW""×Óà¢Ä†V'B6—¦S×³#Ò6öÆ÷#×¶fbò2çgW&wR¢2æÖWF–çÒf–ÆÃ×¶fbò2çgW&wR¢&æöæR'Òóà¢Âö'WGFöãà¢ÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢&6VçFW""ÂÖ&v–ä&÷GFöÓ¢‚×ÓãÄ¶²¶—F×¶·Ò&÷—WC×³SÒ&F—W3×³'ÒóãÂöF—cà¢ÆF—b7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢#BÂFW‡DÆ–vã¢&6VçFW""×Óç¶²æ&6Æ–·ÓÂöF—cà¢ÆF—b7G–ÆS×·²FW‡DÆ–vã¢&6VçFW""Â6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢BÂÖ&v–åF÷¢B×Óç¶²ç–¦'ÓÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢&6VçFW""Âv¢‚ÂÖ&v–åF÷¢"ÂföçE6—¦S¢"Â6öÆ÷#¢2ç6öÇV²×Óà¢Ç7â7G–ÆS×·²F—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Âv¢R×ÓãÄ6Æö6²6—¦S×³7Òóâ·7W&U–¢‡F÷ÆÕ6â†²’—ÓÂ÷7ãà¢Ç7â7G–ÆS×·²F—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Âv¢R×ÓãÄ&öö´÷Vâ6—¦S×³7Òóâ¶²æ&öÇVÖÆW"æÆVæwF‡Ò,;fÌ;ÆÓÂ÷7ãà¢Ç7â7G–ÆS×·²6öÆ÷#¢2çgW&wR×Óî)ˆR¶²çVçÓÂ÷7ãà¢¶²ç–2bbÇ7â7G–ÆS×·²&6¶w&÷VæC¢'&v&ƒ#3"Ãc2ÃcÃãR’"Â6öÆ÷#¢2çgW&wRÂ&÷&FW%&F—W3¢bÂFF–æs¢#‚w‚"×Óç¶²ç–7ÓÂ÷7ãçĞ¢¶²æF–ÂÓÓÒ&Vâ"bbÇ7â7G–ÆS×·²&6¶w&÷VæC¢'&v&ƒ“ÃCÃcÃã#R’"Â6öÆ÷#¢"3”44DS"Â&÷&FW%&F—W3¢bÂFF–æs¢#‚w‚"×ÓäVævÆ—6ƒÂ÷7ãçĞ¢ÂöF—cà¢²&öf–ÅW—VÖÇRbb€¢ÆF—bFF×&öf–Â×W—V×7W¢7G–ÆS×·²Ö&v–åF÷¢BÂföçE6—¦S¢"Â6öÆ÷#¢2çgW&wRÂ&6¶w&÷VæC¢'&v&ƒ#3"Ãc2ÃcÃã’"Â&÷&FW%&F—W3¢ÂFF–æs¢#‡‚'‚"×Óà¢'Rœ:vW&–²ÖWf7WBö·VÖ–öÇVæFÒW–×W–÷"âF–æÆVÖV²œ:v–âö·VÖ–öÇVçRF\IöœY÷F—&ÖVâ;fæW&–Æ—"à¢ÂöF—cà¢—Ğ¢²7VçVÒæFWÆ÷–&ÆRbb€¢ÆF—bFFÖ6öçFVçB×&W&–ær7G–ÆS×·²Ö&v–åF÷¢BÂföçE6—¦S¢2Â6öÆ÷#¢"4S$3S„b"Â&6¶w&÷VæC¢'&v&ƒ#RÃƒ2Ã#Ãã’"Â&÷&FW#¢#‚6öÆ–B&v&ƒ#RÃƒ2Ã#Ãã#B’"Â&÷&FW%&F—W3¢ÂFF–æs¢#‚'‚"ÂÆ–æT†V–v‡C¢ãR×Óà¢'R¼K66\:v¶’†Vì;Ç¢FÒ&—"ö·VÖ÷GW'V×RF\Iö–ÂâÖWF–âvVæœYöÆWF–Æ—œ:vW&–²¶öçG&öÌ;ÆæFVâv\:v–æ6R:|KÆ6²à¢ÂöF—cà¢—Ğ¢Æ'WGFöâF—6&ÆVC×²&6ÆF–Æ&–Æ—'Òöä6Æ–6³×²‚’Óâ²–b‚&6ÆF–Æ&–Æ—"’&WGW&ã²÷–æDFVv—7F—"†²æ–B“²6WD÷–æF–6”6–²‡G'VR“²×Ğ¢7G–ÆS×·²v–GFƒ¢#R"ÂÖ&v–åF÷¢‚Â&6¶w&÷VæC¢&6ÆF–Æ&–Æ—"ò2çgW&wR¢'&v&ƒ#SRÃ#SRÃ#SRÃã"’"Â6öÆ÷#¢&6ÆF–Æ&–Æ—"ò"3Cƒb"¢2ç6öÇV²Â&÷&FW#¢&æöæR"Â&÷&FW%&F—W3¢BÂFF–æs¢#G‚"ÂföçE6—¦S¢RÂföçEvV–v‡C¢cÂ7W'6÷#¢&6ÆF–Æ&–Æ—"ò'ö–çFW""¢&æ÷BÖÆÆ÷vVB"ÂföçDfÖ–Ç“¢&–æ†W&—B"×Óà¢²7VçVÒæFWÆ÷–&ÆRò$†¬K&ÆìK–÷""¢âòö·VÖ–FWfÒWB+rG·7W&U–¢‡—Ö¢$ö·VÖ–&YöÆ'Ğ¢Âö'WGFöãà¢ÆF—bFFÖ–6W&–²Ö¶6Ö“×·7VçVÒç7FGW7Ò7G–ÆS×·²Ö&v–åF÷¢BÂföçE6—¦S¢"Â6öÆ÷#¢2çgW&wRÂ&6¶w&÷VæC¢'&v&ƒ#3"Ãc2ÃcÃã’"Â&÷&FW%&F—W3¢ÂFF–æs¢#‡‚'‚"ÂÆ–æT†V–v‡C¢ãSR×Óà¢¶²æ–6W&–´GW'V×RÓÓÒ'FÒÖÖWF–â"bb²æ†´GW'V×RÓÓÒ&¶×RÖÖÆ’"ò€¢Ãà¢Ç7G&öæsåFÒÖWF–â+r¶×RÖÌK¶–æ²ãÂ÷7G&öæsç²"'Ğ¢Æ‡&Vc×¶²æ¶–æ²çW&ÇÒF&vWCÒ%ö&Ææ²"&VÃÒ&æ÷&VfW'&W""7G–ÆS×·²6öÆ÷#¢2çgW&wR×Óå6÷W&6RöbG'WFƒ¢¶²æ¶–æ²æGÓÂöà¢Âóà¢’¢7VçVÒç7FGW2ÓÓÒ&gVÆÂ×&VF–ær"ò€¢ÃãÇ7G&öæsåFÒö·VÖ+rö·W&–ò;g¦|;Æâœ:vW&–²ãÂ÷7G&öæsâvW,:vV²<;Ç&W6’fR¶6ÜKFüI÷'VÆæÜKYòV·6–·6—¢&—"ö·VÖ÷GW'V×VGW"ãÂóà¢’¢7VçVÒç7FGW2ÓÓÒ&Ö–7&òÖW†W&6—6R"ò€¢ÃãÇ7G&öæsäÖ–·&òÌKY÷LK&ÖãÂ÷7G&öæsâ†&bÂ†V6RfW–¶VÆ–ÖR:vÌKYöÖ<KLK#²†–¼:'–R–FFÒW6W"F\Iö–ÆF—"ãÂóà¢’¢€¢ÃãÇ7G&öæsä†¬K&ÆìK–÷"ãÂ÷7G&öæsâ'R¼K6¶œKBFÒW6W"fW–FÖÖÆæÜKYò†–¼:'–RF\Iö–ÆF—"fR†Vì;Ç¢&YöÆLKÆÖ¢ãÂóà¢—Ğ¢ÂöF—cà¢Äö·W&–õ&÷fVææ6U7F×7F××¶²ç&÷fVææ6U7F×Òóà¢ÆF—bFFÖ¶Æ—FRÖ¶'F’7G–ÆS×·²Ö&v–åF÷¢BÂföçE6—¦S¢"Â6öÆ÷#¢2ç6öÇV²Â&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃãB’"Â&÷&FW%&F—W3¢ÂFF–æs¢#‡‚'‚"×Óà¢ö·VÖ6Wf—–W6“¢õÂ×¶–6W&–´¶Æ—FW6’†²’æ÷ÇÒ+r¶–6W&–´¶Æ—FW6’†²’æG×¶¶—FÖWF†²’æ6Vg"ò+r4Te"G¶¶—FÖWF†²’æ6Vg'Ö¢"'Ò+r¶–6W&–´¶Æ—FW6’†²’çF÷ÆÔ¶VÆ–ÖWÒ¶VÆ–ÖR+rvW,:vV²<;Ç&R·7W&U–¢‡7VçVÒç6V6öæG2—Ò+r÷'Bâ<;ÆÖÆR¶–6W&–´¶Æ—FW6’†²’æ÷'D7VÖÆRçFôf—†VBƒ—Ò¶VÆ–ÖP¢ÂöF—cà¢ÆF—b7G–ÆS×·²Ö&v–åF÷¢BÂföçE6—¦S¢BÂÆ–æT†V–v‡C¢ãbÂ6öÆ÷#¢'&v&ƒ#C"Ã#3bÃ##2ÃãƒR’"×Óç¶²æ÷¦WGÓÂöF—cà¢ÆF—b7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢rÂÖ&v–ã¢##G‚‚"×Óä,;fÌ;ÆÖÆW#ÂöF—cà¢¶²æ&öÇVÖÆW"æÖ‚†"Â’’Óâ°¢6öç7B·F–dÖ’Ò·F–d–BÓÓÒ²æ–Bbb·F–d&öÇVÔ—‚ÓÓÒ“°¢&WGW&â€¢ÆF—b¶W“×¶—Ò&öÆSÒ&'WGFöâ"F$–æFWƒ×¶&6ÆF–Æ&–Æ—"ò¢ÓÒ&–ÖF—6&ÆVC×²&6ÆF–Æ&–Æ—'Òöä6Æ–6³×²‚’Óâ²–b‚&6ÆF–Æ&–Æ—"’&WGW&ã²÷–æD¶—F&öÇVÒ†²æ–BÂ’“²6WD÷–æF–6”6–²‡G'VR“²×Òöä¶W”F÷vã×²†WfVçB’Óâ°¢–b†&6ÆF–Æ&–Æ—"bb†WfVçBæ¶W’ÓÓÒ$VçFW""ÇÂWfVçBæ¶W’ÓÓÒ""’’²WfVçBç&WfVçDFVfVÇB‚“²÷–æD¶—F&öÇVÒ†²æ–BÂ’“²6WD÷–æF–6”6–²‡G'VR“²Ğ¢×Ğ¢7G–ÆS×·²F—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"ÂÆ–vä—FV×3¢&6VçFW""ÂFF–æs¢#7‚"Â&÷&FW$&÷GFöÓ¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃãb’"Â7W'6÷#¢&6ÆF–Æ&–Æ—"ò'ö–çFW""¢&æ÷BÖÆÆ÷vVB"Â÷6—G“¢&6ÆF–Æ&–Æ—"ò¢ãSR×Óà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Âv¢"×Óà¢ÆF—b7G–ÆS×·²v–GFƒ¢#bÂFW‡DÆ–vã¢&6VçFW""Â6öÆ÷#¢·F–dÖ’ò2çgW&wR¢2ç6öÇV²ÂföçE6—¦S¢2×Óç¶·F–dÖ’òÅföÇVÖS"6—¦S×³WÒóâ¢’²ÓÂöF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢BÂföçEvV–v‡C¢·F–dÖ’òc¢CÂ6öÆ÷#¢·F–dÖ’ò2çgW&wR¢2æÖWF–â×Óç¶"æGÓÂöF—cà¢ÂöF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢"Â6öÆ÷#¢2ç6öÇV²×Óç·7W&U–¢†&öÇVÕ6â†"’—ÓÂöF—cà¢ÂöF—cà¢“°¢Ò—Ğ¢ÂöÖ–ãà¢“°¢Ó° ¢ò¢Ö–æ’÷–æLK<K¢ğ¢6öç7BÖ–æ”÷–æF–6’Ò‚’Óâ°¢–b‚·F–bÇÂ÷–æF–6”6–²’&WGW&âçVÆÃ°¢6öç7B÷&âÒF÷ÆÒò÷¦—7–öâòF÷ÆÒ¢°¢&WGW&â€¢ÆF—bFFÖÖ–æ’×Æ–W"&öÆSÒ&'WGFöâ"F$–æFWƒ×³Ò&–ÖÆ&VÃ×¶G¶·F–bæ&6Æ–·Ò÷–æLK<K<KìK:vÒöä6Æ–6³×²‚’Óâ6WD÷–æF–6”6–²‡G'VR—Òöä¶W”F÷vã×²†WfVçB’Óâ°¢–b†WfVçBæ¶W’ÓÓÒ$VçFW""ÇÂWfVçBæ¶W’ÓÓÒ""’²WfVçBç&WfVçDFVfVÇB‚“²6WD÷–æF–6”6–²‡G'VR“²Ğ¢×Ò7G–ÆS×·²÷6—F–öã¢&f—†VB"Â&÷GFöÓ¢cBÂÆVgC¢#SR"ÂG&ç6f÷&Ó¢'G&ç6ÆFU‚‚ÓSR’"Âv–GFƒ¢&Ö–âƒƒ‚ÂR’"ÂFF–æs¢#‚"Â&÷…6—¦–æs¢&&÷&FW"Ö&÷‚"Â7W'6÷#¢'ö–çFW""Â¤–æFWƒ¢#×Óà¢ÆF—b7G–ÆS×·²&6¶w&÷VæC¢2æ¶'C"Â&÷&FW%&F—W3¢BÂFF–æs¢#‚'‚"ÂF—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Âv¢"Â&÷…6†F÷s¢#ÓG‚#‚&v&ƒÃÃÃãB’"Â&÷&FW#¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃãb’"Â÷6—F–öã¢'&VÆF—fR"Â÷fW&fÆ÷s¢&†–FFVâ"×Óà¢ÆF—b7G–ÆS×·²÷6—F–öã¢&'6öÇWFR"ÂÆVgC¢Â&÷GFöÓ¢Â†V–v‡C¢"Âv–GFƒ¢G¶÷&â¢ÒVÂ&6¶w&÷VæC¢2çgW&wR×Òóà¢Ä¶²¶—F×¶·F–gÒ&÷—WC×³3‡Ò&F—W3×³WÒóà¢ÆF—b7G–ÆS×·²fÆWƒ¢ÂÖ–åv–GFƒ¢×Óà¢ÆF—b7G–ÆS×·²föçE6—¦S¢2ÂföçEvV–v‡C¢cÂv†—FU76S¢&æ÷w&"Â÷fW&fÆ÷s¢&†–FFVâ"ÂFW‡D÷fW&fÆ÷s¢&VÆÆ—6—2"×Óç¶·F–bæ&6Æ–·ÓÂöF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢2ç6öÇV²×Óç¶·F–bæ&öÇVÖÆW%¶·F–d&öÇVÔ—…ÒæGÓÂöF—cà¢ÂöF—cà¢Æ'WGFöâöä6Æ–6³×²†R’Óâ²Rç7F÷&÷vF–öâ‚“²6"‚ÓR“²×Ò&–ÖÆ&VÃÒ#R6âvW&’"7G–ÆS×·²&6¶w&÷VæC¢&æöæR"Â&÷&FW#¢&æöæR"Â6öÆ÷#¢2æÖWF–âÂ7W'6÷#¢'ö–çFW""ÂFF–æs¢B×ÓãÅ&÷FFT67r6—¦S×³‡ÒóãÂö'WGFöãà¢Æ'WGFöâöä6Æ–6³×²†R’Óâ²Rç7F÷&÷vF–öâ‚“²÷–æDFVv—7F—"‚“²×Ò&–ÖÆ&VÃ×¶6Æ—–÷"ò$GW&¶ÆB"¢$÷–æB'Ğ¢7G–ÆS×·²v–GFƒ¢3‚Â†V–v‡C¢3‚Â&÷&FW%&F—W3¢’Â&6¶w&÷VæC¢2çgW&wRÂ&÷&FW#¢&æöæR"ÂF—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Â§W7F–g”6öçFVçC¢&6VçFW""Â7W'6÷#¢'ö–çFW""×Óà¢¶6Æ—–÷"òÅW6R6—¦S×³wÒ6öÆ÷#Ò"3Cƒb"f–ÆÃÒ"3Cƒb"óâ¢ÅÆ’6—¦S×³wÒ6öÆ÷#Ò"3Cƒb"f–ÆÃÒ"3Cƒb"7G–ÆS×·²Ö&v–äÆVgC¢"×ÒóçĞ¢Âö'WGFöãà¢ÂöF—cà¢ÂöF—cà¢“°¢Ó° ¢ò¢FÒV·&â÷–æLK<K¢ğ¢6öç7BFÔ÷–æF–6’Ò‚’Óâ°¢–b‚·F–bÇÂ÷–æF–6”6–²’&WGW&âçVÆÃ°¢6öç7B÷&âÒF÷ÆÒò÷¦—7–öâòF÷ÆÒ¢°¢6öç7B"Ò·F–bæ&öÇVÖÆW%¶·F–d&öÇVÔ—…Ó°¢6öç7BÖö&–ÄF"ÒG—Vöbv–æF÷rÓÒ'VæFVf–æVB"bbv–æF÷ræ–ææW%v–GF‚ÃÒC3°¢6öç7B6÷'T†¦—"ÒF÷ÆÒâbb÷¦—7–öâãÒÖF‚æÖ‚ƒÂF÷ÆÒÒ"“°¢6öç7B6—Ò†·F–dÖ’’Óâ‡²&6¶w&÷VæC¢·F–dÖ’ò'&v&ƒ#3"Ãc2ÃcÃã‚’"¢'&v&ƒ#SRÃ#SRÃ#SRÃã‚’"Â&÷&FW#¢&æöæR"Â&÷&FW%&F—W3¢‚ÂFF–æs¢Öö&–ÄF"ò#g‚—‚"¢#w‚‚"Â6öÆ÷#¢·F–dÖ’ò2çgW&wR¢2æÖWF–âÂ7W'6÷#¢'ö–çFW""ÂföçE6—¦S¢Öö&–ÄF"ò¢"ÂF—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Âv¢RÂföçDfÖ–Ç“¢&–æ†W&—B"Ò“°¢&WGW&â€¢ÆF—bFF×&VFW"Ö&6¶G&÷7G–ÆS×·²÷6—F–öã¢&f—†VB"Â–ç6WC¢Â¤–æFWƒ¢CÂF—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢&6VçFW""Â&6¶w&÷VæC¢'&v&ƒÃ"ÃbÃãs‚’"×Óà¢ÆF—b&öÆSÒ&F–Æör"&–ÖÖöFÃÒ'G'VR"&–ÖÆ&VÃ×¶G¶·F–bæ&6Æ–·Òö·VÖV·&ìKÒFFÖÖö&–ÆR×7F&–Æ—G“Ò'c"ã‚ãB"FF×&VFW"×6†VÆÂFF×Æ––æs×¶6Æ—–÷"ò#"¢#'ÒFFÖö·VÖÖÖöGRÖ·F–c×¶ö·VÖÖöGWÒFF×6W2×FöçRÖ·F–c×·6W5FöçWÒFF×7F÷'’Ö–C×¶·F–bæ–GÒ7G–ÆS×·²v–GFƒ¢&Ö–âƒƒ‚Â6Æ2ƒRÒC‡‚’’"Â&6¶w&÷VæC¢Æ–æV"Öw&F–VçBƒƒFVrÂG¶·F–bç&Væµ³×ÓSRRÂGµ2æföçÒ3R–Â&6¶w&÷VæD6öÆ÷#¢2æföâÂF—7Æ“¢&fÆW‚"ÂfÆW„F—&V7F–öã¢&6öÇVÖâ"Â†V–v‡C¢'f"‚ÒÖö·W&–ò×f—7VÂ×f–Ww÷'BÖ†V–v‡BÂGf‚’"ÂÖ„†V–v‡C¢'f"‚ÒÖö·W&–ò×f—7VÂ×f–Ww÷'BÖ†V–v‡BÂGf‚’"Â÷fW&fÆ÷s¢&†–FFVâ"ÂFF–æs¢Öö&–ÄF"ò#‚'‚6Æ2ƒ‚²Vçb‡6fRÖ&VÖ–ç6WBÖ&÷GFöÒÂ‚’’"¢#G‚#'‚G‚"Â&÷…6—¦–æs¢&&÷&FW"Ö&÷‚"Â÷6—F–öã¢'&VÆF—fR"×Óà ¢²ò¢9Ç7B:wV'V²¢÷Ğ¢ÆF—bFF×&VFW"×F÷&"7G–ÆS×·²F—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"ÂÆ–vä—FV×3¢&6VçFW""ÂfÆW…6‡&–æ³¢ÂÖ–ä†V–v‡C¢Öö&–ÄF"òCB¢VæFVf–æVB×Óà¢Æ'WGFöâöä6Æ–6³×¶ö·W—V7W—T¶EfTöF¶ÆÒ&–ÖÆ&VÃÒ$¶B"7G–ÆS×·²&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃã‚’"Â&÷&FW#¢&æöæR"Â&÷&FW%&F—W3¢ÂFF–æs¢‚Â6öÆ÷#¢2æÖWF–âÂ7W'6÷#¢'ö–çFW""×ÓãÄ6†Wg&öäF÷vâ6—¦S×³#ÒóãÂö'WGFöãà¢ÆF—bFF×&VFW"ÖW–V'&÷r7G–ÆS×·²föçE6—¦S¢Öö&–ÄF"ò¢"Â6öÆ÷#¢2ç6öÇV²ÂÆWGFW%76–æs¢Öö&–ÄF"ò#ãfVÒ"¢#ã†VÒ"ÂFW‡EG&ç6f÷&Ó¢'WW&66R"×ÓìYæ–ÖF’ö·VçW–÷#ÂöF—cà¢Æ'WGFöâFF×&VFW"Öff÷&—FRöä6Æ–6³×²‚’Óâff÷&”FVv—7F—"†·F–bæ–B—Ò&–ÖÆ&VÃÒ$ff÷&’"&–×&W76VC×¶ff÷&–ÆW"æ–æ6ÇVFW2†·F–bæ–B—Ò7G–ÆS×·²&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃã‚’"Â&÷&FW#¢&æöæR"Â&÷&FW%&F—W3¢ÂFF–æs¢‚Â7W'6÷#¢'ö–çFW""×Óà¢Ä†V'B6—¦S×³‡Ò6öÆ÷#×¶ff÷&–ÆW"æ–æ6ÇVFW2†·F–bæ–B’ò2çgW&wR¢2æÖWF–çÒf–ÆÃ×¶ff÷&–ÆW"æ–æ6ÇVFW2†·F–bæ–B’ò2çgW&wR¢&æöæR'Òóà¢Âö'WGFöãà¢ÂöF—cà ¢²ò¢¶ö×·B¶—F&–Æv—6’¢÷Ğ¢ÆF—bFFÖ¶ö×·BÖ&6Æ–²&öÆSÒ&'WGFöâ"F$–æFWƒ×³Ò&–ÖW‡æFVC×¶&öÇVÖÆW$6–·Ò&–Ö6öçG&öÇ3Ò&ö·W&–òÖ&öÇVÒÖÆ—7FW6’"öä6Æ–6³×²‚’Óâ6WD&öÇVÖÆW$6–²‚&öÇVÖÆW$6–²—Òöä¶W”F÷vã×²†WfVçB’Óâ°¢–b†WfVçBæ¶W’ÓÓÒ$VçFW""ÇÂWfVçBæ¶W’ÓÓÒ""’²WfVçBç&WfVçDFVfVÇB‚“²6WD&öÇVÖÆW$6–²‚&öÇVÖÆW$6–²“²Ğ¢×Ò7G–ÆS×·²F—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Âv¢Öö&–ÄF"òr¢"ÂÖ&v–ã¢Öö&–ÄF"ò#'‚G‚"¢#‡‚g‚"ÂÖ–ä†V–v‡C¢Öö&–ÄF"òSB¢VæFVf–æVBÂÖ„†V–v‡C¢Öö&–ÄF"òc¢VæFVf–æVBÂfÆW…6‡&–æ³¢Â7W'6÷#¢'ö–çFW""×Óà¢²Öö&–ÄF"bbÄ¶²¶—F×¶·F–gÒ&÷—WC×³CGÒ&F—W3×³gÒóçĞ¢ÆF—b7G–ÆS×·²Ö–åv–GFƒ¢ÂfÆWƒ¢×Óà¢ÆF—b7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢Öö&–ÄF"òR¢bÂv†—FU76S¢&æ÷w&"Â÷fW&fÆ÷s¢&†–FFVâ"ÂFW‡D÷fW&fÆ÷s¢&VÆÆ—6—2"×Óç¶·F–bæ&6Æ–·ÓÂöF—cà¢ÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢Öö&–ÄF"ò¢"ÂÖ&v–åF÷¢"Âv†—FU76S¢&æ÷w&"Â÷fW&fÆ÷s¢&†–FFVâ"ÂFW‡D÷fW&fÆ÷s¢&VÆÆ—6—2"×Óç¶"æGÒ+r¶·F–d&öÇVÔ—‚²Ò÷¶·F–bæ&öÇVÖÆW"æÆVæwF‡Ò,;fÌ;ÆÓÂöF—cà¢²Öö&–ÄF"bbÆF—bFF×6W2×FöçR7G–ÆS×·²6öÆ÷#¢2çgW&wRÂföçE6—¦S¢ÂÖ&v–åF÷¢"Âv†—FU76S¢&æ÷w&"Â÷fW&fÆ÷s¢&†–FFVâ"ÂFW‡D÷fW&fÆ÷s¢&VÆÆ—6—2"×Óç·6W5FöçT–"æGÓÂöF—cçĞ¢ÂöF—cà¢ÄÆ—7D×W6–26—¦S×³wÒ6öÆ÷#×¶&öÇVÖÆW$6–²ò2çgW&wR¢2ç6öÇV·Òóà¢ÂöF—cà ¢²ò¢,;fÌ;ÆÒÆ—7FW6’†¶FÆìK"’¢÷Ğ¢¶&öÇVÖÆW$6–²bb€¢ÆF—b–CÒ&ö·W&–òÖ&öÇVÒÖÆ—7FW6’"FFÖ&öÇVÒÖÆ—7FW6’7G–ÆS×·²fÆW…6‡&–æ³¢ÂÖ„†V–v‡C¢ƒÂ÷fW&fÆ÷u“¢&WFò"Â&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃãB’"Â&÷&FW%&F—W3¢"ÂFF–æs¢#G‚'‚"ÂÖ&v–ä&÷GFöÓ¢×Óà¢¶·F–bæ&öÇVÖÆW"æÖ‚†&"Â’’Óâ€¢ÆF—b¶W“×¶—Ò&öÆSÒ&'WGFöâ"F$–æFWƒ×³Òöä6Æ–6³×²‚’Óâ²&öÇVÖTv—B†’“²6WD&öÇVÖÆW$6–²†fÇ6R“²×Òöä¶W”F÷vã×²†WfVçB’Óâ°¢–b†WfVçBæ¶W’ÓÓÒ$VçFW""ÇÂWfVçBæ¶W’ÓÓÒ""’²WfVçBç&WfVçDFVfVÇB‚“²&öÇVÖTv—B†’“²6WD&öÇVÖÆW$6–²†fÇ6R“²Ğ¢×Ò7G–ÆS×·²F—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"ÂFF–æs¢#—‚"Â&÷&FW$&÷GFöÓ¢’Â·F–bæ&öÇVÖÆW"æÆVæwF‚Òò#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃãb’"¢&æöæR"Â7W'6÷#¢'ö–çFW""ÂföçE6—¦S¢2Â6öÆ÷#¢’ÓÓÒ·F–d&öÇVÔ—‚ò2çgW&wR¢2æÖWF–âÂföçEvV–v‡C¢’ÓÓÒ·F–d&öÇVÔ—‚òc¢C×Óà¢Ç7ãç¶’²Òâ¶&"æGÓÂ÷7ããÇ7â7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢"×Óç·7W&U–¢†&öÇVÕ6â†&"’—ÓÂ÷7ãà¢ÂöF—cà¢’—Ğ¢ÂöF—cà¢—Ğ ¢²ò¢ôµTÔÄä“¢V·&ìKâæœ;Ç¦W–’¢÷Ğ¢ÆF—bFFÖö·VÖÖÆæ’7G–ÆS×·²fÆWƒ¢#WFò"ÂÖ–ä†V–v‡C¢Â÷fW&fÆ÷s¢&†–FFVâ"Â&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃãB’"Â&÷&FW%&F—W3¢bÂFF–æs¢Öö&–ÄF"ò¢BÂ÷6—F–öã¢'&VÆF—fR"ÂF—7Æ“¢&fÆW‚"ÂfÆW„F—&V7F–öã¢&6öÇVÖâ"×Óà¢ÆF—bFF×&VFW"×7FvRÖ†VFW"7G–ÆS×·²F—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"Âv¢bÂÖ&v–ä&÷GFöÓ¢Öö&–ÄF"òR¢ÂÖ–ä†V–v‡C¢Öö&–ÄF"òCB¢VæFVf–æVB×Óà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Âv¢bÂ6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢Öö&–ÄF"ò¢2×ÓãÄ&öö´÷Vâ6—¦S×¶Öö&–ÄF"ò2¢WÒóâö·VÖ|;g,;Æì;ÆÜ;ÃÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢b×Óà¢Æ'WGFöâFF×&VFW"×6WGF–æw2×FövvÆRöä6Æ–6³×²‚’Óâ6WD–%æVÆ”6–²‚–%æVÆ”6–²—Ò&–ÖW‡æFVC×¶–%æVÆ”6–·Ò&–Ö6öçG&öÇ3Ò&ö·W&–òÖö·VÖÖ–&Æ&’ ¢7G–ÆS×·²&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃã‚’"Â&÷&FW#¢&æöæR"Â&÷&FW%&F—W3¢‚ÂFF–æs¢#w‚‚"Â6öÆ÷#¢2æÖWF–âÂ7W'6÷#¢'ö–çFW""ÂföçE6—¦S¢"ÂföçDfÖ–Ç“¢&–æ†W&—B"×Óà¢fæ'7²–&Æ ¢Âö'WGFöãà¢Æ'WGFöâFF×&VFW"×f—6–&–Æ—G’×FövvÆRöä6Æ–6³×²‚’Óâ6WDö·VÖ6–²‚ö·VÖ6–²—Ò&–ÖÆ&VÃÒ$ö·VÖ|;g,;Æì;ÆÜ;Æì;Â:r¶B"&–ÖW‡æFVC×¶ö·VÖ6–·Ò&–Ö6öçG&öÇ3Ò&ö·W&–òÖö·VÖÖ–6W&–v’ ¢7G–ÆS×·²&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃã‚’"Â&÷&FW#¢&æöæR"Â&÷&FW%&F—W3¢‚ÂFF–æs¢#w‚‚"Â6öÆ÷#¢2æÖWF–âÂ7W'6÷#¢'ö–çFW""ÂföçE6—¦S¢"ÂföçDfÖ–Ç“¢&–æ†W&—B"×Óà¢¶ö·VÖ6–²ò$v—¦ÆR"¢$|;g7FW"'Ğ¢Âö'WGFöãà¢ÂöF—cà¢ÂöF—cà¢¶ö·VÖ6–²bb‚‚’Óâ°¢6öç7B&w&d¶VÆ–ÖVÆW&’Ò6V7F–öå&w&‡2†"’æÖ‚‡&w&b’Óâ&w&bç7Æ—B‚õÇ2²ò’æf–ÇFW"„&ööÆVâ’“°¢6öç7B¶VÆ–ÖVÆW"Ò&w&d¶VÆ–ÖVÆW&’æfÆB‚“°¢6öç7B7VÖÆVÆW"ÒµÓ°¢ÆWB&2Ò°¢¶VÆ–ÖVÆW"æf÷$V6‚‚†²Â’’Óâ²–b‚õ²âş(
+eÒBòçFW7B†²’ÇÂ’ÓÓÒ¶VÆ–ÖVÆW"æÆVæwF‚Ò’²7VÖÆVÆW"çW6‚…¶&2Â•Ò“²&2Ò’²²ÒÒ“°¢6öç7B·F–d7VÖÆRÒ7VÖÆVÆW"æf–æB‚…¶Â¥Ò’Óâ¶VÆ–ÖT—‚ãÒbb¶VÆ–ÖT—‚ÃÒ¢’ÇÂ7VÖÆVÆW%³Ó°¢òòöF²FW7F\Iö’,;fÌ;ÆÜ;Æâ&IöÆÜKìK–ö²WFÖW¢â9fæ6V¶’Fg&ìKYò–ÆìK ¢òò·F–b<;ÆÖÆW–’DôÒv¶÷–G\I÷Rœ:v–âFÒ&—",;fÌ;ÆÒFV²<;ÆÖÆW–ÖœYòv–&¢òò|;g,;Æì;Ç–÷&GRâ,;ÇL;Æâ,;fÌ;ÆÒV·&æF¶ÌK#²·F–b<;ÆÖÆR|;g'6VÂöÆ&°¢òò;fæR:|K¶,KÌK"à¢6öç7B&w&d&6Ææv–6Æ&’ÒµÓ°¢&w&d¶VÆ–ÖVÆW&’ç&VGV6R‚‡F÷ÆÒÂ&w&b’Óâ°¢&w&d&6Ææv–6Æ&’çW6‚‡F÷ÆÒ“°¢&WGW&âF÷ÆÒ²&w&bæÆVæwFƒ°¢ÒÂ“°¢&WGW&â€¢ÆF—b–CÒ&ö·W&–òÖö·VÖÖ–6W&–v’"FF×&VFW"×v÷&·76R7G–ÆS×·²fÆWƒ¢#WFò"ÂÖ–ä†V–v‡C¢Â÷fW&fÆ÷s¢&†–FFVâ"×Óà¢ÆF—bFF×&VF–ærÖ6öÇVÖâ7G–ÆS×·²†V–v‡C¢#R"ÂÖ–ä†V–v‡C¢×Óà¢ÆF—b&Vc×·&VFW%67&öÆÅ&VgÒFFÖö·VÖÖÖWF–ãÒ#"FF×FVÖ×¶–"çFVÖÒFFÖ·F–bÖ7VÖÆS×¶G¶·F–d7VÖÆU³×ÒÒG¶·F–d7VÖÆU³×ÖÒFFÖ·VÆÆæ–6’Ö¶–F—&Ö×¶ö·VÖÖöGRÓÓÒ&¶VæF–Ò"ò#"¢VæFVf–æVGÒ7G–ÆS×·°¢föçE6—¦S¢TåDôÄ%¶–"çVçFõÒÂÆWGFW%76–æs¢G´$Ä”´Ä%¶–"æ&Æ–µ×ÖVÖÀ¢Æ–æT†V–v‡C¢4D•$Ä%¶–"æ&Æ–µÒÂv÷&E76–æs¢G´$Ä”´Ä%¶–"æ&Æ–µÒ¢"ã'ÖVÖÀ¢6öÆ÷#¢–"çFVÖÓÓÒ&·&VÒ"ò"3$#c#""¢'&v&ƒ#C"Ã#3bÃ##2Ãã“"’"À¢&6¶w&÷VæC¢–"çFVÖÓÓÒ&·&VÒ"ò"4c$T4Db"¢&æöæR"À¢&÷&FW%&F—W3¢–"çFVÖÓÓÒ&·&VÒ"ò"¢À¢FF–æs¢–"çFVÖÓÓÒ&·&VÒ"ò#G‚g‚"¢À¢föçDfÖ–Ç“¢föçD–ÆR†–"æföçB’À¢FW‡DÆ–vã¢&ÆVgB"ÂÖ–ä†V–v‡C¢Â†V–v‡C¢#R"ÂÖ„†V–v‡C¢&æöæR"Â÷fW&fÆ÷u“¢&WFò"ÂvV&¶—D÷fW&fÆ÷u67&öÆÆ–æs¢'F÷V6‚"ÂF÷V6„7F–öã¢'â×’"À¢67&öÆÄ&V†f–÷#¢'6Öö÷F‚"Â÷fW'67&öÆÄ&V†f–÷#¢&6öçF–â"À¢×ÒöåF÷V6…7F'C×¶ö·W—V7UF¶–&–æ”vV6–6”GW&GW'Òöåö–çFW$F÷vã×¶ö·W—V7UF¶–&–æ”vV6–6”GW&GW'Òöåv†VVÃ×¶ö·W—V7UF¶–&–æ”vV6–6”GW&GW'Óà¢·&w&d¶VÆ–ÖVÆW&’æÖ‚‡&w&bÂ&w&d—‚’Óâ€¢Ç¶W“×·&w&d—‡ÒFFÖö·W&–ò×&w&b7G–ÆS×·²Ö&v–ã¢&w&d—‚ÓÓÒ&w&d¶VÆ–ÖVÆW&’æÆVæwF‚Òò¢#ã†VÒ"×Óà¢·&w&bæÖ‚†²Â’’Óâ°¢6öç7BvW&6V´—‚Ò&w&d&6Ææv–6Æ&•·&w&d—…Ò²“°¢6öç7B·F–dÖ’Ò–"çgW&wRbbvW&6V´—‚ÓÓÒ¶VÆ–ÖT—ƒ°¢6öç7B·F–d7VÖÆVFTÖ’ÒvW&6V´—‚ãÒ·F–d7VÖÆU³ÒbbvW&6V´—‚ÃÒ·F–d7VÖÆU³Ó°¢6öç7BFVÖ—¢Ò²ç&WÆ6R‚õ²âÂş(
+c³¥Ò²B÷RÂ""“°¢6öç7B6öâÒ²ç6Æ–6R‡FVÖ—¢æÆVæwF‚“°¢6öç7BâÒÖF‚æÖ‚ƒÂÖF‚æ6V–Â‡FVÖ—¢æÆVæwF‚¢ãCR’“°¢6öç7B6÷¦ÇV²Òf–æDvÆ÷76'”VçG'’†·F–bæ–BÂFVÖ—¢“°¢&WGW&âÇ7à¢¶W“×¶vW&6V´—‡Ğ¢FFÖ¶VÆ–ÖRÖ—ƒ×¶vW&6V´—‡Ğ¢FFÖ·F–c×¶·F–dÖ’ò#"¢VæFVf–æVGĞ¢FFÖ†VFVbÖ¶VÆ–ÖS×·6÷¦ÇV²òFVÖ—¢çFôÆö6ÆTÆ÷vW$66R‚'G"ÕE""’¢VæFVf–æVGĞ¢&öÆS×·6÷¦ÇV²ò&'WGFöâ"¢VæFVf–æVGĞ¢F$–æFWƒ×·6÷¦ÇV²ò¢VæFVf–æVGĞ¢&–Ö†7÷W×·6÷¦ÇV²ò&F–Æör"¢VæFVf–æVGĞ¢&–ÖÆ&VÃ×·6÷¦ÇV²òG·FVÖ—§Ò¶VÆ–ÖW6–æ–âæÆÜKìK:v¢VæFVf–æVGĞ¢öä6Æ–6³×²†WfVçB’Óâ6÷¦ÇV²bb6÷¦ÇV´2‡6÷¦ÇV²ÂWfVçBæ7W'&VçEF&vWB—Ğ¢öä¶W”F÷vã×²†WfVçB’Óâ°¢–b‡6÷¦ÇV²bb†WfVçBæ¶W’ÓÓÒ$VçFW""ÇÂWfVçBæ¶W’ÓÓÒ""’’°¢WfVçBç&WfVçDFVfVÇB‚“°¢6÷¦ÇV´2‡6÷¦ÇV²ÂWfVçBæ7W'&VçEF&vWB“°¢Ğ¢×Ğ¢7G–ÆS×·°¢&6¶w&÷VæC¢·F–dÖ’ò†–"çFVÖÓÓÒ&·&VÒ"ò'&v&ƒ#Ã3’ÃcÃãCR’"¢'&v&ƒ#3"Ãc2ÃcÃã3R’"’¢&æöæR"À¢&÷&FW%&F—W3¢BÀ¢FF–æs¢·F–dÖ’ò#'‚"¢À¢6öÆ÷#¢·F–dÖ’ò†–"çFVÖÓÓÒ&·&VÒ"ò"3S"¢"4ddc4D2"’¢VæFVf–æVBÀ¢÷6—G“¢–"æöF²bb·F–d7VÖÆVFTÖ’òã3‚¢À¢G&ç6—F–öã¢–"æöF²ò&÷6—G’c×2V6R"¢VæFVf–æVBÀ¢7W'6÷#¢6÷¦ÇV²ò&†VÇ"¢VæFVf–æVBÀ¢FW‡DFV6÷&F–öã¢6÷¦ÇV²ò'VæFW&Æ–æRF÷GFVB"¢VæFVf–æVBÀ¢FW‡EVæFW&Æ–æTöfg6WC¢6÷¦ÇV²ò2¢VæFVf–æVBÀ¢×Óà¢¶–"æ&—–öæ–²bbFVÖ—¢æÆVæwF‚â2òÃãÇ7G&öær7G–ÆS×·²föçEvV–v‡C¢ƒS×Óç·FVÖ—¢ç6Æ–6RƒÂâ—ÓÂ÷7G&öæsç·FVÖ—¢ç6Æ–6R†â—×·6öçÓÂóâ¢·×²"'Ğ¢Â÷7ãã°¢Ò—Ğ¢Â÷à¢’—Ğ¢ÂöF—cà¢·6V6–Æ•6÷¦ÇV²bb€¢ÆF—bFF×6÷¦ÇV²Ö¶'F’7G–ÆS×·²F—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢&6VçFW""ÂÖ&v–åF÷¢×Óà¢ÄvÆ÷76'”6&BVçG'“×·6V6–Æ•6÷¦ÇV·Òöä6Æ÷6S×·6÷¦ÇV´¶GÒöå&öæ÷Væ6S×¶¶VÆ–ÖW–•6W6ÆVæF—'Òóà¢ÂöF—cà¢—Ğ¢¶–"æöF²bbÆF—b7G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢2ç6öÇV²ÂÖ&v–åF÷¢‚×ÓäöF²ÖöGS¢<;ÆÖÆR¶7VÖÆVÆW"æ–æFW„öb†·F–d7VÖÆR’²Òò¶7VÖÆVÆW"æÆVæwF‡Ò+r,;fÌ;ÆÜ;ÆâFÖÜK|;g,;Æì;Ç#ÂöF—cçĞ¢ÂöF—cà¢Æ6–FR–CÒ&ö·W&–òÖö·VÖÖ–&Æ&’"FF×&VFW"×6WGF–æw2FFÖ6–³×¶–%æVÆ”6–²ò#"¢#'Ò&–ÖÆ&VÃÒ$ö·VÖ–&Æ,K"&–Ö†–FFVã×¶Öö&–ÄF"bb–%æVÆ”6–²ò'G'VR"¢VæFVf–æVGÓà¢ÆF—bFF×&VFW"×6WGF–æw2×F—FÆR7G–ÆS×·²F—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"Âv¢‚×Óà¢Ç7G&öær7G–ÆS×·²föçE6—¦S¢B×Óäö·VÖ–&Æ,KÂ÷7G&öæsà¢Æ'WGFöâFF×&VFW"×6WGF–æw2Ö6Æ÷6Röä6Æ–6³×²‚’Óâ6WD–%æVÆ”6–²†fÇ6R—Ò&–ÖÆ&VÃÒ$ö·VÖ–&Æ,KìK¶B"7G–ÆS×·²ââæ6—†fÇ6R’ÂÖ–åv–GFƒ¢CBÂÖ–ä†V–v‡C¢CBÂ§W7F–g”6öçFVçC¢&6VçFW""×Óì9sÂö'WGFöãà¢ÂöF—cà¢ÆF—b7G–ÆS×·²Ö&v–åF÷¢‚ÂföçE6—¦S¢"ÂÆ–æT†V–v‡C¢ãRÂ6öÆ÷#¢2ç6öÇV²×Óå7VçV×R¶œYö—6VÆÆ\Y÷F—&—#²FìK¶÷–Ö¢Â|;g&ÖR·W7W'VçRL;Ç¦VÇFÖW¢fW–FVFf’WFÖW¢ãÂöF—cà¢ÆF—b7G–ÆS×·²Ö&v–åF÷¢BÂföçE6—¦S¢"Â6öÆ÷#¢2ç6öÇV²×Óä†¬K"FW7FV¶ÆW"†&—&Æ–·FR6\:v–ÆV&–Æ—"“£ÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢‚ÂÖ&v–åF÷¢bÂfÆW…w&¢'w&"×Óà¢Æ'WGFöâFF×&öf–ÃÒ&F—2"öä6Æ–6³×²‚’Óâ&öf–ÅW–wVÆ‡²ââç&öf–ÂÂF—3¢&öf–ÂæF—2Ò—Ò&–ÖÆ&VÃÒ$ö·VÖ¶öÆ–ÌKIüKFW7F\Iö’"&–×&W76VC×·&öf–ÂæF—7Ò7G–ÆS×¶6—‡&öf–ÂæF—2—Óäö·VÖ¶öÆ–ÌKIüKÂö'WGFöãà¢Æ'WGFöâFF×&öf–ÃÒ&FV†""öä6Æ–6³×²‚’Óâ&öf–ÅW–wVÆ‡²ââç&öf–ÂÂFV†#¢&öf–ÂæFV†"Ò—Ò&–ÖÆ&VÃÒ$F–¶¶BFW7F\Iö’"&–×&W76VC×·&öf–ÂæFV†'Ò7G–ÆS×¶6—‡&öf–ÂæFV†"—ÓäF–¶¶BFW7F\Iö“Âö'WGFöãà¢Æ'WGFöâFF×&öf–ÃÒ&v÷'6VÂ"öä6Æ–6³×²‚’Óâ&öf–ÅW–wVÆ‡²ââç&öf–ÂÂv÷'6VÃ¢&öf–Âæv÷'6VÂÒ—Ò&–ÖÆ&VÃÒ$|;g'6VÂ¶öæf÷"FW7F\Iö’"&–×&W76VC×·&öf–Âæv÷'6VÇÒ7G–ÆS×¶6—‡&öf–Âæv÷'6VÂ—Óä|;g'6VÂ¶öæf÷#Âö'WGFöãà¢ÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢‚ÂÖ&v–åF÷¢ÂfÆW…w&¢'w&"×Óà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WD–"‡²ââæ–"ÂVçFó¢†–"çVçFò²’RTåDôÄ"æÆVæwF‚Ò—Ò&–ÖÆ&VÃ×¶–¬K&÷—WGS¢GµTåDôÄ%¶–"çVçFõ×Ò–·6VÆÒ7G–ÆS×¶6—†fÇ6R—Óà¢ÅG—R6—¦S×³7ÒóâµTåDôÄ%¶–"çVçFõ×Ò€¢Âö'WGFöãà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WD–"‡²ââæ–"Â&Æ–³¢†–"æ&Æ–²²’R$Ä”´Ä"æÆVæwF‚Ò—Ò&–ÖÆ&VÃ×¶†&bfR6LK"&ÌKIüK¢Gµ²%<K¼K"Â%&†B"Â$vVæœYò"Â$V·7G&vVæœYò%Õ¶–"æ&Æ–µ×ÖÒ7G–ÆS×¶6—†fÇ6R—Óà¢ÄÆ–vä§W7F–g’6—¦S×³7Òóâ&ÌK³¢µ²%<K¼K"Â%&†B"Â$vVæœYò"Â$V·7G&%Õ¶–"æ&Æ–µ×Ğ¢Âö'WGFöãà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WD–"‡²ââæ–"ÂöF³¢–"æöF²Ò—Ò&–ÖÆ&VÃÒ$öF²ÖöGR"&–×&W76VC×¶–"æöF·Ò7G–ÆS×¶6—†–"æöF²—Óà¢Äfö7W26—¦S×³7ÒóâöF²ÖöGP¢Âö'WGFöãà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WD–"‡²ââæ–"ÂgW&wS¢–"çgW&wRÒ—Ò&–ÖÆ&VÃÒ$¶VÆ–ÖRgW&wW7R"&–×&W76VC×¶–"çgW&wWÒ7G–ÆS×¶6—†–"çgW&wR—Óà¢¶VÆ–ÖRgW&wW7P¢Âö'WGFöãà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WD–"‡²ââæ–"ÂFVÖ¢–"çFVÖÓÓÒ&·&VÒ"ò&¶÷—R"¢&·&VÒ"Ò—Ò&–ÖÆ&VÃ×¶¦VÖ–ã¢G¶–"çFVÖÓÓÒ&·&VÒ"ò$·&VÒ"¢$¶÷—R'ÖÒ&–×&W76VC×¶–"çFVÖÓÓÒ&·&VÒ'Ò7G–ÆS×¶6—†–"çFVÖÓÓÒ&·&VÒ"—Óà¢¦VÖ–ã¢¶–"çFVÖÓÓÒ&·&VÒ"ò$·&VÒ"¢$¶÷—R'Ğ¢Âö'WGFöãà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WD–"‡²ââæ–"Â&—–öæ–³¢–"æ&—–öæ–²Ò—Ò&–ÖÆ&VÃÒ$&—–öæ–²gW&wRÂFVæW—6VÂ"&–×&W76VC×¶–"æ&—–öæ–·Ò7G–ÆS×¶6—†–"æ&—–öæ–²—Óà¢&—–öæ–²gW&wR+rFVæW—6VÀ¢Âö'WGFöãà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WD–"‡²ââæ–"ÂföçC¢6öç&¶”föçB†–"æföçB’Ò—Ò&–ÖÆ&VÃ×¶–¬KF—“¢G¶föçDB†–"æföçB—ÖÒ7G–ÆS×¶6—†–"æföçBÓÓÒ&ÆW†VæB"—Óà¢–¬K¢¶föçDB†–"æföçB—Ğ¢Âö'WGFöãà¢ÂöF—cà¢ÆF—b7G–ÆS×·²Ö&v–åF÷¢‚ÂFF–æuF÷¢BÂ&÷&FW%F÷¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃã‚’"ÂföçE6—¦S¢"Â6öÆ÷#¢2ç6öÇV²×Óäö·VÖfR6W2¶öçG&öÆÆW&“ÂöF—cà¢ÆF—bFFÖö·VÖÖÖöGRÖ¶ö×·B7G–ÆS×·²F—7Æ“¢&fÆW‚"ÂÖ&v–åF÷¢‚×Óà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WDÖöEæVÆ”6–²‚†6–²’Óâ6–²—Ò&–ÖW‡æFVC×¶ÖöEæVÆ”6–·Ò&–Ö6öçG&öÇ3Ò&ö·W&–òÖö·VÖÖÖöFÆ&’"&–ÖÆ&VÃ×¶ö·VÖÖöGS¢G¶ö·VÖÖöGT–"æGÖÒ7G–ÆS×·²ââæ6—‡G'VR’Âv–GFƒ¢#R"ÂÖ–ä†V–v‡C¢CBÂ§W7F–g”6öçFVçC¢&6VçFW""×Óà¢ÖöC¢¶ö·VÖÖöGT–"æGÒ)kà¢Âö'WGFöãà¢ÂöF—cà¢¶ÖöEæVÆ”6–²bb€¢ÆF—b–CÒ&ö·W&–òÖö·VÖÖÖöFÆ&’"FFÖö·VÖÖÖöFÆ&’7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢bÂÖ&v–åF÷¢bÂfÆW…w&¢'w&"×Óà¢´ôµTÔôÔôDÄ$’æÖ‚†Ò’Óâ€¢Æ'WGFöâ¶W“×¶Òæ–GÒFFÖö·VÖÖÖöGS×¶Òæ–GÒöä6Æ–6³×²‚’Óâö·VÖÖöGTFVv—7F—"†Òæ–B—Ò&–×&W76VC×¶ö·VÖÖöGRÓÓÒÒæ–GÒF—FÆS×¶Òæ6–¶ÆÖÒ7G–ÆS×·²ââæ6—†ö·VÖÖöGRÓÓÒÒæ–B’ÂÖ–ä†V–v‡C¢CB×Óà¢¶ÒæGĞ¢Âö'WGFöãà¢’—Ğ¢ÂöF—cà¢—Ğ¢²6Æ—–÷"bbÆF—bFFÖö·VÖÖÖöGRÖ—V7R7G–ÆS×·²Ö&v–åF÷¢rÂ6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢ÂÆ–æT†V–v‡C¢ãCR×Óç¶ö·VÖÖöGT–"æ6–¶ÆÖÓÂöF—cçĞ¢¶ö·VÖÖöGRÓÓÒ&¶VæF–Ò"bb€¢ÆF—bFFÖ¶VÆ–ÖR×–&F–Ö“Ò#"&öÆSÒ&æ÷FR"7G–ÆS×·²Ö&v–åF÷¢rÂ6öÆ÷#¢2çgW&wRÂföçE6—¦S¢ÂÆ–æT†V–v‡C¢ãCR×Óà¢ÇLK:v—¦–Æ’†VFVb¶VÆ–ÖW–RFö·Væ&²¼K6æÆÜKìK:rà¢ÂöF—cà¢—Ğ¢ÆF—bFFÖÇBÖ&6Æ"7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢bÂÖ&v–åF÷¢ÂfÆW…w&¢'w&"×Óà¢Æ'WGFöâöä6Æ–6³×¶†—¤FVv—7F—'Ò7G–ÆS×·²ââæ6—†fÇ6R’ÂÖ–ä†V–v‡C¢CBÂFF–æs¢#g‚—‚"×ÓãÄvVvR6—¦S×³7Òóâ¶†—§×ƒÂö'WGFöãà¢Æ'WGFöâFF×6W2×FöçS×·6W5FöçWÒöä6Æ–6³×·6W5FöçTFVv—7F—'ÒF—FÆS×·6W5FöçT–"æ6–¶ÆÖÒ7G–ÆS×·²ââæ6—†WF¶–å6W6ÆVæF—&ÖR’ÂÖ–ä†V–v‡C¢CBÂFF–æs¢#g‚—‚"×ÓãÅföÇVÖS"6—¦S×³7Òóâ6W3¢¶WF¶–å6W6ÆVæF—&ÖRò6W5FöçT–"æ¶—6¢$¶ÌK'ÓÂö'WGFöãà¢Æ'WGFöâöä6Æ–6³×·W–·TFVv—7F—'Ò7G–ÆS×·²ââæ6—‡W–·Râ’ÂÖ–ä†V–v‡C¢CBÂFF–æs¢#g‚—‚"×ÓãÄÖööâ6—¦S×³7Òóâ·W–·Râò7W&U–¢‡W–·R’¢%W–·R'ÓÂö'WGFöãà¢ÂöF—cà¢Âö6–FSà¢ÂöF—cà¢“°¢Ò’‚—Ğ¢ÂöF—cà  ¢²‚‚’Óâ°¢6öç7B6÷'RÒ¶—F6÷'W7R†·F–b“°¢–b‚6÷'RÇÂ6÷'T†¦—"ÇÂ6÷'T¶Æ’’&WGW&âçVÆÃ°¢&WGW&â€¢ÆF—b&öÆSÒ&F–Æör"&–ÖÆ&VÃÒ$&—&Æ–·FRL;ÌYü;ÆæVÆ–Ò"FFÖ&—&Æ–·FRÖGW7VæVÆ–ÒFF×6÷'R×¦Öæ“Ò&&öÇVÒ×6öçR"7G–ÆS×·²&6¶w&÷VæC¢2æ¶'C"Â&÷&FW#¢#‚6öÆ–B&v&ƒ#3"Ãc2ÃcÃã3‚’"Â&÷&FW%&F—W3¢bÂFF–æs¢Öö&–ÄF"ò#G‚"¢#g‚"×Óà¢ÆF—b7G–ÆS×·²föçE6—¦S¢"Â6öÆ÷#¢2çgW&wRÂföçEvV–v‡C¢sÂÆWGFW%76–æs¢#ãfVÒ"ÂFW‡EG&ç6f÷&Ó¢'WW&66R"ÂÖ&v–ä&÷GFöÓ¢b×Óä&—&Æ–·FRL;ÌYü;ÆæVÆ–ÓÂöF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢BÂ6öÆ÷#¢2æÖWF–âÂföçEvV–v‡C¢cÂÖ&v–ä&÷GFöÓ¢‚×Óç·6÷'Rç6÷'WÓÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢‚ÂfÆW…w&¢'w&"×Óà¢·6÷'Rç6V6VæV¶ÆW"æÖ‚‡6V6VæV²’Óâ°¢6öç7B6V6–ÆF’Ò6÷'T6Wf&’ÓÓÒ6V6VæV³°¢&WGW&â€¢Æ'WGFöâ¶W“×·6V6VæV·Òöä6Æ–6³×²‚’Óâ6WE6÷'T6Wf&’‡6V6VæV²—Ò&–×&W76VC×·6V6–ÆF—Ğ¢7G–ÆS×·²&6¶w&÷VæC¢6V6–ÆF’ò'&v&ƒ#3"Ãc2ÃcÃã#’"¢'&v&ƒ#SRÃ#SRÃ#SRÃã‚’"Â&÷&FW#¢6V6–ÆF’ò#‚6öÆ–B&v&ƒ#3"Ãc2ÃcÃãS"’"¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃã‚’"Â&÷&FW%&F—W3¢ÂÖ–ä†V–v‡C¢CBÂFF–æs¢#‡‚‚"Â6öÆ÷#¢2æÖWF–âÂ7W'6÷#¢'ö–çFW""ÂföçDfÖ–Ç“¢&–æ†W&—B"ÂföçE6—¦S¢2×Óà¢·6V6VæV·Ğ¢Âö'WGFöãà¢“°¢Ò—Ğ¢ÂöF—cà¢·6÷'T6Wf&’bb€¢ÆF—bFF×6÷'RÖvW&’Ö&–ÆF—&–Ò&–ÖÆ—fSÒ'öÆ—FR"7G–ÆS×·²Ö&v–åF÷¢ÂföçE6—¦S¢2Â6öÆ÷#¢'&v&ƒ#C"Ã#3bÃ##2ÃãƒB’"ÂÆ–æT†V–v‡C¢ãR×Óà¢6\:v–Ö–æ’|;g&L;ÆÒâ·6÷'RæFW7FV·Ò'W&FVâ–ö³²ÖWFæR¶VæF’–÷'V×VæÆL;fæV&–Æ—'6–âà¢ÂöF—cà¢—Ğ¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"Âv¢‚ÂÖ&v–åF÷¢"ÂfÆW…w&¢'w&"×Óà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6WE6÷'T¶Æ’‡G'VR—Ò7G–ÆS×·²ââæ6—†fÇ6R’ÂÖ–ä†V–v‡C¢CB×ÓäÖWFæRL;fãÂö'WGFöãà¢Æ'WGFöâöä6Æ–6³×²‚’Óâæ6–f–Föâ‡6WD÷–æF–6”6–²Â6WE6V¶ÖRÂ6WDFWF”–B—Ò7G–ÆS×·²ââæ6—‡G'VR’ÂÖ–ä†V–v‡C¢CB×Óäö·VÖœK&—F—#Âö'WGFöãà¢ÂöF—cà¢ÂöF—cà¢“°¢Ò’‚—Ğ ¢²ò¢ÅB´ôåE$ôÂ$ÄüIåS¢6&—B¢÷Ğ¢ÆF—bFFÖÇBÖ¶öçG&öÂ7G–ÆS×·²fÆW…6‡&–æ³¢ÂFF–æuF÷¢Öö&–ÄF"òb¢×Óà¢ÆF—bFFÖ¶ö×·BÖ–ÆW&ÆVÖRFF×Æ–W"×f—7VÃÒ&6ö×7B×&öw&W72"7G–ÆS×·²Ö&v–åF÷¢B×Óà¢ÆF—`¢&öÆSÒ'6Æ–FW" ¢F$–æFWƒ×³Ğ¢&–ÖÆ&VÃÒ$ö·VÖ–ÆW&ÆVÖW6’ ¢&–×fÇVVÖ–ã×³Ğ¢&–×fÇVVÖƒ×³Ğ¢&–×fÇVVæ÷s×´ÖF‚ç&÷VæB†÷&â¢—Ğ¢&–×fÇVWFW‡C×¶RG´ÖF‚ç&÷VæB†÷&â¢—ÒFÖÖÆæLKĞ¢öä6Æ–6³×²†WfVçB’Óâ°¢6öç7B&V7BÒWfVçBæ7W'&VçEF&vWBævWD&÷VæF–æt6Æ–VçE&V7B‚“°¢÷&æ6"‚†WfVçBæ6Æ–VçE‚Ò&V7BæÆVgB’ò&V7Bçv–GF‚“°¢×Ğ¢öä¶W”F÷vã×²†WfVçB’Óâ°¢6öç7B7FWÒWfVçBç6†–gD¶W’òã¢ã#°¢–b…²$'&÷tÆVgB"Â$'&÷tF÷vâ%Òæ–æ6ÇVFW2†WfVçBæ¶W’’’²WfVçBç&WfVçDFVfVÇB‚“²÷&æ6"„ÖF‚æÖ‚ƒÂ÷&âÒ7FW’“²Ğ¢–b…²$'&÷u&–v‡B"Â$'&÷uW%Òæ–æ6ÇVFW2†WfVçBæ¶W’’’²WfVçBç&WfVçDFVfVÇB‚“²÷&æ6"„ÖF‚æÖ–âƒÂ÷&â²7FW’“²Ğ¢–b†WfVçBæ¶W’ÓÓÒ$†öÖR"’²WfVçBç&WfVçDFVfVÇB‚“²÷&æ6"ƒ“²Ğ¢–b†WfVçBæ¶W’ÓÓÒ$VæB"’²WfVçBç&WfVçDFVfVÇB‚“²÷&æ6"ƒ“²Ğ¢×Ğ¢7G–ÆS×·²†V–v‡C¢CBÂF—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Â7W'6÷#¢'ö–çFW""ÂF÷V6„7F–öã¢&Öæ—VÆF–öâ"×Ğ¢à¢ÆF—bFF×&öw&W72×G&6²7G–ÆS×·²v–GFƒ¢#R"Â†V–v‡C¢‚Â&÷&FW%&F—W3¢““’Â&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃã"’"Â÷fW&fÆ÷s¢&†–FFVâ"×Óà¢ÆF—b7G–ÆS×·²v–GFƒ¢G¶÷&â¢ÒVÂ†V–v‡C¢#R"Â&6¶w&÷VæC¢2çgW&wR×Òóà¢ÂöF—cà¢ÂöF—cà¢ÂöF—cà¢ÆF—bFF×&öw&W72×F–ÖR7G–ÆS×·²F—7Æ“¢&fÆW‚"Â§W7F–g”6öçFVçC¢'76RÖ&WGvVVâ"ÂföçE6—¦S¢"Â6öÆ÷#¢2ç6öÇV²ÂÖ&v–åF÷¢Ó‚×Óà¢Ç7ãç·7W&U–¢‡÷¦—7–öâ—ÓÂ÷7ããÇ7ãâ×·7W&U–¢‡F÷ÆÒÒ÷¦—7–öâ—ÓÂ÷7ãà¢ÂöF—cà¢ÆF—bFF×G&ç7÷'BÖ6öçG&öÇ27G–ÆS×·²F—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Â§W7F–g”6öçFVçC¢&6VçFW""Âv¢Öö&–ÄF"ò‚¢#"ÂÖ&v–åF÷¢Öö&–ÄF"òb¢‚×Óà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6"‚ÓR—Ò&–ÖÆ&VÃÒ#R6æ—–RvW&’"7G–ÆS×·²&6¶w&÷VæC¢&æöæR"Â&÷&FW#¢&æöæR"Â6öÆ÷#¢2æÖWF–âÂ7W'6÷#¢'ö–çFW""ÂF—7Æ“¢&fÆW‚"ÂfÆW„F—&V7F–öã¢&6öÇVÖâ"ÂÆ–vä—FV×3¢&6VçFW""Âv¢"×Óà¢Å&÷FFT67r6—¦S×³#GÒóãÇ7â7G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢2ç6öÇV²×ÓãSÂ÷7ãà¢Âö'WGFöãà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ÷–æDFVv—7F—"‚—Ò&–ÖÆ&VÃ×¶6Æ—–÷"ò$GW&¶ÆB"¢$÷–æB'Ğ¢7G–ÆS×·²v–GFƒ¢Öö&–ÄF"òS"¢S‚Â†V–v‡C¢Öö&–ÄF"òS"¢S‚Â&÷&FW%&F—W3¢Öö&–ÄF"ò#b¢#’Â&6¶w&÷VæC¢2çgW&wRÂ&÷&FW#¢&æöæR"ÂF—7Æ“¢&fÆW‚"ÂÆ–vä—FV×3¢&6VçFW""Â§W7F–g”6öçFVçC¢&6VçFW""Â7W'6÷#¢'ö–çFW""Â&÷…6†F÷s¢#g‚#'‚&v&ƒ#3"Ãc2ÃcÃã3R’"×Óà¢¶6Æ—–÷"òÅW6R6—¦S×³#WÒ6öÆ÷#Ò"3Cƒb"f–ÆÃÒ"3Cƒb"óâ¢ÅÆ’6—¦S×³#WÒ6öÆ÷#Ò"3Cƒb"f–ÆÃÒ"3Cƒb"7G–ÆS×·²Ö&v–äÆVgC¢2×ÒóçĞ¢Âö'WGFöãà¢Æ'WGFöâöä6Æ–6³×²‚’Óâ6"ƒ3—Ò&–ÖÆ&VÃÒ#36æ—–R–ÆW&’"7G–ÆS×·²&6¶w&÷VæC¢&æöæR"Â&÷&FW#¢&æöæR"Â6öÆ÷#¢2æÖWF–âÂ7W'6÷#¢'ö–çFW""ÂF—7Æ“¢&fÆW‚"ÂfÆW„F—&V7F–öã¢&6öÇVÖâ"ÂÆ–vä—FV×3¢&6VçFW""Âv¢"×Óà¢Å&÷FFT7r6—¦S×³#GÒóãÇ7â7G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢2ç6öÇV²×Óã3Â÷7ãà¢Âö'WGFöãà¢ÂöF—cà¢ÂöF—cà¢ÂöF—cà¢ÂöF—cà¢“°¢Ó° ¢6öç7Böæ&ö&F–æu6–fÒ‚’Óâ°¢6öç7B·F6Æ²Â6WEF6ÆµÒÒW6U7FFR‡²ââæö·VÖ–öÇRÂFW7FV¶ÆW#¢²ââæö·VÖ–öÇRæFW7FV¶ÆW%ÒÒ“°¢6öç7B–öÂÒ–öÄ'VÂ‡F6Æ²ç–öÄ–B“°¢6öç7BFövvÆTFW7FV²Ò†–B’Óâ°¢6WEF6Æ²‚†R’Óâ‡²ââæRÂFW7FV¶ÆW#¢RæFW7FV¶ÆW"æ–æ6ÇVFW2†–B’òRæFW7FV¶ÆW"æf–ÇFW"‚‡‚’Óâ‚ÓÒ–B’¢²ââæRæFW7FV¶ÆW"Â–EÒÒ’“°¢Ó°¢&WGW&â€¢ÆÖ–âFF×vR×6†VÆÂFFÖöæ&ö&F–ær×vR7G–ÆS×·²FF–æs¢##g‚#‚‚"×Óà¢ÆF—b7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢3ÂÖ&v–ä&÷GFöÓ¢b×Óäö·VÖ–öÇVçR6\:sÂöF—cà¢ÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢BÂÆ–æT†V–v‡C¢ãSRÂÖ&v–ä&÷GFöÓ¢‚×Óà¢–YòFV²&YüKæ–WFW&Æ’F\Iö–Ââö·W&–òÂ–Yò&æLKìKö·VÖWg&W6’ÂFW7FV²–‡F—–<KfRö·VÖÖöGW–Æ&—&Æ–·FR·VÆÆìK"à¢ÂöF—cà ¢ÆF—b7G–ÆS×·²föçE6—¦S¢"Â6öÆ÷#¢2çgW&wRÂföçEvV–v‡C¢sÂÆWGFW%76–æs¢#ãfVÒ"ÂFW‡EG&ç6f÷&Ó¢'WW&66R"ÂÖ&v–ä&÷GFöÓ¢‚×Óã+r¶–Òœ:v–ãóÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&w&–B"Âw&–EFV×ÆFT6öÇVÖç3¢#g"g""Âv¢‚ÂÖ&v–ä&÷GFöÓ¢‚×Óà¢´ôµTÔõ”ôÄÄ$’æÖ‚‡’’Óâ€¢Æ'WGFöâ¶W“×·’æ–GÒöä6Æ–6³×²‚’Óâ6WEF6Æ²‚†R’Óâ²6öç7B—¦–æÆ’ÒWg&U6V6VæV¶ÆW&’‡’æ–B“²6öç7B–Væ”Wg&RÒ—¦–æÆ’ç6öÖR‚‡‚’Óâ‚æ–BÓÓÒRæWg&T–B’òRæWg&T–B¢’æWg&S²&WGW&â²ââæRÂ–öÄ–C¢’æ–BÂWg&T–C¢–Væ”Wg&RÓ²Ò—ÒFF×–öÃ×·’æ–GĞ¢7G–ÆS×·²FW‡DÆ–vã¢&ÆVgB"Â&6¶w&÷VæC¢F6Æ²ç–öÄ–BÓÓÒ’æ–Bò'&v&ƒ#3"Ãc2ÃcÃãb’"¢2æ¶'BÂ&÷&FW#¢F6Æ²ç–öÄ–BÓÓÒ’æ–Bò#‚6öÆ–B&v&ƒ#3"Ãc2ÃcÃãC‚’"¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃãb’"Â&÷&FW%&F—W3¢BÂFF–æs¢"Â7W'6÷#¢'ö–çFW""Â6öÆ÷#¢2æÖWF–âÂföçDfÖ–Ç“¢&–æ†W&—B"×Óà¢ÆF—b7G–ÆS×·²föçE6—¦S¢2ÂföçEvV–v‡C¢s×Óç·’æ&6Æ–·ÓÂöF—cà¢ÆF—b7G–ÆS×·²föçE6—¦S¢Â6öÆ÷#¢2ç6öÇV²ÂÖ&v–åF÷¢2×Óç·’ç–7Ò–Y÷¶vWDw&FTÆ&VÄf÷%–öÄ–B‡’æ–B’ò+rG¶vWDw&FTÆ&VÄf÷%–öÄ–B‡’æ–B—Ö¢"'ÓÂöF—cà¢Âö'WGFöãà¢’—Ğ¢ÂöF—cà ¢ÆF—b7G–ÆS×·²föçE6—¦S¢"Â6öÆ÷#¢2çgW&wRÂföçEvV–v‡C¢sÂÆWGFW%76–æs¢#ãfVÒ"ÂFW‡EG&ç6f÷&Ó¢'WW&66R"ÂÖ&v–ä&÷GFöÓ¢‚×Óã"+rö·VÖWg&W6“ÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"ÂfÆW„F—&V7F–öã¢&6öÇVÖâ"Âv¢‚ÂÖ&v–ä&÷GFöÓ¢‚×Óà¢¶Wg&U6V6VæV¶ÆW&’‡F6Æ²ç–öÄ–B’æÖ‚†R’Óâ€¢Æ'WGFöâ¶W“×¶Ræ–GÒöä6Æ–6³×²‚’Óâ6WEF6Æ²‚‡B’Óâ‡²ââçBÂWg&T–C¢Ræ–BÒ’—Ğ¢7G–ÆS×·²Ö–ä†V–v‡C¢CBÂFW‡DÆ–vã¢&ÆVgB"Â&6¶w&÷VæC¢F6Æ²æWg&T–BÓÓÒRæ–Bò'&v&ƒ#3"Ãc2ÃcÃãB’"¢2æ¶'BÂ&÷&FW#¢F6Æ²æWg&T–BÓÓÒRæ–Bò#‚6öÆ–B&v&ƒ#3"Ãc2ÃcÃãCR’"¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃãb’"Â&÷&FW%&F—W3¢"ÂFF–æs¢#‚'‚"Â6öÆ÷#¢2æÖWF–âÂ7W'6÷#¢'ö–çFW""ÂföçDfÖ–Ç“¢&–æ†W&—B"ÂföçE6—¦S¢2×Óà¢¶RæGĞ¢Âö'WGFöãà¢’—Ğ¢ÂöF—cà ¢ÆF—b7G–ÆS×·²föçE6—¦S¢"Â6öÆ÷#¢2çgW&wRÂföçEvV–v‡C¢sÂÆWGFW%76–æs¢#ãfVÒ"ÂFW‡EG&ç6f÷&Ó¢'WW&66R"ÂÖ&v–ä&÷GFöÓ¢‚×Óã2+rFW7FV¶ÆW#ÂöF—cà¢ÆF—b7G–ÆS×·²F—7Æ“¢&fÆW‚"Âv¢‚ÂfÆW…w&¢'w&"ÂÖ&v–ä&÷GFöÓ¢#×Óà¢´DU5DTµõ4T4TäT´ÄU$’æÖ‚†B’Óâ°¢6öç7B6V6–Æ’ÒF6Æ²æFW7FV¶ÆW"æ–æ6ÇVFW2†Bæ–B“°¢&WGW&â€¢Æ'WGFöâ¶W“×¶Bæ–GÒöä6Æ–6³×²‚’ÓâFövvÆTFW7FV²†Bæ–B—Ğ¢&–×&W76VC×·6V6–Æ—Ğ¢7G–ÆS×·²Ö–ä†V–v‡C¢CBÂ&6¶w&÷VæC¢6V6–Æ’ò'&v&ƒ#3"Ãc2ÃcÃãr’"¢2æ¶'BÂ&÷&FW#¢6V6–Æ’ò#‚6öÆ–B&v&ƒ#3"Ãc2ÃcÃãCR’"¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃãb’"Â&÷&FW%&F—W3¢““’ÂFF–æs¢#—‚'‚"Â6öÆ÷#¢6V6–Æ’ò2çgW&wR¢2ç6öÇV²Â7W'6÷#¢'ö–çFW""ÂföçDfÖ–Ç“¢&–æ†W&—B"ÂföçE6—¦S¢"×Óà¢·6V6–Æ’ò.)É2"¢"'×¶BæGĞ¢Âö'WGFöãà¢“°¢Ò—Ğ¢ÂöF—cà ¢ÆF—b7G–ÆS×·²&6¶w&÷VæC¢'&v&ƒ#SRÃ#SRÃ#SRÃãCR’"Â&÷&FW#¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃãr’"Â&÷&FW%&F—W3¢bÂFF–æs¢RÂÖ&v–ä&÷GFöÓ¢b×Óà¢ÆF—b7G–ÆS×·²6öÆ÷#¢2çgW&wRÂföçE6—¦S¢"ÂföçEvV–v‡C¢s×Óå&öf–Â;fæ—¦ÆVÖW6“ÂöF—cà¢ÆF—b7G–ÆS×·²ââæ&6Æ–µ7F–ÂÂföçE6—¦S¢#ÂÖ&v–åF÷¢B×Óç·–öÂæ&6Æ–·ÓÂöF—cà¢ÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢2ÂÖ&v–åF÷¢B×Óç·–öÂç–7Ò+r¶Wg&T'VÂ‡F6Æ²æWg&T–B’æGÓÂöF—cà¢ÆF—b7G–ÆS×·²6öÆ÷#¢'&v&ƒ#C"Ã#3bÃ##2Ããƒb’"ÂföçE6—¦S¢BÂÆ–æT†V–v‡C¢ãSRÂÖ&v–åF÷¢’×Óç·–öÂç6ÆövçÓÂöF—cà¢ÆF—b7G–ÆS×·²6öÆ÷#¢2ç6öÇV²ÂföçE6—¦S¢"ÂÖ&v–åF÷¢×Óå&÷¦WB–öÇS¢·–öÂç&÷¦WDF—Òâ|;Ç,;ÆÇL;ÆÌ;Â;fL;ÆÂF\Iö–Ã²–ÆW&ÆVÖRfRF÷–wVæÇV²†—76’ãÂöF—cà¢ÂöF—cà ¢Æ'WGFöâöä6Æ–6³×²‚’Óâö·VÖ–öÇVçT¶–FWB‡F6Æ²—Ğ¢7G–ÆS×·²v–GFƒ¢#R"Â&6¶w&÷VæC¢2çgW&wRÂ6öÆ÷#¢"3Cƒb"Â&÷&FW#¢&æöæR"Â&÷&FW%&F—W3¢RÂFF–æs¢#G‚"ÂföçE6—¦S¢RÂföçEvV–v‡C¢sÂ7W'6÷#¢'ö–çFW""ÂföçDfÖ–Ç“¢&–æ†W&—B"×Óà¢ö·VÖ–öÇV×R&YöÆ@¢Âö'WGFöãà¢ÂöÖ–ãà¢“°¢Ó° ¢6öç7BÇDÖVçRÒ‚’Óâ€¢ÆæbFFÖ&÷GFöÒÖæb&–ÖÆ&VÃÒ$ævW¦–æÖR"7G–ÆS×·²÷6—F–öã¢&f—†VB"Â&÷GFöÓ¢ÂÆVgC¢#SR"ÂG&ç6f÷&Ó¢'G&ç6ÆFU‚‚ÓSR’"Âv–GFƒ¢&Ö–âƒƒ‚ÂR’"Â&6¶w&÷VæC¢'&v&ƒ#Ã#BÃ3Ãã“b’"Â&6¶G&÷f–ÇFW#¢&&ÇW"ƒ‚’"Â&÷&FW%F÷¢#‚6öÆ–B&v&ƒ#SRÃ#SRÃ#SRÃãr’"ÂF—7Æ“¢&fÆW‚"Â¤–æFWƒ¢3×Óà¢µ°¢²–C¢&æ"ÂC¢$æ6–f"Â–6ó¢†öÖRÒÀ¢²–C¢&&"ÂC¢$&"Â–6ó¢6V&6‚ÒÀ¢²–C¢&¶—FÆ–²"ÂC¢$¶—FÌKIüKÒ"Â–6ó¢Æ–'&'’ÒÀ¢ÒæÖ‚‡²–BÂBÂ–6òÒ’Óâ€¢Æ'WGFöâ¶W“×¶–GÒöä6Æ–6³×²‚’Óâ²6WE6V¶ÖR†–B“²6WDFWF”–B†çVÆÂ“²×Ğ¢&–Ö7W'&VçC×·6V¶ÖRÓÓÒ–BbbFWF”–Bò'vR"¢VæFVf–æVGĞ¢7G–ÆS×·²fÆWƒ¢Â&6¶w&÷VæC¢&æöæR"Â&÷&FW#¢&æöæR"ÂFF–æs¢#‚G‚"Â7W'6÷#¢'ö–çFW""ÂF—7Æ“¢&fÆW‚"ÂfÆW„F—&V7F–öã¢&6öÇVÖâ"ÂÆ–vä—FV×3¢&6VçFW""Âv¢2Â6öÆ÷#¢6V¶ÖRÓÓÒ–BbbFWF”–Bò2çgW&wR¢2ç6öÇV²ÂföçDfÖ–Ç“¢&–æ†W&—B"×Óà¢Ä–6ò6—¦S×³#ÒóãÇ7â7G–ÆS×·²föçE6—¦S¢×Óç¶GÓÂ÷7ãà¢Âö'WGFöãà¢’—Ğ¢Âöæcà¢“° ¢&WGW&â€¢ÆF—bFFÖ×6†VÆÂ7G–ÆS×¶v÷fFWÓà¢Ç7G–ÆSç¶ÖVF–‡ö–çFW#¢6ö'6R’Â††÷fW#¢æöæR’Â†Ö‚×v–GFƒ¢C3‚’²¶FFÖ×6†VÆÅÒ'WGFöâ²Ö–â×v–GFƒ¢CG‚–×÷'FçC²Ö–âÖ†V–v‡C¢CG‚–×÷'FçC²ÒÖÓÂ÷7G–ÆSà¢¶öæ&ö&F–æt6–²òÄöæ&ö&F–æu6–fóâ¢FWF”–BòÄFWF•6–fóâ¢6V¶ÖRÓÓÒ&æ"òÄæ6–fóâ¢6V¶ÖRÓÓÒ&&"òÄ&Ö6–fóâ¢Ä¶—FÆ–µ6–fóçĞ¢²öæ&ö&F–æt6–²bbÄÖ–æ”÷–æF–6’óçĞ¢²öæ&ö&F–æt6–²bbÅFÔ÷–æF–6’óçĞ¢²öæ&ö&F–æt6–²bbÄÇDÖVçRóçĞ¢ÂöF—cà¢“°§Ğ 
