@@ -8,6 +8,7 @@ import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
 import { COMPLETE_OKURIO_SESSIONS } from "./content/completeOkurioSessions.js";
 import { ANDERSEN_STORIES } from "./content/andersenStories.js";
 import { classifyContent, estimateStorySeconds } from "./content/contentIntegrity.js";
+import { sectionParagraphs } from "./content/contentStructure.js";
 import { evaluateStoryForReadingLevel } from "./content/readingLevelPolicy.js";
 import { evaluateContentQualityReview } from "./content/contentQualityReview.js";
 import { getGradeLabelForYolId, minimumFullReadingSecondsForAge } from "./content/schoolGradeMapping.js";
@@ -3200,7 +3201,8 @@ export default function DinletiApp() {
               </div>
             </div>
             {okumaAcik && (() => {
-              const kelimeler = b.metin.trim().split(/\s+/);
+              const paragrafKelimeleri = sectionParagraphs(b).map((paragraf) => paragraf.split(/\s+/).filter(Boolean));
+              const kelimeler = paragrafKelimeleri.flat();
               const cumleler = [];
               let bas = 0;
               kelimeler.forEach((k, i) => { if (/[.!?…]$/.test(k) || i === kelimeler.length - 1) { cumleler.push([bas, i]); bas = i + 1; } });
@@ -3209,8 +3211,11 @@ export default function DinletiApp() {
               // aktif cümleyi DOM'a koyduğu için tam bir bölüm tek cümleymiş gibi
               // görünüyordu. Bütün bölüm ekranda kalır; aktif cümle görsel olarak
               // öne çıkarılır.
-              const gorunecek = kelimeler;
-              const kaydirma = 0;
+              const paragrafBaslangiclari = [];
+              paragrafKelimeleri.reduce((toplam, paragraf) => {
+                paragrafBaslangiclari.push(toplam);
+                return toplam + paragraf.length;
+              }, 0);
               return (
                 <div id="okurio-okuma-icerigi" data-reader-workspace style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden" }}>
                   <div data-reading-column style={{ height: "100%", minHeight: 0 }}>
@@ -3225,8 +3230,10 @@ export default function DinletiApp() {
                     textAlign: "left", minHeight: 0, height: "100%", maxHeight: "none", overflowY: "auto", WebkitOverflowScrolling: "touch", touchAction: "pan-y",
                     scrollBehavior: "smooth", overscrollBehavior: "contain",
                   }} onTouchStart={okuyucuTakibiniGeciciDurdur} onPointerDown={okuyucuTakibiniGeciciDurdur} onWheel={okuyucuTakibiniGeciciDurdur}>
-                    {gorunecek.map((k, i) => {
-                      const gercekIx = i + kaydirma;
+                    {paragrafKelimeleri.map((paragraf, paragrafIx) => (
+                      <p key={paragrafIx} data-okurio-paragraf style={{ margin: paragrafIx === paragrafKelimeleri.length - 1 ? 0 : "0 0 0.8em" }}>
+                      {paragraf.map((k, i) => {
+                      const gercekIx = paragrafBaslangiclari[paragrafIx] + i;
                       const aktifMi = ayar.vurgu && gercekIx === kelimeIx;
                       const aktifCumledeMi = gercekIx >= aktifCumle[0] && gercekIx <= aktifCumle[1];
                       const temiz = k.replace(/[.,!?…;:]+$/u, "");
@@ -3263,6 +3270,8 @@ export default function DinletiApp() {
                         {ayar.biyonik && temiz.length > 3 ? <><strong style={{ fontWeight: 850 }}>{temiz.slice(0, n)}</strong>{temiz.slice(n)}{son}</> : k}{" "}
                       </span>;
                     })}
+                      </p>
+                    ))}
                   </div>
                   {seciliSozluk && (
                     <div data-sozluk-karti style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
