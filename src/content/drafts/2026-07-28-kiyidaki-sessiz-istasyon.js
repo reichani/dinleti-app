@@ -1,3 +1,5 @@
+import { createPendingContentQualityReview } from "../contentQualityReview.js";
+
 const sourceTruth = Object.freeze({
   work: "Kıyıdaki Sessiz İstasyon",
   scope: "Okurio için özgün genç okur hikâyesi",
@@ -37,8 +39,6 @@ export const KIYIDAKI_SESSIZ_ISTASYON_DRAFT = {
   structuralValid: true,
   releaseReady: false,
   estimatedWordsPerMinute: 155,
-  wordCount: 1253,
-  estimatedSeconds: 486,
   sections: [
     {
       title: "Kapalı Penceredeki Işık",
@@ -134,7 +134,7 @@ export const KIYIDAKI_SESSIZ_ISTASYON_DRAFT = {
         "Yine de veriler hemen yorumlanamazdı. Ölçüm yöntemleri zaman içinde değişmiş olabilirdi. Uzmanlar cihaz ve konum farklarını incelemeliydi.",
         "Leyla bazı cihazların yıllar içinde yenilendiğini doğruladı. Defterlerde değişim tarihleri küçük notlarla belirtilmişti. Bu ayrıntılar gelecekteki incelemeyi daha güvenilir yapacaktı.",
         "Deniz bulguları kesin sonuç gibi sunmadı. Hikâyenin merkezine arşivin kurtarılmasını koydu. Bilimsel yorumları uzmanlara açıkça bıraktı.",
-        "Sergi metinlerinde kesinlik dereceleri farklı renklerle gösterildi. Doğrulanmış bilgiler ve olasılıklar birbirinden dikkatle ayrıldı.",
+        "Sergi metinlerinde kesinlik dereceleri yazılı etiketlerle gösterildi. Renkler bu ayrımı yalnızca ek olarak destekledi.",
         "Kütüphane küçük bir sergi planladı. Her panoda kaynak ve belirsizlik notu bulunacaktı. Ziyaretçiler kanıtın nasıl kurulduğunu görecekti.",
       ],
     },
@@ -148,8 +148,8 @@ export const KIYIDAKI_SESSIZ_ISTASYON_DRAFT = {
         "Deniz sergideki kanıt çizgisini korumayı önerdi. Ziyaretçiler her kararın dayanağını görebilmeliydi. Cevapsız sorular da sonuçlar kadar görünür kalmalıydı.",
         "Kasaba okulları öneriye destek verdi. Öğrenciler arşiv düzenleme çalışmalarına katılacaktı. Uzmanlar ise ölçümlerin sınırlarını öğretecekti.",
         "Yeni kullanım planı erişilebilir giriş seçeneğini de içeriyordu. Belgelerin kopyaları farklı okuma ihtiyaçlarına uygun hazırlanacaktı.",
-        "Bir akşam Deniz yeniden tepeye yürüdü. Kırık penceredeki ışık artık görünmüyordu. Rüzgâr göstergesi güvenli biçimde sökülmüştü.",
-        "Fakat gözlem odasında başka bir ışık yanıyordu. Restorasyon ekibi belgeleri taramaya devam ediyordu. İstasyon sessizdi, ama artık unutulmuş değildi.",
+        "Aylar sonra Deniz yeniden tepeye yürüdü. Güçlendirme bitmiş, güvenli kullanım izni verilmişti. Rüzgâr göstergesi koruma çalışmasında güvenle sökülmüştü.",
+        "Gözlem odasında bu kez başka ışık yanıyordu. Ekip, arşiv belgelerinin kopyalarını ziyaretçiler için düzenliyordu. Asıl belgeler kütüphanenin güvenli arşivinde korunuyordu.",
       ],
     },
   ],
@@ -180,20 +180,16 @@ export const KIYIDAKI_SESSIZ_ISTASYON_DRAFT = {
     notes:
       "Genç okur tonu, erişilebilirlik dili ve baskı yaratmayan düşünme sorusu için insan incelemesi bekliyor.",
   },
-  contentQualityReview: {
-    status: "pending",
-    reviewerName: "",
-    reviewedAt: "",
-    reviewNotes: "",
-    checklist: {
-      narrativeArc: false,
-      ageFit: false,
-      sectionContinuity: false,
-      characterConsistency: false,
-      languageQuality: false,
-      factualAccuracy: false,
-      originalityRights: false,
-      accessibilityTone: false,
-    },
-  },
+  contentQualityReview: createPendingContentQualityReview("klasiklere_hazirlik_14_16"),
 };
+
+// Timing follows the actual reading body, excluding headings and glossary.
+const body = KIYIDAKI_SESSIZ_ISTASYON_DRAFT.sections
+  .flatMap((section) => section.paragraphs).join(" ");
+KIYIDAKI_SESSIZ_ISTASYON_DRAFT.wordCount =
+  body.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
+KIYIDAKI_SESSIZ_ISTASYON_DRAFT.estimatedSeconds = Math.ceil(
+  KIYIDAKI_SESSIZ_ISTASYON_DRAFT.wordCount * 60 / 155,
+);
+KIYIDAKI_SESSIZ_ISTASYON_DRAFT.declaredSeconds =
+  KIYIDAKI_SESSIZ_ISTASYON_DRAFT.estimatedSeconds;
