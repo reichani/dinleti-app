@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { KIYIDAKI_SESSIZ_ISTASYON_DRAFT } from "../../src/content/drafts/2026-07-28-kiyidaki-sessiz-istasyon.js";
+import { evaluateContentQualityReview, READING_PATH_REVIEW_CRITERIA } from "../../src/content/contentQualityReview.js";
 
 const story = KIYIDAKI_SESSIZ_ISTASYON_DRAFT;
 
@@ -30,7 +31,7 @@ test("Kıyıdaki Sessiz İstasyon: yaş, süre ve bölüm sözleşmesi", () => {
   assert.equal(story.wordCount, actualWords);
   assert.equal(story.estimatedWordsPerMinute, 155);
   assert.equal(story.estimatedSeconds, actualSeconds);
-  assert.equal(story.declaredSeconds ?? actualSeconds, actualSeconds);
+  assert.equal(story.declaredSeconds, actualSeconds);
   assert.ok(story.sections.length >= 3 && story.sections.length <= 8);
   assert.ok(sectionWords.every((wordCount) => wordCount >= 30));
   assert.ok(new Set(sectionWords).size > 1, "bölümler mekanik eşit olmamalı");
@@ -69,6 +70,11 @@ test("Kıyıdaki Sessiz İstasyon: insan onayı olmadan yayımlanamaz", () => {
   assert.equal(review.reviewerName, "");
   assert.equal(review.reviewedAt, "");
   assert.equal(review.reviewNotes, "");
+  assert.equal(review.reviewedCommit, "");
+  assert.equal(review.schemaVersion, "2.0");
+  assert.deepEqual(Object.keys(review.readingPathChecklist), READING_PATH_REVIEW_CRITERIA[story.readingPathId]);
+  assert.ok(Object.values(review.readingPathChecklist).every((value) => value === false));
+  assert.equal(evaluateContentQualityReview(review, { readingPathId: story.readingPathId }).publicationReady, false);
   assert.deepEqual(Object.keys(review.checklist), checklistKeys);
   assert.ok(Object.values(review.checklist).every((value) => value === false));
   assert.equal(story.factualReview.status, "pending-human-review");
