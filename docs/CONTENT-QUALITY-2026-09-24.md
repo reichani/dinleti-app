@@ -66,7 +66,8 @@ Katalog kaydı ilk baskının kimliğini ve görüntülenebilirliğini doğruluy
 
 - PR #132 exact-head CI: 2/2 PASS.
 - Yeni source-of-truth testi iki kapıyı doğrular: belirli ilk baskı kaydı ve insan incelemesine kadar fail-closed durum.
-- Yeni dalın uzak CI sonucu PR açıldıktan sonra ayrıca izlenecek.
+- Exact head `4c9823c94c543e9fce998d3104de50ece90fa897` için içerik testleri 130/130 PASS; production build ve iki zorunlu uzak CI hattı PASS.
+- İlk CI turunda eski kaynak-açığı ifadesini bekleyen bir test kırmızı oldu; sözleşme yeni doğrulama durumuna uyarlanarak exact head üzerinde giderildi.
 - Production kataloğu değişmediği için audit baseline'ı FAIL-CLOSED — 62/62 olarak kalıyor.
 
 ## Deploy sırası
@@ -83,3 +84,10 @@ Onaylı yeni hikâye bulunmadığından production deploy yapılmadı. Sıra de�
 1. `Mai ve Siyah` olay dizisini 1897 taramasıyla insan edebiyat editörüne karşılaştırmak.
 2. Hazır taslakları exact commit'e bağlı insan kalite incelemesine almak.
 3. Publication gate ile Ikarus yaş eşleme düzeltmesini tamamlamak.
+
+## Branch ve PR
+
+- Branch: `content/2026-09-24-quality-turn`
+- Exact head: `4c9823c94c543e9fce998d3104de50ece90fa897`
+- Draft PR: #133
+- Merge/production deploy: yapılmadı
