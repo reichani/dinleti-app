@@ -92,9 +92,17 @@ test.describe("Responsive reader UX sözleşmesi", () => {
     });
     await expect(page.getByLabel("Kendi metnim", { exact: true })).toContainText("erişilebilir okuma görünümünde");
     await expect(page.getByText(/TXT metni hazır/)).toBeVisible();
-    if (testInfo.project.name !== "desktop-chrome") {
-      const height = await dialog.evaluate((element) => element.getBoundingClientRect().height);
-      expect(height).toBeGreaterThanOrEqual((await page.evaluate(() => innerHeight)) - 1);
+    const dialogMetrics = await dialog.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, height: rect.height, viewport: innerHeight,
+        compact: matchMedia("(max-width: 430px)").matches };
+    });
+    // The import dialog is fullscreen only at the phone breakpoint. Tablets
+    // intentionally use a contained dialog, irrespective of their project name.
+    expect(dialogMetrics.top).toBeGreaterThanOrEqual(-1);
+    expect(dialogMetrics.bottom).toBeLessThanOrEqual(dialogMetrics.viewport + 1);
+    if (dialogMetrics.compact) {
+      expect(dialogMetrics.height).toBeGreaterThanOrEqual(dialogMetrics.viewport - 1);
     }
   });
 

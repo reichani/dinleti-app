@@ -92,7 +92,9 @@
   min-height: 44px;
 }
 
-@media (min-width: 820px) {
+/* Match the reader's container breakpoint, not the outer viewport: a tablet
+ * can have a wide viewport while its inset reader still uses compact layout. */
+@container (min-width: 820px) {
   /* Desktop is not a modal: the settings pane is part of the reader layout and
    * remains visible in either React state. This keeps wide-screen controls
    * discoverable without introducing a backdrop or interaction lock. */

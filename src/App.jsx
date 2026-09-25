@@ -3112,6 +3112,8 @@ export default function DinletiApp() {
     );
   };
 
+  // These hook-free render helpers share App state. Calling them directly keeps
+  // player DOM identity stable across word ticks; do not render them as components.
   /* Mini oynatıcı */
   const MiniOynatici = () => {
     if (!aktif || oynaticiAcik) return null;
@@ -3504,8 +3506,8 @@ export default function DinletiApp() {
     <div data-app-shell style={govde}>
       <style>{`@media (pointer: coarse), (hover: none), (max-width: 430px) { [data-app-shell] button { min-width: 44px !important; min-height: 44px !important; } }`}</style>
       {onboardingAcik ? <OnboardingSayfa /> : detayId ? <DetaySayfa /> : sekme === "ana" ? <AnaSayfa /> : sekme === "ara" ? <AramaSayfa /> : <KitaplikSayfa />}
-      {!onboardingAcik && <MiniOynatici />}
-      {!onboardingAcik && <TamOynatici />}
+      {!onboardingAcik && MiniOynatici()}
+      {!onboardingAcik && TamOynatici()}
       {!onboardingAcik && <AltMenu />}
     </div>
   );
