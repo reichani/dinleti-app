@@ -3,6 +3,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 import GlossaryCard from "./components/GlossaryCard.jsx";
 import OkurioProvenanceStamp from "./components/OkurioProvenanceStamp.jsx";
 import { extractDocumentText, normalizeDocumentText, SUPPORTED_DOCUMENT_ACCEPT } from "./documentImport.js";
+import { detectTextLanguage } from "./textLanguage.js";
 import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdapter.js";
 import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
 import { COMPLETE_OKURIO_SESSIONS } from "./content/completeOkurioSessions.js";
@@ -1944,6 +1945,7 @@ export default function DinletiApp() {
   const kendiMetniAc = useCallback((metin, baslik = "Kendi Metnim") => {
     const temizMetin = normalizeDocumentText(metin);
     if (temizMetin.length < 20) { setKendiMetinMesaji("En az birkaç cümlelik düz metin ekle."); return; }
+    const dil = detectTextLanguage(temizMetin);
     const id = `kendi-metin-${Date.now()}`;
     const kelimeSayisi = temizMetin.split(/\s+/).length;
     const parcalar = temizMetin.match(/[^.!?…]+[.!?…]?/g) || [temizMetin];
@@ -1960,7 +1962,7 @@ export default function DinletiApp() {
     const kitap = {
       id, baslik: baslik || "Kendi Metnim", yazar: "Kullanıcı İçeriği", seslendiren: "Oki Anlatıcı", kategori: "Kendi Metnim",
       yas: okumaYoluDetay.yas || "Kişisel", renk: ["#3B465C", "#9FB3D7"], puan: 5, sureDk: Math.max(1, Math.ceil(kelimeSayisi / 130)),
-      ozet: "Kopyala-yapıştır, PDF, Word veya TXT dosyasıyla eklenen kişisel kullanım metni.", bolumler, kullaniciIcerigi: true,
+      ozet: "Kopyala-yapıştır, PDF, Word veya TXT dosyasıyla eklenen kişisel kullanım metni.", bolumler, kullaniciIcerigi: true, dil,
     };
     const metadata = { yasMin: 6, yasMax: 99, segmentler: YOL_SEGMENT_GRUPLARI[okumaYolu.yolId] || ["yetiskin_odak"], okumaEvreleri: [okumaYolu.evreId], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kullanici_metni", subject: "kendi_metin", oql: okumaYoluDetay.oql || 4 };
     if (!KATALOG.some((k) => k.id === id)) KATALOG.unshift(kitap);
