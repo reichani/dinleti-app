@@ -4,16 +4,54 @@ on:
   workflow_dispatch:
     inputs:
       candidate_sha:
-        description: "Üretimde doğrulanacak tam commit SHA"
+        description: "Üretimde çalışan ve kabul edilecek tam commit SHA"
         required: true
         type: string
-      release_manager_approved:
-        description: "Release Manager aday kapsamını ve kalite kapısını onayladı"
+      product_owner_name:
+        description: "Production UX kabulünü veren Product Owner"
+        required: true
+        type: string
+      acceptance_notes:
+        description: "Production deneyimine ilişkin somut kabul notları"
+        required: true
+        type: string
+      story_opened:
+        description: "Hikâye production'da açıldı"
         required: true
         default: false
         type: boolean
-      samsung_s24_plus_verified:
-        description: "Reyhan gerçek Samsung S24+ üzerinde kontrol etti"
+      mobile_readable:
+        description: "Mobil okuma deneyimi kabul edildi"
+        required: true
+        default: false
+        type: boolean
+      tts_correct:
+        description: "TTS doğru çalıştı"
+        required: true
+        default: false
+        type: boolean
+      highlighting_correct:
+        description: "Kelime/cümle vurgusu doğru çalıştı"
+        required: true
+        default: false
+        type: boolean
+      pause_resume_correct:
+        description: "Duraklat/devam ettir doğru çalıştı"
+        required: true
+        default: false
+        type: boolean
+      progress_preserved:
+        description: "Okuma ilerlemesi korundu"
+        required: true
+        default: false
+        type: boolean
+      age_experience_acceptable:
+        description: "Yaşa uygun deneyim kabul edildi"
+        required: true
+        default: false
+        type: boolean
+      overall_experience_acceptable:
+        description: "Uçtan uca production deneyimi kabul edildi"
         required: true
         default: false
         type: boolean
@@ -26,21 +64,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release-guard:
-    name: Release Manager onayı
-    runs-on: ubuntu-latest
-    steps:
-      - name: İnsan onaylarını zorunlu tut
-        env:
-          RM_APPROVED: ${{ inputs.release_manager_approved }}
-          S24_APPROVED: ${{ inputs.samsung_s24_plus_verified }}
-        run: |
-          test "$RM_APPROVED" = "true"
-          test "$S24_APPROVED" = "true"
-
   candidate-quality:
     name: Adayı yeniden doğrula
-    needs: release-guard
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -81,7 +106,7 @@ jobs:
           retention-days: 90
 
   production-acceptance:
-    name: Production kabulü
+    name: Production UX kabulü
     needs: candidate-quality
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -117,6 +142,30 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: https://dinleti-app.pages.dev
         run: npx playwright test tests/app-smoke.spec.js tests/links.spec.js tests/responsive-reader-ux.spec.js --project=desktop-chrome --project=samsung-s24
+
+      - name: Product Owner kabul kaydını doğrula
+        env:
+          OWNER_NAME: ${{ inputs.product_owner_name }}
+          ACCEPTANCE_NOTES: ${{ inputs.acceptance_notes }}
+          STORY_OPENED: ${{ inputs.story_opened }}
+          MOBILE_READABLE: ${{ inputs.mobile_readable }}
+          TTS_CORRECT: ${{ inputs.tts_correct }}
+          HIGHLIGHTING_CORRECT: ${{ inputs.highlighting_correct }}
+          PAUSE_RESUME_CORRECT: ${{ inputs.pause_resume_correct }}
+          PROGRESS_PRESERVED: ${{ inputs.progress_preserved }}
+          AGE_EXPERIENCE_ACCEPTABLE: ${{ inputs.age_experience_acceptable }}
+          OVERALL_EXPERIENCE_ACCEPTABLE: ${{ inputs.overall_experience_acceptable }}
+        run: |
+          test -n "$OWNER_NAME"
+          test -n "$ACCEPTANCE_NOTES"
+          test "$STORY_OPENED" = "true"
+          test "$MOBILE_READABLE" = "true"
+          test "$TTS_CORRECT" = "true"
+          test "$HIGHLIGHTING_CORRECT" = "true"
+          test "$PAUSE_RESUME_CORRECT" = "true"
+          test "$PROGRESS_PRESERVED" = "true"
+          test "$AGE_EXPERIENCE_ACCEPTABLE" = "true"
+          test "$OVERALL_EXPERIENCE_ACCEPTABLE" = "true"
 
       - name: Kabul raporunu sakla
         if: always()
