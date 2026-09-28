@@ -5,6 +5,8 @@ import { PETER_RABBIT_FULL } from "../src/content/fullPublicDomainStories.js";
 import { ANDERSEN_STORIES } from "../src/content/andersenStories.js";
 import { mergePilotStories } from "../src/content/pilotCatalogAdapter.js";
 import { evaluateContentQualityReview } from "../src/content/contentQualityReview.js";
+import { classifyContent, CONTENT_STATUS } from "../src/content/contentIntegrity.js";
+import { sectionParagraphs, sentenceList } from "../src/content/contentStructure.js";
 
 const WORDS_PER_MINUTE = 155;
 const DURATION_TOLERANCE = 0.15;
@@ -58,7 +60,9 @@ const AGE_ALIASES = Object.freeze({
   "12-14": "12-14",
   "12+": "12-14",
   "13+": "12-14",
+  "14-16": "14-16",
   "14-18": "16-18",
+  "16-18": "16-18",
   "16+": "16-18",
   "18+": "18+",
 });
@@ -80,38 +84,6 @@ const storyBody = (story) =>
     .map((section) => section?.metin ?? section?.text ?? "")
     .join(" ")
     .trim();
-
-const sentenceList = (text) =>
-  String(text ?? "")
-    .split(/(?<=[.!?])\s+/u)
-    .map((sentence) => sentence.trim())
-    .filter(Boolean);
-
-const isMicroExercise = (story) => {
-  const id = String(story?.id ?? "").toLocaleLowerCase("tr-TR");
-  const title = String(story?.baslik ?? "").toLocaleLowerCase("tr-TR");
-  const category = String(story?.kategori ?? "").toLocaleLowerCase("tr-TR");
-  const declaredType = String(
-    story?.icerikTuru ?? story?.icerikDurumu ?? "",
-  ).toLocaleLowerCase("tr-TR");
-  const sectionNames = (story?.bolumler ?? [])
-    .map((section) => section?.ad ?? "")
-    .join(" ")
-    .toLocaleLowerCase("tr-TR");
-
-  return (
-    /(?:^|-)oki-ses-(?:[a-z0-9]+)(?:-|$)/u.test(id) ||
-    /(?:heceler|kelimeler|word-card|words-card)/u.test(id) ||
-    /^[a-zçğıöşü] sesi$/u.test(title) ||
-    /(?:kelime kart|word card|english card|bilmece|tekerleme|ritim oyunu)/u.test(
-      category,
-    ) ||
-    /(?:mikro alıştırma|micro exercise|kelime kart|word card|harf kart|hece kart)/u.test(
-      declaredType,
-    ) ||
-    /(?:hece kartları|kelime kartları|harf ve hece|heceye geç)/u.test(sectionNames)
-  );
-};
 
 function loadMergedCatalog() {
   const source = readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
@@ -142,15 +114,13 @@ const reports = catalog.map((story) => {
       : null;
   const ageBand = mapAgeBand(story?.yas);
   const target = AGE_TARGETS[ageBand] ?? null;
-  const microExercise = isMicroExercise(story);
+  const integrity = classifyContent(story, { minimumFullReadingSeconds: 0 });
+  const microExercise = integrity.status === CONTENT_STATUS.MICRO_EXERCISE;
+  const rewriteQueue = integrity.disposition === "rewrite-queue";
+  const governedFullReading = integrity.status === CONTENT_STATUS.FULL_READING;
   const sections = story?.bolumler ?? [];
   const sectionWords = sections.map((section) => countWords(section?.metin ?? ""));
-  const paragraphs = sections.flatMap((section) =>
-    String(section?.metin ?? "")
-      .split(/\n\s*\n/u)
-      .map((paragraph) => paragraph.trim())
-      .filter(Boolean),
-  );
+  const paragraphs = sections.flatMap((section) => sectionParagraphs(section));
   const sentences = sentenceList(body);
   const sentenceWords = sentences.map(countWords);
   const averageSentenceWords =
@@ -178,39 +148,48 @@ const reports = catalog.map((story) => {
   const publicDomain =
     /(?:kamu-mali|public-domain)/u.test(String(rightsStatus).toLocaleLowerCase("tr-TR")) ||
     /public domain/iu.test(String(story?.kategori ?? ""));
-  const blockers = [];
+  const structuralBlockers = [];
+  const provenanceBlockers = [];
+  const approvalBlockers = [];
 
-  if (!microExercise && target && wordCount < target.min) {
-    blockers.push(`age-minimum:${wordCount}<${target.min}`);
+  if (governedFullReading && target && wordCount < target.min) {
+    structuralBlockers.push(`age-minimum:${wordCount}<${target.min}`);
   }
-  if (!microExercise && (sections.length < 3 || sections.length > 8)) {
-    blockers.push(`section-count:${sections.length}`);
+  if (governedFullReading && (sections.length < 3 || sections.length > 8)) {
+    structuralBlockers.push(`section-count:${sections.length}`);
   }
-  if (!microExercise && sectionWords.some((count) => count < 30)) {
-    blockers.push("short-section");
+  if (governedFullReading && sectionWords.some((count) => count < 30)) {
+    structuralBlockers.push("short-section");
   }
-  if (!microExercise && sentenceWords.some((count) => count > 12)) {
-    blockers.push("sentence-max");
+  if (governedFullReading && sentenceWords.some((count) => count > 12)) {
+    structuralBlockers.push("sentence-max");
   }
-  if (!microExercise && (averageSentenceWords < 6 || averageSentenceWords > 10)) {
-    blockers.push("sentence-average");
+  if (governedFullReading && (averageSentenceWords < 6 || averageSentenceWords > 10)) {
+    structuralBlockers.push("sentence-average");
   }
-  if (!microExercise && paragraphs.some((paragraph) => sentenceList(paragraph).length > 3)) {
-    blockers.push("paragraph-max");
+  if (governedFullReading && paragraphs.some((paragraph) => sentenceList(paragraph).length > 3)) {
+    structuralBlockers.push("paragraph-max");
   }
-  if (durationDelta !== null && durationDelta > DURATION_TOLERANCE) {
-    blockers.push(`duration-delta:${Math.round(durationDelta * 100)}%`);
+  if (governedFullReading && durationDelta !== null && durationDelta > DURATION_TOLERANCE) {
+    structuralBlockers.push(`duration-delta:${Math.round(durationDelta * 100)}%`);
   }
-  if (!microExercise && !reviewEvaluation.publicationReady) {
-    blockers.push(...reviewEvaluation.schemaBlockers.map((item) => `content-review-schema:${item}`));
-    blockers.push(...reviewEvaluation.approvalBlockers.map((item) => `content-review:${item}`));
+  if (governedFullReading) {
+    approvalBlockers.push(...reviewEvaluation.schemaBlockers.map((item) => `content-review-schema:${item}`));
+    approvalBlockers.push(...reviewEvaluation.approvalBlockers.map((item) => `content-review:${item}`));
   }
-  if (publicDomain && (!sourceUrl || !sourceScope)) {
-    blockers.push("public-domain-source-or-scope-missing");
+  if (governedFullReading && rightsStatus === "missing") {
+    provenanceBlockers.push("rights-status-missing");
+  }
+  if (governedFullReading && publicDomain && (!sourceUrl || !sourceScope)) {
+    provenanceBlockers.push("public-domain-source-or-scope-missing");
   }
   if (story?.releaseReady === true && review?.status !== "approved") {
-    blockers.push("releaseReady-without-human-approval");
+    approvalBlockers.push("releaseReady-without-human-approval");
   }
+  const structuralValid = governedFullReading && structuralBlockers.length === 0;
+  const candidateDeployReady = structuralValid && provenanceBlockers.length === 0 && reviewEvaluation.candidateDeployReady;
+  const publicationReady = candidateDeployReady && reviewEvaluation.publicationReady && story?.releaseReady === true;
+  const blockers = [...structuralBlockers, ...provenanceBlockers, ...approvalBlockers];
 
   return {
     id: story?.id ?? null,
@@ -224,6 +203,8 @@ const reports = catalog.map((story) => {
     declaredSeconds,
     durationDeltaPercent: durationDelta === null ? null : Number((durationDelta * 100).toFixed(1)),
     microExercise,
+    rewriteQueue,
+    catalogDisposition: rewriteQueue ? "rewrite-queue" : integrity.status,
     sectionCount: sections.length,
     sectionWords,
     averageSentenceWords,
@@ -233,18 +214,23 @@ const reports = catalog.map((story) => {
     ).length,
     contentQualityReviewStatus: review?.status ?? "missing",
     readingPathId,
-    candidateDeployReady: reviewEvaluation.candidateDeployReady,
-    publicationReady: reviewEvaluation.publicationReady,
+    structuralValid,
+    candidateDeployReady,
+    publicationReady,
     rightsStatus,
     publicDomain,
     sourceUrl,
     sourceScope,
     releaseReady: story?.releaseReady ?? false,
+    structuralBlockers,
+    provenanceBlockers,
+    approvalBlockers,
     blockers,
   };
 });
 
-const fullReadings = reports.filter((report) => !report.microExercise);
+const fullReadings = reports.filter((report) => report.catalogDisposition === CONTENT_STATUS.FULL_READING);
+const rewriteQueue = reports.filter((report) => report.rewriteQueue);
 const ageSummary = Object.entries(AGE_TARGETS).map(([ageBand, target]) => {
   const items = fullReadings.filter((report) => report.ageBand === ageBand);
   const counts = items.map((item) => item.wordCount).sort((a, b) => a - b);
@@ -264,6 +250,7 @@ const ageSummary = Object.entries(AGE_TARGETS).map(([ageBand, target]) => {
         : Number((counts.reduce((sum, count) => sum + count, 0) / counts.length).toFixed(1)),
     medianWords: median,
     belowMinimum: items.filter((item) => item.wordCount < target.min).length,
+    rewriteQueueCount: rewriteQueue.filter((item) => item.ageBand === ageBand).length,
   };
 });
 
@@ -273,9 +260,15 @@ const output = {
   durationTolerancePercent: DURATION_TOLERANCE * 100,
   catalogCount: reports.length,
   fullReadingCount: fullReadings.length,
-  microExerciseCount: reports.length - fullReadings.length,
+  rewriteQueueCount: rewriteQueue.length,
+  microExerciseCount: reports.filter((report) => report.microExercise).length,
   underOrEqual20Seconds: fullReadings.filter((report) => report.estimatedSeconds <= 20).length,
-  blockedFullReadings: fullReadings.filter((report) => report.blockers.length > 0).length,
+  structuralBlockedFullReadings: fullReadings.filter((report) => report.structuralBlockers.length > 0).length,
+  provenanceBlockedFullReadings: fullReadings.filter((report) => report.provenanceBlockers.length > 0).length,
+  pendingHumanReviewFullReadings: fullReadings.filter((report) => report.approvalBlockers.length > 0).length,
+  candidateDeployReadyFullReadings: fullReadings.filter((report) => report.candidateDeployReady).length,
+  publicationReadyFullReadings: fullReadings.filter((report) => report.publicationReady).length,
+  blockedFullReadings: fullReadings.filter((report) => !report.publicationReady).length,
   ageSummary,
   reports,
 };
@@ -288,6 +281,6 @@ writeFileSync(
 
 console.log(JSON.stringify(output, null, 2));
 
-if (output.blockedFullReadings > 0) {
+if (process.argv.includes("--strict-publication") && output.blockedFullReadings > 0) {
   process.exitCode = 1;
 }

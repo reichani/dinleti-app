@@ -45,6 +45,9 @@ jobs:
       - name: İçerik testlerini çalıştır
         run: npm run test:content
 
+      - name: Tam katalog governance regresyonunu doğrula
+        run: npm run validate:catalog-governance
+
       - name: Production build oluştur
         run: npm run build
 

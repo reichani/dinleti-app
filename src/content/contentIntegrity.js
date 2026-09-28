@@ -77,6 +77,18 @@ const isPreparing = (source, metadata, wordCount) => {
   );
 };
 
+const isSummary = (source, metadata) => {
+  const declaredState = normalizeLabel(
+    metadata.status ??
+      metadata.contentStatus ??
+      metadata.icerikDurumu ??
+      source.icerikDurumu ??
+      source.contentStatus ??
+      source.status,
+  );
+  return includesAny(declaredState, [/\bozet\b/u, /\bsummary\b/u, /\bexcerpt\b/u]);
+};
+
 const isMicroExercise = (source, metadata) => {
   if (metadata.isMicroExercise === true) return true;
 
@@ -154,10 +166,14 @@ export function classifyContent(story, metadata = {}) {
   const seconds = estimateStorySeconds(source, wordsPerMinute);
 
   let status = CONTENT_STATUS.FULL_READING;
+  const microExercise = isMicroExercise(source, metadata);
+  const summary = isSummary(source, metadata);
   if (isPreparing(source, metadata, wordCount)) {
     status = CONTENT_STATUS.PREPARING;
-  } else if (isMicroExercise(source, metadata)) {
+  } else if (microExercise) {
     status = CONTENT_STATUS.MICRO_EXERCISE;
+  } else if (summary) {
+    status = CONTENT_STATUS.PREPARING;
   }
 
   const blockers = [];
@@ -177,6 +193,7 @@ export function classifyContent(story, metadata = {}) {
     seconds,
     minutes: Number((seconds / 60).toFixed(1)),
     deployable: blockers.length === 0,
+    disposition: summary && !microExercise ? "rewrite-queue" : status,
     blockers,
   };
 }

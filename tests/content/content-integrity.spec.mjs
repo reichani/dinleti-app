@@ -96,6 +96,33 @@ test("classifies empty or explicitly planned content as preparing", () => {
   }
 });
 
+test("routes declared summaries to the rewrite queue without treating them as full readings", () => {
+  const result = classifyContent({
+    id: "legacy-summary",
+    baslik: "Kısa Özet",
+    icerikDurumu: "ozet",
+    bolumler: [{ metin: makeWords(40) }],
+  });
+
+  assert.equal(result.status, CONTENT_STATUS.PREPARING);
+  assert.equal(result.disposition, "rewrite-queue");
+  assert.equal(result.deployable, true);
+  assert.deepEqual(result.blockers, []);
+});
+
+test("keeps explicitly typed micro exercises out of the summary rewrite queue", () => {
+  const result = classifyContent({
+    id: "oki-ses-e",
+    baslik: "E Sesi",
+    icerikDurumu: "ozet",
+    icerikTuru: "mikro alıştırma",
+    bolumler: [{ metin: "e. el. ele." }],
+  });
+
+  assert.equal(result.status, CONTENT_STATUS.MICRO_EXERCISE);
+  assert.equal(result.disposition, CONTENT_STATUS.MICRO_EXERCISE);
+});
+
 test("catalog deployment assertion reports every short normal reading blocker", () => {
   const micro = {
     id: "hece-karti",
