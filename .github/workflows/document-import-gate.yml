@@ -1,0 +1,57 @@
+name: Document import regression gate
+
+on:
+  pull_request:
+    paths:
+      - "src/document-import-adapter.js"
+      - "src/main.jsx"
+      - "tests/document-import.spec.js"
+      - ".github/workflows/document-import-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  document-import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CROSS_PLATFORM: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate production build
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run document import contract
+        run: >-
+          npx playwright test tests/document-import.spec.js
+          --project=desktop-chrome
+          --project=samsung-s24
+          --project=iphone-safari
+          --project=ipad-safari
+
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: document-import-failure-evidence
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
