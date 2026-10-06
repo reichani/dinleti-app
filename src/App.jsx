@@ -17,7 +17,7 @@ import { cursorFromPosition, positionFromCursor, normalizeReadingProgress, readi
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.9.0";
+const SURUM = "2.9.1";
 
 const KATALOG = mergePilotStories([
 
@@ -1869,6 +1869,10 @@ export default function DinletiApp() {
   const [kendiIcerikListesi, setKendiIcerikListesi] = useState([]);
   const [modPaneliAcik, setModPaneliAcik] = useState(false);
   const [soruKapali, setSoruKapali] = useState(false);
+  // v2.9.1: sesli okuma gerçekten bittiğinde (son cümlenin onend olayı) true olur.
+  const [okumaBitti, setOkumaBitti] = useState(false);
+  const readerLayoutKeyRef = useRef("");
+  const ttsGecikmeMs = useRef(0);      // speak() → onstart arası ölçülen motor gecikmesi
   const [seciliSozluk, setSeciliSozluk] = useState(null);
   const sozlukTetikleyiciRef = useRef(null);
   const okuyucuGeriOdakRef = useRef(null);
@@ -2202,15 +2206,20 @@ export default function DinletiApp() {
     const safeTop = visibleTop + visibleHeight * 0.40;
     const safeBottom = visibleTop + visibleHeight * 0.55;
     const wordIsFullyVisible = wordRect.top >= visibleTop && wordRect.bottom <= visibleBottom;
-    const immediate = readerFollowImmediateRef.current;
+    // v2.9.1: punto/aralık/yazı tipi değişince satırlar yeniden akar; aktif kelime
+    // bir sonraki kelime olayını beklemeden hemen görünür alana alınır.
+    const layoutKey = `${ayar.punto}|${ayar.aralik}|${ayar.font}`;
+    const layoutChanged = readerLayoutKeyRef.current !== "" && readerLayoutKeyRef.current !== layoutKey;
+    readerLayoutKeyRef.current = layoutKey;
+    const immediate = readerFollowImmediateRef.current || layoutChanged;
     readerFollowImmediateRef.current = false;
     if (!immediate && wordIsFullyVisible && wordCenter >= safeTop && wordCenter <= safeBottom) return;
 
     const target = visibleTop + visibleHeight * 0.475;
     const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight);
     const nextTop = Math.max(0, Math.min(maxScroll, container.scrollTop + wordCenter - target));
-    container.scrollTo({ top: nextTop, behavior: immediate ? "auto" : "smooth" });
-  }, [kelimeIx, aktifBolumIx, okumaModu, oynaticiAcik, okumaAcik, ayar.odak, readerFollowNonce]);
+    container.scrollTo({ top: nextTop, behavior: immediate ? "instant" : "smooth" });
+  }, [kelimeIx, aktifBolumIx, okumaModu, oynaticiAcik, okumaAcik, ayar.odak, ayar.punto, ayar.aralik, ayar.font, readerFollowNonce]);
 
   useEffect(() => {
     setSoruCevabi(null);
@@ -2351,6 +2360,10 @@ export default function DinletiApp() {
             setPozisyon(bolumBasiSn(kitap, bolumIx + 1));
             setKelimeIx(0);
             if (konusmayiBaslatRef.current) konusmayiBaslatRef.current(kitap, bolumIx + 1, 0);
+          } else {
+            // v2.9.1: son bölümün son cümlesi bitti → okuma tamamlandı.
+            setOkumaBitti(true);
+            setCaliyor(false);
           }
           return;
         }
@@ -2363,6 +2376,7 @@ export default function DinletiApp() {
         let fallbackIx = basIx;
         let timelineStartedAt = 0;
         let utteranceStartedAt = 0;
+        let speakCalledAt = performance.now();
         const nominalSentenceMs = kelimeler.slice(basIx, z + 1)
           .reduce((total, word) => total + kelimeSure(word, etkinHiz), 0);
         let timeline = createSpeechWordTimeline(
@@ -2400,6 +2414,8 @@ export default function DinletiApp() {
         u.onstart = () => {
           if (zincirNo.current !== benimNo) return;
           utteranceStartedAt = performance.now();
+          const gecikme = Math.max(0, Math.min(3000, utteranceStartedAt - speakCalledAt));
+          ttsGecikmeMs.current = ttsGecikmeMs.current ? ttsGecikmeMs.current * 0.5 + gecikme * 0.5 : gecikme;
           timelineStartedAt = utteranceStartedAt;
           konumuYaz(basIx);
           fallbackBeklet();
@@ -2446,7 +2462,11 @@ export default function DinletiApp() {
             kalibrasyon.current = kalibrasyon.current * 0.8 + observedRatio * 0.2;
           }
           const sonKelime = kelimeler[z] || "";
-          const duraklama = /[.!?…]$/.test(sonKelime) ? sesTonuAyar.noktaMs : (/[,;:]$/.test(sonKelime) ? sesTonuAyar.virgulMs : 140);
+          const hedefDuraklama = /[.!?…]$/.test(sonKelime) ? sesTonuAyar.noktaMs : (/[,;:]$/.test(sonKelime) ? sesTonuAyar.virgulMs : 140);
+          // v2.9.1: çevrimiçi (Natural) sesler her cümlede kendi başlangıç gecikmesini
+          // ekler. Hedeflenen duraklama bu ölçülen gecikme kadar kısaltılır; böylece
+          // cümle arası toplam sessizlik ses tonunun tanımladığı süreye yaklaşır.
+          const duraklama = Math.max(60, hedefDuraklama - ttsGecikmeMs.current);
           window.setTimeout(() => {
             if (zincirNo.current !== benimNo) return;
             if (ci + 1 < cumleler.length) { konumuYaz(cumleler[ci + 1][0]); sonSinir.current = Date.now(); }
@@ -2455,6 +2475,7 @@ export default function DinletiApp() {
         };
         u.onerror = timeriDurdur;
         konusmaRef.current = u;
+        speakCalledAt = performance.now();
         window.speechSynthesis.speak(u);
         // Bazı Android motorları `start` olayı üretmez. Bu kısa bekçi yalnızca
         // o durumda zaman çizelgesini başlatır; gerçek `start` gelirse yeniden hizalanır.
@@ -2494,6 +2515,20 @@ export default function DinletiApp() {
 
   /* Uyku dolunca konuşmayı da kes */
   useEffect(() => { if (!caliyor) konusmayiDurdur(); }, [caliyor]);
+
+  /* v2.9.1 okuma bitişi: kitap değişince veya yeniden oynatılınca bayrak iner;
+     bittiğinde ilerleme "tamamlandı" olarak yazılır (Devam kartında görünmez). */
+  useEffect(() => { setOkumaBitti(false); }, [aktifId]);
+  useEffect(() => { if (caliyor) setOkumaBitti(false); }, [caliyor]);
+  useEffect(() => {
+    if (!okumaBitti || !aktifId || !aktif) return;
+    setIlerlemeler((eski) => {
+      const simdi = Date.now();
+      const yeni = { ...eski, [aktifId]: { ...readingProgressSnapshot({ storyId: aktifId, sections: aktif.bolumler, sectionIndex: aktifBolumIx, wordIndex: kelimeIx, durationForSection: bolumSn, now: simdi }), tamamlandi: true } };
+      durumYaz({ favoriler, ilerlemeler: yeni, hiz, sonKitap: aktifId });
+      return yeni;
+    });
+  }, [okumaBitti]); // eslint-disable-line
 
   /* Kelime vurgusu: bölüm/kitap değişince başa dön */
   useEffect(() => { setSoruCevabi(null); }, [aktifId, aktifBolumIx]);
@@ -2584,7 +2619,7 @@ export default function DinletiApp() {
       const k = kitapBul(id);
       const progress = normalizeReadingProgress({
         sections: k.bolumler,
-        progress: ilerlemeler[id],
+        progress: ilerlemeler[id]?.tamamlandi ? undefined : ilerlemeler[id],
         durationForSection: bolumSn,
       });
       setPozisyon(progress.pos);
@@ -2603,6 +2638,14 @@ export default function DinletiApp() {
         return yeni;
       });
     }
+    else if (okumaBitti) {
+      // Tamamlanmış okumada oynat = baştan başlat.
+      setOkumaBitti(false);
+      readerFollowImmediateRef.current = true;
+      setPozisyon(0); setKelimeIx(0);
+      setCaliyor(true); seriGuncelle();
+      if (etkinSeslendirme) konusmayiBaslat(aktif, 0, 0);
+    }
     else { setCaliyor(true); seriGuncelle(); if (etkinSeslendirme) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx); }
   };
 
@@ -2610,6 +2653,7 @@ export default function DinletiApp() {
     if (!aktif) return;
     readerFollowImmediateRef.current = true;
     readerFollowPauseUntilRef.current = 0;
+    setOkumaBitti(false);
     const cursor = cursorFromPosition(aktif.bolumler, poz, bolumSn);
     setKelimeIx(cursor.wordIndex);
     if (konusmayiYenile && caliyor && etkinSeslendirme) {
@@ -2803,7 +2847,7 @@ export default function DinletiApp() {
       .filter(([id, v]) => {
         const kitap = kitapBul(id);
         const kisiselOkuma = kitap && kitapMeta(kitap).icerikTuru === "kullanici_metni";
-        return v.pos > 10 && kitap && (kisiselOkuma || kitapUyum(kitap)) && icerikSunumu(kitap).deployable;
+        return v.pos > 10 && !v.tamamlandi && kitap && (kisiselOkuma || kitapUyum(kitap)) && icerikSunumu(kitap).deployable;
       })
       .sort((a, b) => b[1].ts - a[1].ts);
     if (devamlar.length === 0) return null;
@@ -3147,11 +3191,15 @@ export default function DinletiApp() {
     const oran = toplam ? pozisyon / toplam : 0;
     const b = aktif.bolumler[aktifBolumIx];
     const mobilDar = typeof window !== "undefined" && window.innerWidth <= 430;
-    const soruHazir = toplam > 0 && pozisyon >= Math.max(0, toplam - 2);
+    // v2.9.1: sesli akışta soru yalnız okuma bitince (veya sonda duraklatılınca) açılır;
+    // anlatıcı son cümleyi okurken metnin üstüne kart gelmez. Sessiz modda eski kural geçerli.
+    const sesliAkis = etkinSeslendirme && okumaModuAyar.sesli;
+    const sondaMi = toplam > 0 && pozisyon >= Math.max(0, toplam - 2);
+    const soruHazir = okumaBitti || (sondaMi && (!sesliAkis || !caliyor));
     const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
       <div data-reader-backdrop style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.78)" }}>
-        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.4" data-reader-shell data-playing={caliyor ? "1" : "0"} data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "var(--okurio-visual-viewport-height, 100dvh)", maxHeight: "var(--okurio-visual-viewport-height, 100dvh)", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
+        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.4" data-reader-shell data-playing={caliyor ? "1" : "0"} data-okuma-bitti={okumaBitti ? "1" : "0"} data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "var(--okurio-visual-viewport-height, 100dvh)", maxHeight: "var(--okurio-visual-viewport-height, 100dvh)", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
 
           {/* Üst çubuk */}
           <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, minHeight: mobilDar ? 44 : undefined }}>
