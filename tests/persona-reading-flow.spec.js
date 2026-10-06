@@ -165,7 +165,9 @@ test.describe("Persona bazlı okuma akışı", () => {
     await panel.getByRole("button", { name: "Dikkat desteği", exact: true }).click();
 
     await expect(player.getByText(/Odak modu:\s*cümle/i)).toBeVisible();
-    await expect(panel.getByRole("button", { name: "Biyonik vurgu, deneysel" })).toHaveAttribute("aria-pressed", "false");
+    // v2.9.2: deneysel biyonik vurgu düğmesi gizli; dikkat desteği biyonik vurguyu da açmaz.
+    await expect(panel.getByRole("button", { name: "Biyonik vurgu, deneysel" })).toHaveCount(0);
+    await expect(player.locator("[data-okuma-metin] strong")).toHaveCount(0);
     const readingText = player.locator("[data-okuma-metin]");
     await expect(readingText).toContainText("Cümle 1");
     await expect(readingText).toContainText("Cümle 9");

@@ -17,7 +17,9 @@ import { cursorFromPosition, positionFromCursor, normalizeReadingProgress, readi
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.9.1";
+const SURUM = "2.9.2";
+// v2.9.2: deneysel (P2) biyonik vurgu düğmesi okul/pilot demolarında gösterilmez.
+const DENEYSEL_BIYONIK_GORUNUR = false;
 
 const KATALOG = mergePilotStories([
 
@@ -1871,6 +1873,11 @@ export default function DinletiApp() {
   const [soruKapali, setSoruKapali] = useState(false);
   // v2.9.1: sesli okuma gerçekten bittiğinde (son cümlenin onend olayı) true olur.
   const [okumaBitti, setOkumaBitti] = useState(false);
+  // v2.9.2: ses motoru sorunları sessizce donmak yerine okura görünür biçimde bildirilir.
+  // { tur: "hata" | "bilgi", metin }
+  const [sesUyarisi, setSesUyarisi] = useState(null);
+  const sesBilgiGosterildi = useRef(false);
+  const yerelSesTercih = useRef(false); // çevrimiçi ses hata verince yerel sese geçilir
   const readerLayoutKeyRef = useRef("");
   const ttsGecikmeMs = useRef(0);      // speak() → onstart arası ölçülen motor gecikmesi
   const [seciliSozluk, setSeciliSozluk] = useState(null);
@@ -2218,7 +2225,16 @@ export default function DinletiApp() {
     const target = visibleTop + visibleHeight * 0.475;
     const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight);
     const nextTop = Math.max(0, Math.min(maxScroll, container.scrollTop + wordCenter - target));
-    container.scrollTo({ top: nextTop, behavior: immediate ? "instant" : "smooth" });
+    if (immediate) {
+      // v2.9.2: `behavior: "instant"` eski Safari sürümlerinde tanınmaz; CSS scroll-behavior
+      // geçici olarak kapatılıp scrollTop doğrudan atanır (her tarayıcıda anında kaydırır).
+      const oncekiDavranis = container.style.scrollBehavior;
+      container.style.scrollBehavior = "auto";
+      container.scrollTop = nextTop;
+      container.style.scrollBehavior = oncekiDavranis;
+    } else {
+      container.scrollTo({ top: nextTop, behavior: "smooth" });
+    }
   }, [kelimeIx, aktifBolumIx, okumaModu, oynaticiAcik, okumaAcik, ayar.odak, ayar.punto, ayar.aralik, ayar.font, readerFollowNonce]);
 
   useEffect(() => {
@@ -2306,7 +2322,13 @@ export default function DinletiApp() {
   const kalibrasyon = useRef(1);       // gerçek TTS temposu / tahmin (bölüm sonunda güncellenir)
   const konusmayiBaslatRef = useRef(null);
   const konusmayiBaslat = useCallback((kitap, bolumIx, kelimeBas = 0, modAyar = okumaModuAyar, zorla = false) => {
-    if ((!zorla && !etkinSeslendirme) || !modAyar.sesli || !window.speechSynthesis) return;
+    if ((!zorla && !etkinSeslendirme) || !modAyar.sesli) return;
+    if (!window.speechSynthesis || typeof window.SpeechSynthesisUtterance === "undefined") {
+      setCaliyor(false);
+      setSesUyarisi({ tur: "hata", metin: "Bu tarayıcı sesli okumayı desteklemiyor. Metni Kendim Okuyorum modunda okuyabilir ya da Chrome, Edge veya Safari ile açabilirsin." });
+      return;
+    }
+    setSesUyarisi((onceki) => (onceki?.tur === "hata" ? null : onceki));
     konusmayiDurdur();
     sonSinir.current = 0;
     const benimNo = zincirNo.current;
@@ -2342,8 +2364,16 @@ export default function DinletiApp() {
           return (ad.includes("natural") ? 8 : 0) + (/enhanced|premium|neural/.test(ad) ? 6 : 0)
             + (/google|siri|samantha|yelda|filiz|daniel/.test(ad) ? 3 : 0) + (v.localService === false ? 1 : 0);
         };
-        const adaylar = liste.filter((v) => v.lang && v.lang.toLowerCase().startsWith(hedef)).sort((a, c) => puanla(c) - puanla(a));
+        const yerelPuan = (v) => (yerelSesTercih.current && v.localService === true ? 100 : 0);
+        const adaylar = liste.filter((v) => v.lang && v.lang.toLowerCase().startsWith(hedef)).sort((a, c) => (yerelPuan(c) + puanla(c)) - (yerelPuan(a) + puanla(a)));
         if (adaylar[0]) u.voice = adaylar[0];
+        else if (liste.length > 0) {
+          // Ses listesi yüklendi ama hedef dilde ses yok: cihazın varsayılan sesi okur.
+          if (!sesBilgiGosterildi.current) { sesBilgiGosterildi.current = true; setSesUyarisi((onceki) => onceki || { tur: "bilgi", metin: hedef === "tr"
+            ? "Bu cihazda Türkçe ses bulunamadı. Okuma cihazın varsayılan sesiyle sürer; telaffuz bozuk olabilir."
+            : "Bu cihazda İngilizce ses bulunamadı. Okuma cihazın varsayılan sesiyle sürer." }); }
+        }
+        return adaylar[0] || null;
       };
 
       /* Cümle zinciri: her utterance kısa tutulur; tarayıcı motorlarının uzun
@@ -2384,9 +2414,31 @@ export default function DinletiApp() {
           (word) => kelimeSure(word, etkinHiz),
           kalibrasyon.current,
         );
+        let bekci = null; // v2.9.2: motor sessizce takılırsa devreye girer
+        let cumleBitti = false;
         const timeriDurdur = () => {
           if (syncTimer) window.clearTimeout(syncTimer);
           syncTimer = null;
+        };
+        const bekciyiDurdur = () => { if (bekci) window.clearTimeout(bekci); bekci = null; };
+        // Ses motoru hata verirse ya da hiç yanıt vermezse: önce bir kez yerel sesle
+        // aynı cümleden yeniden denenir; o da olmazsa okuma durur ve okur bilgilendirilir.
+        const sesSorunu = (neden) => {
+          timeriDurdur(); bekciyiDurdur();
+          if (zincirNo.current !== benimNo || cumleBitti) return;
+          if (neden === "interrupted" || neden === "canceled") return;
+          const yerelSesVar = (seslerRef.current || []).some((v) => v.localService === true && v.lang && v.lang.toLowerCase().startsWith(hedef));
+          const kullanilanYerel = secilenSes ? secilenSes.localService === true : true;
+          if (!yerelSesTercih.current && yerelSesVar && !kullanilanYerel) {
+            yerelSesTercih.current = true;
+            try { window.speechSynthesis.cancel(); } catch {}
+            setSesUyarisi({ tur: "bilgi", metin: "Çevrimiçi ses yanıt vermedi; cihazdaki sesle devam ediliyor." });
+            window.setTimeout(() => { if (zincirNo.current === benimNo) konusCumle(ci, Math.max(basIx, fallbackIx)); }, 120);
+            return;
+          }
+          konusmayiDurdur();
+          setCaliyor(false);
+          setSesUyarisi({ tur: "hata", metin: "Ses motoru okumayı sürdüremedi. İnternet bağlantısını kontrol et ve oynat düğmesine yeniden bas; okuma kaldığın cümleden devam eder." });
         };
         const fallbackAdimi = () => {
           if (zincirNo.current !== benimNo || syncMode === "boundary") return;
@@ -2410,7 +2462,7 @@ export default function DinletiApp() {
           if (!timelineStartedAt) timelineStartedAt = performance.now();
           syncTimer = window.setTimeout(fallbackAdimi, 60);
         };
-        sesAta(u);
+        const secilenSes = sesAta(u);
         u.onstart = () => {
           if (zincirNo.current !== benimNo) return;
           utteranceStartedAt = performance.now();
@@ -2455,7 +2507,8 @@ export default function DinletiApp() {
           fallbackBeklet();
         };
         u.onend = () => {
-          timeriDurdur();
+          timeriDurdur(); bekciyiDurdur();
+          cumleBitti = true;
           if (zincirNo.current !== benimNo) return;
           if (utteranceStartedAt && nominalSentenceMs > 300) {
             const observedRatio = Math.max(0.5, Math.min(2, (performance.now() - utteranceStartedAt) / nominalSentenceMs));
@@ -2473,10 +2526,12 @@ export default function DinletiApp() {
             konusCumle(ci + 1, null);
           }, duraklama);
         };
-        u.onerror = timeriDurdur;
+        u.onerror = (e) => sesSorunu(e?.error || "bilinmiyor");
         konusmaRef.current = u;
         speakCalledAt = performance.now();
-        window.speechSynthesis.speak(u);
+        try { window.speechSynthesis.speak(u); } catch { sesSorunu("speak-exception"); return; }
+        // Cümlenin beklenen süresinin çok üzerinde ne `end` ne `error` gelirse motor takılmıştır.
+        bekci = window.setTimeout(() => sesSorunu("yanit-yok"), Math.max(15000, nominalSentenceMs * 4 + 6000));
         // Bazı Android motorları `start` olayı üretmez. Bu kısa bekçi yalnızca
         // o durumda zaman çizelgesini başlatır; gerçek `start` gelirse yeniden hizalanır.
         syncTimer = window.setTimeout(() => {
@@ -3201,6 +3256,13 @@ export default function DinletiApp() {
       <div data-reader-backdrop style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.78)" }}>
         <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.4" data-reader-shell data-playing={caliyor ? "1" : "0"} data-okuma-bitti={okumaBitti ? "1" : "0"} data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "var(--okurio-visual-viewport-height, 100dvh)", maxHeight: "var(--okurio-visual-viewport-height, 100dvh)", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
 
+          {sesUyarisi && (
+            <div data-ses-uyarisi={sesUyarisi.tur} role={sesUyarisi.tur === "hata" ? "alert" : "status"} style={{ position: "absolute", zIndex: 30, top: 10, left: "50%", transform: "translateX(-50%)", width: "min(560px, calc(100% - 120px))", boxSizing: "border-box", display: "flex", alignItems: "center", gap: 10, background: sesUyarisi.tur === "hata" ? "#3A1F1A" : "#22293A", border: `1px solid ${sesUyarisi.tur === "hata" ? "rgba(240,140,110,0.6)" : "rgba(232,163,61,0.45)"}`, borderRadius: 12, padding: "8px 10px 8px 14px", color: S.metin, fontSize: 13, lineHeight: 1.4, boxShadow: "0 12px 34px rgba(0,0,0,0.45)" }}>
+              <span style={{ flex: 1, minWidth: 0 }}>{sesUyarisi.metin}</span>
+              <button onClick={() => setSesUyarisi(null)} aria-label="Ses uyarısını kapat" style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 8, minWidth: 44, minHeight: 44, color: S.metin, cursor: "pointer", fontSize: 16 }}>×</button>
+            </div>
+          )}
+
           {/* Üst çubuk */}
           <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, minHeight: mobilDar ? 44 : undefined }}>
             <button onClick={okuyucuyuKapatVeOdakla} aria-label="Kapat" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronDown size={20} /></button>
@@ -3263,6 +3325,17 @@ export default function DinletiApp() {
               // öne çıkarılır.
               const gorunecek = kelimeler;
               const kaydirma = 0;
+              // v2.9.2: kaynak metindeki satır/paragraf sonları (diyalog replikleri) ekranda
+              // korunur. Kelime indeksleri değişmez; yalnız görsel bir satır sonu eklenir.
+              const paragrafBaslari = new Set();
+              {
+                let sayac = 0;
+                b.metin.trim().split(/\n+/).forEach((parca) => {
+                  const adet = parca.trim() ? parca.trim().split(/\s+/).length : 0;
+                  if (adet > 0 && sayac > 0) paragrafBaslari.add(sayac);
+                  sayac += adet;
+                });
+              }
               return (
                 <div id="okurio-okuma-icerigi" data-reader-workspace style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden" }}>
                   <div data-reading-column style={{ height: "100%", minHeight: 0 }}>
@@ -3285,8 +3358,9 @@ export default function DinletiApp() {
                       const son = k.slice(temiz.length);
                       const n = Math.max(1, Math.ceil(temiz.length * 0.45));
                       const sozluk = findGlossaryEntry(aktif.id, temiz);
-                      return <span
-                        key={gercekIx}
+                      return <React.Fragment key={gercekIx}>
+                        {paragrafBaslari.has(gercekIx) && <span data-paragraf-sonu aria-hidden="true" style={{ display: "block", height: "0.45em" }} />}
+                        <span
                         data-kelime-ix={gercekIx}
                         data-aktif={aktifMi ? "1" : undefined}
                         data-hedef-kelime={sozluk ? temiz.toLocaleLowerCase("tr-TR") : undefined}
@@ -3313,7 +3387,8 @@ export default function DinletiApp() {
                           textUnderlineOffset: sozluk ? 3 : undefined,
                         }}>
                         {ayar.biyonik && temiz.length > 3 ? <><strong style={{ fontWeight: 850 }}>{temiz.slice(0, n)}</strong>{temiz.slice(n)}{son}</> : k}{" "}
-                      </span>;
+                      </span>
+                      </React.Fragment>;
                     })}
                   </div>
                   {seciliSozluk && (
@@ -3351,9 +3426,11 @@ export default function DinletiApp() {
                     <button onClick={() => setAyar({ ...ayar, tema: ayar.tema === "krem" ? "koyu" : "krem" })} aria-label={`Zemin: ${ayar.tema === "krem" ? "Krem" : "Koyu"}`} aria-pressed={ayar.tema === "krem"} style={cip(ayar.tema === "krem")}>
                       Zemin: {ayar.tema === "krem" ? "Krem" : "Koyu"}
                     </button>
+{DENEYSEL_BIYONIK_GORUNUR && (
                     <button onClick={() => setAyar({ ...ayar, biyonik: !ayar.biyonik })} aria-label="Biyonik vurgu, deneysel" aria-pressed={ayar.biyonik} style={cip(ayar.biyonik)}>
                       Biyonik vurgu · deneysel
                     </button>
+                    )}
                     <button onClick={() => setAyar({ ...ayar, font: sonrakiFont(ayar.font) })} aria-label={`Yazı tipi: ${fontAd(ayar.font)}`} style={cip(ayar.font === "lexend")}>
                       Yazı: {fontAd(ayar.font)}
                     </button>
