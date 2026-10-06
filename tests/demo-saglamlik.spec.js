@@ -85,6 +85,10 @@ test("diyalog replikleri ayrı satırlarda görünür ve kelime indeksleri kesin
     };
   });
   expect(durum.kesintisiz).toBe(true);
+  // Satır sonu öğesi cümle vurgusuna karışmaz (aktif satırın üstünde boyalı şerit çıkmaz).
+  await expect(metin.locator('[data-kelime-ix="5"][data-aktif-cumle="1"]')).toBeAttached({ timeout: 15000 });
+  await expect(metin.locator("[data-paragraf-sonu][data-aktif-cumle]")).toHaveCount(0);
+  await expect(metin.locator("span[data-paragraf-sonu]")).toHaveCount(0);
   expect(durum.okiTop).toBeGreaterThan(durum.baktiTop + 4); // "Oki:" yeni satırda
   expect(Math.abs(durum.okiLeft - durum.ilkLeft)).toBeLessThan(3); // satır başında
 });

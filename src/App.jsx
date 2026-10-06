@@ -3359,7 +3359,8 @@ export default function DinletiApp() {
                       const n = Math.max(1, Math.ceil(temiz.length * 0.45));
                       const sozluk = findGlossaryEntry(aktif.id, temiz);
                       return <React.Fragment key={gercekIx}>
-                        {paragrafBaslari.has(gercekIx) && <span data-paragraf-sonu aria-hidden="true" style={{ display: "block", height: "0.45em" }} />}
+                        {/* div: cümle vurgusu ve uzun-token işaretleyicileri yalnız span'leri tarar; satır sonu onlara karışmaz. */}
+                        {paragrafBaslari.has(gercekIx) && <div data-paragraf-sonu aria-hidden="true" style={{ height: "0.45em" }} />}
                         <span
                         data-kelime-ix={gercekIx}
                         data-aktif={aktifMi ? "1" : undefined}
