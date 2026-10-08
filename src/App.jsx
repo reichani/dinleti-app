@@ -3377,17 +3377,14 @@ export default function DinletiApp() {
                           }
                         }}
                         style={{
-                          background: aktifMi ? (ayar.tema === "krem" ? "rgba(201,139,61,0.45)" : "rgba(232,163,61,0.35)") : "none",
-                          borderRadius: 4,
-                          padding: aktifMi ? "0 2px" : 0,
-                          color: aktifMi ? (ayar.tema === "krem" ? "#1A1510" : "#FFF3DC") : undefined,
                           opacity: ayar.odak && !aktifCumledeMi ? 0.38 : 1,
                           transition: ayar.odak ? "opacity 160ms ease" : undefined,
                           cursor: sozluk ? "help" : undefined,
                           textDecoration: sozluk ? "underline dotted" : undefined,
                           textUnderlineOffset: sozluk ? 3 : undefined,
                         }}>
-                        {ayar.biyonik && temiz.length > 3 ? <><strong style={{ fontWeight: 850 }}>{temiz.slice(0, n)}</strong>{temiz.slice(n)}{son}</> : k}{" "}
+                        {/* Kelime gövdesi ayrı: aktif kelime vurgusu sondaki boşluğu boyamaz; boşluk dış span'de kalır, cümle bandı satırda kesintisiz olur. */}
+                        <span data-kelime-govde>{ayar.biyonik && temiz.length > 3 ? <><strong style={{ fontWeight: 850 }}>{temiz.slice(0, n)}</strong>{temiz.slice(n)}{son}</> : k}</span>{" "}
                       </span>
                       </React.Fragment>;
                     })}

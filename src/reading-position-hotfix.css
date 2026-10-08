@@ -1,50 +1,53 @@
 /* Okurio reader position and focus treatment. */
 
+/* Cümle bandı: kelime başına kutu yok. Boşluk dış span'in içinde olduğu için
+   aynı satırdaki kelimeler tek bir kesintisiz şerit oluşturur. Gölge ve köşe
+   yuvarlama kullanılmaz; komşu kelimelerin kutuları üst üste binmez. */
 [data-okuma-metin="1"] [data-aktif-cumle="1"] {
-  border-radius: 0.22em;
+  border-radius: 0;
   background: rgba(232, 163, 61, 0.09);
-  box-shadow: 0 0 0 0.14em rgba(232, 163, 61, 0.09);
+  box-shadow: none;
+  padding-block: 0.06em;
   color: inherit;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
+  -webkit-box-decoration-break: slice;
+  box-decoration-break: slice;
 }
 
 [data-okuma-metin="1"][data-tema="krem"] [data-aktif-cumle="1"] {
   background: rgba(154, 90, 18, 0.10);
-  box-shadow: 0 0 0 0.14em rgba(154, 90, 18, 0.10);
 }
 
-[data-okuma-metin="1"] [data-aktif="1"] {
+/* Aktif kelime: yerleşimi değiştirmeyen vurgu. Padding, margin ve kalınlık
+   değişimi yok; kelime genişliği sabit kalır, satırlar zıplamaz. Görsel iç
+   boşluk box-shadow ile verilir. */
+[data-okuma-metin="1"] [data-aktif="1"] > [data-kelime-govde] {
   position: relative;
-  display: inline;
-  padding: 0.08em 0.22em !important;
-  margin-inline: 0.03em;
-  border-radius: 0.28em !important;
+  border-radius: 0.2em;
   background: #f2ad3f !important;
   color: #171a1f !important;
   box-shadow:
-    0 0 0 2px rgba(255, 244, 211, 0.96),
-    0 0 0 5px rgba(242, 173, 63, 0.28),
-    0 5px 16px rgba(0, 0, 0, 0.34) !important;
-  text-decoration: none !important;
-  font-weight: 800 !important;
+    0 0 0 0.12em #f2ad3f,
+    0 0 0 calc(0.12em + 2px) rgba(255, 244, 211, 0.96),
+    0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  text-decoration: none;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
 
-[data-okuma-metin="1"][data-tema="krem"] [data-aktif="1"] {
+[data-okuma-metin="1"][data-tema="krem"] [data-aktif="1"] > [data-kelime-govde] {
   background: #9a5a12 !important;
   color: #fff8e8 !important;
   box-shadow:
-    0 0 0 2px #fff8e8,
-    0 0 0 5px rgba(154, 90, 18, 0.25),
-    0 5px 14px rgba(45, 29, 14, 0.25) !important;
+    0 0 0 0.12em #9a5a12,
+    0 0 0 calc(0.12em + 2px) #fff8e8,
+    0 4px 10px rgba(45, 29, 14, 0.22) !important;
 }
 
 /* Demo-safe contract: Kendim Okuyorum has no synthetic position tracking.
    Any stale active state retained by React is visually neutralized so the user
    controls the reading position manually, like a conventional ebook reader. */
 [data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif="1"],
+[data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif="1"] > [data-kelime-govde],
 [data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif-cumle="1"] {
   padding: 0 !important;
   margin: 0 !important;
@@ -95,7 +98,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-okuma-metin="1"] [data-aktif="1"],
+  [data-okuma-metin="1"] [data-aktif="1"] > [data-kelime-govde],
   [data-okuma-metin="1"] [data-aktif-cumle="1"] {
     transition: background-color 100ms linear, color 100ms linear, box-shadow 100ms linear;
   }
@@ -108,7 +111,7 @@
     box-shadow: none !important;
   }
 
-  [data-okuma-metin="1"] [data-aktif="1"] {
+  [data-okuma-metin="1"] [data-aktif="1"] > [data-kelime-govde] {
     outline: 3px solid Highlight !important;
     background: Highlight !important;
     color: HighlightText !important;
