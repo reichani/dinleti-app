@@ -195,7 +195,8 @@ body,
   z-index: 25;
   inset-inline-end: 22px;
   inset-block-end: 120px;
-  inline-size: min(380px, calc(100% - 44px));
+  /* v2.9.2: ayarlar sütunu (300px) kadar geniş; metin kutusunun üstüne taşmaz. */
+  inline-size: min(300px, calc(100% - 44px));
   box-sizing: border-box;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
 }
