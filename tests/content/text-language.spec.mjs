@@ -28,3 +28,11 @@ test("uses the dominant language in realistic academic text", () => {
     "en",
   );
 });
+
+test("İngilizce 'I' Türkçe yerelinde 'ı' sayılmaz (v2.10 kök neden)", () => {
+  assert.equal(
+    detectTextLanguage("Every morning I wake up early. I have breakfast and I walk to school with my friends."),
+    "en",
+  );
+  assert.equal(detectTextLanguage("IŞIK ODAYA YAVAŞÇA GİRDİ VE HER ŞEYİ AYDINLATTI."), "tr");
+});
