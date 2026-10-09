@@ -7,6 +7,7 @@ import { LABIRENTTE_UC_SES_DRAFT } from "./drafts/2026-08-02-labirentte-uc-ses.j
 import { NANA_ANLATIYOR_DRAFT } from "./drafts/2026-08-18-nana-anlatiyor.js";
 import { ARIADNENIN_IPI_YOL_BULMAK_DRAFT } from "./drafts/2026-08-19-ariadnenin-ipi-yol-bulmak.js";
 import { IKARUS_BUGUN_NE_ANLATIR_DRAFT } from "./drafts/2026-08-22-ikarus-bugun-ne-anlatir.js";
+import { AESOPS_FABLES_DRAFT } from "./drafts/2026-09-16-aesops-fables.js";
 
 const normalize = (text) => text.replace(/\s+/gu, " ").trim();
 
@@ -87,6 +88,22 @@ export const PREPARED_DRAFT_PRODUCTION_CANDIDATES = [
   preparedDraftToProductionCandidate(NANA_ANLATIYOR_DRAFT, { kategori: "İlk Okuma", renk: ["#5B3A2E", "#C28C70"] }),
   preparedDraftToProductionCandidate(ARIADNENIN_IPI_YOL_BULMAK_DRAFT, { kategori: "Mitolojiyle Okumaya Dönüş", renk: ["#2C3A3B", "#7AA6A1"], seslendiren: "Sakin Rehber" }),
   preparedDraftToProductionCandidate(IKARUS_BUGUN_NE_ANLATIR_DRAFT, { kategori: "Mitolojiden Klasiklere", renk: ["#26334F", "#D9A24A"] }),
+  // 2026-10-09: ürün sahibi onaylı (PR #125). İngilizce sesle okunur; kaynak kamu malı Aesop.
+  preparedDraftToProductionCandidate(AESOPS_FABLES_DRAFT, {
+    kategori: "English Corner",
+    renk: ["#2E4A5A", "#5A8CA0"],
+    dil: "en",
+    yazar: "Aesop · Okurio kısa uyarlaması",
+    seslendiren: "Oki Anlatıcı",
+    yas: "6-7 yaş",
+    kaynak: {
+      ad: "Aesop's Fables (Project Gutenberg #19994)",
+      tur: AESOPS_FABLES_DRAFT.sourceTruth.sourceType,
+      kapsam: AESOPS_FABLES_DRAFT.sourceTruth.scope,
+      url: AESOPS_FABLES_DRAFT.sourceTruth.sourceUrls[0],
+      urls: AESOPS_FABLES_DRAFT.sourceTruth.sourceUrls,
+    },
+  }),
 ];
 
 

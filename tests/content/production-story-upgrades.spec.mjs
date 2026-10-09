@@ -109,3 +109,16 @@ test("ürün sahibi onaylı Ikarus uzun production kaydının yerine geçer", ()
   assert.ok(countWords(story) >= 1500);
   assert.ok(seconds(story) >= 581);
 });
+
+test("ürün sahibi onaylı Aesop uyarlaması İngilizce sesle ve onaylı review ile kataloğa girer", () => {
+  const story = PRODUCTION_STORY_UPGRADES_BY_ID["aesop-fables-en"];
+  assert.ok(story, "aesop-fables-en upgrade kaydı yok");
+  assert.equal(story.dil, "en");
+  assert.equal(story.bolumler.length, 5);
+  assert.match(story.kaynak.url, /gutenberg\.org/u);
+  const merged = mergePilotStories([{ id: "aesop-fables-en", baslik: "eski", bolumler: [], yas: "4-8 yaş" }]);
+  const kayit = merged.find((s) => s.id === "aesop-fables-en");
+  assert.equal(kayit.releaseReady, true);
+  assert.equal(kayit.contentQualityReview.status, "approved");
+  assert.equal(kayit.dil, "en");
+});
