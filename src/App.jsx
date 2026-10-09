@@ -1295,7 +1295,7 @@ const RAFLAR = [
   { ad: "Oki Mini Hikâyeler", mod: "cocuk", ids: ["oki-ati-taniyor", "ela-el-ele", "ali-ile-ela", "lili-ile-at", "oki-el-ele", "mino-nerede", "nana-anlatiyor"] },
   { ad: "Editörün Seçtikleri", mod: "yetiskin", ids: ["kurk-mantolu-madonna", "mai-ve-siyah", "pembe-incili-kaftan"] },
   { ad: "Masal Saati", mod: "cocuk", ids: ["keloglan-masallari", "andersen-masallari", "la-fontaine-fugue", "grimm-masallari", "ezop-masallari"] },
-  { ad: "English Corner", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10"], ids: ["fox-and-grapes-en", "lion-and-mouse-graded-en", "aesop-fables-en", "ugly-duckling-en"] },
+  { ad: "English Corner", mod: "cocuk", yolIds: ["ilk_harfler_6_7", "ilk_cumleler_7_8", "okuma_guveni_8_10"], ids: ["fox-and-grapes-en", "lion-and-mouse-graded-en", "aesop-fables-en", "ugly-duckling-en"] },
   { ad: "English Word Cards", mod: "cocuk", yolIds: ["okumaya_hazirlik_5_6", "ilk_harfler_6_7", "ilk_cumleler_7_8"], ids: ["english-hello-card", "english-sky-words-card", "english-colors-card", "little-star-poem-en"] },
   { ad: "English Reading Club", mod: "cocuk", yolIds: ["akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en", "fox-and-grapes-en", "lion-and-mouse-graded-en", "ugly-duckling-en", "moon-poem-en", "space-poem-en"] },
   { ad: "Young English Readers", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["happy-prince-swallow-en", "alice-rabbit-hole-en", "selfish-giant-graded-en", "moon-not-star-en"] },
@@ -1334,7 +1334,7 @@ const YOL_SEGMENT_GRUPLARI = {
 const YOL_ICERIK_TURLERI = {
   okul_oncesi_3_4: ["dinleme_hikayesi", "mini_hikaye", "masal", "fabl", "dunya_masali", "mitoloji_hikayesi", "tekerleme", "siir"],
   okumaya_hazirlik_5_6: ["dinleme_hikayesi", "harf_karti", "hece_karti", "english_word_card", "masal", "fabl", "mitoloji_hikayesi", "tekerleme", "siir", "english_poem"],
-  ilk_harfler_6_7: ["harf_karti", "hece_karti", "kelime_karti", "mini_hikaye", "english_word_card", "tekerleme", "siir"],
+  ilk_harfler_6_7: ["harf_karti", "hece_karti", "kelime_karti", "mini_hikaye", "english_word_card", "english_easy", "tekerleme", "siir"],
   ilk_cumleler_7_8: ["mini_hikaye", "masal", "fabl", "english_word_card", "english_easy", "english_poem", "bilim_hikayesi", "mitoloji_hikayesi", "piyes", "siir", "bilmece", "tekerleme"],
   okuma_guveni_8_10: ["masal", "fabl", "dunya_masali", "english_easy", "english_poem", "mini_hikaye", "bilim_hikayesi", "doga_bilim", "mitoloji_hikayesi", "piyes", "siir", "bilmece"],
   akici_okuma_10_12: ["masal", "fabl", "dunya_masali", "english_easy", "english_reading", "english_science", "english_poem", "kisa_hikaye", "bilim_hikayesi", "doga_bilim", "mitoloji_hikayesi", "piyes", "siir", "bilmece"],
@@ -1382,7 +1382,8 @@ const ICERIK_METADATA = {
   "english-hello-card": { yasMin: 5, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_word_card", subject: "english", oql: 1, cefr: "Pre-A1", targetWords: ["hello", "bye", "please", "thank you"] },
   "english-sky-words-card": { yasMin: 6, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_word_card", subject: "english", oql: 1, cefr: "Pre-A1", targetWords: ["sun", "moon", "star", "sky"] },
   "english-colors-card": { yasMin: 6, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["dinleme", "ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_word_card", subject: "english", oql: 1, cefr: "Pre-A1", targetWords: ["red", "blue", "yellow", "green"] },
-  "aesop-fables-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
+  // 2026-10-09: PR #125 onaylı 6–7 yaş uyarlaması (467 kelime, 5 bölüm) eski özetin yerine geçti.
+  "aesop-fables-en": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 2 },
   "peter-rabbit-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
   "ugly-duckling-en": { yasMin: 8, yasMax: 13, segmentler: ["okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
 
