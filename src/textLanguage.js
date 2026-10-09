@@ -3,12 +3,18 @@ const ENGLISH_MARKERS = new Set([
   "had", "has", "have", "he", "her", "his", "i", "in", "is", "it", "not",
   "of", "on", "or", "our", "she", "that", "the", "their", "they", "this",
   "to", "was", "we", "were", "with", "you", "your",
+  // v2.10: ders kitabı ve günlük dil için ek işlev kelimeleri.
+  "my", "me", "do", "does", "did", "can", "will", "what", "where", "when",
+  "how", "there", "these", "those", "then", "every", "some", "very", "about",
+  "into", "would", "should", "could", "his", "him", "them", "its", "am",
 ]);
 
 const TURKISH_MARKERS = new Set([
   "ama", "ben", "bir", "biz", "bu", "da", "de", "dedi", "diye", "en",
   "gibi", "ile", "için", "mi", "ne", "o", "olan", "olarak", "onun",
   "sen", "şu", "ve", "ya", "çok",
+  "var", "yok", "daha", "kadar", "sonra", "önce", "her", "değil", "mı",
+  "mi", "mu", "mü", "veya", "ise", "bunu", "şey", "oldu", "olur",
 ]);
 
 /**
@@ -17,7 +23,11 @@ const TURKISH_MARKERS = new Set([
  * very short, numeric or proper-name-heavy text safely falls back to Turkish.
  */
 export function detectTextLanguage(text) {
-  const normalized = String(text || "").toLocaleLowerCase("tr-TR");
+  const raw = String(text || "");
+  // v2.10: Türkçe yerelinde küçük harfe çevirmek İngilizce "I" harfini "ı" yapıyordu;
+  // "I have, I walk" gibi cümleler Türkçe harf puanı alıp Türkçe sesle okunuyordu.
+  // Kelimeler yerelden bağımsız küçültülür; Türkçe harfler özgün metinden sayılır.
+  const normalized = raw.replace(/İ/g, "i").replace(/I/g, "i").toLowerCase();
   const words = normalized.match(/[a-zçğıöşü]+(?:['’][a-zçğıöşü]+)?/giu) || [];
   if (words.length < 3) return "tr";
 
@@ -29,7 +39,7 @@ export function detectTextLanguage(text) {
     if (TURKISH_MARKERS.has(word)) turkishScore += 1;
   }
 
-  const turkishCharacters = (normalized.match(/[çğıöşü]/gu) || []).length;
+  const turkishCharacters = (raw.match(/[çğıöşüÇĞÖŞÜİ]/gu) || []).length;
   turkishScore += Math.min(6, turkishCharacters * 2);
 
   // A single shared/accidental marker must not flip the document voice.

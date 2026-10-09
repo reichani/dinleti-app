@@ -162,7 +162,7 @@ test.describe("Persona bazlı okuma akışı", () => {
     await kendiMetniniAc(page, personaMetni);
     const player = page.locator("[data-mobile-stability]");
     const panel = await ayarlariAc(page);
-    await panel.getByRole("button", { name: "Dikkat desteği", exact: true }).click();
+    await panel.getByRole("button", { name: "Uzun metinde dikkatim dağılıyor", exact: true }).click();
 
     await expect(player.getByText(/Odak modu:\s*cümle/i)).toBeVisible();
     // v2.9.2: deneysel biyonik vurgu düğmesi gizli; dikkat desteği biyonik vurguyu da açmaz.
@@ -183,7 +183,7 @@ test.describe("Persona bazlı okuma akışı", () => {
     const player = page.locator("[data-mobile-stability]");
 
     const panel = await ayarlariAc(page);
-    await panel.getByRole("button", { name: "Dikkat desteği", exact: true }).click();
+    await panel.getByRole("button", { name: "Uzun metinde dikkatim dağılıyor", exact: true }).click();
     await panel.getByRole("button", { name: "Odak modu", exact: true }).click();
     await player.locator("[data-okuma-modu-kompakt] button").click();
     await player.locator('[data-okuma-modu="kendim"]').click();
@@ -212,7 +212,7 @@ test.describe("Persona bazlı okuma akışı", () => {
     await kendiMetniniAc(page, `Oki bağlantıyı sakin okur. ${longToken} Son cümle de görünür kalır.`);
     const player = page.locator("[data-mobile-stability]");
     const panel = await ayarlariAc(page);
-    await panel.getByRole("button", { name: "Okuma kolaylığı desteği" }).click();
+    await panel.getByRole("button", { name: "Harfler kayıyor, karışıyor" }).click();
 
     const readingText = player.locator("[data-okuma-metin]");
     await expect(readingText.locator('[data-uzun-token="1"]').first()).toBeVisible();
