@@ -17,7 +17,7 @@ import { cursorFromPosition, positionFromCursor, normalizeReadingProgress, readi
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.9.2";
+const SURUM = "2.9.3";
 // v2.9.2: deneysel (P2) biyonik vurgu düğmesi okul/pilot demolarında gösterilmez.
 const DENEYSEL_BIYONIK_GORUNUR = false;
 
@@ -1861,6 +1861,8 @@ export default function DinletiApp() {
   const [, setMod] = useState("cocuk"); // geriye dönük uyumluluk: cocuk | yetiskin
   const [okumaYolu, setOkumaYolu] = useState(VARSAYILAN_OKUMA_YOLU);
   const [onboardingAcik, setOnboardingAcik] = useState(false);
+  const [yolTaslagi, setYolTaslagi] = useState(null); // okuma yolu ekranındaki kaydedilmemiş seçim
+  useEffect(() => { if (!onboardingAcik) setYolTaslagi(null); }, [onboardingAcik]);
   const [profilMesaji, setProfilMesaji] = useState("");
   const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", biyonik: false });
   const [kelimeIx, setKelimeIx] = useState(0);
@@ -3548,8 +3550,16 @@ export default function DinletiApp() {
     );
   };
 
+  /* v2.9.3: Okuma yolu taslağı App düzeyinde tutulur ve sayfa düz fonksiyon olarak
+     çağrılır. Önceden <OnboardingSayfa /> her App render'ında yeni bir bileşen türü
+     olduğu için ses çalarken (konum her kelimede güncellenir) sayfa yeniden kuruluyor,
+     yapılan seçim sıfırlanıyor ve dokunuşlar kayboluyordu. */
   const OnboardingSayfa = () => {
-    const [taslak, setTaslak] = useState({ ...okumaYolu, destekler: [...okumaYolu.destekler] });
+    const taslak = yolTaslagi || { ...okumaYolu, destekler: [...okumaYolu.destekler] };
+    const setTaslak = (guncelle) => setYolTaslagi((onceki) => {
+      const temel = onceki || { ...okumaYolu, destekler: [...okumaYolu.destekler] };
+      return typeof guncelle === "function" ? guncelle(temel) : guncelle;
+    });
     const yol = yolBul(taslak.yolId);
     const toggleDestek = (id) => {
       setTaslak((e) => ({ ...e, destekler: e.destekler.includes(id) ? e.destekler.filter((x) => x !== id) : [...e.destekler, id] }));
@@ -3631,7 +3641,7 @@ export default function DinletiApp() {
   return (
     <div data-app-shell style={govde}>
       <style>{`@media (pointer: coarse), (hover: none), (max-width: 430px) { [data-app-shell] button { min-width: 44px !important; min-height: 44px !important; } }`}</style>
-      {onboardingAcik ? <OnboardingSayfa /> : detayId ? <DetaySayfa /> : sekme === "ana" ? <AnaSayfa /> : sekme === "ara" ? <AramaSayfa /> : <KitaplikSayfa />}
+      {onboardingAcik ? OnboardingSayfa() : detayId ? <DetaySayfa /> : sekme === "ana" ? <AnaSayfa /> : sekme === "ara" ? <AramaSayfa /> : <KitaplikSayfa />}
       {!onboardingAcik && MiniOynatici()}
       {!onboardingAcik && TamOynatici()}
       {!onboardingAcik && <AltMenu />}
