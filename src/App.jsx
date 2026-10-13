@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from "react";
-import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus, Flame } from "lucide-react";
+import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus, Flame, SkipBack, SkipForward, Repeat1 } from "lucide-react";
 import GlossaryCard from "./components/GlossaryCard.jsx";
 import OkurioProvenanceStamp from "./components/OkurioProvenanceStamp.jsx";
 import { extractDocumentText, normalizeDocumentText, SUPPORTED_DOCUMENT_ACCEPT } from "./documentImport.js";
@@ -12,12 +12,12 @@ import { classifyContent, estimateStorySeconds } from "./content/contentIntegrit
 import { evaluateStoryForReadingLevel } from "./content/readingLevelPolicy.js";
 import { evaluateContentQualityReview } from "./content/contentQualityReview.js";
 import { getGradeLabelForYolId, minimumFullReadingSecondsForAge } from "./content/schoolGradeMapping.js";
-import { cursorFromPosition, positionFromCursor, normalizeReadingProgress, readingProgressSnapshot, monotonicBoundaryWord, createSpeechWordTimeline, timelineWordFromElapsed } from "./reader-core.js";
+import { cursorFromPosition, cursorForSentenceStep, positionFromCursor, normalizeReadingProgress, readingProgressSnapshot, monotonicBoundaryWord, createSpeechWordTimeline, timelineWordFromElapsed } from "./reader-core.js";
 
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.10.0";
+const SURUM = "2.10.1";
 
 const KATALOG = mergePilotStories([
 
@@ -1894,7 +1894,8 @@ export default function DinletiApp() {
   const [yolTaslagi, setYolTaslagi] = useState(null); // okuma yolu ekranındaki kaydedilmemiş seçim
   useEffect(() => { if (!onboardingAcik) setYolTaslagi(null); }, [onboardingAcik]);
   const [profilMesaji, setProfilMesaji] = useState("");
-  const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend" });
+  // v2.10.1: atlama "cumle" (varsayılan) ya da "sure" (15 sn geri / 30 sn ileri).
+  const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", atlama: "cumle" });
   const [kelimeIx, setKelimeIx] = useState(0);
   const [kendiMetin, setKendiMetin] = useState("");
   const [kendiBaslik, setKendiBaslik] = useState("Kendi Metnim");
@@ -2772,6 +2773,19 @@ export default function DinletiApp() {
     setPozisyon(yeni);
     vurguHizala(yeni, true);
   };
+  /* v2.10.1: cümle bazlı atlama — takılınan cümle tek dokunuşla yeniden dinlenir
+     (tekrarlı okuma; Lee ve Yoon 2017). delta: -1 önceki, 0 tekrarla, +1 sonraki. */
+  const cumleAtla = (delta) => {
+    if (!aktif) return;
+    const hedef = cursorForSentenceStep(aktif.bolumler, aktifBolumIx, kelimeIx, delta);
+    readerFollowImmediateRef.current = true;
+    readerFollowPauseUntilRef.current = 0;
+    setOkumaBitti(false);
+    setPozisyon(positionFromCursor(aktif.bolumler, hedef.sectionIndex, hedef.wordIndex, bolumSn));
+    setKelimeIx(hedef.wordIndex);
+    if (caliyor && etkinSeslendirme) konusmayiBaslat(aktif, hedef.sectionIndex, hedef.wordIndex);
+  };
+  const cumleModu = ayar.atlama !== "sure";
   const oranaSar = (oran) => {
     if (!aktif) return;
     const yeni = Math.floor(oran * toplam);
@@ -3307,7 +3321,7 @@ export default function DinletiApp() {
             <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{aktif.baslik}</div>
             <div style={{ fontSize: 11, color: S.soluk }}>{aktif.bolumler[aktifBolumIx].ad}</div>
           </div>
-          <button onClick={(e) => { e.stopPropagation(); sar(-15); }} aria-label="15 sn geri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", padding: 4 }}><RotateCcw size={18} /></button>
+          <button onClick={(e) => { e.stopPropagation(); if (cumleModu) cumleAtla(0); else sar(-15); }} aria-label={cumleModu ? "Cümleyi tekrarla" : "15 sn geri"} style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", padding: 4 }}><RotateCcw size={18} /></button>
           <button onClick={(e) => { e.stopPropagation(); oynatDegistir(); }} aria-label={caliyor ? "Duraklat" : "Oynat"}
             style={{ width: 38, height: 38, borderRadius: 19, background: S.vurgu, border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
             {caliyor ? <Pause size={17} color="#14181F" fill="#14181F" /> : <Play size={17} color="#14181F" fill="#14181F" style={{ marginLeft: 2 }} />}
@@ -3519,6 +3533,9 @@ export default function DinletiApp() {
                     <button onClick={() => setAyar({ ...ayar, font: sonrakiFont(ayar.font) })} aria-label={`Yazı tipi: ${fontAd(ayar.font)}`} style={cip(ayar.font === "lexend")}>
                       Yazı: {fontAd(ayar.font)}
                     </button>
+                    <button onClick={() => setAyar({ ...ayar, atlama: cumleModu ? "sure" : "cumle" })} aria-label={`Atlama: ${cumleModu ? "Cümle" : "15 / 30 saniye"}`} style={cip(cumleModu)}>
+                      Atlama: {cumleModu ? "Cümle" : "15 / 30 sn"}
+                    </button>
                   </div>
                   <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: 12, color: S.soluk }}>Okuma ve ses kontrolleri</div>
                   <div data-okuma-modu-kompakt style={{ display: "flex", marginTop: 8 }}>
@@ -3643,16 +3660,33 @@ export default function DinletiApp() {
               <span>{sureYaz(pozisyon)}</span><span>-{sureYaz(toplam - pozisyon)}</span>
             </div>
             <div data-transport-controls style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: mobilDar ? 18 : 22, marginTop: mobilDar ? 6 : 8 }}>
-              <button onClick={() => sar(-15)} aria-label="15 saniye geri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <RotateCcw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>15</span>
-              </button>
+              {cumleModu ? (
+                <>
+                  <button onClick={() => cumleAtla(-1)} aria-label="Önceki cümle" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                    <SkipBack size={22} /><span style={{ fontSize: 10, color: S.soluk }}>Önceki</span>
+                  </button>
+                  <button onClick={() => cumleAtla(0)} aria-label="Cümleyi tekrarla" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                    <Repeat1 size={22} /><span style={{ fontSize: 10, color: S.soluk }}>Tekrar</span>
+                  </button>
+                </>
+              ) : (
+                <button onClick={() => sar(-15)} aria-label="15 saniye geri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                  <RotateCcw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>15</span>
+                </button>
+              )}
               <button onClick={() => oynatDegistir()} aria-label={caliyor ? "Duraklat" : "Oynat"}
                 style={{ width: mobilDar ? 52 : 58, height: mobilDar ? 52 : 58, borderRadius: mobilDar ? 26 : 29, background: S.vurgu, border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 22px rgba(232,163,61,0.35)" }}>
                 {caliyor ? <Pause size={25} color="#14181F" fill="#14181F" /> : <Play size={25} color="#14181F" fill="#14181F" style={{ marginLeft: 3 }} />}
               </button>
-              <button onClick={() => sar(30)} aria-label="30 saniye ileri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                <RotateCw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>30</span>
-              </button>
+              {cumleModu ? (
+                <button onClick={() => cumleAtla(1)} aria-label="Sonraki cümle" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                  <SkipForward size={22} /><span style={{ fontSize: 10, color: S.soluk }}>Sonraki</span>
+                </button>
+              ) : (
+                <button onClick={() => sar(30)} aria-label="30 saniye ileri" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                  <RotateCw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>30</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
