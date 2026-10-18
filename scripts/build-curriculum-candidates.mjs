@@ -15,11 +15,22 @@
  *  - 5. sınıf ve üstü: öyküleyici türlerde hikâye unsurları, şiirde şiirin biçim özellikleri çıktısı.
  *  - Deyim/atasözü beyanlı ve 5. sınıf ve üstü: deyim, atasözü ve kalıp sözleri içeren çıktı.
  *  - İçerik türünün program metin türü listesinde olup olmadığı ayrıca işaretlenir.
+ *  - Her aday kazanıma PIRLS 2026 süreci ve PISA 2018 alt süreci kancası eklenir
+ *    (ontology/vocab/uluslararasi-cerceveler.json, beceriKopru; analitik öneri).
  */
 import { readFileSync, readdirSync, writeFileSync, mkdirSync } from "node:fs";
 
 const root = new URL("../", import.meta.url);
 const vocab = JSON.parse(readFileSync(new URL("ontology/vocab/meb-kazanim.json", root), "utf8"));
+const intl = JSON.parse(readFileSync(new URL("ontology/vocab/uluslararasi-cerceveler.json", root), "utf8"));
+// Üst seviye kanca: beceri etiketi → PIRLS süreci ve PISA alt süreci (analitik öneri, O2).
+const kanca = (beceri, metin) => {
+  const e = intl.beceriKopru.eslesme[beceri];
+  if (!e) return { pirls: [], pisa: [] };
+  const kural = e.kural && new RegExp(e.kural.desen, "u").test(metin ?? "");
+  return { pirls: (kural ? e.kural.pirls : e.pirls) ?? [], pisa: e.pisa ?? [] };
+};
+const amac = (tur) => Object.entries(intl.icerikTuruAmac).find(([k, v]) => k.startsWith("PIRLS.") && v.includes(tur))?.[0] ?? null;
 const snapDir = new URL("ontology/snapshots/", root);
 const snapFile = readdirSync(snapDir).filter((f) => f.startsWith("catalog-metrics-")).sort().at(-1);
 const snap = JSON.parse(readFileSync(new URL(snapFile, snapDir), "utf8"));
@@ -39,7 +50,7 @@ const sinifNo = (etiket) => {
   return m ? Number(m[1]) : null;
 };
 const etiketVar = (k, e) => k.beceri === e || (k.beceriEtiketleri ?? []).includes(e);
-const kisa = (k, neden) => ({ kod: k.kod, metin: k.metin, neden });
+const kisa = (k, neden) => ({ kod: k.kod, metin: k.metin, neden, ...kanca(k.beceri, k.metin) });
 
 const kayitlar = snap.icerikler.map((c) => {
   const temel = { id: c.id, baslik: c.baslik, anaOkumaYolu: c.anaOkumaYolu, sinifEtiketi: c.sinif };
@@ -61,7 +72,7 @@ const kayitlar = snap.icerikler.map((c) => {
       for (const k of g.kazanimlar) {
         for (const b of k.surecBilesenleri ?? []) {
           if ((b.etiketler ?? []).includes("söz varlığı") && !aday.some((a) => a.kod === b.altKodTuretilmis)) {
-            aday.push({ kod: b.altKodTuretilmis, ustKod: k.kod, metin: b.metin, neden, turetilmisKod: true });
+            aday.push({ kod: b.altKodTuretilmis, ustKod: k.kod, metin: b.metin, neden, turetilmisKod: true, ...kanca("söz varlığı", b.metin) });
           }
         }
       }
@@ -79,6 +90,7 @@ const kayitlar = snap.icerikler.map((c) => {
     ...temel,
     sinif: n,
     durum: "aday-kural-tabanli",
+    pirlsAmac: amac(c.icerikTuru),
     programMetinTuru: adaylarTur?.find((t) => turler.includes(t)) ?? adaylarTur?.[0] ?? null,
     metinTuruProgramda: adaylarTur ? adaylarTur.some((t) => turler.includes(t)) : null,
     adayKazanimlar: aday,
@@ -94,7 +106,7 @@ const ozet = {
 const out = {
   surum: "0.1",
   durum: "aday-kural-tabanli",
-  kaynak: { vocab: "ontology/vocab/meb-kazanim.json", program: vocab.program, snapshot: `ontology/snapshots/${snapFile}` },
+  kaynak: { vocab: "ontology/vocab/meb-kazanim.json", uluslararasi: "ontology/vocab/uluslararasi-cerceveler.json", program: vocab.program, snapshot: `ontology/snapshots/${snapFile}` },
   not: "Öneridir, onay değildir. Doğrulama: Reyhan veya bir Türkçe öğretmeni (ontoloji aksiyonu A5).",
   ozet,
   kayitlar,

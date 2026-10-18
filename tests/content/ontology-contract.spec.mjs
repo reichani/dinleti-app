@@ -57,3 +57,17 @@ test("MEB kazanım sözlüğü resmî kod biçiminde ve aday eşleme yalnız sö
     for (const a of k.adayKazanimlar ?? []) assert.ok(kodlar.has(a.kod), `${k.id}: sözlükte olmayan kod ${a.kod}`);
   }
 });
+
+test("her MEB beceri etiketi PIRLS/PISA köprüsünde tanımlı ve kodlar çerçevede var", () => {
+  const vocab = JSON.parse(readFileSync(new URL("../../ontology/vocab/meb-kazanim.json", import.meta.url), "utf8"));
+  const intl = JSON.parse(readFileSync(new URL("../../ontology/vocab/uluslararasi-cerceveler.json", import.meta.url), "utf8"));
+  const pirls = new Set(intl.cerceveler.PIRLS2026.surecler.map((s) => s.kod));
+  const pisa = new Set(intl.cerceveler.PISA2018.surecler.flatMap((s) => [s.kod, ...(s.alt ?? []).map((a) => a.kod)]));
+  for (const s of vocab.siniflar) for (const k of s.kazanimlar) {
+    const e = intl.beceriKopru.eslesme[k.beceri];
+    assert.ok(e, `köprüde olmayan beceri: ${k.beceri}`);
+    for (const c of [...(e.pirls ?? []), ...(e.kural?.pirls ?? [])]) assert.ok(pirls.has(c), c);
+    for (const c of e.pisa ?? []) assert.ok(pisa.has(c), c);
+  }
+  assert.ok(Array.isArray(ontology.metodolojiReferanslari) && ontology.metodolojiReferanslari.length >= 5);
+});

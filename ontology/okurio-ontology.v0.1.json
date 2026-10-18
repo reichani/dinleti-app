@@ -1,6 +1,6 @@
 {
   "$id": "okurio-ontology",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "status": "taslak",
   "olusturuldu": "2026-10-18",
   "sahip": "Reyhan Açar (ürün sahibi; sürüm onayı)",
@@ -197,6 +197,12 @@
       "tanim": "contentQualityReview şema 2.0 kaydı ve ownerApproval.",
       "olgunluk": "O1",
       "kural": "AI hiçbir zaman reviewerName veya ownerApproval.ownerName alanını doldurmaz (docs/AI-ASSISTED-QUALITY-GATE-v1.0.md)."
+    },
+    "UluslararasiCerceve": {
+      "tanim": "Uluslararası okuma değerlendirme çerçevesi süreci (PIRLS 2026, PISA 2018). MEB çıktılarının üst seviye kancası.",
+      "kaynak": "ontology/vocab/uluslararasi-cerceveler.json",
+      "olgunluk": "O3 (çerçeve adları resmî); beceri köprüsü O2 (analitik öneri)",
+      "not": "Resmî bir MEB-PIRLS/PISA eşlemesi yayımlanmamıştır; köprü Okurio'nun analitik önerisidir ve uzman doğrulaması ister."
     }
   },
   "iliskiler": [
@@ -259,6 +265,20 @@
       "alan": "OkumaYolu",
       "hedef": "OkumaYolu",
       "kaynak": "OKUMA_YOLLARI dizi sırası"
+    },
+    {
+      "ad": "ustSeviyeKanca",
+      "alan": "MebKazanim",
+      "hedef": "UluslararasiCerceve",
+      "kaynak": "uluslararasi-cerceveler.json beceriKopru (beceri etiketi üzerinden)",
+      "olgunluk": "O2"
+    },
+    {
+      "ad": "okumaAmaci",
+      "alan": "Icerik",
+      "hedef": "UluslararasiCerceve",
+      "kaynak": "uluslararasi-cerceveler.json icerikTuruAmac (PIRLS amaçları)",
+      "olgunluk": "O2"
     }
   ],
   "kontrolluSozlukler": {
@@ -343,6 +363,61 @@
       "surum": "0.1.1",
       "tarih": "2026-10-18",
       "ozet": "MEB TYMM Türkçe okuma öğrenme çıktıları eklendi (ontology/vocab/meb-kazanim.json); MebKazanim O0→O3; kural tabanlı içerik-kazanım aday eşlemesi (37 içerik); B2 kısmen kapandı."
+    },
+    {
+      "surum": "0.1.2",
+      "tarih": "2026-10-18",
+      "ozet": "PIRLS 2026 ve PISA 2018 çerçeveleri eklendi (ontology/vocab/uluslararasi-cerceveler.json); MEB çıktılarına beceri köprüsüyle üst seviye kanca; içeriklere PIRLS okuma amacı; metodolojiReferanslari bölümü."
+    }
+  ],
+  "metodolojiReferanslari": [
+    {
+      "konu": "Müfredat dayanağı",
+      "referans": "MEB TYMM Türkçe Dersi Öğretim Programı, ilkokul ve ortaokul (2026-09-02 baskısı)",
+      "url": "https://tymm.meb.gov.tr/ogretim-programlari/ders/ortaokul-turkce-dersi",
+      "kullanim": "Öğrenme çıktısı kodları ve metin türleri"
+    },
+    {
+      "konu": "Uluslararası üst çerçeve (4. sınıf)",
+      "referans": "Sabatini, Kennedy, Wry, von Davier. PIRLS 2026 Reading Assessment Framework. IEA, TIMSS & PIRLS International Study Center",
+      "url": "https://timssandpirls.bc.edu/pirls2026/frameworks/downloads/P26_Ch1_Reading-Assessment.pdf",
+      "kullanim": "Okuma amaçları ve dört anlama süreci; MEB çıktılarının üst kancası"
+    },
+    {
+      "konu": "Uluslararası üst çerçeve (15 yaş)",
+      "referans": "OECD PISA 2018 Reading Literacy Framework",
+      "url": "https://um.edu.mo/fed/pisa/FT2018_pdf/20170315_Introduction%20of%20PISA%202018%20reading%20framework_ENG_V1.pdf",
+      "kullanim": "Bilgiyi bulma, anlama, değerlendirme-yansıtma, akıcı okuma ve okuma görevini yönetme süreçleri"
+    },
+    {
+      "konu": "Türkiye karşılaştırma verisi",
+      "referans": "MEB, PIRLS 2021 Türkiye sonuçları duyurusu",
+      "url": "https://www.meb.gov.tr/bakan-ozer-pirls-2021-sonuclarina-gore-turkiye-puanini-en-cok-artiran-ikinci-ulke/haber/29923/tr",
+      "kullanim": "Türkiye 2021: 496 puan, 57 ülke içinde 39."
+    },
+    {
+      "konu": "Belge çıkarımı doğrulama",
+      "referans": "Cochrane MECIR C45: veri çıkarımı en az iki kişi tarafından bağımsız yapılır",
+      "url": "https://www.cochrane.org/pl/authors/handbooks-and-manuals/mecir-manual/standards-conduct-new-cochrane-intervention-reviews-c1-c75/performing-review-c24-c75/collecting-data-included-studies-c43-c51",
+      "kullanim": "Program PDF'inden çıkarımın iki bağımsız yöntemle yapılıp farkların insanca karara bağlanması"
+    },
+    {
+      "konu": "AI destekli çıkarım",
+      "referans": "Gartlehner G. ve diğ. (2025). AI-Assisted Data Extraction with a Large Language Model: A Study Within Reviews. medRxiv ön baskı, hakem değerlendirmesinden geçmedi",
+      "url": "https://www.medrxiv.org/content/10.1101/2025.03.20.25324350.full.pdf",
+      "kullanim": "Claude ile çıkarım + insan doğrulaması: doğruluk %91,0, hassasiyet %98,9; en sık hata eksik veri"
+    },
+    {
+      "konu": "İçerik-standart hizalama",
+      "referans": "Webb hizalama yöntemi (kategorik uyum, bilgi derinliği, kapsam, temsil dengesi); NCDPI hizalama teknik raporu; Graham, Milanowski ve Miller (2012) %75 uyum eşiği",
+      "url": "https://www.dpi.nc.gov/documents/accountability/testing/technotes/technical-report-alignment-study-nc-eog-and-eoc-assessments/open",
+      "kullanim": "İçerik-kazanım eşlemesinin bağımsız değerlendiricilerle doğrulanması ve uyum eşiği"
+    },
+    {
+      "konu": "Türkçe kök yaklaşığı",
+      "referans": "Can F. ve diğ. (2008). Information retrieval on Turkish texts. JASIST 59(3)",
+      "url": null,
+      "kullanim": "F5 (5 harf önek) kök yaklaşığı"
     }
   ]
 }

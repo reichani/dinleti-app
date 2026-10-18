@@ -1,5 +1,5 @@
 {
-  "ontologyVersion": "0.1.1",
+  "ontologyVersion": "0.1.2",
   "olusturuldu": "2026-10-18",
   "kaynak": "src/App.jsx (KATALOG, ICERIK_METADATA ve kontrollü sözlükler), src/content/*",
   "yontem": {

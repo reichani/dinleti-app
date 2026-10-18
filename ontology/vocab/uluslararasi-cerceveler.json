@@ -1,0 +1,83 @@
+{
+  "surum": "0.1",
+  "olusturuldu": "2026-10-18",
+  "amac": "MEB TYMM okuma öğrenme çıktılarını uluslararası okuma değerlendirme çerçevelerine bağlamak (üst seviye kanca). Bu bir analitik eşlemedir; MEB veya IEA/OECD tarafından yayımlanmış resmî bir eşleme değildir.",
+  "cerceveler": {
+    "PIRLS2026": {
+      "ad": "PIRLS 2026 Reading Assessment Framework",
+      "kurum": "IEA (TIMSS & PIRLS International Study Center, Boston College)",
+      "yazarlar": "Sabatini, J., Kennedy, A., Wry, E., von Davier, M.",
+      "kaynakUrl": "https://timssandpirls.bc.edu/pirls2026/frameworks/downloads/P26_Ch1_Reading-Assessment.pdf",
+      "hedefGrup": "4. sınıf (yaklaşık 9-10 yaş)",
+      "turkiyeKatilimi": "2001 ve 2021; PIRLS 2021 puanı 496, 57 ülke içinde 39. (MEB duyurusu)",
+      "amaclar": [
+        { "kod": "PIRLS.A.LE", "ad": "Literary Experience", "tr": "Edebî deneyim için okuma", "agirlik": 0.5 },
+        { "kod": "PIRLS.A.AUI", "ad": "Acquire and Use Information", "tr": "Bilgi edinmek ve kullanmak için okuma", "agirlik": 0.5 }
+      ],
+      "surecler": [
+        { "kod": "PIRLS.P1", "ad": "Focus on and Retrieve Explicitly Stated Information", "tr": "Açıkça verilen bilgiye odaklanma ve bulma", "agirlik": 0.2 },
+        { "kod": "PIRLS.P2", "ad": "Make Straightforward Inferences", "tr": "Doğrudan çıkarım yapma", "agirlik": 0.3 },
+        { "kod": "PIRLS.P3", "ad": "Interpret and Integrate Ideas and Information", "tr": "Fikir ve bilgileri yorumlama ve bütünleştirme", "agirlik": 0.3 },
+        { "kod": "PIRLS.P4", "ad": "Evaluate and Critique Content and Textual Elements", "tr": "İçeriği ve metin öğelerini değerlendirme ve eleştirme", "agirlik": 0.2 }
+      ],
+      "not": "PIRLS 2026 tamamen dijital uygulanır; dijital beceri testi değil, okuduğunu anlama ölçer. Akıcılık ayrı bir süreç değildir."
+    },
+    "PISA2018": {
+      "ad": "PISA 2018 Reading Literacy Framework (2025 döngüsünde okuma alanı da bu çerçeveyi kullanır)",
+      "kurum": "OECD",
+      "kaynakUrl": "https://um.edu.mo/fed/pisa/FT2018_pdf/20170315_Introduction%20of%20PISA%202018%20reading%20framework_ENG_V1.pdf",
+      "hedefGrup": "15 yaş",
+      "surecler": [
+        { "kod": "PISA.TM", "ad": "Managing the reading task and context", "tr": "Okuma görevini ve bağlamı yönetme", "alt": [
+          { "kod": "PISA.TM.1", "ad": "Set goals and plans", "tr": "Amaç ve plan belirleme" },
+          { "kod": "PISA.TM.2", "ad": "Monitor and regulate", "tr": "İzleme ve düzenleme" } ] },
+        { "kod": "PISA.RF", "ad": "Read fluently", "tr": "Akıcı okuma", "alt": [] },
+        { "kod": "PISA.LI", "ad": "Locate information", "tr": "Bilgiyi bulma", "alt": [
+          { "kod": "PISA.LI.1", "ad": "Access and retrieve information within a text", "tr": "Metin içinde bilgiye erişme ve alma" },
+          { "kod": "PISA.LI.2", "ad": "Search and select relevant text", "tr": "İlgili metni arama ve seçme", "cokluMetin": true } ] },
+        { "kod": "PISA.UN", "ad": "Understand", "tr": "Anlama", "alt": [
+          { "kod": "PISA.UN.1", "ad": "Represent literal meaning", "tr": "Düz anlamı kavrama" },
+          { "kod": "PISA.UN.2", "ad": "Integrate and generate inferences", "tr": "Bütünleştirme ve çıkarım üretme" } ] },
+        { "kod": "PISA.ER", "ad": "Evaluate and reflect", "tr": "Değerlendirme ve yansıtma", "alt": [
+          { "kod": "PISA.ER.1", "ad": "Assess quality and credibility", "tr": "Nitelik ve güvenilirliği değerlendirme" },
+          { "kod": "PISA.ER.2", "ad": "Reflect on form and content", "tr": "Biçim ve içerik üzerine düşünme" },
+          { "kod": "PISA.ER.3", "ad": "Detect and handle conflict", "tr": "Çelişkiyi fark etme ve ele alma", "cokluMetin": true } ] }
+      ],
+      "not": "Kodlar (PISA.UN.1 gibi) Okurio'nun kısa anahtarlarıdır; OECD kod vermez, adlar resmîdir."
+    }
+  },
+  "beceriKopru": {
+    "aciklama": "Okurio beceri etiketi (meb-kazanim.json 'beceri' alanı) → PIRLS süreci ve PISA alt süreci. 'kural' alanı varsa çıktı metnine göre ayrıştırılır.",
+    "olgunluk": "O2 (analitik öneri; uzman doğrulaması bekliyor)",
+    "eslesme": {
+      "akıcı okuma": { "pirls": null, "pisa": ["PISA.RF"] },
+      "okuma süreci yönetimi": { "pirls": null, "pisa": ["PISA.TM.1", "PISA.TM.2", "PISA.RF"] },
+      "okuma stratejisi": { "pirls": null, "pisa": ["PISA.TM.1", "PISA.TM.2"] },
+      "metin seçimi": { "pirls": null, "pisa": ["PISA.TM.1", "PISA.LI.2"] },
+      "okuma ortamı": { "pirls": null, "pisa": ["PISA.TM.2"] },
+      "öz değerlendirme": { "pirls": null, "pisa": ["PISA.TM.2"] },
+      "anlama": { "pirls": ["PIRLS.P1"], "pisa": ["PISA.LI.1", "PISA.UN.1"] },
+      "söz varlığı": { "pirls": ["PIRLS.P2"], "pisa": ["PISA.UN.1"] },
+      "tahmin": { "pirls": ["PIRLS.P2"], "pisa": ["PISA.UN.2"] },
+      "çıkarım": { "pirls": ["PIRLS.P2"], "pisa": ["PISA.UN.2"], "kural": { "desen": "Üst düzey", "pirls": ["PIRLS.P3"] } },
+      "anlam oluşturma": { "pirls": ["PIRLS.P2", "PIRLS.P3"], "pisa": ["PISA.UN.2"] },
+      "çözümleme (anlama)": { "pirls": ["PIRLS.P3"], "pisa": ["PISA.UN.2"] },
+      "görsel okuma": { "pirls": ["PIRLS.P3"], "pisa": ["PISA.UN.2"] },
+      "karşılaştırma": { "pirls": ["PIRLS.P3"], "pisa": ["PISA.UN.2"] },
+      "sınıflandırma": { "pirls": ["PIRLS.P3"], "pisa": ["PISA.UN.2"] },
+      "yorumlama": { "pirls": ["PIRLS.P3"], "pisa": ["PISA.UN.2", "PISA.ER.2"] },
+      "özetleme": { "pirls": ["PIRLS.P3"], "pisa": ["PISA.UN.2"] },
+      "metin yapısı": { "pirls": ["PIRLS.P3"], "pisa": ["PISA.UN.2"] },
+      "metin türü": { "pirls": ["PIRLS.P4"], "pisa": ["PISA.ER.2"] },
+      "söz sanatları": { "pirls": ["PIRLS.P4"], "pisa": ["PISA.ER.2"] },
+      "eleştirel okuma": { "pirls": ["PIRLS.P4"], "pisa": ["PISA.ER.1", "PISA.ER.2"] },
+      "dijital okuma": { "pirls": ["PIRLS.P4"], "pisa": ["PISA.LI.2", "PISA.ER.1"] },
+      "problem çözme": { "pirls": ["PIRLS.P3"], "pisa": ["PISA.ER.2"] }
+    }
+  },
+  "icerikTuruAmac": {
+    "aciklama": "Okurio içerik türü → PIRLS okuma amacı",
+    "PIRLS.A.AUI": ["doga_bilim", "english_science"],
+    "PIRLS.A.LE": ["masal", "dunya_masali", "mitoloji_hikayesi", "fabl", "siir", "tekerleme", "bilmece", "piyes", "kisa_hikaye", "mini_hikaye", "dinleme_hikayesi", "bilim_hikayesi", "klasik_roman", "english_easy", "english_reading", "english_classic_bridge", "english_poem"]
+  }
+}

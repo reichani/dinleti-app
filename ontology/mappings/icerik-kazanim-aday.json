@@ -3,6 +3,7 @@
   "durum": "aday-kural-tabanli",
   "kaynak": {
     "vocab": "ontology/vocab/meb-kazanim.json",
+    "uluslararasi": "ontology/vocab/uluslararasi-cerceveler.json",
     "program": "Türkçe Dersi Öğretim Programı (İlkokul 1-4. ve Ortaokul 5-8. Sınıflar), Türkiye Yüzyılı Maarif Modeli",
     "snapshot": "ontology/snapshots/catalog-metrics-2026-10-18.json"
   },
@@ -21,25 +22,45 @@
       "sinifEtiketi": "2. Sınıf",
       "sinif": 2,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Masal/Efsane/Destan",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.2.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.2.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         },
         {
           "kod": "T.O.2.2.f)",
           "ustKod": "T.O.2.2.",
           "metin": "Okuduğu metindeki zıt anlamlı sözcükleri bulur.",
           "neden": "sözlük girdisi var",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
@@ -50,38 +71,74 @@
       "sinifEtiketi": "5. ve 6. Sınıf",
       "sinif": 5,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Efsane",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.5.2.",
           "metin": "Akıcı okuyabilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.5.6.",
           "metin": "Metnin yüzey anlamını belirleyebilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P1"
+          ],
+          "pisa": [
+            "PISA.LI.1",
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.5.5.",
           "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
-          "neden": "sözlük girdisi var"
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.5.15.",
           "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
-          "neden": "sözlük girdisi var"
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.5.20.",
           "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
-          "neden": "sözlük girdisi var"
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.5.13.",
           "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
-          "neden": "öyküleyici metin"
+          "neden": "öyküleyici metin",
+          "pirls": [
+            "PIRLS.P4"
+          ],
+          "pisa": [
+            "PISA.ER.2"
+          ]
         }
       ]
     },
@@ -100,18 +157,32 @@
       "sinifEtiketi": "1. Sınıf",
       "sinif": 1,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.1.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.1.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -122,18 +193,32 @@
       "sinifEtiketi": "1. Sınıf",
       "sinif": 1,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.1.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.1.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -200,18 +285,32 @@
       "sinifEtiketi": "1. Sınıf",
       "sinif": 1,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.1.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.1.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -222,18 +321,32 @@
       "sinifEtiketi": "1. Sınıf",
       "sinif": 1,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.1.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.1.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -284,18 +397,32 @@
       "sinifEtiketi": "1. Sınıf",
       "sinif": 1,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.1.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.1.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -306,18 +433,32 @@
       "sinifEtiketi": "1. Sınıf",
       "sinif": 1,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.1.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.1.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -328,18 +469,32 @@
       "sinifEtiketi": "1. Sınıf",
       "sinif": 1,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.1.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.1.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -350,18 +505,32 @@
       "sinifEtiketi": "1. Sınıf",
       "sinif": 1,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.1.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.1.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -372,18 +541,32 @@
       "sinifEtiketi": "1. Sınıf",
       "sinif": 1,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.1.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.1.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -394,23 +577,41 @@
       "sinifEtiketi": "5. ve 6. Sınıf",
       "sinif": 5,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Roman",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.5.2.",
           "metin": "Akıcı okuyabilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.5.6.",
           "metin": "Metnin yüzey anlamını belirleyebilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P1"
+          ],
+          "pisa": [
+            "PISA.LI.1",
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.5.13.",
           "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
-          "neden": "öyküleyici metin"
+          "neden": "öyküleyici metin",
+          "pirls": [
+            "PIRLS.P4"
+          ],
+          "pisa": [
+            "PISA.ER.2"
+          ]
         }
       ]
     },
@@ -421,38 +622,74 @@
       "sinifEtiketi": "5. ve 6. Sınıf",
       "sinif": 5,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Roman",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.5.2.",
           "metin": "Akıcı okuyabilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.5.6.",
           "metin": "Metnin yüzey anlamını belirleyebilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P1"
+          ],
+          "pisa": [
+            "PISA.LI.1",
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.5.5.",
           "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
-          "neden": "yeni kök oranı ≥ 0,30"
+          "neden": "yeni kök oranı ≥ 0,30",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.5.15.",
           "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
-          "neden": "yeni kök oranı ≥ 0,30"
+          "neden": "yeni kök oranı ≥ 0,30",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.5.20.",
           "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
-          "neden": "yeni kök oranı ≥ 0,30"
+          "neden": "yeni kök oranı ≥ 0,30",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.5.13.",
           "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
-          "neden": "öyküleyici metin"
+          "neden": "öyküleyici metin",
+          "pirls": [
+            "PIRLS.P4"
+          ],
+          "pisa": [
+            "PISA.ER.2"
+          ]
         }
       ]
     },
@@ -463,32 +700,58 @@
       "sinifEtiketi": "3. ve 4. Sınıf",
       "sinif": 3,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.3.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.3.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         },
         {
           "kod": "T.O.3.2.h)",
           "ustKod": "T.O.3.2.",
           "metin": "Okuduğu metindeki zıt anlamlı ve eş anlamlı sözcükleri bulur.",
           "neden": "yeni kök oranı ≥ 0,30",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.3.3.d)",
           "ustKod": "T.O.3.3.",
           "metin": "Gerçek ve mecaz anlamlı sözcüklerin metinle ilişkisini belirler.",
           "neden": "yeni kök oranı ≥ 0,30",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
@@ -499,32 +762,58 @@
       "sinifEtiketi": "3. ve 4. Sınıf",
       "sinif": 3,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.3.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.3.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         },
         {
           "kod": "T.O.3.2.h)",
           "ustKod": "T.O.3.2.",
           "metin": "Okuduğu metindeki zıt anlamlı ve eş anlamlı sözcükleri bulur.",
           "neden": "yeni kök oranı ≥ 0,30",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.3.3.d)",
           "ustKod": "T.O.3.3.",
           "metin": "Gerçek ve mecaz anlamlı sözcüklerin metinle ilişkisini belirler.",
           "neden": "yeni kök oranı ≥ 0,30",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
@@ -535,33 +824,65 @@
       "sinifEtiketi": "7. ve 8. Sınıf",
       "sinif": 7,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Roman",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.7.5.",
           "metin": "Metnin yüzey anlamını belirleyebilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P1"
+          ],
+          "pisa": [
+            "PISA.LI.1",
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.7.4.",
           "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
-          "neden": "yeni kök oranı ≥ 0,30"
+          "neden": "yeni kök oranı ≥ 0,30",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.7.14.",
           "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
-          "neden": "yeni kök oranı ≥ 0,30"
+          "neden": "yeni kök oranı ≥ 0,30",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.7.20.",
           "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
-          "neden": "yeni kök oranı ≥ 0,30"
+          "neden": "yeni kök oranı ≥ 0,30",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.7.12.",
           "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
-          "neden": "öyküleyici metin"
+          "neden": "öyküleyici metin",
+          "pirls": [
+            "PIRLS.P4"
+          ],
+          "pisa": [
+            "PISA.ER.2"
+          ]
         }
       ]
     },
@@ -572,32 +893,58 @@
       "sinifEtiketi": "3. ve 4. Sınıf",
       "sinif": 3,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.3.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.3.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         },
         {
           "kod": "T.O.3.2.h)",
           "ustKod": "T.O.3.2.",
           "metin": "Okuduğu metindeki zıt anlamlı ve eş anlamlı sözcükleri bulur.",
           "neden": "yeni kök oranı ≥ 0,30",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.3.3.d)",
           "ustKod": "T.O.3.3.",
           "metin": "Gerçek ve mecaz anlamlı sözcüklerin metinle ilişkisini belirler.",
           "neden": "yeni kök oranı ≥ 0,30",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
@@ -608,23 +955,41 @@
       "sinifEtiketi": "5. ve 6. Sınıf",
       "sinif": 5,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü (basılı veya dijital)",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.5.2.",
           "metin": "Akıcı okuyabilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.5.6.",
           "metin": "Metnin yüzey anlamını belirleyebilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P1"
+          ],
+          "pisa": [
+            "PISA.LI.1",
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.5.13.",
           "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
-          "neden": "öyküleyici metin"
+          "neden": "öyküleyici metin",
+          "pirls": [
+            "PIRLS.P4"
+          ],
+          "pisa": [
+            "PISA.ER.2"
+          ]
         }
       ]
     },
@@ -747,18 +1112,32 @@
       "sinifEtiketi": "2. Sınıf",
       "sinif": 2,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.2.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.2.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -769,18 +1148,32 @@
       "sinifEtiketi": "2. Sınıf",
       "sinif": 2,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.2.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.2.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -791,32 +1184,58 @@
       "sinifEtiketi": "3. ve 4. Sınıf",
       "sinif": 3,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.3.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.3.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         },
         {
           "kod": "T.O.3.2.h)",
           "ustKod": "T.O.3.2.",
           "metin": "Okuduğu metindeki zıt anlamlı ve eş anlamlı sözcükleri bulur.",
           "neden": "sözlük girdisi var",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.3.3.d)",
           "ustKod": "T.O.3.3.",
           "metin": "Gerçek ve mecaz anlamlı sözcüklerin metinle ilişkisini belirler.",
           "neden": "sözlük girdisi var",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
@@ -827,25 +1246,45 @@
       "sinifEtiketi": "2. Sınıf",
       "sinif": 2,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Masal/Efsane/Destan",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.2.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.2.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         },
         {
           "kod": "T.O.2.2.f)",
           "ustKod": "T.O.2.2.",
           "metin": "Okuduğu metindeki zıt anlamlı sözcükleri bulur.",
           "neden": "yeni kök oranı ≥ 0,30",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
@@ -856,25 +1295,45 @@
       "sinifEtiketi": "2. Sınıf",
       "sinif": 2,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Masal/Efsane/Destan",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.2.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.2.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         },
         {
           "kod": "T.O.2.2.f)",
           "ustKod": "T.O.2.2.",
           "metin": "Okuduğu metindeki zıt anlamlı sözcükleri bulur.",
           "neden": "yeni kök oranı ≥ 0,30",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
@@ -901,18 +1360,32 @@
       "sinifEtiketi": "2. Sınıf",
       "sinif": 2,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Masal/Efsane/Destan",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.2.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.2.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -923,18 +1396,32 @@
       "sinifEtiketi": "3. ve 4. Sınıf",
       "sinif": 3,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Masal/Efsane/Destan",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.3.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.3.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -945,23 +1432,41 @@
       "sinifEtiketi": "5. ve 6. Sınıf",
       "sinif": 5,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Efsane",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.5.2.",
           "metin": "Akıcı okuyabilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.5.6.",
           "metin": "Metnin yüzey anlamını belirleyebilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P1"
+          ],
+          "pisa": [
+            "PISA.LI.1",
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.5.13.",
           "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
-          "neden": "öyküleyici metin"
+          "neden": "öyküleyici metin",
+          "pirls": [
+            "PIRLS.P4"
+          ],
+          "pisa": [
+            "PISA.ER.2"
+          ]
         }
       ]
     },
@@ -972,33 +1477,65 @@
       "sinifEtiketi": "7. ve 8. Sınıf",
       "sinif": 7,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Efsane",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.7.5.",
           "metin": "Metnin yüzey anlamını belirleyebilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P1"
+          ],
+          "pisa": [
+            "PISA.LI.1",
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.7.4.",
           "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
-          "neden": "sözlük girdisi var"
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.7.14.",
           "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
-          "neden": "sözlük girdisi var"
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.7.20.",
           "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
-          "neden": "sözlük girdisi var"
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.7.12.",
           "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
-          "neden": "öyküleyici metin"
+          "neden": "öyküleyici metin",
+          "pirls": [
+            "PIRLS.P4"
+          ],
+          "pisa": [
+            "PISA.ER.2"
+          ]
         }
       ]
     },
@@ -1017,18 +1554,32 @@
       "sinifEtiketi": "2. Sınıf",
       "sinif": 2,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Tiyatro",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.2.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.2.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -1039,18 +1590,32 @@
       "sinifEtiketi": "2. Sınıf",
       "sinif": 2,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Tiyatro",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.2.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.2.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -1061,32 +1626,58 @@
       "sinifEtiketi": "3. ve 4. Sınıf",
       "sinif": 3,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Öykü",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.3.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.3.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         },
         {
           "kod": "T.O.3.2.h)",
           "ustKod": "T.O.3.2.",
           "metin": "Okuduğu metindeki zıt anlamlı ve eş anlamlı sözcükleri bulur.",
           "neden": "sözlük girdisi var",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.3.3.d)",
           "ustKod": "T.O.3.3.",
           "metin": "Gerçek ve mecaz anlamlı sözcüklerin metinle ilişkisini belirler.",
           "neden": "sözlük girdisi var",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
@@ -1153,18 +1744,32 @@
       "sinifEtiketi": "1. Sınıf",
       "sinif": 1,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Şiir",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.1.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.1.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -1175,18 +1780,32 @@
       "sinifEtiketi": "2. Sınıf",
       "sinif": 2,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Şiir",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.2.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.2.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -1221,18 +1840,32 @@
       "sinifEtiketi": "2. Sınıf",
       "sinif": 2,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.AUI",
       "programMetinTuru": "Bilimsel yazılar",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.2.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.2.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -1243,18 +1876,32 @@
       "sinifEtiketi": "3. ve 4. Sınıf",
       "sinif": 3,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.AUI",
       "programMetinTuru": "Bilimsel yazılar",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.3.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.3.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -1265,32 +1912,58 @@
       "sinifEtiketi": "3. ve 4. Sınıf",
       "sinif": 3,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.AUI",
       "programMetinTuru": "Bilimsel yazılar",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.3.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.3.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         },
         {
           "kod": "T.O.3.2.h)",
           "ustKod": "T.O.3.2.",
           "metin": "Okuduğu metindeki zıt anlamlı ve eş anlamlı sözcükleri bulur.",
           "neden": "sözlük girdisi var",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.3.3.d)",
           "ustKod": "T.O.3.3.",
           "metin": "Gerçek ve mecaz anlamlı sözcüklerin metinle ilişkisini belirler.",
           "neden": "sözlük girdisi var",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
@@ -1301,18 +1974,32 @@
       "sinifEtiketi": "2. Sınıf",
       "sinif": 2,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Tiyatro",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.2.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.2.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         }
       ]
     },
@@ -1323,32 +2010,58 @@
       "sinifEtiketi": "3. ve 4. Sınıf",
       "sinif": 3,
       "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
       "programMetinTuru": "Tiyatro",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
           "kod": "T.O.3.1.",
           "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma"
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
         },
         {
           "kod": "T.O.3.2.",
           "metin": "Okudukları ile ilgili anlam oluşturabilme",
-          "neden": "tam okuma: anlama"
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
         },
         {
           "kod": "T.O.3.2.h)",
           "ustKod": "T.O.3.2.",
           "metin": "Okuduğu metindeki zıt anlamlı ve eş anlamlı sözcükleri bulur.",
           "neden": "sözlük girdisi var",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         },
         {
           "kod": "T.O.3.3.d)",
           "ustKod": "T.O.3.3.",
           "metin": "Gerçek ve mecaz anlamlı sözcüklerin metinle ilişkisini belirler.",
           "neden": "sözlük girdisi var",
-          "turetilmisKod": true
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
