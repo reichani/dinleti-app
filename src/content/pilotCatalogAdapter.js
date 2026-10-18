@@ -4,7 +4,7 @@ import {
   PILOT_STORY_METADATA,
 } from "./pilotStories.js";
 import { ODYSSEY_STORIES } from "./odysseyStories.js";
-import { PRODUCTION_STORY_UPGRADES_BY_ID } from "./productionStoryUpgrades.js";
+import { PRODUCTION_STORY_UPGRADES_BY_ID, NEW_PRODUCTION_STORIES } from "./productionStoryUpgrades.js";
 import {
   evaluateContentQualityReview,
   normalizeContentQualityReview,
@@ -64,7 +64,10 @@ export function mergePilotStories(existingCatalog = []) {
     (story) => !existingIds.has(story.id),
   );
 
-  return [...newStories, ...upgradedCatalog].map(attachReviewContract);
+  const curatedIds = new Set([...existingIds, ...newStories.map((story) => story.id)]);
+  const newOriginals = NEW_PRODUCTION_STORIES.filter((story) => !curatedIds.has(story.id));
+
+  return [...newStories, ...newOriginals, ...upgradedCatalog].map(attachReviewContract);
 }
 
 /**

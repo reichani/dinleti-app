@@ -16,16 +16,11 @@ export const KELOGLAN_MASALLARI_DRAFT = {
   declaredSeconds: 107,
   sections: [
     {
-      title: 'Boş Un Kabı',
+      title: 'Boş Un Kabı ve Ağır Çuval',
       paragraphs: [
         'Keloğlan sabah erkenden mutfağa girdi. Annesi boş un kabını gösterdi, çünkü köy değirmeni çalışmıyordu.',
         'Keloğlan çarşıdan un almak istedi. Annesi önce değirmene bakmasını önerdi, belki komşular yardım bekliyordu.',
         'Keloğlan küçük heybesini omzuna astı. Dere yoluna doğru sakin ve dikkatli adımlarla yürüdü. Uzakta duran sessiz çarkı hemen fark etti.',
-      ],
-    },
-    {
-      title: 'Ağır Çuval',
-      paragraphs: [
         'Yol kıyısında yaşlı bir kadın bekliyordu. Küçük buğday çuvalını tek başına taşıyamıyordu.',
         'Keloğlan çuvalın bir ucunu sıkıca tuttu. İkisi değirmene kadar yavaşça birlikte yürüdü. Kadın ona içtenlikle teşekkür etti.',
         'Değirmenin önünde uzun bir sıra vardı. Çark durduğu için kimse un alamıyor, değirmenci suyu inceliyordu.',

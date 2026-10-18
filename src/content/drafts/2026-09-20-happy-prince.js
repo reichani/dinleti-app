@@ -26,18 +26,13 @@ export const HAPPY_PRINCE_DRAFT = {
       ],
     },
     {
-      title: 'A Traveller Rests',
+      title: 'A Traveller Rests and Delivers',
       paragraphs: [
         'One evening, a Swallow landed between the statue’s feet. His flock had already flown toward warmer lands. He planned to follow them the next morning.',
         'A drop fell onto his feathers under the clear sky. Then another drop appeared. Looking upward, he discovered tears on the Prince’s golden face.',
         'The Prince described a seamstress working in a distant room. Her child was ill and thirsty. She lacked money for food and medicine.',
         'He asked the Swallow to carry his red jewel there. The bird worried about cold weather and his waiting friends. Still, he agreed to stay one night.',
         'The request was not an order between equals. The Prince depended on the mobile bird. The Swallow therefore considered both urgency and personal risk.',
-      ],
-    },
-    {
-      title: 'The First Delivery',
-      paragraphs: [
         'The Swallow lifted the jewel carefully from the sword. He flew above bright houses and busy theatres. Warm rooms stood close to dark, narrow streets.',
         'At last, he reached the seamstress’s window. She had fallen asleep beside her unfinished work. The tired child moved restlessly in bed.',
         'The Swallow placed the jewel near her sewing tools. He cooled the child with gentle movements of his wings. Soon the room became quiet.',
