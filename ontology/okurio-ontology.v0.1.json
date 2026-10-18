@@ -1,6 +1,6 @@
 {
   "$id": "okurio-ontology",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "status": "taslak",
   "olusturuldu": "2026-10-18",
   "sahip": "Reyhan Açar (ürün sahibi; sürüm onayı)",
@@ -114,7 +114,9 @@
     "kelime": "Unicode harf veya rakam dizisi; kesme işaretli ekler aynı kelimeye dahil",
     "kokYaklasigi": "Türkçe: küçük harfe (tr-TR) çevrilmiş kelimenin ilk 5 harfi (F5). İngilizce: küçük harf yüzey biçimi",
     "yeniKokKatkisi": "İçeriğin ana okuma yolundan önceki tüm yollardaki aynı dilli içeriklerde görülmemiş kök sayısı",
-    "yeniKokOrani": "yeniKokKatkisi / benzersizKokYaklasigi"
+    "yeniKokOrani": "yeniKokKatkisi / benzersizKokYaklasigi",
+    "medyan": "Gerçek ortanca; çift sayılı listede ortadaki iki değerin ortalaması",
+    "yeniKokBandi": "Okuma yolu başına beklenen yeni kök aralığı. Örneklem: yolun Türkçe tam okumalarından yaş etiketi aralığı yolun yaş aralığıyla kesişenler. n>=3 ise gerçek ortanca ±%25; n<3 ise bant tanımsızdır (yetersiz-orneklem) ve ajanlar yeni kök için engelleyici bulgu üretmez. Karar: ontology/karar-kayitlari.json K-2026-10-18-04"
   },
   "bosluklar": [
     { "kod": "B1", "konu": "Türkçe yaş/sınıf kelime sıklık listesi yok", "etki": "Yeni kelime katkısı yalnız katalog içi; 'bu yaş için zor kelime' kararı verilemez", "oneri": "Açık lisanslı bir derlem seç; sıklık bantlarını ontology/vocab altına ekle", "sahip": "Reyhan (kaynak seçimi), Claude (içe aktarma)" },
@@ -122,10 +124,11 @@
     { "kod": "B3", "konu": "Deyim/atasözü kontrollü listesi yok; 80 içerikten 2'sinde beyan var", "etki": "Deyim katkısı ölçülemiyor", "oneri": "TDK lisansı netleşene kadar içerik başına beyan ve elle derlenmiş başlangıç listesi", "sahip": "Reyhan (lisans kararı)" },
     { "kod": "B4", "konu": "Hak durumu 80 içerikten 16'sında beyanlı", "etki": "Telif denetimi otomatik yapılamıyor", "oneri": "Kalan 64 içeriğe hakDurumu ve kaynak alanı ekle", "sahip": "Claude (öneri PR), Reyhan (onay)" },
     { "kod": "B5", "konu": "Lemma çözümleyici yok (F5 yaklaşığı)", "etki": "Kök sayıları ±%10-20 sapabilir", "oneri": "Zemberek veya eşdeğerini derleme zamanında çalıştır", "sahip": "Claude" },
-    { "kod": "B6", "konu": "Yol başına yeni kök hedefi tanımsız", "etki": "Ajanlar 'yeterli yeni kelime' eşiğine göre üretemiyor", "oneri": "v0.2'de katalog medyanından başlangıç bandı öner", "sahip": "Claude (öneri), Reyhan (onay)" },
-    { "kod": "B7", "konu": "Yaş etiketi (KATALOG.yas) ile ana okuma yolu arasında tutarlılık kontrolü yok", "etki": "Aynı içerik farklı yaş sinyali veriyor", "oneri": "Anlık görüntüye tutarsızlık listesi ekle", "sahip": "Claude" }
+    { "kod": "B6", "konu": "Yol başına yeni kök hedefi tanımsız", "etki": "Ajanlar 'yeterli yeni kelime' eşiğine göre üretemiyor", "oneri": "v0.2'de katalog medyanından başlangıç bandı öner", "sahip": "Claude (öneri), Reyhan (onay)", "durum": "kısmen kapandı (0.1.1): bant yöntemi K-2026-10-18-04 ile tanımlandı, anlık görüntüde yolOzeti.yeniKokBandi; 4 yolda örneklem yetersiz; dış sıklık listesi (B1) gelene kadar katalog içi" },
+    { "kod": "B7", "konu": "Yaş etiketi (KATALOG.yas) ile ana okuma yolu arasında tutarlılık kontrolü yok", "etki": "Aynı içerik farklı yaş sinyali veriyor", "oneri": "Anlık görüntüye tutarsızlık listesi ekle", "sahip": "Claude", "durum": "kısmen kapandı (0.1.1): anlık görüntüde yasYolTutarsizliklari listesi; içeriklerin yeniden etiketlenmesi Reyhan kararı" }
   ],
   "degisiklikGunlugu": [
-    { "surum": "0.1.0", "tarih": "2026-10-18", "ozet": "İlk taslak: sınıflar, ilişkiler, metrik tanımları, boşluklar B1-B7; ilk ölçüm anlık görüntüsü (catalog-metrics-2026-10-18.json)." }
+    { "surum": "0.1.0", "tarih": "2026-10-18", "ozet": "İlk taslak: sınıflar, ilişkiler, metrik tanımları, boşluklar B1-B7; ilk ölçüm anlık görüntüsü (catalog-metrics-2026-10-18.json)." },
+    { "surum": "0.1.1", "tarih": "2026-10-18", "ozet": "Gerçek ortanca düzeltmesi; yeniKokBandi metriği ve yöntemi (K-2026-10-18-04); yasYolTutarsizliklari listesi; ürün sahibi kararları için ontology/karar-kayitlari.json. B6 ve B7 kısmen kapandı." }
   ]
 }

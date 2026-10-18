@@ -1,11 +1,13 @@
 {
-  "ontologyVersion": "0.1.0",
+  "ontologyVersion": "0.1.1",
   "olusturuldu": "2026-10-18",
   "kaynak": "src/App.jsx (KATALOG, ICERIK_METADATA ve kontrollü sözlükler), src/content/*",
   "yontem": {
     "kelime": "[\\p{L}\\p{N}]+(?:['’][\\p{L}\\p{N}]+)* (katalog denetimiyle aynı)",
     "kokYaklasigi": "Türkçe 5 harflik önek (F5); İngilizce küçük harf yüzey biçimi",
-    "yeniKokKatkisi": "Önceki okuma yollarındaki aynı dildeki içeriklerde görülmemiş kök sayısı"
+    "yeniKokKatkisi": "Önceki okuma yollarındaki aynı dildeki içeriklerde görülmemiş kök sayısı",
+    "medyan": "Gerçek ortanca (çift sayıda ortadaki iki değerin ortalaması)",
+    "yeniKokBandi": "K-2026-10-18-04: yaş etiketi aralığı yolun yaş aralığıyla kesişen Türkçe tam okumalar; n>=3 ise gerçek ortanca ±%25, değilse yetersiz-orneklem"
   },
   "kontrolluSozlukler": {
     "okumaYollari": [
@@ -264,6 +266,8 @@
         "hece_karti",
         "kelime_karti",
         "mini_hikaye",
+        "masal",
+        "fabl",
         "english_word_card",
         "english_easy",
         "tekerleme",
@@ -365,33 +369,47 @@
     }
   },
   "kapsam": {
-    "toplamIcerik": 80,
-    "tamOkuma": 62,
-    "metadataEslesen": 80,
-    "okumaYoluAtanan": 80,
-    "sozluguOlan": 13,
+    "toplamIcerik": 96,
+    "tamOkuma": 78,
+    "metadataEslesen": 96,
+    "okumaYoluAtanan": 96,
+    "sozluguOlan": 42,
     "deyimAtasozuBeyanli": 2,
-    "kaynakBeyanli": 16,
-    "hakDurumuBeyanli": 16,
+    "kaynakBeyanli": 45,
+    "hakDurumuBeyanli": 45,
     "insanOnayli": 2,
     "mebKazanimKoduOlan": 0
   },
   "yolOzeti": [
     {
       "yolId": "okul_oncesi_3_4",
-      "icerikSayisi": 10,
-      "tamOkuma": 8,
+      "icerikSayisi": 13,
+      "tamOkuma": 11,
       "mikroAlistirma": 2,
       "hedefKelime": {
         "minWords": 150,
         "maxWords": 300
       },
-      "medyanKelime": 272,
-      "hedefAraligindaki": 5,
-      "medyanYeniKok": 149,
-      "sozluguOlan": 1,
+      "medyanKelime": 285,
+      "hedefAraligindaki": 8,
+      "medyanYeniKok": 154,
+      "sozluguOlan": 5,
       "deyimAtasozuOlan": 0,
-      "insanOnayli": 0
+      "insanOnayli": 0,
+      "yeniKokBandi": {
+        "alt": 113,
+        "ust": 188,
+        "medyan": 150,
+        "orneklem": [
+          "oki-sesleri-dinliyor",
+          "mino-miyav-dedi",
+          "lili-yildiz-sayiyor",
+          "la-fontaine-fugue",
+          "ezop-masallari"
+        ],
+        "durum": "hesaplandi",
+        "karar": "K-2026-10-18-04"
+      }
     },
     {
       "yolId": "okumaya_hazirlik_5_6",
@@ -402,44 +420,96 @@
         "minWords": 200,
         "maxWords": 400
       },
-      "medyanKelime": 351,
+      "medyanKelime": 190.5,
       "hedefAraligindaki": 1,
-      "medyanYeniKok": 121,
+      "medyanYeniKok": 68,
       "sozluguOlan": 0,
       "deyimAtasozuOlan": 0,
-      "insanOnayli": 0
+      "insanOnayli": 0,
+      "yeniKokBandi": {
+        "alt": null,
+        "ust": null,
+        "orneklem": [
+          "grimm-masallari",
+          "oki-ay-siiri"
+        ],
+        "durum": "yetersiz-orneklem",
+        "karar": "K-2026-10-18-04"
+      }
     },
     {
       "yolId": "ilk_harfler_6_7",
-      "icerikSayisi": 14,
-      "tamOkuma": 11,
+      "icerikSayisi": 16,
+      "tamOkuma": 13,
       "mikroAlistirma": 3,
       "hedefKelime": {
         "minWords": 250,
         "maxWords": 500
       },
-      "medyanKelime": 29,
-      "hedefAraligindaki": 3,
-      "medyanYeniKok": 7,
-      "sozluguOlan": 3,
+      "medyanKelime": 302,
+      "hedefAraligindaki": 7,
+      "medyanYeniKok": 46,
+      "sozluguOlan": 7,
       "deyimAtasozuOlan": 0,
-      "insanOnayli": 1
+      "insanOnayli": 1,
+      "yeniKokBandi": {
+        "alt": 32,
+        "ust": 54,
+        "medyan": 43,
+        "orneklem": [
+          "oki-ayakkabi-teki",
+          "nana-pazar-renkleri",
+          "okurio-1-grup-ses-bahcesi",
+          "okurio-lili-kayip-tohum-haritasi",
+          "oki-ati-taniyor",
+          "ela-el-ele",
+          "ali-ile-ela",
+          "lili-ile-at",
+          "oki-el-ele",
+          "mino-nerede",
+          "nana-anlatiyor",
+          "yagmur-tip-tip-siiri"
+        ],
+        "durum": "hesaplandi",
+        "karar": "K-2026-10-18-04"
+      }
     },
     {
       "yolId": "ilk_cumleler_7_8",
-      "icerikSayisi": 19,
-      "tamOkuma": 16,
+      "icerikSayisi": 21,
+      "tamOkuma": 18,
       "mikroAlistirma": 3,
       "hedefKelime": {
         "minWords": 350,
         "maxWords": 650
       },
-      "medyanKelime": 95,
-      "hedefAraligindaki": 6,
-      "medyanYeniKok": 40,
-      "sozluguOlan": 1,
+      "medyanKelime": 357.5,
+      "hedefAraligindaki": 8,
+      "medyanYeniKok": 46.5,
+      "sozluguOlan": 5,
       "deyimAtasozuOlan": 0,
-      "insanOnayli": 0
+      "insanOnayli": 0,
+      "yeniKokBandi": {
+        "alt": 35,
+        "ust": 58,
+        "medyan": 46.5,
+        "orneklem": [
+          "odysseia-01-cocuk-truvadan-ayrilis",
+          "kus-yuvasi-defteri",
+          "oki-ayi-gordu",
+          "yildiz-mi-gezegen-mi",
+          "japon-masallari",
+          "cin-masallari",
+          "oki-pegasus",
+          "oki-lili-sahnesi",
+          "toto-acele-etme-piyesi",
+          "gokyuzu-siiri",
+          "bir-tohumun-yolculugu",
+          "mino-nerede-sahnesi"
+        ],
+        "durum": "hesaplandi",
+        "karar": "K-2026-10-18-04"
+      }
     },
     {
       "yolId": "okuma_guveni_8_10",
@@ -450,76 +520,142 @@
         "minWords": 500,
         "maxWords": 900
       },
-      "medyanKelime": 56,
-      "hedefAraligindaki": 4,
-      "medyanYeniKok": 17,
-      "sozluguOlan": 4,
+      "medyanKelime": 702,
+      "hedefAraligindaki": 9,
+      "medyanYeniKok": 77,
+      "sozluguOlan": 9,
       "deyimAtasozuOlan": 0,
-      "insanOnayli": 0
+      "insanOnayli": 0,
+      "yeniKokBandi": {
+        "alt": 58,
+        "ust": 96,
+        "medyan": 77,
+        "orneklem": [
+          "yuksek-okceler",
+          "pembe-incili-kaftan",
+          "diyet",
+          "oki-ay-haritasi",
+          "oki-labirentin-izi",
+          "uzay-kulubu-piyesi",
+          "arilar-neden-dans-eder",
+          "kutup-tilkisi-yolculugu",
+          "labirentte-uc-ses"
+        ],
+        "durum": "hesaplandi",
+        "karar": "K-2026-10-18-04"
+      }
     },
     {
       "yolId": "akici_okuma_10_12",
-      "icerikSayisi": 6,
-      "tamOkuma": 6,
+      "icerikSayisi": 9,
+      "tamOkuma": 9,
       "mikroAlistirma": 0,
       "hedefKelime": {
         "minWords": 700,
         "maxWords": 1200
       },
-      "medyanKelime": 124,
-      "hedefAraligindaki": 2,
-      "medyanYeniKok": 32,
-      "sozluguOlan": 1,
+      "medyanKelime": 911,
+      "hedefAraligindaki": 5,
+      "medyanYeniKok": 90,
+      "sozluguOlan": 6,
       "deyimAtasozuOlan": 1,
-      "insanOnayli": 0
+      "insanOnayli": 0,
+      "yeniKokBandi": {
+        "alt": 64,
+        "ust": 106,
+        "medyan": 85,
+        "orneklem": [
+          "odysseia-01-genc-truvadan-ayrilis",
+          "tamirci-defteri",
+          "calikusu",
+          "prometheusun-secimi"
+        ],
+        "durum": "hesaplandi",
+        "karar": "K-2026-10-18-04"
+      }
     },
     {
       "yolId": "genc_okurlar_12_14",
-      "icerikSayisi": 2,
-      "tamOkuma": 2,
+      "icerikSayisi": 3,
+      "tamOkuma": 3,
       "mikroAlistirma": 0,
       "hedefKelime": {
         "minWords": 900,
         "maxWords": 1600
       },
-      "medyanKelime": 1774,
-      "hedefAraligindaki": 0,
-      "medyanYeniKok": 170,
-      "sozluguOlan": 1,
+      "medyanKelime": 1256,
+      "hedefAraligindaki": 2,
+      "medyanYeniKok": 99,
+      "sozluguOlan": 3,
       "deyimAtasozuOlan": 0,
-      "insanOnayli": 1
+      "insanOnayli": 1,
+      "yeniKokBandi": {
+        "alt": null,
+        "ust": null,
+        "orneklem": [
+          "kiyidaki-sessiz-istasyon",
+          "mai-ve-siyah"
+        ],
+        "durum": "yetersiz-orneklem",
+        "karar": "K-2026-10-18-04"
+      }
     },
     {
       "yolId": "klasiklere_hazirlik_14_16",
-      "icerikSayisi": 1,
-      "tamOkuma": 1,
+      "icerikSayisi": 3,
+      "tamOkuma": 3,
       "mikroAlistirma": 0,
       "hedefKelime": {
         "minWords": 1200,
         "maxWords": 2000
       },
-      "medyanKelime": 1502,
-      "hedefAraligindaki": 1,
-      "medyanYeniKok": 113,
-      "sozluguOlan": 1,
+      "medyanKelime": 1803,
+      "hedefAraligindaki": 3,
+      "medyanYeniKok": 79,
+      "sozluguOlan": 3,
       "deyimAtasozuOlan": 1,
-      "insanOnayli": 0
+      "insanOnayli": 0,
+      "yeniKokBandi": {
+        "alt": 59,
+        "ust": 99,
+        "medyan": 79,
+        "orneklem": [
+          "odysseia-01-yetiskin-truvadan-ayrilis",
+          "eski-harita-calismasi",
+          "munazara-hazirligi"
+        ],
+        "durum": "hesaplandi",
+        "karar": "K-2026-10-18-04"
+      }
     },
     {
       "yolId": "lise_okuma_16_18",
-      "icerikSayisi": 1,
-      "tamOkuma": 1,
+      "icerikSayisi": 4,
+      "tamOkuma": 4,
       "mikroAlistirma": 0,
       "hedefKelime": {
         "minWords": 1500,
         "maxWords": 2500
       },
-      "medyanKelime": 1800,
-      "hedefAraligindaki": 1,
-      "medyanYeniKok": 95,
-      "sozluguOlan": 1,
+      "medyanKelime": 2042.5,
+      "hedefAraligindaki": 4,
+      "medyanYeniKok": 93.5,
+      "sozluguOlan": 4,
       "deyimAtasozuOlan": 0,
-      "insanOnayli": 0
+      "insanOnayli": 0,
+      "yeniKokBandi": {
+        "alt": 70,
+        "ust": 117,
+        "medyan": 93.5,
+        "orneklem": [
+          "sabah-vapuru",
+          "mahallenin-saatcisi",
+          "kirk-dakikalik-bahce",
+          "ariadnenin-ipi-yetiskin"
+        ],
+        "durum": "hesaplandi",
+        "karar": "K-2026-10-18-04"
+      }
     },
     {
       "yolId": "yetiskin_odak_18",
@@ -535,7 +671,88 @@
       "medyanYeniKok": 0,
       "sozluguOlan": 0,
       "deyimAtasozuOlan": 0,
-      "insanOnayli": 0
+      "insanOnayli": 0,
+      "yeniKokBandi": {
+        "alt": null,
+        "ust": null,
+        "orneklem": [],
+        "durum": "yetersiz-orneklem",
+        "karar": "K-2026-10-18-04"
+      }
+    }
+  ],
+  "yasYolTutarsizliklari": [
+    {
+      "id": "mino-mirildaniyor",
+      "yasEtiketi": "5-6 yaş",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "yolYasi": "3–4"
+    },
+    {
+      "id": "lili-su-sesi",
+      "yasEtiketi": "5-6 yaş",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "yolYasi": "3–4"
+    },
+    {
+      "id": "toto-ari-ariyor",
+      "yasEtiketi": "5-6 yaş",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "yolYasi": "3–4"
+    },
+    {
+      "id": "kenar-notlari",
+      "yasEtiketi": "14-16 yaş",
+      "anaOkumaYolu": "akici_okuma_10_12",
+      "yolYasi": "10–12"
+    },
+    {
+      "id": "lighthouse-logbook-en",
+      "yasEtiketi": "14-16 yaş",
+      "anaOkumaYolu": "akici_okuma_10_12",
+      "yolYasi": "10–12"
+    },
+    {
+      "id": "kurk-mantolu-madonna",
+      "yasEtiketi": "13+ yaş",
+      "anaOkumaYolu": "akici_okuma_10_12",
+      "yolYasi": "10–12"
+    },
+    {
+      "id": "sessiz-saatler",
+      "yasEtiketi": "13+ yaş",
+      "anaOkumaYolu": "akici_okuma_10_12",
+      "yolYasi": "10–12"
+    },
+    {
+      "id": "keloglan-masallari",
+      "yasEtiketi": "6-7 yaş",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "yolYasi": "3–4"
+    },
+    {
+      "id": "andersen-masallari",
+      "yasEtiketi": "8-10 yaş",
+      "anaOkumaYolu": "okumaya_hazirlik_5_6",
+      "yolYasi": "5–6"
+    },
+    {
+      "id": "oki-gunesin-hikayesi",
+      "yasEtiketi": "5-6 yaş",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "yolYasi": "3–4"
+    },
+    {
+      "id": "lili-ay-isigi",
+      "yasEtiketi": "5-8 yaş",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "yolYasi": "3–4"
+    },
+    {
+      "id": "ikarus-bugun-ne-anlatir",
+      "yasEtiketi": "16-18 yaş",
+      "anaOkumaYolu": "genc_okurlar_12_14",
+      "yolYasi": "12–14"
     }
   ],
   "icerikler": [
@@ -557,7 +774,7 @@
       "icerikDurumu": null,
       "hakDurumu": null,
       "kaynakVar": false,
-      "bolumSayisi": 6,
+      "bolumSayisi": 3,
       "kelimeSayisi": 505,
       "benzersizYuzey": 372,
       "benzersizKokYaklasigi": 312,
@@ -570,8 +787,8 @@
       "kulturelOge": 2,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 110,
-      "yeniKokOrani": 0.353
+      "yeniKokKatkisi": 93,
+      "yeniKokOrani": 0.298
     },
     {
       "id": "odysseia-01-genc-truvadan-ayrilis",
@@ -604,8 +821,8 @@
       "kulturelOge": 1,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 95,
-      "yeniKokOrani": 0.211
+      "yeniKokKatkisi": 80,
+      "yeniKokOrani": 0.178
     },
     {
       "id": "odysseia-01-yetiskin-truvadan-ayrilis",
@@ -638,8 +855,552 @@
       "kulturelOge": 2,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 113,
-      "yeniKokOrani": 0.173
+      "yeniKokKatkisi": 71,
+      "yeniKokOrani": 0.108
+    },
+    {
+      "id": "kiyidaki-sessiz-istasyon",
+      "baslik": "Kıyıdaki Sessiz İstasyon",
+      "dil": "tr",
+      "yasEtiketi": "14-16 yaş",
+      "anaOkumaYolu": "genc_okurlar_12_14",
+      "mebKademe": "ortaokul",
+      "sinif": "7. ve 8. Sınıf",
+      "icerikTuru": "kisa_hikaye",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "uzun_metin",
+        "akademik_klasik"
+      ],
+      "oql": 6,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 8,
+      "kelimeSayisi": 1256,
+      "benzersizYuzey": 819,
+      "benzersizKokYaklasigi": 543,
+      "turBelirtkeOrani": 0.652,
+      "ortCumleKelime": 6,
+      "enUzunCumle": 9,
+      "sozlukGirdisi": 7,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 85,
+      "yeniKokOrani": 0.157
+    },
+    {
+      "id": "mino-mirildaniyor",
+      "baslik": "Mino'nun Mırıl Mırıl Sabahı",
+      "dil": "tr",
+      "yasEtiketi": "5-6 yaş",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "mebKademe": "okul_oncesi",
+      "sinif": null,
+      "icerikTuru": "dinleme_hikayesi",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "dinleme",
+        "ses_harf"
+      ],
+      "oql": 1,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 4,
+      "kelimeSayisi": 304,
+      "benzersizYuzey": 181,
+      "benzersizKokYaklasigi": 161,
+      "turBelirtkeOrani": 0.595,
+      "ortCumleKelime": 4.6,
+      "enUzunCumle": 9,
+      "sozlukGirdisi": 5,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 161,
+      "yeniKokOrani": 1
+    },
+    {
+      "id": "lili-su-sesi",
+      "baslik": "Lili ile Sessiz Su Sesi",
+      "dil": "tr",
+      "yasEtiketi": "5-6 yaş",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "mebKademe": "okul_oncesi",
+      "sinif": null,
+      "icerikTuru": "dinleme_hikayesi",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "dinleme",
+        "ses_harf"
+      ],
+      "oql": 1,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 4,
+      "kelimeSayisi": 295,
+      "benzersizYuzey": 177,
+      "benzersizKokYaklasigi": 154,
+      "turBelirtkeOrani": 0.6,
+      "ortCumleKelime": 4.6,
+      "enUzunCumle": 10,
+      "sozlukGirdisi": 5,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 154,
+      "yeniKokOrani": 1
+    },
+    {
+      "id": "toto-ari-ariyor",
+      "baslik": "Toto'nun Arı Arayışı",
+      "dil": "tr",
+      "yasEtiketi": "5-6 yaş",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "mebKademe": "okul_oncesi",
+      "sinif": null,
+      "icerikTuru": "dinleme_hikayesi",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "dinleme",
+        "ses_harf"
+      ],
+      "oql": 1,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 4,
+      "kelimeSayisi": 292,
+      "benzersizYuzey": 186,
+      "benzersizKokYaklasigi": 170,
+      "turBelirtkeOrani": 0.637,
+      "ortCumleKelime": 4.6,
+      "enUzunCumle": 10,
+      "sozlukGirdisi": 5,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 170,
+      "yeniKokOrani": 1
+    },
+    {
+      "id": "oki-ayakkabi-teki",
+      "baslik": "Oki'nin Kayıp Ayakkabı Teki",
+      "dil": "tr",
+      "yasEtiketi": "7-8 yaş",
+      "anaOkumaYolu": "ilk_harfler_6_7",
+      "mebKademe": "ilkokul",
+      "sinif": "1. Sınıf",
+      "icerikTuru": "mini_hikaye",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "hece_kelime",
+        "kisa_cumle"
+      ],
+      "oql": 2,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 5,
+      "kelimeSayisi": 470,
+      "benzersizYuzey": 229,
+      "benzersizKokYaklasigi": 192,
+      "turBelirtkeOrani": 0.487,
+      "ortCumleKelime": 4.7,
+      "enUzunCumle": 11,
+      "sozlukGirdisi": 5,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 56,
+      "yeniKokOrani": 0.292
+    },
+    {
+      "id": "nana-pazar-renkleri",
+      "baslik": "Nana ile Pazar Yerinde Renkler",
+      "dil": "tr",
+      "yasEtiketi": "7-8 yaş",
+      "anaOkumaYolu": "ilk_harfler_6_7",
+      "mebKademe": "ilkokul",
+      "sinif": "1. Sınıf",
+      "icerikTuru": "mini_hikaye",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "hece_kelime",
+        "kisa_cumle"
+      ],
+      "oql": 2,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 5,
+      "kelimeSayisi": 452,
+      "benzersizYuzey": 215,
+      "benzersizKokYaklasigi": 178,
+      "turBelirtkeOrani": 0.476,
+      "ortCumleKelime": 4.3,
+      "enUzunCumle": 9,
+      "sozlukGirdisi": 5,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 57,
+      "yeniKokOrani": 0.32
+    },
+    {
+      "id": "kus-yuvasi-defteri",
+      "baslik": "Kuş Yuvası Defteri",
+      "dil": "tr",
+      "yasEtiketi": "8-10 yaş",
+      "anaOkumaYolu": "ilk_cumleler_7_8",
+      "mebKademe": "ilkokul",
+      "sinif": "2. Sınıf",
+      "icerikTuru": "doga_bilim",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "kisa_cumle",
+        "paragraf"
+      ],
+      "oql": 3,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 5,
+      "kelimeSayisi": 700,
+      "benzersizYuzey": 420,
+      "benzersizKokYaklasigi": 352,
+      "turBelirtkeOrani": 0.6,
+      "ortCumleKelime": 6,
+      "enUzunCumle": 14,
+      "sozlukGirdisi": 6,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 84,
+      "yeniKokOrani": 0.239
+    },
+    {
+      "id": "rainy-day-library-en",
+      "baslik": "Lili and the Rainy Day Library",
+      "dil": "en",
+      "yasEtiketi": "8-10 yaş",
+      "anaOkumaYolu": "ilk_cumleler_7_8",
+      "mebKademe": "ilkokul",
+      "sinif": "2. Sınıf",
+      "icerikTuru": "english_easy",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "kisa_cumle",
+        "paragraf"
+      ],
+      "oql": 3,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 5,
+      "kelimeSayisi": 728,
+      "benzersizYuzey": 271,
+      "benzersizKokYaklasigi": 271,
+      "turBelirtkeOrani": 0.372,
+      "ortCumleKelime": 6.9,
+      "enUzunCumle": 12,
+      "sozlukGirdisi": 6,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 202,
+      "yeniKokOrani": 0.745
+    },
+    {
+      "id": "tamirci-defteri",
+      "baslik": "Tamirci Defteri",
+      "dil": "tr",
+      "yasEtiketi": "12-14 yaş",
+      "anaOkumaYolu": "akici_okuma_10_12",
+      "mebKademe": "ortaokul",
+      "sinif": "5. ve 6. Sınıf",
+      "icerikTuru": "kisa_hikaye",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "paragraf",
+        "uzun_metin"
+      ],
+      "oql": 5,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 6,
+      "kelimeSayisi": 1114,
+      "benzersizYuzey": 661,
+      "benzersizKokYaklasigi": 491,
+      "turBelirtkeOrani": 0.593,
+      "ortCumleKelime": 7.6,
+      "enUzunCumle": 17,
+      "sozlukGirdisi": 7,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 98,
+      "yeniKokOrani": 0.2
+    },
+    {
+      "id": "kenar-notlari",
+      "baslik": "Kenar Notları",
+      "dil": "tr",
+      "yasEtiketi": "14-16 yaş",
+      "anaOkumaYolu": "akici_okuma_10_12",
+      "mebKademe": "ortaokul",
+      "sinif": "5. ve 6. Sınıf",
+      "icerikTuru": "kisa_hikaye",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "uzun_metin",
+        "akademik_klasik"
+      ],
+      "oql": 6,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 7,
+      "kelimeSayisi": 1492,
+      "benzersizYuzey": 785,
+      "benzersizKokYaklasigi": 559,
+      "turBelirtkeOrani": 0.526,
+      "ortCumleKelime": 8,
+      "enUzunCumle": 27,
+      "sozlukGirdisi": 6,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 99,
+      "yeniKokOrani": 0.177
+    },
+    {
+      "id": "lighthouse-logbook-en",
+      "baslik": "The Lighthouse Logbook",
+      "dil": "en",
+      "yasEtiketi": "14-16 yaş",
+      "anaOkumaYolu": "akici_okuma_10_12",
+      "mebKademe": "ortaokul",
+      "sinif": "5. ve 6. Sınıf",
+      "icerikTuru": "english_classic_bridge",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "uzun_metin",
+        "akademik_klasik"
+      ],
+      "oql": 6,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 7,
+      "kelimeSayisi": 1569,
+      "benzersizYuzey": 501,
+      "benzersizKokYaklasigi": 495,
+      "turBelirtkeOrani": 0.319,
+      "ortCumleKelime": 8.5,
+      "enUzunCumle": 17,
+      "sozlukGirdisi": 7,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 177,
+      "yeniKokOrani": 0.358
+    },
+    {
+      "id": "eski-harita-calismasi",
+      "baslik": "Eski Harita Çalışması",
+      "dil": "tr",
+      "yasEtiketi": "16-18 yaş",
+      "anaOkumaYolu": "klasiklere_hazirlik_14_16",
+      "mebKademe": "lise",
+      "sinif": "9. ve 10. Sınıf",
+      "icerikTuru": "kisa_hikaye",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "uzun_metin",
+        "akademik_klasik"
+      ],
+      "oql": 7,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 8,
+      "kelimeSayisi": 1838,
+      "benzersizYuzey": 994,
+      "benzersizKokYaklasigi": 693,
+      "turBelirtkeOrani": 0.541,
+      "ortCumleKelime": 7.6,
+      "enUzunCumle": 19,
+      "sozlukGirdisi": 7,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 79,
+      "yeniKokOrani": 0.114
+    },
+    {
+      "id": "munazara-hazirligi",
+      "baslik": "Münazara Hazırlığı",
+      "dil": "tr",
+      "yasEtiketi": "16-18 yaş",
+      "anaOkumaYolu": "klasiklere_hazirlik_14_16",
+      "mebKademe": "lise",
+      "sinif": "9. ve 10. Sınıf",
+      "icerikTuru": "kisa_hikaye",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "uzun_metin",
+        "akademik_klasik"
+      ],
+      "oql": 7,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 8,
+      "kelimeSayisi": 1803,
+      "benzersizYuzey": 979,
+      "benzersizKokYaklasigi": 634,
+      "turBelirtkeOrani": 0.543,
+      "ortCumleKelime": 8.2,
+      "enUzunCumle": 24,
+      "sozlukGirdisi": 7,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 87,
+      "yeniKokOrani": 0.137
+    },
+    {
+      "id": "sabah-vapuru",
+      "baslik": "Sabah Vapuru",
+      "dil": "tr",
+      "yasEtiketi": "18+",
+      "anaOkumaYolu": "lise_okuma_16_18",
+      "mebKademe": "lise",
+      "sinif": "11. ve 12. Sınıf",
+      "icerikTuru": "kisa_hikaye",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "okumaya_donus",
+        "uzun_metin"
+      ],
+      "oql": 5,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 8,
+      "kelimeSayisi": 2058,
+      "benzersizYuzey": 1043,
+      "benzersizKokYaklasigi": 730,
+      "turBelirtkeOrani": 0.507,
+      "ortCumleKelime": 7.5,
+      "enUzunCumle": 14,
+      "sozlukGirdisi": 5,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 91,
+      "yeniKokOrani": 0.125
+    },
+    {
+      "id": "mahallenin-saatcisi",
+      "baslik": "Mahallenin Saatçisi",
+      "dil": "tr",
+      "yasEtiketi": "18+",
+      "anaOkumaYolu": "lise_okuma_16_18",
+      "mebKademe": "lise",
+      "sinif": "11. ve 12. Sınıf",
+      "icerikTuru": "kisa_hikaye",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "okumaya_donus",
+        "uzun_metin"
+      ],
+      "oql": 5,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 8,
+      "kelimeSayisi": 2043,
+      "benzersizYuzey": 955,
+      "benzersizKokYaklasigi": 695,
+      "turBelirtkeOrani": 0.467,
+      "ortCumleKelime": 7.3,
+      "enUzunCumle": 13,
+      "sozlukGirdisi": 6,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 110,
+      "yeniKokOrani": 0.158
+    },
+    {
+      "id": "kirk-dakikalik-bahce",
+      "baslik": "Kırk Dakikalık Bahçe",
+      "dil": "tr",
+      "yasEtiketi": "18+",
+      "anaOkumaYolu": "lise_okuma_16_18",
+      "mebKademe": "lise",
+      "sinif": "11. ve 12. Sınıf",
+      "icerikTuru": "kisa_hikaye",
+      "mikroAlistirma": false,
+      "okumaEvreleri": [
+        "okumaya_donus",
+        "uzun_metin"
+      ],
+      "oql": 5,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 8,
+      "kelimeSayisi": 2042,
+      "benzersizYuzey": 1025,
+      "benzersizKokYaklasigi": 717,
+      "turBelirtkeOrani": 0.502,
+      "ortCumleKelime": 6.8,
+      "enUzunCumle": 13,
+      "sozlukGirdisi": 6,
+      "deyim": 0,
+      "atasozu": 0,
+      "kulturelOge": 0,
+      "insanOnayi": "pending",
+      "releaseReady": false,
+      "yeniKokKatkisi": 96,
+      "yeniKokOrani": 0.134
     },
     {
       "id": "okurio-1-grup-ses-bahcesi",
@@ -661,7 +1422,7 @@
       "icerikDurumu": "tam-oturum",
       "hakDurumu": "okurio-ozgun",
       "kaynakVar": true,
-      "bolumSayisi": 5,
+      "bolumSayisi": 6,
       "kelimeSayisi": 601,
       "benzersizYuzey": 327,
       "benzersizKokYaklasigi": 262,
@@ -674,8 +1435,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 93,
-      "yeniKokOrani": 0.355
+      "yeniKokKatkisi": 79,
+      "yeniKokOrani": 0.302
     },
     {
       "id": "okurio-lili-kayip-tohum-haritasi",
@@ -697,7 +1458,7 @@
       "icerikDurumu": "tam-metin",
       "hakDurumu": "okurio-ozgun",
       "kaynakVar": true,
-      "bolumSayisi": 5,
+      "bolumSayisi": 6,
       "kelimeSayisi": 606,
       "benzersizYuzey": 377,
       "benzersizKokYaklasigi": 312,
@@ -710,8 +1471,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 121,
-      "yeniKokOrani": 0.388
+      "yeniKokKatkisi": 103,
+      "yeniKokOrani": 0.33
     },
     {
       "id": "oki-sesleri-dinliyor",
@@ -764,19 +1525,19 @@
       "hakDurumu": "okurio-ozgun",
       "kaynakVar": true,
       "bolumSayisi": 4,
-      "kelimeSayisi": 291,
-      "benzersizYuzey": 172,
-      "benzersizKokYaklasigi": 149,
-      "turBelirtkeOrani": 0.591,
-      "ortCumleKelime": 6.3,
-      "enUzunCumle": 13,
+      "kelimeSayisi": 293,
+      "benzersizYuzey": 173,
+      "benzersizKokYaklasigi": 150,
+      "turBelirtkeOrani": 0.59,
+      "ortCumleKelime": 6.2,
+      "enUzunCumle": 11,
       "sozlukGirdisi": 0,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 149,
+      "yeniKokKatkisi": 150,
       "yeniKokOrani": 1
     },
     {
@@ -797,12 +1558,12 @@
       "hakDurumu": "okurio-ozgun",
       "kaynakVar": true,
       "bolumSayisi": 4,
-      "kelimeSayisi": 272,
+      "kelimeSayisi": 273,
       "benzersizYuzey": 184,
       "benzersizKokYaklasigi": 154,
-      "turBelirtkeOrani": 0.676,
-      "ortCumleKelime": 6.2,
-      "enUzunCumle": 13,
+      "turBelirtkeOrani": 0.674,
+      "ortCumleKelime": 5.9,
+      "enUzunCumle": 11,
       "sozlukGirdisi": 0,
       "deyim": 0,
       "atasozu": 0,
@@ -844,8 +1605,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 9,
-      "yeniKokOrani": 0.563
+      "yeniKokKatkisi": 6,
+      "yeniKokOrani": 0.375
     },
     {
       "id": "oki-ses-n",
@@ -879,8 +1640,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 6,
-      "yeniKokOrani": 0.286
+      "yeniKokKatkisi": 4,
+      "yeniKokOrani": 0.19
     },
     {
       "id": "oki-heceler-1",
@@ -948,8 +1709,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 6,
-      "yeniKokOrani": 0.375
+      "yeniKokKatkisi": 5,
+      "yeniKokOrani": 0.313
     },
     {
       "id": "oki-ati-taniyor",
@@ -982,8 +1743,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 44,
-      "yeniKokOrani": 0.284
+      "yeniKokKatkisi": 35,
+      "yeniKokOrani": 0.226
     },
     {
       "id": "ela-el-ele",
@@ -1051,8 +1812,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 5,
-      "yeniKokOrani": 0.263
+      "yeniKokKatkisi": 4,
+      "yeniKokOrani": 0.211
     },
     {
       "id": "oki-ses-t",
@@ -1086,8 +1847,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 7,
-      "yeniKokOrani": 0.35
+      "yeniKokKatkisi": 5,
+      "yeniKokOrani": 0.25
     },
     {
       "id": "oki-ses-i",
@@ -1121,8 +1882,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 7,
-      "yeniKokOrani": 0.389
+      "yeniKokKatkisi": 6,
+      "yeniKokOrani": 0.333
     },
     {
       "id": "oki-ses-l",
@@ -1156,8 +1917,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 8,
-      "yeniKokOrani": 0.444
+      "yeniKokKatkisi": 6,
+      "yeniKokOrani": 0.333
     },
     {
       "id": "oki-heceler-2",
@@ -1205,28 +1966,29 @@
       "icerikTuru": "mini_hikaye",
       "mikroAlistirma": false,
       "okumaEvreleri": [
+        "ses_harf",
         "hece_kelime",
         "kisa_cumle"
       ],
       "oql": null,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 2,
-      "kelimeSayisi": 23,
-      "benzersizYuzey": 15,
-      "benzersizKokYaklasigi": 15,
-      "turBelirtkeOrani": 0.652,
-      "ortCumleKelime": 2.9,
-      "enUzunCumle": 4,
-      "sozlukGirdisi": 0,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 4,
+      "kelimeSayisi": 302,
+      "benzersizYuzey": 201,
+      "benzersizKokYaklasigi": 177,
+      "turBelirtkeOrani": 0.666,
+      "ortCumleKelime": 6,
+      "enUzunCumle": 10,
+      "sozlukGirdisi": 5,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 3,
-      "yeniKokOrani": 0.2
+      "yeniKokKatkisi": 54,
+      "yeniKokOrani": 0.305
     },
     {
       "id": "lili-ile-at",
@@ -1239,28 +2001,29 @@
       "icerikTuru": "mini_hikaye",
       "mikroAlistirma": false,
       "okumaEvreleri": [
+        "ses_harf",
         "hece_kelime",
         "kisa_cumle"
       ],
       "oql": null,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 2,
-      "kelimeSayisi": 25,
-      "benzersizYuzey": 15,
-      "benzersizKokYaklasigi": 15,
-      "turBelirtkeOrani": 0.6,
-      "ortCumleKelime": 2.8,
-      "enUzunCumle": 4,
-      "sozlukGirdisi": 0,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 4,
+      "kelimeSayisi": 271,
+      "benzersizYuzey": 182,
+      "benzersizKokYaklasigi": 157,
+      "turBelirtkeOrani": 0.672,
+      "ortCumleKelime": 6,
+      "enUzunCumle": 8,
+      "sozlukGirdisi": 5,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 2,
-      "yeniKokOrani": 0.133
+      "yeniKokKatkisi": 40,
+      "yeniKokOrani": 0.255
     },
     {
       "id": "oki-el-ele",
@@ -1361,8 +2124,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 57,
-      "yeniKokOrani": 0.32
+      "yeniKokKatkisi": 46,
+      "yeniKokOrani": 0.258
     },
     {
       "id": "kurk-mantolu-madonna",
@@ -1396,8 +2159,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 25,
-      "yeniKokOrani": 0.263
+      "yeniKokKatkisi": 15,
+      "yeniKokOrani": 0.158
     },
     {
       "id": "calikusu",
@@ -1431,8 +2194,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 32,
-      "yeniKokOrani": 0.39
+      "yeniKokKatkisi": 26,
+      "yeniKokOrani": 0.317
     },
     {
       "id": "yuksek-okceler",
@@ -1466,14 +2229,14 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 18,
-      "yeniKokOrani": 0.383
+      "yeniKokKatkisi": 15,
+      "yeniKokOrani": 0.319
     },
     {
       "id": "pembe-incili-kaftan",
       "baslik": "Pembe İncili Kaftan",
       "dil": "tr",
-      "yasEtiketi": "10+ yaş",
+      "yasEtiketi": "10-12 yaş",
       "anaOkumaYolu": "okuma_guveni_8_10",
       "mebKademe": "ilkokul",
       "sinif": "3. ve 4. Sınıf",
@@ -1485,30 +2248,30 @@
         "okumaya_donus"
       ],
       "oql": null,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 3,
-      "kelimeSayisi": 57,
-      "benzersizYuzey": 56,
-      "benzersizKokYaklasigi": 54,
-      "turBelirtkeOrani": 0.982,
-      "ortCumleKelime": 6.3,
-      "enUzunCumle": 9,
-      "sozlukGirdisi": 0,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 5,
+      "kelimeSayisi": 712,
+      "benzersizYuzey": 480,
+      "benzersizKokYaklasigi": 369,
+      "turBelirtkeOrani": 0.674,
+      "ortCumleKelime": 6.4,
+      "enUzunCumle": 10,
+      "sozlukGirdisi": 6,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 23,
-      "yeniKokOrani": 0.426
+      "yeniKokKatkisi": 128,
+      "yeniKokOrani": 0.347
     },
     {
       "id": "mai-ve-siyah",
       "baslik": "Mai ve Siyah",
       "dil": "tr",
-      "yasEtiketi": "13+ yaş",
+      "yasEtiketi": "14-16 yaş",
       "anaOkumaYolu": "genc_okurlar_12_14",
       "mebKademe": "ortaokul",
       "sinif": "7. ve 8. Sınıf",
@@ -1520,24 +2283,24 @@
         "okumaya_donus"
       ],
       "oql": null,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 6,
-      "kelimeSayisi": 67,
-      "benzersizYuzey": 61,
-      "benzersizKokYaklasigi": 57,
-      "turBelirtkeOrani": 0.91,
-      "ortCumleKelime": 7.4,
-      "enUzunCumle": 14,
-      "sozlukGirdisi": 0,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 8,
+      "kelimeSayisi": 1204,
+      "benzersizYuzey": 744,
+      "benzersizKokYaklasigi": 527,
+      "turBelirtkeOrani": 0.618,
+      "ortCumleKelime": 6.2,
+      "enUzunCumle": 10,
+      "sozlukGirdisi": 7,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 19,
-      "yeniKokOrani": 0.333
+      "yeniKokKatkisi": 99,
+      "yeniKokOrani": 0.188
     },
     {
       "id": "diyet",
@@ -1571,8 +2334,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 17,
-      "yeniKokOrani": 0.405
+      "yeniKokKatkisi": 15,
+      "yeniKokOrani": 0.357
     },
     {
       "id": "sessiz-saatler",
@@ -1593,27 +2356,27 @@
       "icerikDurumu": null,
       "hakDurumu": null,
       "kaynakVar": false,
-      "bolumSayisi": 8,
-      "kelimeSayisi": 1043,
+      "bolumSayisi": 6,
+      "kelimeSayisi": 1041,
       "benzersizYuzey": 598,
       "benzersizKokYaklasigi": 464,
-      "turBelirtkeOrani": 0.573,
-      "ortCumleKelime": 19.3,
-      "enUzunCumle": 57,
+      "turBelirtkeOrani": 0.574,
+      "ortCumleKelime": 15.1,
+      "enUzunCumle": 24,
       "sozlukGirdisi": 0,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 111,
-      "yeniKokOrani": 0.239
+      "yeniKokKatkisi": 83,
+      "yeniKokOrani": 0.179
     },
     {
       "id": "keloglan-masallari",
-      "baslik": "Keloğlan Masalları",
+      "baslik": "Keloğlan ve Duran Değirmen",
       "dil": "tr",
-      "yasEtiketi": "4-8 yaş",
+      "yasEtiketi": "6-7 yaş",
       "anaOkumaYolu": "okul_oncesi_3_4",
       "mebKademe": "okul_oncesi",
       "sinif": null,
@@ -1626,23 +2389,23 @@
         "kisa_cumle"
       ],
       "oql": null,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 3,
-      "kelimeSayisi": 70,
-      "benzersizYuzey": 56,
-      "benzersizKokYaklasigi": 56,
-      "turBelirtkeOrani": 0.8,
-      "ortCumleKelime": 8.8,
-      "enUzunCumle": 14,
-      "sozlukGirdisi": 0,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 4,
+      "kelimeSayisi": 276,
+      "benzersizYuzey": 206,
+      "benzersizKokYaklasigi": 183,
+      "turBelirtkeOrani": 0.746,
+      "ortCumleKelime": 6,
+      "enUzunCumle": 9,
+      "sozlukGirdisi": 5,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 56,
+      "yeniKokKatkisi": 183,
       "yeniKokOrani": 1
     },
     {
@@ -1714,8 +2477,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 242,
-      "yeniKokOrani": 0.607
+      "yeniKokKatkisi": 206,
+      "yeniKokOrani": 0.516
     },
     {
       "id": "ezop-masallari",
@@ -1785,8 +2548,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 121,
-      "yeniKokOrani": 0.545
+      "yeniKokKatkisi": 115,
+      "yeniKokOrani": 0.518
     },
     {
       "id": "aesop-fables-en",
@@ -1840,7 +2603,7 @@
       "icerikDurumu": "tam-metin",
       "hakDurumu": "kamu-mali",
       "kaynakVar": true,
-      "bolumSayisi": 3,
+      "bolumSayisi": 6,
       "kelimeSayisi": 972,
       "benzersizYuzey": 383,
       "benzersizKokYaklasigi": 382,
@@ -1860,35 +2623,36 @@
       "id": "ugly-duckling-en",
       "baslik": "The Ugly Duckling",
       "dil": "en",
-      "yasEtiketi": "5-9 yaş",
+      "yasEtiketi": "7-8 yaş",
       "anaOkumaYolu": "ilk_cumleler_7_8",
       "mebKademe": "ilkokul",
       "sinif": "2. Sınıf",
       "icerikTuru": "english_easy",
       "mikroAlistirma": false,
       "okumaEvreleri": [
+        "kisa_cumle",
         "paragraf",
         "uzun_metin"
       ],
       "oql": 3,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 3,
-      "kelimeSayisi": 95,
-      "benzersizYuzey": 60,
-      "benzersizKokYaklasigi": 60,
-      "turBelirtkeOrani": 0.632,
-      "ortCumleKelime": 8.6,
-      "enUzunCumle": 12,
-      "sozlukGirdisi": 0,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 4,
+      "kelimeSayisi": 405,
+      "benzersizYuzey": 242,
+      "benzersizKokYaklasigi": 242,
+      "turBelirtkeOrani": 0.598,
+      "ortCumleKelime": 7.4,
+      "enUzunCumle": 11,
+      "sozlukGirdisi": 5,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 40,
-      "yeniKokOrani": 0.667
+      "yeniKokKatkisi": 171,
+      "yeniKokOrani": 0.707
     },
     {
       "id": "fox-and-grapes-en",
@@ -1989,8 +2753,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 10,
-      "yeniKokOrani": 0.278
+      "yeniKokKatkisi": 7,
+      "yeniKokOrani": 0.194
     },
     {
       "id": "selfish-giant-graded-en",
@@ -2007,24 +2771,24 @@
         "uzun_metin"
       ],
       "oql": 4,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 2,
-      "kelimeSayisi": 56,
-      "benzersizYuzey": 40,
-      "benzersizKokYaklasigi": 39,
-      "turBelirtkeOrani": 0.714,
-      "ortCumleKelime": 7,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 5,
+      "kelimeSayisi": 710,
+      "benzersizYuzey": 367,
+      "benzersizKokYaklasigi": 367,
+      "turBelirtkeOrani": 0.517,
+      "ortCumleKelime": 7.9,
       "enUzunCumle": 11,
-      "sozlukGirdisi": 0,
+      "sozlukGirdisi": 6,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 9,
-      "yeniKokOrani": 0.231
+      "yeniKokKatkisi": 180,
+      "yeniKokOrani": 0.49
     },
     {
       "id": "happy-prince-swallow-en",
@@ -2041,24 +2805,24 @@
         "akademik_klasik"
       ],
       "oql": 5,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 2,
-      "kelimeSayisi": 55,
-      "benzersizYuzey": 36,
-      "benzersizKokYaklasigi": 36,
-      "turBelirtkeOrani": 0.655,
-      "ortCumleKelime": 9.2,
-      "enUzunCumle": 14,
-      "sozlukGirdisi": 0,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 6,
+      "kelimeSayisi": 911,
+      "benzersizYuzey": 469,
+      "benzersizKokYaklasigi": 466,
+      "turBelirtkeOrani": 0.515,
+      "ortCumleKelime": 8.2,
+      "enUzunCumle": 12,
+      "sozlukGirdisi": 7,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 13,
-      "yeniKokOrani": 0.361
+      "yeniKokKatkisi": 214,
+      "yeniKokOrani": 0.459
     },
     {
       "id": "moon-not-star-en",
@@ -2075,24 +2839,24 @@
         "uzun_metin"
       ],
       "oql": 4,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 2,
-      "kelimeSayisi": 44,
-      "benzersizYuzey": 31,
-      "benzersizKokYaklasigi": 31,
-      "turBelirtkeOrani": 0.705,
-      "ortCumleKelime": 7.3,
-      "enUzunCumle": 10,
-      "sozlukGirdisi": 0,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 5,
+      "kelimeSayisi": 797,
+      "benzersizYuzey": 366,
+      "benzersizKokYaklasigi": 362,
+      "turBelirtkeOrani": 0.459,
+      "ortCumleKelime": 8.6,
+      "enUzunCumle": 14,
+      "sozlukGirdisi": 6,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 6,
-      "yeniKokOrani": 0.194
+      "yeniKokKatkisi": 201,
+      "yeniKokOrani": 0.555
     },
     {
       "id": "oki-ayi-gordu",
@@ -2158,8 +2922,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 8,
-      "yeniKokOrani": 0.286
+      "yeniKokKatkisi": 6,
+      "yeniKokOrani": 0.214
     },
     {
       "id": "oki-ay-haritasi",
@@ -2192,8 +2956,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 139,
-      "yeniKokOrani": 0.394
+      "yeniKokKatkisi": 118,
+      "yeniKokOrani": 0.334
     },
     {
       "id": "japon-masallari",
@@ -2227,8 +2991,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 72,
-      "yeniKokOrani": 0.344
+      "yeniKokKatkisi": 63,
+      "yeniKokOrani": 0.301
     },
     {
       "id": "cin-masallari",
@@ -2262,8 +3026,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 80,
-      "yeniKokOrani": 0.367
+      "yeniKokKatkisi": 73,
+      "yeniKokOrani": 0.335
     },
     {
       "id": "oki-gunesin-hikayesi",
@@ -2284,11 +3048,11 @@
       "hakDurumu": "okurio-ozgun-ai-destekli",
       "kaynakVar": true,
       "bolumSayisi": 4,
-      "kelimeSayisi": 203,
-      "benzersizYuzey": 145,
-      "benzersizKokYaklasigi": 123,
-      "turBelirtkeOrani": 0.714,
-      "ortCumleKelime": 6.2,
+      "kelimeSayisi": 285,
+      "benzersizYuzey": 187,
+      "benzersizKokYaklasigi": 153,
+      "turBelirtkeOrani": 0.656,
+      "ortCumleKelime": 6.3,
       "enUzunCumle": 10,
       "sozlukGirdisi": 4,
       "deyim": 0,
@@ -2296,7 +3060,7 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 123,
+      "yeniKokKatkisi": 153,
       "yeniKokOrani": 1
     },
     {
@@ -2364,8 +3128,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 6,
-      "yeniKokOrani": 0.15
+      "yeniKokKatkisi": 5,
+      "yeniKokOrani": 0.125
     },
     {
       "id": "oki-labirentin-izi",
@@ -2382,24 +3146,24 @@
         "uzun_metin"
       ],
       "oql": 4,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 2,
-      "kelimeSayisi": 61,
-      "benzersizYuzey": 48,
-      "benzersizKokYaklasigi": 46,
-      "turBelirtkeOrani": 0.787,
-      "ortCumleKelime": 6.8,
-      "enUzunCumle": 11,
-      "sozlukGirdisi": 0,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 6,
+      "kelimeSayisi": 722,
+      "benzersizYuzey": 440,
+      "benzersizKokYaklasigi": 344,
+      "turBelirtkeOrani": 0.609,
+      "ortCumleKelime": 6,
+      "enUzunCumle": 9,
+      "sozlukGirdisi": 6,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 5,
-      "yeniKokOrani": 0.109
+      "yeniKokKatkisi": 66,
+      "yeniKokOrani": 0.192
     },
     {
       "id": "prometheusun-secimi",
@@ -2416,24 +3180,24 @@
         "paragraf"
       ],
       "oql": 5,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 2,
-      "kelimeSayisi": 57,
-      "benzersizYuzey": 51,
-      "benzersizKokYaklasigi": 50,
-      "turBelirtkeOrani": 0.895,
-      "ortCumleKelime": 7.1,
-      "enUzunCumle": 9,
-      "sozlukGirdisi": 0,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 6,
+      "kelimeSayisi": 907,
+      "benzersizYuzey": 571,
+      "benzersizKokYaklasigi": 424,
+      "turBelirtkeOrani": 0.63,
+      "ortCumleKelime": 6.2,
+      "enUzunCumle": 11,
+      "sozlukGirdisi": 6,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 9,
-      "yeniKokOrani": 0.18
+      "yeniKokKatkisi": 90,
+      "yeniKokOrani": 0.212
     },
     {
       "id": "ikarus-bugun-ne-anlatir",
@@ -2467,8 +3231,8 @@
       "kulturelOge": 0,
       "insanOnayi": "approved",
       "releaseReady": true,
-      "yeniKokKatkisi": 170,
-      "yeniKokOrani": 0.248
+      "yeniKokKatkisi": 107,
+      "yeniKokOrani": 0.156
     },
     {
       "id": "ariadnenin-ipi-yetiskin",
@@ -2501,8 +3265,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 95,
-      "yeniKokOrani": 0.149
+      "yeniKokKatkisi": 53,
+      "yeniKokOrani": 0.083
     },
     {
       "id": "oki-lili-sahnesi",
@@ -2522,7 +3286,7 @@
       "icerikDurumu": null,
       "hakDurumu": null,
       "kaynakVar": false,
-      "bolumSayisi": 6,
+      "bolumSayisi": 4,
       "kelimeSayisi": 362,
       "benzersizYuzey": 222,
       "benzersizKokYaklasigi": 196,
@@ -2535,8 +3299,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 58,
-      "yeniKokOrani": 0.296
+      "yeniKokKatkisi": 45,
+      "yeniKokOrani": 0.23
     },
     {
       "id": "toto-acele-etme-piyesi",
@@ -2556,7 +3320,7 @@
       "icerikDurumu": null,
       "hakDurumu": null,
       "kaynakVar": false,
-      "bolumSayisi": 8,
+      "bolumSayisi": 4,
       "kelimeSayisi": 512,
       "benzersizYuzey": 278,
       "benzersizKokYaklasigi": 241,
@@ -2569,8 +3333,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 67,
-      "yeniKokOrani": 0.278
+      "yeniKokKatkisi": 48,
+      "yeniKokOrani": 0.199
     },
     {
       "id": "uzay-kulubu-piyesi",
@@ -2603,8 +3367,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 102,
-      "yeniKokOrani": 0.304
+      "yeniKokKatkisi": 77,
+      "yeniKokOrani": 0.229
     },
     {
       "id": "english-hello-card",
@@ -2675,8 +3439,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 13,
-      "yeniKokOrani": 0.867
+      "yeniKokKatkisi": 12,
+      "yeniKokOrani": 0.8
     },
     {
       "id": "english-colors-card",
@@ -2711,8 +3475,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 12,
-      "yeniKokOrani": 0.8
+      "yeniKokKatkisi": 11,
+      "yeniKokOrani": 0.733
     },
     {
       "id": "toto-tak-tak-dedi",
@@ -2848,8 +3612,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 6,
-      "yeniKokOrani": 0.231
+      "yeniKokKatkisi": 4,
+      "yeniKokOrani": 0.154
     },
     {
       "id": "yagmur-tip-tip-siiri",
@@ -3034,24 +3798,24 @@
         "paragraf"
       ],
       "oql": 3,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 2,
-      "kelimeSayisi": 44,
-      "benzersizYuzey": 33,
-      "benzersizKokYaklasigi": 31,
-      "turBelirtkeOrani": 0.75,
-      "ortCumleKelime": 4.9,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 5,
+      "kelimeSayisi": 564,
+      "benzersizYuzey": 352,
+      "benzersizKokYaklasigi": 290,
+      "turBelirtkeOrani": 0.624,
+      "ortCumleKelime": 6.9,
       "enUzunCumle": 10,
-      "sozlukGirdisi": 0,
+      "sozlukGirdisi": 6,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 4,
-      "yeniKokOrani": 0.129
+      "yeniKokKatkisi": 86,
+      "yeniKokOrani": 0.297
     },
     {
       "id": "arilar-neden-dans-eder",
@@ -3068,24 +3832,24 @@
         "uzun_metin"
       ],
       "oql": 4,
-      "icerikDurumu": "ozet",
-      "hakDurumu": null,
-      "kaynakVar": false,
-      "bolumSayisi": 2,
-      "kelimeSayisi": 43,
-      "benzersizYuzey": 39,
-      "benzersizKokYaklasigi": 38,
-      "turBelirtkeOrani": 0.907,
-      "ortCumleKelime": 7.2,
-      "enUzunCumle": 10,
-      "sozlukGirdisi": 0,
+      "icerikDurumu": "tam-metin",
+      "hakDurumu": "okurio-ozgun-ai-destekli",
+      "kaynakVar": true,
+      "bolumSayisi": 6,
+      "kelimeSayisi": 701,
+      "benzersizYuzey": 482,
+      "benzersizKokYaklasigi": 363,
+      "turBelirtkeOrani": 0.688,
+      "ortCumleKelime": 6.6,
+      "enUzunCumle": 12,
+      "sozlukGirdisi": 6,
       "deyim": 0,
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 7,
-      "yeniKokOrani": 0.184
+      "yeniKokKatkisi": 100,
+      "yeniKokOrani": 0.275
     },
     {
       "id": "kutup-tilkisi-yolculugu",
@@ -3118,8 +3882,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 133,
-      "yeniKokOrani": 0.36
+      "yeniKokKatkisi": 105,
+      "yeniKokOrani": 0.285
     },
     {
       "id": "mino-nerede-sahnesi",
@@ -3132,6 +3896,7 @@
       "icerikTuru": "piyes",
       "mikroAlistirma": false,
       "okumaEvreleri": [
+        "hece_kelime",
         "kisa_cumle",
         "paragraf"
       ],
@@ -3152,8 +3917,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 48,
-      "yeniKokOrani": 0.286
+      "yeniKokKatkisi": 32,
+      "yeniKokOrani": 0.19
     },
     {
       "id": "labirentte-uc-ses",
@@ -3173,7 +3938,7 @@
       "icerikDurumu": "tam-metin",
       "hakDurumu": "okurio-ozgun-ai-destekli",
       "kaynakVar": true,
-      "bolumSayisi": 6,
+      "bolumSayisi": 5,
       "kelimeSayisi": 702,
       "benzersizYuzey": 420,
       "benzersizKokYaklasigi": 336,
@@ -3186,8 +3951,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 86,
-      "yeniKokOrani": 0.256
+      "yeniKokKatkisi": 67,
+      "yeniKokOrani": 0.199
     },
     {
       "id": "little-star-poem-en",
@@ -3288,8 +4053,8 @@
       "kulturelOge": 0,
       "insanOnayi": "pending",
       "releaseReady": false,
-      "yeniKokKatkisi": 7,
-      "yeniKokOrani": 0.25
+      "yeniKokKatkisi": 2,
+      "yeniKokOrani": 0.071
     }
   ]
 }

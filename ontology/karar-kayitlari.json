@@ -1,0 +1,100 @@
+{
+  "$id": "okurio-karar-kayitlari",
+  "amac": "Ürün sahibinin içerik ve ontoloji kararlarının tek kaynağı. Bütün içerik ajanları bir eşik, kural veya hak kararı gerektiğinde önce bu dosyayı okur; değeri 'kaynaklar' altında gösterilen dosyadan alır; karar yoksa kendi eşiğini uydurmaz, 'karar yok' yazar ve konuyu insan kararına taşır.",
+  "sahip": "Reyhan Açar (ürün sahibi; kararları verir)",
+  "bakimci": "Claude (kararları kayda geçirir; karar vermez)",
+  "durumSozlugu": {
+    "yururlukte": "Reyhan'ın açık kararı; ilgili PR birleşince uygulanır",
+    "onerildi": "Claude önerisi; Reyhan bu dosyayı içeren PR'ı birleştirdiğinde yürürlüğe girer",
+    "acik": "Karar bekliyor"
+  },
+  "kaynaklar": {
+    "toplamKelimeAraligi": "src/content/readingLevelPolicy.js READING_LEVEL_WORD_TARGETS",
+    "cumleSiniri": "src/content/lengthOptimizationPolicy.js PASSAGE_WORD_TARGETS[yolId].maxSentenceWords",
+    "pasajKelimeAraligi": "src/content/lengthOptimizationPolicy.js PASSAGE_WORD_TARGETS[yolId].minWords/maxWords",
+    "paragrafCumleSiniri": "3 cümle (mevcut taslak testleri; tests/content/daily-draft-*.spec.mjs)",
+    "sozlukGirdisi": "3-8 girdi, her girdi metinde geçer (SOP-CONTENT-001)",
+    "yeniKokBandi": "ontology/snapshots/catalog-metrics-<tarih>.json yolOzeti[].yeniKokBandi (yöntem: K-2026-10-18-04)",
+    "yasYolTutarliligi": "ontology/snapshots/catalog-metrics-<tarih>.json yasYolTutarsizliklari",
+    "mebKademeSinif": "src/content/schoolGradeMapping.js TR_SCHOOL_GRADE_MAP",
+    "mebKazanim": "ontology/vocab/meb-kazanim.json (henüz yok: B2 açık)",
+    "hakDurumuSozlugu": "ontology/okurio-ontology.v0.1.json kontrolluSozlukler.HakDurumu",
+    "insanKapisi": "docs/AI-ASSISTED-QUALITY-GATE-v1.0.md"
+  },
+  "kararlar": [
+    {
+      "id": "K-2026-10-18-01",
+      "tarih": "2026-10-18",
+      "veren": "Reyhan Açar (sohbet)",
+      "durum": "yururlukte",
+      "konu": "İçerik planı 2026-10-18 brifleri",
+      "karar": "Brif 1 (yetiskin_odak_18), Brif 2 (genc_okurlar_12_14, Kaşağı) ve Brif 3 (okumaya_hazirlik_5_6) onaylandı; taslaklara geçildi.",
+      "kayit": "docs/content-plans/2026-10-18.md; PR #146, #150, #151, #152"
+    },
+    {
+      "id": "K-2026-10-18-02",
+      "tarih": "2026-10-18",
+      "veren": "Reyhan Açar (sohbet)",
+      "durum": "yururlukte",
+      "konu": "genc_okurlar_12_14 cümle sınırı",
+      "karar": "Bu yolda cümle başına en fazla 18 kelime geçerlidir (SOP-CONTENT-001 orta-ileri düzeyi). Önceki politika değeri 24 idi.",
+      "uygulama": "src/content/lengthOptimizationPolicy.js PASSAGE_WORD_TARGETS.genc_okurlar_12_14.maxSentenceWords = 18",
+      "etki": "Uzunluk denetiminde sessiz-saatler içeriği 'pasaj-duzeltme' kararına düştü (21-24 kelimelik cümleler); düzeltme App.jsx değişikliği gerektirir ve ayrı onay ister."
+    },
+    {
+      "id": "K-2026-10-18-03",
+      "tarih": "2026-10-18",
+      "veren": "Reyhan Açar (sohbet)",
+      "durum": "yururlukte",
+      "konu": "Kaşağı (Ömer Seyfettin) hak durumu",
+      "karar": "Kaşağı kamu malı olarak kabul edildi (yazar 1920'de öldü).",
+      "kapsam": "Yalnız hak durumu kararıdır. İçerik kalite onayı, ownerApproval veya yayın onayı değildir; bu alanlar insan incelemesiyle ayrıca doldurulur.",
+      "kayit": "src/content/drafts/2026-10-18-kasagi-uyarlama.js sourceTruth.rightsBasis; PR #151"
+    },
+    {
+      "id": "K-2026-10-18-04",
+      "tarih": "2026-10-18",
+      "veren": "Claude (öneri), Reyhan Açar (bu dosyayı içeren PR'ın birleştirilmesiyle onay)",
+      "durum": "onerildi",
+      "konu": "Okuma yolu başına yeni kök bandı yöntemi (B6)",
+      "karar": "Örneklem: yolun Türkçe tam okumalarından (mikro alıştırmalar hariç) yaş etiketi aralığı yolun yaş aralığıyla kesişenler. Örneklem 3 veya daha fazlaysa bant = gerçek ortanca ±%25. Örneklem 3'ten azsa bant tanımsızdır (yetersiz-orneklem): ajanlar yeni kök için engelleyici bulgu üretmez, yalnız ölçümü raporlar ve yolun kelime aralığını uygular.",
+      "gerekce": "v0.1.0'daki bant, okumaya_hazirlik_5_6 yolunda yaş etiketi yola uymayan Andersen (8-10 yaş) ve Grimm (5-9 yaş) içeriklerinden ve çift sayılı listede üst değeri alan ortancadan geliyordu. Gözetim ajanının tur 1'deki gerekçesi (yaş uyumsuz içerikleri ayıklamak, gerçek ortanca, az örneklemde bandı engelleyici saymamak) bu kuralla yazılı ve tekrarlanabilir hâle getirildi.",
+      "uygulama": "scripts/build-ontology-snapshot.mjs yolOzeti[].yeniKokBandi"
+    },
+    {
+      "id": "K-2026-10-18-05",
+      "tarih": "2026-10-18",
+      "veren": "Reyhan Açar (sohbet)",
+      "durum": "yururlukte",
+      "konu": "Erişilebilirlik editörü ajanı",
+      "karar": "Okuma güçlüğü, disleksi, DEHB veya görme desteği temasını işleyen ya da destek aracı anlatan her taslak okurio-erisilebilirlik-editoru rolünden geçer. Ajan tanı izlenimini, klinik ve damgalayıcı dili, klişeleri ve destek araçlarının sunuluşunu denetler; onay vermez.",
+      "uygulama": ".claude/agents/okurio-erisilebilirlik-editoru.md"
+    },
+    {
+      "id": "K-2026-10-18-06",
+      "tarih": "2026-10-18",
+      "veren": "Reyhan Açar (sohbet)",
+      "durum": "yururlukte",
+      "konu": "Gözetim ajanı",
+      "karar": "Her taslak yazıldıktan sonra okurio-gozetim-ajani bağımsız denetim yapar; engelleyici bulgu kalmayana kadar ya da en fazla 3 tur yazar düzeltir.",
+      "uygulama": ".claude/agents/okurio-gozetim-ajani.md (PR #146)"
+    }
+  ],
+  "acikSorular": [
+    {
+      "konu": "Diğer yolların cümle sınırı",
+      "durum": "acik",
+      "not": "SOP-CONTENT-001 üç düzey tanımlar (12 / 18 / 35 kelime). lengthOptimizationPolicy.js ise yola göre 12, 14, 18, 20, 18 (genc, K-2026-10-18-02), 30, 35 kullanır. Hangi yolun hangi SOP düzeyine bağlanacağı karar bekliyor; karar gelene kadar politika dosyası geçerlidir."
+    },
+    {
+      "konu": "Yaş etiketi ile okuma yolu uyumsuz içerikler (B7)",
+      "durum": "acik",
+      "not": "Anlık görüntüdeki yasYolTutarsizliklari listesi (ör. andersen-masallari 8-10 yaş ama okumaya_hazirlik_5_6 yolunda). Yeniden etiketleme veya yol değişikliği App.jsx değişikliği gerektirir."
+    },
+    {
+      "konu": "sessiz-saatler içeriğinin yol ataması",
+      "durum": "acik",
+      "not": "Ontoloji anlık görüntüsü bu içeriği akici_okuma_10_12 yoluna, uzunluk denetimi ise genc_okurlar_12_14 sınırına göre ölçüyor. İki betiğin yol atama kuralı birleştirilmeli."
+    }
+  ]
+}
