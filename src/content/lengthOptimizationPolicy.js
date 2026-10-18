@@ -17,7 +17,8 @@ export const PASSAGE_WORD_TARGETS = Object.freeze({
   ilk_cumleler_7_8: Object.freeze({ minWords: 70, maxWords: 170, idealWords: 110, maxSentenceWords: 14 }),
   okuma_guveni_8_10: Object.freeze({ minWords: 90, maxWords: 220, idealWords: 140, maxSentenceWords: 18 }),
   akici_okuma_10_12: Object.freeze({ minWords: 110, maxWords: 260, idealWords: 170, maxSentenceWords: 20 }),
-  genc_okurlar_12_14: Object.freeze({ minWords: 120, maxWords: 300, idealWords: 190, maxSentenceWords: 24 }),
+  // K-2026-10-18-02 (Reyhan Açar): SOP-CONTENT-001 orta-ileri sınırı, 18 kelime. ontology/karar-kayitlari.json
+  genc_okurlar_12_14: Object.freeze({ minWords: 120, maxWords: 300, idealWords: 190, maxSentenceWords: 18 }),
   klasiklere_hazirlik_14_16: Object.freeze({ minWords: 140, maxWords: 350, idealWords: 220, maxSentenceWords: 30 }),
   lise_okuma_16_18: Object.freeze({ minWords: 160, maxWords: 400, idealWords: 250, maxSentenceWords: 35 }),
   yetiskin_odak_18: Object.freeze({ minWords: 180, maxWords: 450, idealWords: 280, maxSentenceWords: 35 }),

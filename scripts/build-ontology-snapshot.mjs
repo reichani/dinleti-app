@@ -168,11 +168,45 @@ for (const k of kayitlar) {
 }
 kayitlar.forEach((k) => delete k._kokler);
 
+// Gerçek ortanca: çift sayılı listede ortadaki iki değerin ortalaması (v0.1.1 düzeltmesi).
+const med = (arr) => {
+  if (!arr.length) return 0;
+  const s = [...arr].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : Number(((s[m - 1] + s[m]) / 2).toFixed(1));
+};
+
+// Yaş etiketi aralığı ("5-9 yaş", "5–6", "18+") → [alt, üst].
+const yasAraligi = (etiket) => {
+  const m = String(etiket ?? "").match(/(\d+)\s*[-–]\s*(\d+)/u);
+  if (m) return [Number(m[1]), Number(m[2])];
+  const p = String(etiket ?? "").match(/(\d+)\s*\+/u);
+  return p ? [Number(p[1]), 99] : null;
+};
+const yolYasi = Object.fromEntries(OKUMA_YOLLARI.map((y) => [y.id, yasAraligi(y.yas)]));
+
+// K-2026-10-18-04 yeni kök bandı yöntemi (ontology/karar-kayitlari.json):
+// örneklem = yolun Türkçe tam okumaları içinden yaş etiketi aralığı yolun yaş
+// aralığıyla kesişenler; n >= 3 ise bant = gerçek ortanca ±%25, değilse null.
+const BANT_MIN_ORNEKLEM = 3;
+const yasUyumlu = (k) => {
+  const y = yolYasi[k.anaOkumaYolu]; const e = yasAraligi(k.yasEtiketi);
+  if (!y || !e) return false;
+  return e[0] <= y[1] && e[1] >= y[0];
+};
+const yasYolTutarsizliklari = kayitlar
+  .filter((k) => !k.mikroAlistirma && k.anaOkumaYolu && yasAraligi(k.yasEtiketi) && !yasUyumlu(k))
+  .map((k) => ({ id: k.id, yasEtiketi: k.yasEtiketi, anaOkumaYolu: k.anaOkumaYolu, yolYasi: OKUMA_YOLLARI.find((y) => y.id === k.anaOkumaYolu)?.yas ?? null }));
+
 const yolOzeti = yolSirasi.map((yolId) => {
   const tum = kayitlar.filter((k) => k.anaOkumaYolu === yolId);
   const ic = tum.filter((k) => !k.mikroAlistirma);
   const hedef = READING_LEVEL_WORD_TARGETS[yolId] ?? null;
-  const med = (arr) => { if (!arr.length) return 0; const s = [...arr].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
+  const orneklem = ic.filter((k) => k.dil === "tr" && yasUyumlu(k));
+  const bantMedyan = orneklem.length >= BANT_MIN_ORNEKLEM ? med(orneklem.map((k) => k.yeniKokKatkisi ?? 0)) : null;
+  const yeniKokBandi = bantMedyan === null
+    ? { alt: null, ust: null, orneklem: orneklem.map((k) => k.id), durum: "yetersiz-orneklem", karar: "K-2026-10-18-04" }
+    : { alt: Math.round(bantMedyan * 0.75), ust: Math.round(bantMedyan * 1.25), medyan: bantMedyan, orneklem: orneklem.map((k) => k.id), durum: "hesaplandi", karar: "K-2026-10-18-04" };
   return {
     yolId,
     icerikSayisi: tum.length,
@@ -185,6 +219,7 @@ const yolOzeti = yolSirasi.map((yolId) => {
     sozluguOlan: ic.filter((k) => k.sozlukGirdisi > 0).length,
     deyimAtasozuOlan: ic.filter((k) => k.deyim + k.atasozu > 0).length,
     insanOnayli: ic.filter((k) => k.insanOnayi === "approved").length,
+    yeniKokBandi,
   };
 });
 
@@ -202,13 +237,15 @@ const kapsam = {
 };
 
 const snapshot = {
-  ontologyVersion: "0.1.0",
+  ontologyVersion: "0.1.1",
   olusturuldu: dateArg,
   kaynak: "src/App.jsx (KATALOG, ICERIK_METADATA ve kontrollü sözlükler), src/content/*",
   yontem: {
     kelime: "[\\p{L}\\p{N}]+(?:['’][\\p{L}\\p{N}]+)* (katalog denetimiyle aynı)",
     kokYaklasigi: "Türkçe 5 harflik önek (F5); İngilizce küçük harf yüzey biçimi",
     yeniKokKatkisi: "Önceki okuma yollarındaki aynı dildeki içeriklerde görülmemiş kök sayısı",
+    medyan: "Gerçek ortanca (çift sayıda ortadaki iki değerin ortalaması)",
+    yeniKokBandi: "K-2026-10-18-04: yaş etiketi aralığı yolun yaş aralığıyla kesişen Türkçe tam okumalar; n>=3 ise gerçek ortanca ±%25, değilse yetersiz-orneklem",
   },
   kontrolluSozlukler: {
     okumaYollari: OKUMA_YOLLARI.map(({ id, baslik, yas, mod, evre }) => ({ id, baslik, yas, mod, varsayilanEvre: evre })),
@@ -221,6 +258,7 @@ const snapshot = {
   },
   kapsam,
   yolOzeti,
+  yasYolTutarsizliklari,
   icerikler: kayitlar,
 };
 
