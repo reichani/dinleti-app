@@ -1,0 +1,131 @@
+{
+  "$id": "okurio-ontology",
+  "version": "0.1.0",
+  "status": "taslak",
+  "olusturuldu": "2026-10-18",
+  "sahip": "Reyhan Açar (ürün sahibi; sürüm onayı)",
+  "bakimci": "Claude (geliştirme; ölçüm ve öneri, onay vermez)",
+  "amac": "Okurio içeriklerinin yaş, okuma yolu, MEB kademesi, kelime yükü ve yeni kelime katkısı üzerinden tek bir modelle tanımlanması; içerik üretim ajanlarının neyi, hangi sırayla üreteceğine bu model üzerinden karar vermesi.",
+  "kaynaklar": {
+    "kodTabani": [
+      "src/App.jsx: KATALOG, ICERIK_METADATA, OKUMA_YOLLARI, EVRE_SECENEKLERI, EVRE_SECENEKLERI_BY_YOL, DESTEK_SECENEKLERI, YOL_SEGMENT_GRUPLARI, YOL_ICERIK_TURLERI, OQL_SEVIYELERI",
+      "src/content/schoolGradeMapping.js: TR_SCHOOL_GRADE_MAP",
+      "src/content/readingLevelPolicy.js: READING_LEVEL_WORD_TARGETS",
+      "src/content/contentQualityReview.js ve docs/CONTENT-QUALITY-REVIEW-v2.0.md: inceleme şeması 2.0",
+      "src/content/contentEditorialReviewAgent.js: editorialLanguageProfile (deyim, atasözü, kültürel öğe)",
+      "docs/AI-ASSISTED-QUALITY-GATE-v1.0.md: insan onayı kuralı"
+    ],
+    "dis": [
+      "MEB Türkçe Dersi Öğretim Programı (Türkiye Yüzyılı Maarif Modeli, 2024): kazanım kodları henüz içe aktarılmadı",
+      "TDK Güncel Türkçe Sözlük ve Atasözleri ve Deyimler Sözlüğü: lisans durumu doğrulanmadı, içe aktarılmadı",
+      "Türkçe çocuk kelime sıklık listesi: henüz seçilmedi (aday: TUDER, Türkçe Ulusal Derlemi; aday: çocuk kitapları derlemi)"
+    ]
+  },
+  "olgunlukSeviyeleri": {
+    "O0": "Tanımlı değil",
+    "O1": "Beyan edilmiş: alan şemada var, değeri elle girilmiş",
+    "O2": "Ölçülmüş: değer betikle metinden hesaplanıyor ve anlık görüntüde izleniyor",
+    "O3": "Dış dayanaklı: değer dış bir otoriteye (MEB kazanım kodu, sıklık listesi, sözlük) bağlanmış",
+    "O4": "Doğrulanmış: dış dayanaklı değer insan incelemesiyle onaylanmış ve pilot kullanıcı verisiyle sınanmış"
+  },
+  "siniflar": {
+    "Icerik": {
+      "tanim": "Okuyucuya sunulan tek bir okuma birimi (hikâye, oturum, mikro alıştırma).",
+      "kimlik": "id (KATALOG)",
+      "olgunluk": "O2",
+      "ozellikler": {
+        "baslik": { "tur": "metin", "kaynak": "KATALOG.baslik", "olgunluk": "O1" },
+        "dil": { "tur": "sozluk:Dil", "kaynak": "KATALOG.dil", "olgunluk": "O1" },
+        "yasEtiketi": { "tur": "metin", "kaynak": "KATALOG.yas", "olgunluk": "O1", "not": "Serbest metin; okuma yoluyla tutarlılığı ölçülmeli" },
+        "icerikTuru": { "tur": "sozluk:IcerikTuru", "kaynak": "ICERIK_METADATA.icerikTuru", "olgunluk": "O1" },
+        "mikroAlistirma": { "tur": "mantiksal", "kaynak": "scripts/audit-full-catalog.mjs isMicroExercise", "olgunluk": "O2" },
+        "kelimeSayisi": { "tur": "tamsayi", "kaynak": "ölçüm", "olgunluk": "O2" },
+        "benzersizKokYaklasigi": { "tur": "tamsayi", "kaynak": "ölçüm (F5 önek)", "olgunluk": "O2", "not": "Biçimbirim çözümleyiciyle değiştirilecek (Zemberek)" },
+        "yeniKokKatkisi": { "tur": "tamsayi", "kaynak": "ölçüm: önceki yollarda görülmemiş kökler", "olgunluk": "O2", "not": "Katalog içi; dış sıklık listesine bağlanınca O3" },
+        "ortCumleKelime": { "tur": "ondalik", "kaynak": "ölçüm", "olgunluk": "O2" },
+        "sozlukGirdisi": { "tur": "tamsayi", "kaynak": "pilotCatalogAdapter.getGlossaryForStory", "olgunluk": "O1" },
+        "deyim": { "tur": "liste:DeyimAtasozu", "kaynak": "editorialLanguageProfile.idioms", "olgunluk": "O1" },
+        "atasozu": { "tur": "liste:DeyimAtasozu", "kaynak": "editorialLanguageProfile.proverbs", "olgunluk": "O1" },
+        "kulturelOge": { "tur": "liste:metin", "kaynak": "editorialLanguageProfile.culturalObjects", "olgunluk": "O1" },
+        "hakDurumu": { "tur": "sozluk:HakDurumu", "kaynak": "KATALOG.hakDurumu / metadata.rightsStatus", "olgunluk": "O1" },
+        "kaynak": { "tur": "Kaynak", "kaynak": "KATALOG.kaynak", "olgunluk": "O1" },
+        "inceleme": { "tur": "IncelemeKaydi", "kaynak": "contentQualityReview", "olgunluk": "O1" }
+      }
+    },
+    "OkumaYolu": {
+      "tanim": "Yaşa bağlı, sıralı okuma ilerleme basamağı. Sıra önemlidir; yeni kelime katkısı bu sıraya göre hesaplanır.",
+      "kimlik": "id (OKUMA_YOLLARI)",
+      "olgunluk": "O1",
+      "ozellikler": {
+        "yasAraligi": { "kaynak": "OKUMA_YOLLARI.yas" },
+        "kelimeHedefi": { "kaynak": "READING_LEVEL_WORD_TARGETS" },
+        "segmentler": { "kaynak": "YOL_SEGMENT_GRUPLARI" },
+        "izinliIcerikTurleri": { "kaynak": "YOL_ICERIK_TURLERI" },
+        "evreler": { "kaynak": "EVRE_SECENEKLERI_BY_YOL" },
+        "mebKademe": { "kaynak": "TR_SCHOOL_GRADE_MAP" },
+        "yeniKokHedefi": { "olgunluk": "O0", "not": "Tanımsız. v0.2'de katalog medyanından başlangıç bandı önerilecek, Reyhan onaylayacak" }
+      }
+    },
+    "OkumaEvresi": { "tanim": "Okuyucunun kendini tanımladığı okuma becerisi aşaması (dinleme, hece, paragraf, uzun metin, ders çalışma).", "kaynak": "EVRE_SECENEKLERI", "olgunluk": "O1" },
+    "Destek": { "tanim": "Okuma ekranı uyarlaması (kelime takibi, hece takibi, odak, büyük yazı, geniş aralık, göz konforu).", "kaynak": "DESTEK_SECENEKLERI", "olgunluk": "O1" },
+    "MebKademe": { "tanim": "Okul öncesi, ilkokul, ortaokul, lise, yetişkin.", "kaynak": "TR_SCHOOL_GRADE_MAP.mebKademe", "olgunluk": "O1" },
+    "Sinif": { "tanim": "Resmî sınıf düzeyi (1-12).", "kaynak": "TR_SCHOOL_GRADE_MAP.okulSinifAraligi", "olgunluk": "O1" },
+    "MebKazanim": {
+      "tanim": "Türkçe dersi öğretim programındaki okuma kazanımı (kod, sınıf, metin türü, beceri).",
+      "olgunluk": "O0",
+      "not": "Boşluk B2. Program metni içe aktarılıp kod listesi ontology/vocab/meb-kazanim.json olarak eklenmeden içerik-kazanım bağı kurulamaz."
+    },
+    "Kok": {
+      "tanim": "Kelimenin sözlük biçimi (lemma). Yeni kelime katkısının birimi.",
+      "olgunluk": "O2",
+      "not": "Şimdilik 5 harf önek yaklaşığı. Hedef: Zemberek ile lemma, TDK ile doğrulama."
+    },
+    "DeyimAtasozu": {
+      "tanim": "İçerikte geçen deyim veya atasözü; ilk geçtiği okuma yolu ile birlikte izlenir.",
+      "olgunluk": "O1",
+      "not": "Boşluk B3. Kontrollü liste yok; şimdilik içerik başına beyan."
+    },
+    "Karakter": { "tanim": "Okurio özgün karakterleri (ör. Oki).", "olgunluk": "O1", "not": "Karakter kartları (yaş, ses, sınır) ajan yazımı için tanımlanmalı" },
+    "Kaynak": { "tanim": "Uyarlamanın dayandığı birincil metin (ad, URL, yayın yılı).", "olgunluk": "O1" },
+    "IncelemeKaydi": {
+      "tanim": "contentQualityReview şema 2.0 kaydı ve ownerApproval.",
+      "olgunluk": "O1",
+      "kural": "AI hiçbir zaman reviewerName veya ownerApproval.ownerName alanını doldurmaz (docs/AI-ASSISTED-QUALITY-GATE-v1.0.md)."
+    }
+  },
+  "iliskiler": [
+    { "ad": "aitOlduguYol", "alan": "Icerik", "hedef": "OkumaYolu", "kaynak": "ICERIK_METADATA.segmentler → YOL_SEGMENT_GRUPLARI (en erken yol)" },
+    { "ad": "uygunEvre", "alan": "Icerik", "hedef": "OkumaEvresi", "kaynak": "ICERIK_METADATA.okumaEvreleri" },
+    { "ad": "karsilikKademe", "alan": "OkumaYolu", "hedef": "MebKademe", "kaynak": "TR_SCHOOL_GRADE_MAP" },
+    { "ad": "karsilikSinif", "alan": "OkumaYolu", "hedef": "Sinif", "kaynak": "TR_SCHOOL_GRADE_MAP" },
+    { "ad": "destekler", "alan": "Icerik", "hedef": "MebKazanim", "olgunluk": "O0" },
+    { "ad": "tanitir", "alan": "Icerik", "hedef": "Kok", "kaynak": "ölçüm: yeniKokKatkisi" },
+    { "ad": "icerir", "alan": "Icerik", "hedef": "DeyimAtasozu", "kaynak": "editorialLanguageProfile" },
+    { "ad": "uyarlar", "alan": "Icerik", "hedef": "Kaynak" },
+    { "ad": "oncelikliDestek", "alan": "OkumaYolu", "hedef": "Destek", "kaynak": "YOL_VARSAYILAN_DESTEKLER (v2.9.4)" },
+    { "ad": "sonraki", "alan": "OkumaYolu", "hedef": "OkumaYolu", "kaynak": "OKUMA_YOLLARI dizi sırası" }
+  ],
+  "kontrolluSozlukler": {
+    "Dil": ["tr", "en"],
+    "HakDurumu": ["okurio-ozgun", "okurio-ozgun-ai-destekli", "kamu-mali", "lisansli"],
+    "IcerikTuru": "YOL_ICERIK_TURLERI içindeki değerler (anlık görüntüde listelenir)"
+  },
+  "metrikTanimlari": {
+    "kelime": "Unicode harf veya rakam dizisi; kesme işaretli ekler aynı kelimeye dahil",
+    "kokYaklasigi": "Türkçe: küçük harfe (tr-TR) çevrilmiş kelimenin ilk 5 harfi (F5). İngilizce: küçük harf yüzey biçimi",
+    "yeniKokKatkisi": "İçeriğin ana okuma yolundan önceki tüm yollardaki aynı dilli içeriklerde görülmemiş kök sayısı",
+    "yeniKokOrani": "yeniKokKatkisi / benzersizKokYaklasigi"
+  },
+  "bosluklar": [
+    { "kod": "B1", "konu": "Türkçe yaş/sınıf kelime sıklık listesi yok", "etki": "Yeni kelime katkısı yalnız katalog içi; 'bu yaş için zor kelime' kararı verilemez", "oneri": "Açık lisanslı bir derlem seç; sıklık bantlarını ontology/vocab altına ekle", "sahip": "Reyhan (kaynak seçimi), Claude (içe aktarma)" },
+    { "kod": "B2", "konu": "MEB Türkçe okuma kazanım kodları yok", "etki": "İçerik-müfredat bağı yalnız kademe düzeyinde", "oneri": "Programdan okuma kazanımlarını kodlarıyla çıkar, sınıf ve metin türüyle eşle", "sahip": "Claude (çıkarım), Reyhan veya bir Türkçe öğretmeni (doğrulama)" },
+    { "kod": "B3", "konu": "Deyim/atasözü kontrollü listesi yok; 80 içerikten 2'sinde beyan var", "etki": "Deyim katkısı ölçülemiyor", "oneri": "TDK lisansı netleşene kadar içerik başına beyan ve elle derlenmiş başlangıç listesi", "sahip": "Reyhan (lisans kararı)" },
+    { "kod": "B4", "konu": "Hak durumu 80 içerikten 16'sında beyanlı", "etki": "Telif denetimi otomatik yapılamıyor", "oneri": "Kalan 64 içeriğe hakDurumu ve kaynak alanı ekle", "sahip": "Claude (öneri PR), Reyhan (onay)" },
+    { "kod": "B5", "konu": "Lemma çözümleyici yok (F5 yaklaşığı)", "etki": "Kök sayıları ±%10-20 sapabilir", "oneri": "Zemberek veya eşdeğerini derleme zamanında çalıştır", "sahip": "Claude" },
+    { "kod": "B6", "konu": "Yol başına yeni kök hedefi tanımsız", "etki": "Ajanlar 'yeterli yeni kelime' eşiğine göre üretemiyor", "oneri": "v0.2'de katalog medyanından başlangıç bandı öner", "sahip": "Claude (öneri), Reyhan (onay)" },
+    { "kod": "B7", "konu": "Yaş etiketi (KATALOG.yas) ile ana okuma yolu arasında tutarlılık kontrolü yok", "etki": "Aynı içerik farklı yaş sinyali veriyor", "oneri": "Anlık görüntüye tutarsızlık listesi ekle", "sahip": "Claude" }
+  ],
+  "degisiklikGunlugu": [
+    { "surum": "0.1.0", "tarih": "2026-10-18", "ozet": "İlk taslak: sınıflar, ilişkiler, metrik tanımları, boşluklar B1-B7; ilk ölçüm anlık görüntüsü (catalog-metrics-2026-10-18.json)." }
+  ]
+}
