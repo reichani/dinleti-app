@@ -5656,5 +5656,15 @@
     "Ortaokul Ek 1 \"İşlev Temelli Dil Yapıları ve Söz Varlığı\" (DYS.DO.* anlama, DYS.KY.* anlatma kodları) bu dosyaya alınmadı: dil bilgisi odaklıdır, ölçme-değerlendirmeye dâhil edilmez ve PDF metin çıkarımında satır bölünmesi hataları fazla. Gerekirse ayrı dosya olarak çıkarılabilir.",
     "\"temalar\" alanı (ilkokulda bileşen, ortaokulda çıktı düzeyinde) öğrenme çıktısının hangi tema numaralarında listelendiğini gösterir; ilkokulda tema içindeki ifade EK 1 ifadesinden farklıysa eşleşme bulunamayıp null kalabilir.",
     "Sayfa numaraları: ilkokulda PDF sayfa sırasına göre yaklaşık (EK 1 içindekiler s. 202 ile tutarlı); ortaokulda basılı sayfa aralığı verildi. Kesin sayfa için PDF ile kontrol edilmeli."
+  ],
+  "dogrulama": [
+    {
+      "tarih": "2026-10-18",
+      "kapsam": "ortaokul 5-8, sınıfa özgü açıklamalar",
+      "yontem": "koordinat tabanlı tablo okuması (pdf.js, PDF s. 36-44) + sayfa görüntüsünün görsel okuması (s. 39, 42, 43)",
+      "sonuc": "99/99 kod bulundu; 98 açıklama birebir; 1 fark koordinat okumasının hatası, JSON doğru",
+      "yapan": "Claude",
+      "insanKontrolu": "bekliyor (Reyhan veya Türkçe öğretmeni)"
+    }
   ]
 }

@@ -56,3 +56,13 @@ Programda sınıf düzeyine göre kelime sayısı veya metin uzunluğu önerisi 
 Ortaokul Ek 1 "İşlev Temelli Dil Yapıları ve Söz Varlığı" (DYS.DO.* ve DYS.KY.* kodları, s. 198-202) alınmadı. Program bu yapıların ölçme-değerlendirmeye dâhil edilmeyeceğini söylüyor; ayrıca metin çıkarımında satır bölünmesi hataları fazlaydı. Söz varlığı eşlemesi için ileride ayrı bir dosya olarak çıkarılabilir.
 
 Okuma dışındaki alanlar (Dinleme/İzleme T.D, Konuşma T.K, Yazma T.Y) kapsam dışında bırakıldı.
+
+## Doğrulama, 18 Ekim 2026
+
+Ortaokul PDF'i (ortaokul-turkce-dersi_20260902_111157_977.pdf, 247 sayfa) tymm.meb.gov.tr alan adının kendi sayfasında pdf.js ile açıldı ve iki bağımsız yöntemle kontrol edildi (Cochrane MECIR C45 ilkesi).
+
+Birinci yöntem koordinat tabanlı tablo okumasıdır. Okuma tablosunun bulunduğu PDF sayfaları 36-44 tarandı. Her T.O kodunun sınıf sütunu, sayfadaki yatay konumundan belirlendi; o kodun altındaki açıklama hücresi, aynı sütun bandında ve bir sonraki satır sınırına kadar olan metin olarak okundu. Sonuç: 99 ortaokul kodunun 99'u PDF'te bulundu. Sınıfa özgü açıklamaların 98'i JSON ile birebir eşleşti. Tek fark T.O.5.7'deydi: koordinat okuması, bir alt satırdaki T.O.5.8 genel açıklamasının ilk cümlesini yanlışlıkla bu koda bağladı. Görsel kontrolde T.O.5.7'nin sınıfa özgü açıklaması olmadığı ve JSON'un doğru olduğu görüldü.
+
+İkinci yöntem sayfa görüntüsünün görsel okumasıdır. Elle kontrol gerektiği not edilen üç satır PDF sayfa 39, 42 ve 43 görüntülerinde okundu. İkna teknikleri (s. 42): 5. ve 6. sınıf "*" (bu sınıflarda yok); T.O.7.19 "Karşılıkta bulunma, sevgi (hoşlanma), kıtlık (azlık) ve karşıtlık teknikleri."; T.O.8.19 "Tutarlılık, toplumsal kanıt, otorite ve uzlaşma teknikleri. Önceki sınıf seviyesinde işlenilen teknikleri belirlemeye yönelik çalışmalar yapılır." Okuduğunu değerlendirebilme (s. 43): 5. sınıf "*"; T.O.6.22 içerik, T.O.7.22 dil ve organizasyon, T.O.8.22 yazar. Her ikisi de JSON'daki atamalarla aynı. Söz sanatları (s. 42) satırı da aynı.
+
+Sonuç: Önceki bölümde "gözle kontrol edilmeli" diye işaretlenen atamalar doğrulandı; JSON değişmedi. Bir eksik kaldı: öğrenme çıktılarının tüm sınıflar için ortak "genel açıklama" metinleri JSON'da yok. Örneğin s. 43'te değerlendirme için "her sınıf seviyesinde bir unsura odaklanılır ancak 7 ve 8. sınıflarda gerekli görülmesi hâlinde önceki sınıf seviyelerinde işlenilen unsurlara da yer verilebilir" notu var. Bu metinler müfredat ajanının bir sonraki işidir.
