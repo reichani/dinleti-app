@@ -1,3 +1,17 @@
+import { ALI_ILE_ELA_DRAFT } from "./drafts/2026-07-25-ali-ile-ela.js";
+import { KIYIDAKI_SESSIZ_ISTASYON_DRAFT } from "./drafts/2026-07-28-kiyidaki-sessiz-istasyon.js";
+import { LILI_ILE_AT_DRAFT } from "./drafts/2026-08-30-lili-ile-at.js";
+import { MOON_NOT_STAR_EN_DRAFT } from "./drafts/2026-09-09-moon-not-star-en.js";
+import { OKI_LABIRENT_DRAFT } from "./drafts/2026-09-14-oki-labirentin-izi.js";
+import { KELOGLAN_MASALLARI_DRAFT } from "./drafts/2026-09-17-keloglan-masallari.js";
+import { UGLY_DUCKLING_DRAFT } from "./drafts/2026-09-18-ugly-duckling.js";
+import { SELFISH_GIANT_DRAFT } from "./drafts/2026-09-19-selfish-giant.js";
+import { HAPPY_PRINCE_DRAFT } from "./drafts/2026-09-20-happy-prince.js";
+import { PEMBE_INCILI_KAFTAN_DRAFT } from "./drafts/2026-09-21-pembe-incili-kaftan.js";
+import { PROMETHEUSUN_SECIMI_DRAFT } from "./drafts/2026-09-22-prometheusun-secimi.js";
+import { MAI_VE_SIYAH_DRAFT } from "./drafts/2026-09-23-mai-ve-siyah.js";
+import { BIR_TOHUMUN_YOLCULUGU_DRAFT } from "./drafts/2026-09-25-bir-tohumun-yolculugu.js";
+import { ARILAR_NEDEN_DANS_EDER_DRAFT as ARILAR_V3_DRAFT } from "./drafts/2026-09-26-arilar-neden-dans-eder.js";
 import { UZAY_KULUBU_PIYESI_DRAFT } from "./drafts/2026-08-04-uzay-kulubu-piyesi.js";
 import { OKI_GUNESIN_HIKAYESI_DRAFT } from "./drafts/2026-07-24-oki-gunesin-hikayesi.js";
 import { OKI_ATI_TANIYOR_DRAFT } from "./drafts/2026-07-24-oki-ati-taniyor.js";
@@ -34,8 +48,11 @@ const preparedDraftToProductionCandidate = (draft, overrides = {}) => {
     };
   });
 
+  const computedSeconds = bolumler.reduce((t, b) => t + Math.ceil((countWords(b.metin) * 60) / 155), 0);
+  const estimatedSeconds = draft.estimatedSeconds ?? draft.declaredSeconds ?? computedSeconds;
+  draft = { ...draft, estimatedSeconds };
   return {
-    id: draft.replacesIdAfterApproval,
+    id: draft.replacesIdAfterApproval ?? draft.id.replace(/-draft$/u, ""),
     baslik: draft.title,
     yazar: "Okurio Özgün İçerik Ekibi",
     seslendiren: "Oki Anlatıcı",
@@ -104,6 +121,28 @@ export const PREPARED_DRAFT_PRODUCTION_CANDIDATES = [
       urls: AESOPS_FABLES_DRAFT.sourceTruth.sourceUrls,
     },
   }),
+  // 2026-10-18 (v2.9.3): ürün sahibi sohbette "okuma yollarına içerikleri deploy et"
+  // talimatı verdi. Uzunluğu yol hedefine uyan, yapısal olarak hazır taslaklar
+  // aday olarak bağlanır; insan kalite onayı alanları (reviewerName, releaseReady)
+  // değiştirilmez, "candidate-deployed-human-review-pending" durumunda kalır.
+  preparedDraftToProductionCandidate(ALI_ILE_ELA_DRAFT, { kategori: "İlk Okuma", renk: ["#5C4A2A", "#E0B86A"] }),
+  preparedDraftToProductionCandidate(LILI_ILE_AT_DRAFT, { kategori: "İlk Okuma", renk: ["#4A5C2A", "#B8D36A"] }),
+  preparedDraftToProductionCandidate(KELOGLAN_MASALLARI_DRAFT, { kategori: "Masal", renk: ["#6B3F22", "#E3A55E"], yazar: "Okurio · Keloğlan motifli özgün masal" }),
+  preparedDraftToProductionCandidate(UGLY_DUCKLING_DRAFT, { kategori: "English Corner", renk: ["#2F4E5E", "#8CC2D6"], dil: "en", yazar: "Hans Christian Andersen · Okurio graded adaptation" }),
+  preparedDraftToProductionCandidate(BIR_TOHUMUN_YOLCULUGU_DRAFT, { kategori: "Doğa Bilimi", renk: ["#3E5A2C", "#A9D27C"] }),
+  preparedDraftToProductionCandidate(ARILAR_V3_DRAFT, { kategori: "Doğa Bilimi", renk: ["#6A4E14", "#F0C24B"] }),
+  preparedDraftToProductionCandidate(OKI_LABIRENT_DRAFT, { kategori: "Mitoloji", renk: ["#40305C", "#A58CD0"] }),
+  preparedDraftToProductionCandidate(MOON_NOT_STAR_EN_DRAFT, { kategori: "English Reading Club", renk: ["#1F2F55", "#9DB6EE"], dil: "en", yazar: "Okurio original · English science story" }),
+  preparedDraftToProductionCandidate(SELFISH_GIANT_DRAFT, { kategori: "English Reading Club", renk: ["#2E5A3A", "#9ED0A4"], dil: "en", yazar: "Oscar Wilde · Okurio graded adaptation" }),
+  preparedDraftToProductionCandidate(PEMBE_INCILI_KAFTAN_DRAFT, { kategori: "Kısa Hikâye", renk: ["#6B2E4A", "#E6A0C0"], yazar: "Ömer Seyfettin · Okurio sadeleştirilmiş uyarlama" }),
+  preparedDraftToProductionCandidate(HAPPY_PRINCE_DRAFT, { kategori: "English Classics Bridge", renk: ["#5A4A1E", "#E8C960"], dil: "en", yazar: "Oscar Wilde · Okurio graded adaptation" }),
+  preparedDraftToProductionCandidate(PROMETHEUSUN_SECIMI_DRAFT, { kategori: "Mitoloji ve Kahramanlar", renk: ["#5A2A1E", "#E58B5E"] }),
+  preparedDraftToProductionCandidate(MAI_VE_SIYAH_DRAFT, { kategori: "Klasik Roman", renk: ["#1F2F4A", "#6F8FC0"], yazar: "Halit Ziya Uşaklıgil · Okurio sadeleştirilmiş uyarlama" }),
+];
+
+// Katalogda karşılığı olmayan, tamamen yeni özgün okumalar (id çakışması yok).
+export const NEW_PRODUCTION_STORIES = [
+  preparedDraftToProductionCandidate(KIYIDAKI_SESSIZ_ISTASYON_DRAFT, { kategori: "Özgün Uzun Okuma", renk: ["#22404A", "#7FB8C4"] }),
 ];
 
 
@@ -355,5 +394,5 @@ export const PRODUCTION_STORY_UPGRADES = [
 ];
 
 export const PRODUCTION_STORY_UPGRADES_BY_ID = Object.fromEntries(
-  PRODUCTION_STORY_UPGRADES.map((story) => [story.id, story]),
+  [...PRODUCTION_STORY_UPGRADES, ...NEW_PRODUCTION_STORIES].map((story) => [story.id, story]),
 );

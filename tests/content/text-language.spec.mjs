@@ -28,3 +28,18 @@ test("uses the dominant language in realistic academic text", () => {
     "en",
   );
 });
+
+test("v2.9.3: capital I/It/In/Is no longer flips English text to Turkish", () => {
+  const samples = [
+    "It was a cold morning. I looked out of the window. In the garden, a small bird sang. It is spring now, I said.",
+    "Once upon a time there lived a giant. In his garden, children played. I will build a wall, he said. It was high.",
+    "Hello my name is Atlas. I like football. I play every day after school. My friends are nice.",
+    "Isabella opened the door. Inside, it was dark. Ice covered the windows and the floor. I am cold, she whispered.",
+  ];
+  for (const sample of samples) assert.equal(detectTextLanguage(sample), "en", sample);
+});
+
+test("v2.9.3: Turkish text with capital I and dotless ı stays Turkish", () => {
+  assert.equal(detectTextLanguage("Ilık bir sabahtı. Ishak ile Irmak ırmak kıyısında yürüdü. Işık suyun üstünde parlıyordu."), "tr");
+  assert.equal(detectTextLanguage("Okul bitti. Sonra eve gittim. Annem ve babam beni bekliyordu, çok mutluydum."), "tr");
+});

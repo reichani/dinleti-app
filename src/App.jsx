@@ -17,7 +17,7 @@ import { cursorFromPosition, positionFromCursor, normalizeReadingProgress, readi
 /* ------------------------------------------------------------------ */
 /* Katalog: telifsiz Türk klasikleri, örnek bölüm metinleriyle          */
 /* ------------------------------------------------------------------ */
-const SURUM = "2.9.2";
+const SURUM = "2.9.3";
 // v2.9.2: deneysel (P2) biyonik vurgu düğmesi okul/pilot demolarında gösterilmez.
 const DENEYSEL_BIYONIK_GORUNUR = false;
 
@@ -1309,6 +1309,7 @@ const RAFLAR = [
   { ad: "Eski Zaman Masalları", mod: "cocuk", yolIds: ["okul_oncesi_3_4", "okumaya_hazirlik_5_6"], ids: ["oki-gunesin-hikayesi", "lili-ay-isigi"] },
   { ad: "Oki Mitolojiye Başlıyor", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12"], ids: ["oki-pegasus", "oki-labirentin-izi", "labirentte-uc-ses"] },
   { ad: "Mitoloji ve Kahramanlar", mod: "cocuk", yolIds: ["genc_okurlar_12_14"], ids: ["prometheusun-secimi", "oki-labirentin-izi", "oki-pegasus", "labirentte-uc-ses"] },
+  { ad: "Uzun Okumaya Geçiş", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16"], ids: ["kiyidaki-sessiz-istasyon", "mai-ve-siyah"] },
   { ad: "Mitolojiden Klasiklere", mod: "cocuk", yolIds: ["klasiklere_hazirlik_14_16", "lise_okuma_16_18"], ids: ["ikarus-bugun-ne-anlatir", "prometheusun-secimi", "ariadnenin-ipi-yetiskin"] },
   { ad: "Mitolojiyle Okumaya Dönüş", mod: "yetiskin", yolIds: ["yetiskin_odak_18"], ids: ["ariadnenin-ipi-yetiskin", "ikarus-bugun-ne-anlatir"] },
   { ad: "Rol Seçerek Oku", mod: "cocuk", yolIds: ["ilk_cumleler_7_8", "okuma_guveni_8_10", "akici_okuma_10_12", "genc_okurlar_12_14"], ids: ["oki-lili-sahnesi", "toto-acele-etme-piyesi", "mino-nerede-sahnesi", "labirentte-uc-ses"] },
@@ -1334,7 +1335,7 @@ const YOL_SEGMENT_GRUPLARI = {
 const YOL_ICERIK_TURLERI = {
   okul_oncesi_3_4: ["dinleme_hikayesi", "mini_hikaye", "masal", "fabl", "dunya_masali", "mitoloji_hikayesi", "tekerleme", "siir"],
   okumaya_hazirlik_5_6: ["dinleme_hikayesi", "harf_karti", "hece_karti", "english_word_card", "masal", "fabl", "mitoloji_hikayesi", "tekerleme", "siir", "english_poem"],
-  ilk_harfler_6_7: ["harf_karti", "hece_karti", "kelime_karti", "mini_hikaye", "english_word_card", "english_easy", "tekerleme", "siir"],
+  ilk_harfler_6_7: ["harf_karti", "hece_karti", "kelime_karti", "mini_hikaye", "masal", "fabl", "english_word_card", "english_easy", "tekerleme", "siir"],
   ilk_cumleler_7_8: ["mini_hikaye", "masal", "fabl", "english_word_card", "english_easy", "english_poem", "bilim_hikayesi", "mitoloji_hikayesi", "piyes", "siir", "bilmece", "tekerleme"],
   okuma_guveni_8_10: ["masal", "fabl", "dunya_masali", "english_easy", "english_poem", "mini_hikaye", "bilim_hikayesi", "doga_bilim", "mitoloji_hikayesi", "piyes", "siir", "bilmece"],
   akici_okuma_10_12: ["masal", "fabl", "dunya_masali", "english_easy", "english_reading", "english_science", "english_poem", "kisa_hikaye", "bilim_hikayesi", "doga_bilim", "mitoloji_hikayesi", "piyes", "siir", "bilmece"],
@@ -1385,7 +1386,7 @@ const ICERIK_METADATA = {
   // 2026-10-09: PR #125 onaylı 6–7 yaş uyarlaması (467 kelime, 5 bölüm) eski özetin yerine geçti.
   "aesop-fables-en": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 2 },
   "peter-rabbit-en": { yasMin: 7, yasMax: 12, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
-  "ugly-duckling-en": { yasMin: 8, yasMax: 13, segmentler: ["okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
+  "ugly-duckling-en": { yasMin: 7, yasMax: 13, segmentler: ["ilk_cumleler", "okuma_guveni", "akici_okuma", "genc_okurlar"], okumaEvreleri: ["kisa_cumle", "paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_easy", subject: "english", oql: 3 },
 
   "fox-and-grapes-en": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_easy", subject: "english", oql: 3, cefr: "A1", targetWords: ["fox", "grapes", "jump", "hard"] },
   "lion-and-mouse-graded-en": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "english_easy", subject: "english", oql: 3, cefr: "A1", targetWords: ["lion", "mouse", "net", "help"] },
@@ -1431,6 +1432,7 @@ const ICERIK_METADATA = {
   "moon-poem-en": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["kisa_cumle", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_poem", subject: "english", oql: 3, cefr: "A1", targetWords: ["moon", "light", "night", "look"] },
   "space-poem-en": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik"], icerikTuru: "english_poem", subject: "english", oql: 4, cefr: "A1-A2", targetWords: ["space", "question", "comet", "glow"] },
   "kurk-mantolu-madonna": { yasMin: 13, yasMax: 99, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
+  "kiyidaki-sessiz-istasyon": { yasMin: 14, yasMax: 16, segmentler: ["klasiklere_hazirlik", "lise_okuma"], okumaEvreleri: ["uzun_metin", "akademik_klasik"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye", subject: "ozgun_hikaye", oql: 6 },
   "mai-ve-siyah": { yasMin: 13, yasMax: 99, segmentler: ["klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
 };
 
@@ -1750,6 +1752,12 @@ async function kendiIceriklerYaz(liste) {
 function kendiIcerikleriKatalogaUygula(liste) {
   (liste || []).forEach((kayit) => {
     if (!kayit?.kitap?.id) return;
+    // v2.9.3: eski sürümde İngilizce metinler yanlışlıkla "tr" etiketiyle
+    // kaydedildi. Kayıtlı kişisel metnin dili her açılışta yeniden tespit edilir.
+    if (kayit.kitap.kullaniciIcerigi) {
+      const tumMetin = (kayit.kitap.bolumler || []).map((b) => b?.metin || "").join(" ");
+      if (tumMetin) kayit.kitap.dil = detectTextLanguage(tumMetin);
+    }
     if (!KATALOG.some((k) => k.id === kayit.kitap.id)) KATALOG.unshift(kayit.kitap);
     if (kayit.metadata) ICERIK_METADATA[kayit.kitap.id] = kayit.metadata;
   });
@@ -2815,7 +2823,7 @@ export default function DinletiApp() {
     setCaliyor(false);
     try { window.speechSynthesis.cancel(); } catch {}
     const u = new window.SpeechSynthesisUtterance(kelime);
-    u.lang = "tr-TR";
+    u.lang = aktif?.dil === "en" ? "en-GB" : "tr-TR";
     u.rate = 0.86;
     u.pitch = 1;
     const oncekiDurumaDon = () => {
