@@ -18,8 +18,8 @@ export const OKI_GUNESIN_HIKAYESI_DRAFT = {
   contentStatus: "draft",
   releaseReady: false,
   estimatedWordsPerMinute: 155,
-  wordCount: 203,
-  estimatedSeconds: 79,
+  wordCount: 285,
+  estimatedSeconds: 111,
   sections: [
     {
       title: "Penceredeki Işık",
