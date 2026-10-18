@@ -16,16 +16,11 @@ export const UGLY_DUCKLING_DRAFT = {
   declaredSeconds: 157,
   sections: [
     {
-      title: 'The Last Egg',
+      title: 'The Last Egg and Beyond the Yard',
       paragraphs: [
         'A mother duck waited beside her nest. One large egg opened after all the others. A tall grey duckling stepped into the sun.',
         'The family crossed the yard together. The grey duckling could swim very well. Still, some birds stared at his different shape.',
         'They called him ugly and pushed him away. Their words hurt, but they were only labels. They did not tell his whole story.',
-      ],
-    },
-    {
-      title: 'Beyond the Yard',
-      paragraphs: [
         'The duckling left the noisy yard alone. He rested near wild ducks in a marsh. Sudden loud sounds made every bird scatter.',
         'He kept away from hunters and dogs. At dusk, he found a small cottage. An old woman lived there with a cat and a hen.',
         'The cat could purr, and the hen laid eggs. They asked what the duckling could do. He answered that he loved open water.',

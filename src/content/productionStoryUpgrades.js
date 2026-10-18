@@ -302,7 +302,7 @@ export const PRODUCTION_STORY_UPGRADES = [
           Oki, daha yumuşak denemesini söyledi. Mino yere çömeldi ve sakin bir miyav çıkardı.
           Yavru başını kaldırdı. Mino bir kez daha aynı sesi verdi.
           Bu kez yavru çalıdan çıktı ve yanına yaklaştı. Biraz sonra annesi bahçe kapısında göründü.
-          Yavru annesine koştu. Mino, doğru sesin yalnız duyulmak için değil, güven vermek için de kullanılabildiğini gördü.
+          Yavru annesine koştu. Mino bir şey gördü. Doğru ses yalnız duyulmak için değil, güven vermek için de kullanılabiliyordu.
         `),
       },
       {
@@ -367,7 +367,7 @@ export const PRODUCTION_STORY_UPGRADES = [
         metin: normalize(`
           Bulut çekilince iki yıldız yeniden göründü. Lili önce kaldığı sayıyı hatırlayamadı.
           Dört mü demişti, üç mü? Kaşlarını çattı. Oki saymayı baştan önermedi.
-          Önce bildiklerini hatırladılar: bir parlak yıldız, bir küçük yıldız ve bir soluk yıldız.
+          Önce bildiklerini hatırladılar. Bir parlak yıldız, bir küçük yıldız ve bir soluk yıldız.
           Lili üçe kadar geldiğini anladı. Sonra yeni görünen yıldızı gösterdi ve dört dedi.
           Bir yıldız daha belirdi. Beş. Mino beş kez kuyruğunu yere vurdu.
           Lili, karışınca durup düşünmenin ve yeniden düzenlemenin mümkün olduğunu gördü.
@@ -378,7 +378,7 @@ export const PRODUCTION_STORY_UPGRADES = [
         dk: 1,
         metin: normalize(`
           Lili yatmadan önce gece defterini açtı. Beş küçük yıldız çizdi.
-          İlk üç yıldızı yan yana, buluttan sonra gördüğü iki yıldızı biraz uzağa koydu.
+          İlk üç yıldızı yan yana koydu. Buluttan sonra gördüğü iki yıldızı biraz uzağa çizdi.
           Aralarına yumuşak bir bulut resmi ekledi. Oki, resmin bütün geceyi anlattığını söyledi.
           Lili yalnızca sayıları değil, beklediği zamanı da hatırladı.
           Nana, bazen bir işin ortasında durmanın onu bitiremediğimiz anlamına gelmediğini söyledi.

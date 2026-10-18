@@ -27,6 +27,7 @@ export const OKI_GUNESIN_HIKAYESI_DRAFT = {
         "Oki sabah erkenden gözlerini açınca odası yumuşak bir ışıkla aydınlıktı. Perdenin arasından ince bir ışık geçiyordu. Işık, duvarda parlak sarı bir yol çizmişti.",
         "Oki elini ışığın önüne dikkatle tuttu. Duvarda küçük bir el gölgesi belirdi. Elini yavaşça oynatınca gölge de oynadı.",
         "Mino yatağa çıkıp gölgeyi merakla izledi. Oki, güneşin yeni ve sessiz bir oyun getirdiğini düşündü.",
+        "Oki pencereye yaklaşıp perdeyi biraz araladı. Işık yolu genişledi ve halıya kadar uzandı. Oki, güneşin bahçede neler yapacağını merak etti.",
       ],
     },
     {
@@ -35,6 +36,7 @@ export const OKI_GUNESIN_HIKAYESI_DRAFT = {
         "Kahvaltıdan sonra Oki sıcak bahçeye çıktı. Güneş gökyüzünde henüz alçaktı. Oki'nin gölgesi yerde çok uzun görünüyordu.",
         "Lili kendi gölgesinin yanına bir taş koydu. Oki de gölgesinin ucuna yaprak bıraktı. Sonra birlikte biraz beklediler.",
         "Mino yaprağın yanında oturdu. Gölge ona kadar uzanıyordu. Oki, işareti daha sonra yeniden görmek istedi.",
+        "Lili yaprağın yerini parmağıyla gösterdi. Oki işaretleri sayarak bir, iki dedi. Sonra öğleye kadar bahçede başka oyunlar oynadılar.",
       ],
     },
     {
@@ -43,6 +45,7 @@ export const OKI_GUNESIN_HIKAYESI_DRAFT = {
         "Öğleye doğru arkadaşlar aynı yere döndü. Güneş artık gökyüzünde daha yüksekti. Oki'nin gölgesi sabahkinden daha kısa oldu.",
         "Yaprak yerindeydi, fakat gölgenin ucu değişmişti. Oki önce yaprağın yürüdüğünü sandı. Lili gülümseyip gökyüzünü gösterdi.",
         "Güneşin yeri değişince gölgenin de değiştiğini fark ettiler. Taşı ve yaprağı küçük işaretler olarak kullandılar.",
+        "Oki yeni gölge ucuna ikinci bir yaprak koydu. Böylece sabahki ve öğlenki işaretleri yan yana gördü. Mino serin bir gölge arayıp ağacın altına geçti.",
       ],
     },
     {
@@ -50,6 +53,7 @@ export const OKI_GUNESIN_HIKAYESI_DRAFT = {
       paragraphs: [
         "Akşam yaklaşınca bahçe altın bir renge büründü. Gölgeler yeniden uzamaya başladı. Mino'nun gölgesi ince ve uzun bir kuyruk gibi görünüyordu.",
         "Oki sabahki duvarı ve öğlenki yaprağı hatırladı. Işık aynı gün içinde farklı yollar çizmişti.",
+        "Oki akşam gölgesini sabahki gölgeye benzetti. İkisi de uzundu, çünkü güneş gökyüzünde alçaktaydı. Öğlen ise güneş yüksekteydi ve gölge kısalmıştı.",
         "Lili işaretleri küçük defterine çizdi. Oki ertesi gün yeniden bakmak istedi. Güneş batarken üç arkadaş sessizce gökyüzünü izledi.",
       ],
     },
