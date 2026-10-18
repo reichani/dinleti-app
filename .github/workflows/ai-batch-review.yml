@@ -1,0 +1,70 @@
+name: Okurio AI Batch Denetimi
+
+# Yalnız elle tetiklenir. ANTHROPIC_API_KEY depo gizli değişkeni Reyhan tarafından eklenir.
+# Sonuç ontology/ai-reviews altına yazılır ve ai-review/* dalında PR olarak açılır; main'e yazılmaz.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "review (bağımsız AI denetimi) veya kazanim (MEB eşleme önerisi)"
+        required: true
+        default: review
+        type: choice
+        options: [review, kazanim]
+      limit:
+        description: "En fazla içerik sayısı"
+        required: true
+        default: "5"
+      max_usd:
+        description: "Tahmini üst sınır bütçesi (USD); aşılırsa iş durur"
+        required: true
+        default: "2"
+      model:
+        description: "Model"
+        required: true
+        default: claude-opus-5-5
+        type: choice
+        options: [claude-opus-5-5, claude-sonnet-5-5, claude-haiku-5-5]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: okurio-ai-batch
+  cancel-in-progress: false
+
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Ölçüm anlık görüntüsü
+        run: node scripts/build-ontology-snapshot.mjs --date "$(date -u +%F)"
+      - name: Bütçe kontrolü (kuru çalışma)
+        run: node scripts/ai-batch-review.mjs --mode "${{ inputs.mode }}" --limit "${{ inputs.limit }}" --max-usd "${{ inputs.max_usd }}" --model "${{ inputs.model }}" --dry-run
+      - name: Batch çalıştır
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/ai-batch-review.mjs --mode "${{ inputs.mode }}" --limit "${{ inputs.limit }}" --max-usd "${{ inputs.max_usd }}" --model "${{ inputs.model }}"
+      - name: PR aç
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch="ai-review/${{ inputs.mode }}-$(date -u +%Y%m%d-%H%M)"
+          git config user.name "okurio-ai-batch"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add ontology/ai-reviews ontology/snapshots
+          git commit -m "AI batch ${{ inputs.mode }}: ${{ inputs.limit }} içerik (kanıt, onay değil)"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "AI batch ${{ inputs.mode }} sonuçları" \
+            --body "Model: ${{ inputs.model }}. Bu sonuçlar kanıttır, onay değildir. reviewerName, ownerName ve releaseReady alanlarına dokunulmadı. Reyhan onayı bekleniyor." \
+            || echo "PR açılamadı (Actions'ın PR açma izni kapalı olabilir); dal itildi: $branch"

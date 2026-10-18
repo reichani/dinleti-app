@@ -39,3 +39,16 @@ test("ajan rolleri insan onayı alanlarını doldurmayacaklarını belirtir", ()
   }
   assert.match(yayin, /main'e yazmazsın/);
 });
+
+test("AI batch betiği bütçeyi aşınca durur ve onay alanlarına yazmaz", () => {
+  const src = readFileSync(new URL("../../scripts/ai-batch-review.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(src, /reviewerName\s*[:=]/);
+  assert.doesNotMatch(src, /ownerName\s*[:=]/);
+  assert.doesNotMatch(src, /releaseReady\s*[:=]/);
+  assert.match(src, /reviewerKind: "ai"/);
+  let code = 0;
+  try {
+    execFileSync("node", ["scripts/ai-batch-review.mjs", "--mode", "review", "--limit", "80", "--max-usd", "0.01", "--dry-run"], { stdio: "pipe" });
+  } catch (e) { code = e.status; }
+  assert.equal(code, 2);
+});
