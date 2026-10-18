@@ -23,7 +23,7 @@ export const PETER_RABBIT_FULL = {
   bolumler: [
     {
       ad: "The Warning",
-      dk: 2,
+      dk: 1.16,
       metin: normalize(`
         Once upon a time there were four little Rabbits, and their names were Flopsy, Mopsy, Cotton-tail, and Peter.
 
@@ -46,7 +46,7 @@ export const PETER_RABBIT_FULL = {
     },
     {
       ad: "The Chase",
-      dk: 3,
+      dk: 1.24,
       metin: normalize(`
         But round the end of a cucumber frame, whom should he meet but Mr. McGregor!
 
@@ -61,7 +61,12 @@ export const PETER_RABBIT_FULL = {
         Peter gave himself up for lost, and shed big tears; but his sobs were overheard by some friendly sparrows, who flew to him in great excitement, and implored him to exert himself.
 
         Mr. McGregor came up with a sieve, which he intended to pop upon the top of Peter; but Peter wriggled out just in time, leaving his jacket behind him.
-
+      `),
+    },
+    {
+      ad: "The Tool-Shed",
+      dk: 1.06,
+      metin: normalize(`
         And rushed into the tool-shed, and jumped into a can. It would have been a beautiful thing to hide in, if it had not had so much water in it.
 
         Mr. McGregor was quite sure that Peter was somewhere in the tool-shed, perhaps hidden underneath a flower-pot. He began to turn them over carefully, looking under each.
@@ -76,21 +81,31 @@ export const PETER_RABBIT_FULL = {
       `),
     },
     {
-      ad: "Safe at Home",
-      dk: 3,
+      ad: "Lost in the Garden",
+      dk: 1.05,
       metin: normalize(`
         He found a door in a wall; but it was locked, and there was no room for a fat little rabbit to squeeze underneath.
 
         An old mouse was running in and out over the stone doorstep, carrying peas and beans to her family in the wood. Peter asked her the way to the gate, but she had such a large pea in her mouth that she could not answer. She only shook her head at him. Peter began to cry.
 
         Then he tried to find his way straight across the garden, but he became more and more puzzled. Presently, he came to a pond where Mr. McGregor filled his water-cans. A white cat was staring at some gold-fish, she sat very, very still, but now and then the tip of her tail twitched as if it were alive. Peter thought it best to go away without speaking to her; he had heard about cats from his cousin, little Benjamin Bunny.
-
+      `),
+    },
+    {
+      ad: "The Gate at Last",
+      dk: 0.81,
+      metin: normalize(`
         He went back towards the tool-shed, but suddenly, quite close to him, he heard the noise of a hoe--scr-r-ritch, scratch, scratch, scritch. Peter scuttered underneath the bushes. But presently, as nothing happened, he came out, and climbed upon a wheelbarrow and peeped over. The first thing he saw was Mr. McGregor hoeing onions. His back was turned towards Peter, and beyond him was the gate!
 
         Peter got down very quietly off the wheelbarrow; and started running as fast as he could go, along a straight walk behind some black-currant bushes.
 
         Mr. McGregor caught sight of him at the corner, but Peter did not care. He slipped underneath the gate, and was safe at last in the wood outside the garden.
-
+      `),
+    },
+    {
+      ad: "Safe at Home",
+      dk: 0.95,
+      metin: normalize(`
         Mr. McGregor hung up the little jacket and the shoes for a scare-crow to frighten the blackbirds.
 
         Peter never stopped running or looked behind him till he got home to the big fir-tree.

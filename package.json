@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run validate:production-catalog && npm run validate:ai-quality && npm run validate:release-governance && vite build && node scripts/write-release-manifest.mjs",
+    "build": "npm run validate:production-catalog && npm run validate:reading-path-coverage && npm run validate:ai-quality && npm run validate:release-governance && vite build && node scripts/write-release-manifest.mjs",
     "preview": "vite preview",
     "validate:content": "node scripts/validate-pilot-content.mjs",
     "validate:production-catalog": "node scripts/validate-production-catalog.mjs",
@@ -20,7 +20,11 @@
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "test:report": "playwright show-report",
-    "audit:full-catalog": "node scripts/audit-full-catalog.mjs"
+    "audit:full-catalog": "node scripts/audit-full-catalog.mjs",
+    "audit:length": "node scripts/optimize-content-length.mjs",
+    "audit:length:report": "node scripts/optimize-content-length.mjs --report",
+    "validate:reading-path-coverage": "node scripts/optimize-content-length.mjs --check",
+    "check:draft-length": "node scripts/check-draft-length.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.23.0",
