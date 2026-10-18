@@ -12,6 +12,7 @@ import { classifyContent, estimateStorySeconds } from "./content/contentIntegrit
 import { evaluateStoryForReadingLevel } from "./content/readingLevelPolicy.js";
 import { evaluateContentQualityReview } from "./content/contentQualityReview.js";
 import { getGradeLabelForYolId, minimumFullReadingSecondsForAge } from "./content/schoolGradeMapping.js";
+import { ownTextChunkWords } from "./content/lengthOptimizationPolicy.js";
 import { cursorFromPosition, positionFromCursor, normalizeReadingProgress, readingProgressSnapshot, monotonicBoundaryWord, createSpeechWordTimeline, timelineWordFromElapsed } from "./reader-core.js";
 
 /* ------------------------------------------------------------------ */
@@ -1356,8 +1357,8 @@ const ICERIK_METADATA = {
   "oki-ses-i": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["i"], heceler: ["il", "in", "it"] },
   "oki-ses-l": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "okumaya_hazirlik"], okumaEvreleri: ["ses_harf", "hece_kelime", "dinleme"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "harf_karti", harfGrubu: 1, harfler: ["l"], heceler: ["al", "el", "il"] },
   "oki-heceler-2": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler"], okumaEvreleri: ["hece_kelime", "ses_harf", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "hece_karti", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"], heceler: ["al", "el", "il", "in", "it"] },
-  "ali-ile-ela": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
-  "lili-ile-at": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
+  "ali-ile-ela": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
+  "lili-ile-at": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["ses_harf", "hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
   "oki-el-ele": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
   "mino-nerede": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
   "nana-anlatiyor": { yasMin: 6, yasMax: 7, segmentler: ["ilk_harfler_heceler", "ilk_cumleler"], okumaEvreleri: ["hece_kelime", "kisa_cumle"], destekler: ["hece_takibi", "kelime_takibi", "odak", "buyuk_yazi", "genis_aralik", "yumusak_zemin"], icerikTuru: "mini_hikaye", harfGrubu: 1, harfler: ["a", "n", "e", "t", "i", "l"] },
@@ -1960,9 +1961,11 @@ export default function DinletiApp() {
     const parcalar = temizMetin.match(/[^.!?…]+[.!?…]?/g) || [temizMetin];
     const bolumler = [];
     let buf = [];
+    // v2.9.3: pasaj uzunluğu okuma yolunun ideal pasajına bağlıdır (eskiden her yaşta 90 kelime).
+    const pasajKelime = ownTextChunkWords(okumaYolu.yolId);
     parcalar.forEach((c) => {
       buf.push(c.trim());
-      if (buf.join(" ").split(/\s+/).length >= 90) {
+      if (buf.join(" ").split(/\s+/).length >= pasajKelime) {
         bolumler.push({ ad: `Bölüm ${bolumler.length + 1}`, dk: Math.max(1, Math.round(buf.join(" ").split(/\s+/).length / 130)), metin: buf.join(" ") });
         buf = [];
       }
@@ -2613,6 +2616,30 @@ export default function DinletiApp() {
     }))
     .filter((raf) => raf.ids.length > 0), [kitapUyum, okumaYolu.yolId]);
 
+  // v2.9.3: seçilen yol × evrede raf kalmazsa çıkmaz ekran yerine en yakın
+  // okuma yolunun rafları "yakın yoldan öneri" olarak gösterilir.
+  const yakinYolOnerisi = useMemo(() => {
+    if (uyumluRaflar.length > 0) return null;
+    const ix = OKUMA_YOLLARI.findIndex((y) => y.id === okumaYolu.yolId);
+    const adaylar = [];
+    for (let d = 1; d < OKUMA_YOLLARI.length; d += 1) {
+      if (OKUMA_YOLLARI[ix - d]) adaylar.push(OKUMA_YOLLARI[ix - d]);
+      if (OKUMA_YOLLARI[ix + d]) adaylar.push(OKUMA_YOLLARI[ix + d]);
+    }
+    for (const yol of adaylar) {
+      if (yol.mod !== yolBul(okumaYolu.yolId).mod) continue;
+      for (const evre of evreSecenekleri(yol.id)) {
+        const profil = { ...okumaYolu, yolId: yol.id, evreId: evre.id };
+        const raflar = RAFLAR
+          .filter((raf) => !raf.yolIds || raf.yolIds.includes(yol.id))
+          .map((raf) => ({ ...raf, ids: raf.ids.filter((id) => { const k = kitapBul(id); return kitapOkumaYolunaUygunMu(k, profil) && icerikSunumu(k).deployable; }) }))
+          .filter((raf) => raf.ids.length > 0);
+        if (raflar.length > 0) return { yol, raflar };
+      }
+    }
+    return null;
+  }, [uyumluRaflar, okumaYolu]);
+
   const icerikAuditOzeti = useMemo(() => {
     const rafSayilari = uyumluRaflar.map((raf) => `${raf.ad}: ${raf.ids.length}`);
     const bosRaflar = uyumluRaflar.filter((raf) => raf.ids.length === 0).map((raf) => raf.ad);
@@ -2998,8 +3025,10 @@ export default function DinletiApp() {
         </div>
       )}
       <DevamKart />
-      {uyumluRaflar.length === 0 && <div data-bos-okuma-yolu style={{ color: S.soluk, fontSize: 14, marginTop: 18 }}>Bu okuma yolunda yaş ve uzunluk hedefini karşılayan hazır tam metin bulunmuyor. Okuma yolunu değiştirerek mevcut seçkilere bakabilirsin.</div>}
-      {uyumluRaflar.map((raf) => {
+      {uyumluRaflar.length === 0 && <div data-bos-okuma-yolu style={{ color: S.soluk, fontSize: 14, marginTop: 18 }}>{yakinYolOnerisi
+        ? `Bu okuma evresi için içerikler hazırlanıyor. Şimdilik ${yakinYolOnerisi.yol.baslik} (${yakinYolOnerisi.yol.yas}) yolundan sana yakın okumaları gösteriyorum.`
+        : "Bu okuma yolunda yaş ve uzunluk hedefini karşılayan hazır tam metin bulunmuyor. Okuma yolunu değiştirerek mevcut seçkilere bakabilirsin."}</div>}
+      {(uyumluRaflar.length > 0 ? uyumluRaflar : (yakinYolOnerisi?.raflar || [])).map((raf) => {
         const hazirIds = raf.ids.filter((id) => icerikSunumu(kitapBul(id)).deployable);
         const rafOzeti = `${hazirIds.length} hazır`;
         return (
