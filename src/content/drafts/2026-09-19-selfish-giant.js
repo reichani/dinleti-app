@@ -16,17 +16,12 @@ export const SELFISH_GIANT_DRAFT = {
   declaredSeconds: 280,
   sections: [
     {
-      title: 'After-School Garden',
+      title: 'The Garden, the Wall and the Sign',
       paragraphs: [
         'Every afternoon, children crossed a beautiful garden after school. Soft grass covered the ground, and peach trees shaded them. Birds sang above twelve bright blossoms.',
         'The garden belonged to a Giant who lived far away. Nobody had seen him for seven years. The children treated his quiet garden carefully.',
         'They raced along the paths without breaking any branches. They shared fallen fruit and listened to birds. The open place felt welcoming to everyone.',
         'Older children showed younger ones where roots crossed the path. Nobody owned their games or favorite corners. Space remained for quiet reading too.',
-      ],
-    },
-    {
-      title: 'A Wall and a Sign',
-      paragraphs: [
         'One afternoon, the Giant returned from a long visit. He saw the children beneath his trees. Their voices surprised him after years of silence.',
         'He wanted privacy and complete control of his land. He sent the children away at once. Then he built a high wall.',
         'A warning sign said nobody could enter without permission. The children understood that gardens need care and boundaries. Yet this boundary offered no welcome or conversation.',

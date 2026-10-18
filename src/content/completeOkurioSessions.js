@@ -97,7 +97,7 @@ export const FIRST_GROUP_GUIDED_SESSION = {
     },
     {
       ad: "Kısa Cümle Yolu",
-      dk: 1,
+      dk: 0.52,
       metin: normalize(`
         Köprünün ardından kısa cümle yolu başladı.
         İlk tabelada Ela ata el salla yazıyordu.
@@ -113,6 +113,12 @@ export const FIRST_GROUP_GUIDED_SESSION = {
         Oki cümledeki al sözcüğünü gösterdi.
         Aynı sözcük köprüde de karşılarına çıkmıştı.
         Tanıdık sözcük şimdi daha kolay görünüyordu.
+      `),
+    },
+    {
+      ad: "Nane Tabelası",
+      dk: 0.34,
+      metin: normalize(`
         Üçüncü tabelada Nine nane al yazıyordu.
         Lili nane yaprağını koklamayı düşündü.
         Yaprağın kokusu serin bir bahçeyi hatırlattı.
@@ -203,7 +209,7 @@ export const LILI_SEED_MAP_STORY = {
     },
     {
       ad: "Çeşmedeki İz",
-      dk: 1,
+      dk: 0.52,
       metin: normalize(`
         Çeşmenin suyu taşlara ince ince akıyordu.
         Lili suyun sesini bir süre dinledi.
@@ -219,6 +225,12 @@ export const LILI_SEED_MAP_STORY = {
         Mino sabah yerde tohumlar gördüğünü söyledi.
         Tohumlar küçük bir çizgi oluşturmuştu.
         Çizgi eski köprüye doğru uzanıyordu.
+      `),
+    },
+    {
+      ad: "Köprüye Giden İzler",
+      dk: 0.33,
+      metin: normalize(`
         Mino katıldı ve üç arkadaş köprüye doğru yürüdü.
         Yürürken yerdeki izleri dikkatle aradılar.
         Bir taşın yanında iki tohum buldular.

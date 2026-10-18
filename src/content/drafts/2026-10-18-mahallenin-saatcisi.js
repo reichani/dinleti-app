@@ -1,0 +1,190 @@
+import { createPendingContentQualityReview } from "../contentQualityReview.js";
+
+const sourceTruth = Object.freeze({
+  work: "Mahallenin Saatçisi",
+  scope: "Okurio için kuşaklar arası bağ üzerine yetişkin okura özgün kısa hikâye",
+  sourceType: "original",
+  rightsHolder: "Okurio",
+  adaptationStatus: "not-applicable",
+  verificationStatus: "pending-human-review",
+  references: [],
+});
+
+export const MAHALLENIN_SAATCISI_DRAFT = {
+  id: "mahallenin-saatcisi-draft",
+  title: "Mahallenin Saatçisi",
+  language: "tr",
+  ageBand: "18+",
+  readingPathId: "yetiskin_odak_18",
+  contentTrack: "okurio-original-pilot",
+  primaryTheme: "Sabır ve özen, kuşaklar arasında el emeğiyle aktarılır",
+  contentStatus: "draft",
+  structuralValid: true,
+  releaseReady: false,
+  estimatedWordsPerMinute: 155,
+  sections: [
+    {
+      title: "Kapalı Kepenk",
+      paragraphs: [
+        "Kemal Bey her sabah aynı saatte evinden çıkardı. Otuz yıl bir ortaokulda fen bilgisi öğretmişti. Emekli olduktan sonra da sabah yürüyüşünü hiç bırakmamıştı.",
+        "Yürüyüşü hep aynı yoldan geçerdi. Fırının önünde durur, simitçiye selam verir, sonra köşedeki saatçi dükkânına bakardı. Dükkânın vitrininde yıllardır aynı duvar saati tık tık çalışırdı.",
+        "Saatçi Hayri Usta, Kemal Bey'in çocukluk arkadaşıydı. Birlikte aynı sokakta büyümüş, aynı okulda okumuşlardı. Usta geçen kış hastalanmış ve dükkânı kapatmak zorunda kalmıştı.",
+        "Kemal Bey dostunu hastanede iki kez ziyaret etmişti. Usta artık dinleniyordu ve iyileşmesi zaman alacaktı. Dükkânın ne olacağını ise kimse bilmiyordu.",
+        "Kepenk aylardır inikti. Üstüne bir kâğıt yapıştırılmış, kâğıt da yağmurda solmuştu. Vitrindeki saat ise çoktan durmuştu.",
+        "Kemal Bey her geçişte o durmuş saate bakardı. Akrep ve yelkovan dokuzu on geçeyi gösteriyordu. Sanki mahallenin bir parçası o anda donup kalmıştı.",
+        "Bir eylül sabahı kepengin yarıya kadar açık olduğunu gördü. İçeriden tozlu bir ışık sızıyordu. Kemal Bey bastonuna yaslanıp eğildi ve içeri baktı.",
+        "Dükkânın ortasında yirmili yaşlarda bir genç duruyordu. Elinde bir koli bandı, önünde yığılmış kutular vardı. Genç, onu görünce biraz telaşla doğruldu.",
+        "Adının Arda olduğunu söyledi. Hayri Usta'nın yeğeniydi ve dükkânı devralmıştı. Aslında bir yazılım şirketinde çalışıyordu, ama işten yeni ayrılmıştı.",
+        "Kemal Bey dükkânın raflarına baktı. Her yerde sökülmüş saatler, minik vidalar ve etiketli zarflar vardı. Bunların hepsi Hayri Usta'nın el yazısıyla işaretlenmişti.",
+        "Kemal Bey bir zarfı eline aldı ve üzerindeki yazıyı okudu. Usta, her saatin kime ait olduğunu titizlikle not etmişti. Bu düzen ona dostunun sakin ellerini hatırlattı.",
+        "Arda dükkânı açmak istediğini, ama nereden başlayacağını bilmediğini söyledi. Kemal Bey uzun süre sessiz kaldı. Sonra bastonunu kapının yanına dayadı ve ceketini çıkardı.",
+      ],
+    },
+    {
+      title: "Tozlu Çekmeceler",
+      paragraphs: [
+        "İlk gün yalnızca temizlik yaptılar. Kemal Bey raflardaki kutuları tek tek indirdi, Arda ise tozları aldı. Pencereler silindikçe dükkâna yeniden gün ışığı doldu.",
+        "Arda hızlı çalışmak istiyordu. Kutuları açıp içindekileri büyük bir torbaya boşaltmaya başladı. Kemal Bey elini nazikçe torbanın üstüne koydu ve onu durdurdu.",
+        "Her zarfın içinde başka bir hikâye olduğunu söyledi. Bazı saatler sahiplerine geri verilmeyi bekliyordu. Bazı parçalar ise yıllardır bulunamayan bir yedekti.",
+        "Birlikte masaya oturdular ve zarfları okumaya başladılar. Hayri Usta her birine bir isim, bir tarih ve kısa bir not yazmıştı. Notlar sade, ama çok dikkatliydi.",
+        "Bir zarfta küçük bir cep saati vardı. Üzerinde Bakkal Sabri'nin babasından kalma yazıyordu. Kemal Bey o bakkalı hatırladı ve gözleri uzaklara daldı.",
+        "Arda zarfın üstündeki notu yüksek sesle okudu. Kurma kolu sıkışmış, sahibi acele etmiyor, yazıyordu. Kemal Bey o son cümleye gülümsedi.",
+        "Arda bu kadar zarfın arasında boğulduğunu söyledi. Telefonu sürekli titriyor, eski iş arkadaşlarından mesajlar geliyordu. Bir yandan cevap yazıyor, bir yandan notları okumaya çalışıyordu.",
+        "Kemal Bey ona bir öneride bulundu. Telefonu bir saatliğine çekmeceye koymasını istedi. Arda önce gülümsedi, sonra isteksizce kabul etti.",
+        "Telefon çekmeceye girince dükkânda farklı bir sessizlik oldu. Duvardaki saatlerin hiçbiri çalışmıyordu. Yalnızca dışarıdan gelen kuş sesleri ve uzak bir motor sesi duyuluyordu.",
+        "Arda bir ara elini çekmeceye uzattı, sonra vazgeçti. Bir zarfın içinden çıkan minik bir vidayı büyüteçle inceledi. Vidanın başındaki çizgi, saç telinden bile inceydi.",
+        "O bir saatte yirmi zarfı sıraya dizdiler. Arda ilk kez kendini bir işin içinde kaybolmuş gibi hissetti. Bu kayboluş, onu yormamıştı.",
+        "Akşam olurken Kemal Bey en alttaki çekmeceyi açtı. İçinde kadife bir kutu ve katlanmış bir mektup vardı. Mektubun üzerinde Arda'nın adı yazıyordu.",
+      ],
+    },
+    {
+      title: "Hayri Usta'nın Mektubu",
+      paragraphs: [
+        "Arda mektubu açarken elleri hafifçe titredi. Kâğıt ince ve sarımsıydı, yazılar küçük ve eğikti. Kemal Bey bir adım geri çekilip ona alan bıraktı.",
+        "Hayri Usta mektupta yeğenine teşekkür ediyordu. Dükkânı ona bırakmanın kolay olmadığını yazmıştı. Ama Arda'nın çocukken saatlerin içine nasıl hayranlıkla baktığını hiç unutmamıştı.",
+        "Mektubun sonunda kısa bir rica vardı. Usta, kadife kutudaki saati Arda'nın tamir etmesini istiyordu. Bu saat, dükkânın açıldığı gün aldığı ilk saatti.",
+        "Arda kutuyu açtı ve içindeki gümüş kol saatine baktı. Kadranı çizik, camı çatlaktı. Kurmalı bir saatti ve uzun süredir durmuştu.",
+        "Kemal Bey saati ışığa doğru tuttu. Kasanın kenarında incecik bir yazı vardı. Üzerinde dükkânın açılış yılı kazınmıştı.",
+        "Arda saatlerden hiç anlamadığını itiraf etti. Telefonla, bilgisayarla ilgili her şeyi çözebiliyordu. Ama bu küçük metal kutunun içi ona tamamen yabancıydı.",
+        "Kemal Bey de saatçi değildi. Fakat otuz yıl boyunca gençlere sabırla bakmayı öğretmişti. Hayri Usta'nın çalışmasını da yıllarca bu tezgâhın önünden izlemişti.",
+        "Ona ilk dersin acele etmemek olduğunu söyledi. Saati bugün açmayacaklardı. Önce iyice bakacak, her parçasını tanımaya çalışacaklardı.",
+        "Kemal Bey, fen derslerinde de böyle yaptığını anlattı. Öğrencilerine bir yaprağı kesmeden önce on dakika incelettirirdi. En iyi soruların hep o on dakikada doğduğunu söyledi.",
+        "Arda bu fikre biraz şaşırdı. Bir şeyi tamir etmek için önce onu açmak gerektiğini düşünüyordu. Kemal Bey ise açmadan önce dinlemek gerektiğini söyledi.",
+        "Saati masanın üstüne, beyaz bir bezin üzerine koydular. Arda büyüteçle kadranı incelemeye başladı. Rakamların inceliğini, akrebin ucundaki küçük kıvrımı ilk kez fark etti.",
+        "Kemal Bey tezgâhın altındaki eski bir defteri çıkardı. Kapağında Hayri Usta'nın el yazısıyla tamir kayıtları yazıyordu. Bu defter, onlara yarın neyin kapısını açacaktı?",
+      ],
+    },
+    {
+      title: "Tamir Defteri",
+      paragraphs: [
+        "Ertesi sabah Kemal Bey dükkâna erkenden geldi. Arda ise biraz gecikti ve uykusuz görünüyordu. Gece boyunca internetten saat tamir videoları izlemişti.",
+        "Videolarda her şey çok hızlı oluyordu. Usta eller birkaç saniyede saati açıyor, parçaları yerine takıyordu. Arda bunları izledikçe kendini daha beceriksiz hissetmişti.",
+        "Kemal Bey ona tamir defterini uzattı. Hayri Usta kırk yıl boyunca her işini bu deftere yazmıştı. Her sayfada bir saat, bir sorun ve bir çözüm vardı.",
+        "Arda sayfaları çevirdikçe şaşırdı. Bazı tamirler günler sürmüştü. Bir sayfada usta, bir yay için tam üç hafta beklediğini yazmıştı.",
+        "Bir başka sayfada kısa bir not dikkatini çekti. Bugün hiçbir şey yapmadım, yalnız baktım, yazıyordu. Altında ise ertesi günün tarihi ve sorunun çözüldüğü yazılıydı.",
+        "Kemal Bey bu notu çok sevdiğini söyledi. Öğretmenlikte de en zor şeyin beklemek olduğunu anlattı. Bir öğrencinin bir konuyu anlaması bazen haftalar alırdı.",
+        "Arda notu birkaç kez okudu. Hiçbir şey yapmadan geçen bir günün de işin parçası olabileceği aklına hiç gelmemişti. Bu düşünce onu hem şaşırttı hem de rahatlattı.",
+        "Arda, yazılım şirketinde böyle bir zaman olmadığını söyledi. Her şeyin dün bitmesi gerekirdi. Belki de işten bu yüzden ayrıldığını ilk kez yüksek sesle söyledi.",
+        "Kemal Bey onu yargılamadı. Yalnızca hızın da bir yeri olduğunu, ama her işin aynı hızda yürümediğini söyledi. Saatin de, insanın da kendi ritmi vardı.",
+        "O gün defterden gümüş saatle ilgili bir kayıt buldular. Hayri Usta bu saatin balans çarkını yıllar önce bir kez onarmıştı. Notta parçanın çok hassas olduğu yazıyordu.",
+        "Arda kayıtları okurken dışarıdan bir ses duydu. Kapının önünde elinde eski bir masa saati tutan yaşlı bir kadın duruyordu. Dükkânın açıldığını sanmıştı.",
+      ],
+    },
+    {
+      title: "İlk Müşteri",
+      paragraphs: [
+        "Kadının adı Nermin Hanım'dı. Elindeki masa saati, eşinden kalan bir hatıraydı. Saat birkaç aydır geri kalıyor, sabahları hep yanlış saati gösteriyordu.",
+        "Arda dükkânın henüz açılmadığını söylemek istedi. Kemal Bey ise ona hafifçe başını salladı. Bu bakışın anlamını Arda hemen anladı.",
+        "Saati tezgâha koydular ve dikkatle incelediler. Arda önce kasasını, sonra arkasındaki kurma deliğini inceledi. Kemal Bey ona tamir defterinde benzer bir kaydı aramasını söyledi.",
+        "Defterde aynı markadan bir saat buldular. Hayri Usta, bu saatlerde sarkacın ayarının kolayca kaydığını yazmıştı. Çözüm, sarkacın altındaki küçük somunu biraz çevirmekti.",
+        "Arda somunu bulmak için uzun süre baktı. Parmakları ilk denemede kaydı ve sarkaç sallandı. Kalbi hızla çarptı, bir şeyi bozduğunu sandı.",
+        "Sarkaç birkaç kez daha sallandı ve yavaşça durdu. Hiçbir şey kırılmamıştı. Arda yine de tezgâhın kenarını sıkıca tuttu.",
+        "Kemal Bey ona sakin olmasını, derin bir nefes almasını söyledi. Elleri titreyen bir saatçinin önce ellerini dinlendirmesi gerekirdi. Arda bir dakika gözlerini kapattı.",
+        "İkinci denemede somunu çok az çevirdi. Sonra saati kurdular ve masanın üstüne koydular. Saat yavaş, düzenli bir sesle çalışmaya başladı.",
+        "Arda saatin sesini dikkatle dinledi. Tıkırtılar arasındaki aralık sanki daha eşit gelmişti. Yine de emin olmak için zamana ihtiyaç vardı.",
+        "Nermin Hanım ertesi gün gelip saati almak istedi. Böylece bir gün boyunca doğru gidip gitmediğini görebilirlerdi. Arda bu fikri çok mantıklı buldu.",
+        "Kadın giderken Arda'ya teşekkür etti. Dükkânın yeniden açılmasının mahalleye iyi geleceğini söyledi. Arda bu sözlerden sonra garip bir sorumluluk hissetti.",
+        "O akşam dükkânı kapatırken masa saatinin tıkırtısını dinledi. Saat şimdilik doğru gidiyordu. Ama sabah olduğunda da aynı sonucu bulacaklar mıydı?",
+      ],
+    },
+    {
+      title: "Geri Kalan Dakikalar",
+      paragraphs: [
+        "Sabah dükkâna geldiklerinde masa saati beş dakika geri kalmıştı. Arda bunu görünce yüzünü buruşturdu. Bütün emeğinin boşa gittiğini düşündü.",
+        "Kemal Bey ise sevinçle gülümsedi. Saat önceden her gün yarım saat geri kalıyordu. Şimdi yalnız beş dakika kalmıştı ve bu büyük bir ilerlemeydi.",
+        "Arda bu bakış açısına alışkın değildi. Onun eski işinde bir şey ya çalışır ya da çalışmazdı. Arada bir yer, ona hep başarısızlık gibi görünmüştü.",
+        "Kemal Bey, öğrencilerine de aynı şeyi anlattığını söyledi. Yüz üzerinden kırk alan bir çocuk, ertesi sınavda altmış alırsa başarmıştı. Mükemmel olmak değil, yaklaşmak önemliydi.",
+        "Arda somunu biraz daha çevirdi. Bu kez elleri daha sakindi. Saatin sesini dinlerken nefesini de aynı ritme getirmeye çalıştı.",
+        "Öğleden sonra Nermin Hanım geldi. Arda ona saatin henüz tam hazır olmadığını dürüstçe söyledi. Bir gün daha beklemesini rica etti.",
+        "Kadın hiç sitem etmedi. Eşinin de saatlerle uğraşırken hep acele etmemesi gerektiğini söylediğini anlattı. Sonra yanında getirdiği bir tabak kurabiyeyi tezgâha bıraktı.",
+        "Akşam kurabiyeleri çayla birlikte yediler. Arda yıllardır ilk kez bir işin sonucunu sabırla beklediğini fark etti. Bekleyiş ona bu kez ağır gelmiyordu.",
+        "Ertesi sabah saat yalnızca bir dakika geri kalmıştı. Arda son bir ayar yaptı ve saati teslim etti. Nermin Hanım saati kollarının arasında sıkıca tuttu.",
+        "O gün dükkânın kapısına küçük bir kâğıt asıldı. Üzerinde açık, saat tamir edilir yazıyordu. Kemal Bey kâğıdı, öğretmenlik yıllarından kalma düzgün el yazısıyla yazmıştı.",
+        "Kapıya asılan kâğıt, mahallede hızla duyuldu. Ertesi hafta tezgâhta altı saat bekliyordu. Arda gümüş saati bir kenara bırakmıştı, ama o saat de beklemekten yorulmuş görünüyordu.",
+      ],
+    },
+    {
+      title: "Gümüş Saatin İçi",
+      paragraphs: [
+        "Bir pazartesi sabahı Arda gümüş saati yeniden kadife kutudan çıkardı. Artık onu açmaya hazır olduğunu hissediyordu. Kemal Bey ona yalnızca sessizce eşlik etti.",
+        "Arda önce ellerini yıkadı ve kuruladı. Masaya temiz bir bez serdi, aletleri sıraya dizdi. Telefonu ise kimse söylemeden çekmeceye koydu.",
+        "Saatin arka kapağını açınca minik bir dünya ortaya çıktı. Çarklar birbirine kenetlenmiş, aralarında incecik bir yay duruyordu. Arda bir süre hiçbir şeye dokunmadan yalnızca baktı.",
+        "Sorunu bulması uzun sürdü. Balans çarkının ekseni hafifçe yamulmuştu. Hayri Usta'nın defterde yazdığı hassas parça tam da buydu.",
+        "Arda yedek parça zarflarını tek tek kontrol etti. İlk günlerde düzenledikleri zarflardan biri, aradığı parçayı taşıyordu. Zarfın üzerinde gümüş saat için yedek yazıyordu.",
+        "Parçayı yerine takmak iki gün sürdü. Birinci gün sürekli elinden kaydı ve masanın üstünde kayboldu. İkinci gün Arda daha yavaş, daha dikkatli çalıştı.",
+        "Akşamları eve dönerken bile aklı o küçük parçadaydı. Yemek yerken, yürürken, uyumadan önce hep balans çarkını düşündü. Bu düşünce onu yormuyor, aksine sakinleştiriyordu.",
+        "Kemal Bey bu arada kendi işleriyle meşguldü. Mahalleden gelen saatlerin listesini tutuyor, müşterilere çay ikram ediyordu. Arda'ya yalnızca ara sıra omzunun üzerinden bakıyordu.",
+        "Sonunda balans çarkı yerine oturdu. Arda saati kurdu ve kulağına yaklaştırdı. İçeriden ince, hızlı bir tıkırtı geliyordu.",
+        "Saat çalışıyordu. Arda bunu söylerken sesi titredi. Kemal Bey yalnız elini onun omzuna koydu ve uzun süre hiçbir şey demedi.",
+        "Arda saati hemen Hayri Usta'ya götürmek istedi. Kemal Bey ise ona beklemesini önerdi. Bir saatin gerçekten iyileştiğini anlamak için ona birkaç gün vermek gerekirdi.",
+      ],
+    },
+    {
+      title: "Dokuzu On Geçe",
+      paragraphs: [
+        "Gümüş saat bir hafta boyunca tek dakika bile şaşmadı. Arda onu her sabah kontrol etti, her akşam deftere not düştü. Kendi tamir defteri yavaş yavaş dolmaya başlamıştı.",
+        "Pazar günü saati alıp Hayri Usta'nın evine gittiler. Usta pencere kenarında, battaniyeye sarılı oturuyordu. Yeğenini ve eski arkadaşını görünce gözleri parladı.",
+        "Arda kadife kutuyu açıp saati ona uzattı. Hayri Usta saati avucuna aldı ve kulağına yaklaştırdı. Bir süre gözlerini kapatıp yalnızca dinledi.",
+        "Sonra Arda'ya hangi parçayı değiştirdiğini sordu. Arda balans çarkını, yedek zarfını ve iki günlük uğraşını anlattı. Usta her ayrıntıyı başını sallayarak dinledi.",
+        "Hayri Usta saati Arda'nın bileğine taktı. Bu saatin artık onun olduğunu söyledi. Bir saatçinin ilk saati, onu her sabah işine çağırırdı.",
+        "Dönüş yolunda Kemal Bey dükkânın önünde durdu. Vitrindeki eski duvar saati hâlâ dokuzu on geçeyi gösteriyordu. Arda bunu görünce gülümsedi ve anahtarı çıkardı.",
+        "Usta artık daha iyiydi, ama tezgâha dönmeyecekti. Bunu söylerken sesi hüzünlü değildi. Dükkânın doğru ellerde olduğunu bilmek ona yetiyordu.",
+        "Birlikte duvar saatini indirdiler. Bu kez Arda acele etmedi, önce yalnızca baktı. Kemal Bey ise tezgâhın yanında sessizce oturdu.",
+        "Bir saat sonra duvar saatinin sarkacı yeniden sallanmaya başladı. Arda akrep ve yelkovanı doğru saate getirdi. Tık tık sesi dükkânın içine yayıldı.",
+        "Kemal Bey ertesi sabah yürüyüşünde yine dükkânın önünden geçti. Vitrindeki saat çalışıyor, içeride Arda bir müşteriyle konuşuyordu. Kemal Bey durdu ve saatine baktı.",
+        "Arda onu camın ardından görünce el salladı. Bileğindeki gümüş saat güneşte bir an parladı. Tezgâhta bekleyen saatlerin sırası her gün biraz daha uzuyordu.",
+        "Kendi saati ile vitrindeki saat aynı dakikayı gösteriyordu. Kemal Bey bunu iyi bir işaret saydı. Sonra bastonunu yere vurup yürüyüşüne devam etti.",
+      ],
+    },
+  ],
+  glossary: [
+    { word: "Kepenk", definition: "Dükkânların önüne indirilen, metal kapak biçimindeki kapı." },
+    { word: "yelkovan", definition: "Saatte dakikaları gösteren uzun ibre." },
+    { word: "Kadranı", definition: "Saatin üzerinde rakamların bulunduğu yüzey." },
+    { word: "sarkacın", definition: "Saatlerde düzenli salınarak zamanı ayarlayan sarkan parçanın." },
+    { word: "balans çarkını", definition: "Kol saatinde ileri geri dönerek saatin ritmini belirleyen küçük çarkın." },
+    { word: "tezgâhın", definition: "Ustanın üzerinde çalıştığı uzun masanın." },
+  ],
+  optionalReflectionPrompt:
+    "Hayatında sana bir işi acele etmeden yapmayı öğreten biri oldu mu?",
+  sourceTruth,
+  originalityRightsReview: {
+    status: "pending-human-review",
+    notes: "Metin özgün Okurio taslağıdır; insan özgünlük ve hak kontrolü bekliyor.",
+  },
+  safeguardingLanguageReview: {
+    status: "pending-human-review",
+    notes: "Yaşlılık ve hastalık temasının yumuşak anlatımı ile yetişkin okur tonu için insan incelemesi bekliyor.",
+  },
+  contentQualityReview: createPendingContentQualityReview("yetiskin_odak_18"),
+};
+
+// Timing follows the actual reading body, excluding headings and glossary.
+const body = MAHALLENIN_SAATCISI_DRAFT.sections
+  .flatMap((section) => section.paragraphs).join(" ");
+MAHALLENIN_SAATCISI_DRAFT.wordCount =
+  body.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
+MAHALLENIN_SAATCISI_DRAFT.estimatedSeconds = Math.ceil(
+  MAHALLENIN_SAATCISI_DRAFT.wordCount * 60 / 155,
+);
+MAHALLENIN_SAATCISI_DRAFT.declaredSeconds = MAHALLENIN_SAATCISI_DRAFT.estimatedSeconds;
