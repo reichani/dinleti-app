@@ -15,7 +15,8 @@
  *   içeriklerinde görülmemiş köklerin sayısıdır (katalog içi ölçüm). Dış bir
  *   yaş/sınıf sıklık listesi henüz yoktur; ontolojide boşluk olarak işaretlidir.
  */
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from "node:fs";
+import { contentFingerprint, evaluateAiEvidenceReview } from "../src/content/aiEvidenceReview.js";
 import vm from "node:vm";
 import { COMPLETE_OKURIO_SESSIONS } from "../src/content/completeOkurioSessions.js";
 import { PETER_RABBIT_FULL } from "../src/content/fullPublicDomainStories.js";
@@ -107,6 +108,15 @@ const anaYol = (meta) => {
   return sirali.length ? yolSirasi[sirali[0]] : null;
 };
 
+// K-2026-10-18-07: AI kanıt onayı kayıtları (insan onayı değildir).
+const aiKayitDizini = new URL("../ontology/reviews/ai-kanit/", import.meta.url);
+const aiKayitlari = existsSync(aiKayitDizini)
+  ? Object.fromEntries(readdirSync(aiKayitDizini).filter((f) => f.endsWith(".json") && f !== "SABLON.json").map((f) => {
+      const r = JSON.parse(readFileSync(new URL(f, aiKayitDizini), "utf8"));
+      return [r.icerikId, r];
+    }))
+  : {};
+
 const kayitlar = catalog.map((story) => {
   const meta = ICERIK_METADATA[story.id] ?? null;
   const dil = story.dil === "en" ? "en" : "tr";
@@ -147,6 +157,12 @@ const kayitlar = catalog.map((story) => {
     atasozu: (dilProfili.proverbs ?? []).length,
     kulturelOge: (dilProfili.culturalObjects ?? []).length,
     insanOnayi: story.contentQualityReview?.status ?? "yok",
+    aiKanitOnayi: (() => {
+      const r = aiKayitlari[story.id];
+      if (!r) return { durum: "yok" };
+      const e = evaluateAiEvidenceReview(r, { fingerprint: contentFingerprint(story.bolumler ?? []) });
+      return { durum: e.aiApproved ? "ai-onayli" : e.valid ? r.status : "gecersiz-kayit", engeller: e.blockers.length, hatalar: e.errors.length, tarih: r.reviewedAt };
+    })(),
     releaseReady: story.releaseReady === true,
     _kokler: kokler,
   };
@@ -219,6 +235,7 @@ const yolOzeti = yolSirasi.map((yolId) => {
     sozluguOlan: ic.filter((k) => k.sozlukGirdisi > 0).length,
     deyimAtasozuOlan: ic.filter((k) => k.deyim + k.atasozu > 0).length,
     insanOnayli: ic.filter((k) => k.insanOnayi === "approved").length,
+    aiKanitOnayli: ic.filter((k) => k.aiKanitOnayi?.durum === "ai-onayli").length,
     yeniKokBandi,
   };
 });
@@ -233,6 +250,7 @@ const kapsam = {
   kaynakBeyanli: kayitlar.filter((k) => k.kaynakVar).length,
   hakDurumuBeyanli: kayitlar.filter((k) => k.hakDurumu).length,
   insanOnayli: kayitlar.filter((k) => k.insanOnayi === "approved").length,
+  aiKanitOnayli: kayitlar.filter((k) => k.aiKanitOnayi?.durum === "ai-onayli").length,
   mebKazanimKoduOlan: 0,
 };
 
@@ -261,6 +279,23 @@ const snapshot = {
   yasYolTutarsizliklari,
   icerikler: kayitlar,
 };
+
+// AI kanıt denetimi girdisi: node scripts/build-ontology-snapshot.mjs --icerik <id>
+if (args.includes("--icerik")) {
+  const id = args[args.indexOf("--icerik") + 1];
+  const story = catalog.find((x) => x.id === id);
+  if (!story) { console.error(`İçerik bulunamadı: ${id}`); process.exit(1); }
+  const k = kayitlar.find((x) => x.id === id);
+  const pilotMeta = getStoryMetadata(id) ?? story.metadata ?? {};
+  process.stdout.write(JSON.stringify({
+    icerikId: id, baslik: story.baslik, dil: k.dil, anaOkumaYolu: k.anaOkumaYolu, yasEtiketi: story.yas ?? null,
+    hakDurumu: k.hakDurumu, kaynak: story.kaynak ?? null, contentFingerprint: contentFingerprint(story.bolumler ?? []),
+    sozluk: getGlossaryForStory(id) ?? pilotMeta.glossary ?? [], editorialLanguageProfile: pilotMeta.editorialLanguageProfile ?? null,
+    bolumler: (story.bolumler ?? []).map((b) => ({ ad: b.ad, metin: b.metin })),
+    mevcutAiKaydi: k.aiKanitOnayi,
+  }, null, 2));
+  process.exit(0);
+}
 
 const json = JSON.stringify(snapshot, null, 2);
 if (args.includes("--stdout")) process.stdout.write(json);

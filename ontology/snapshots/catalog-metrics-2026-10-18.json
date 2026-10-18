@@ -378,6 +378,7 @@
     "kaynakBeyanli": 48,
     "hakDurumuBeyanli": 48,
     "insanOnayli": 2,
+    "aiKanitOnayli": 3,
     "mebKazanimKoduOlan": 0
   },
   "yolOzeti": [
@@ -390,12 +391,13 @@
         "minWords": 150,
         "maxWords": 300
       },
-      "medyanKelime": 285.5,
+      "medyanKelime": 286,
       "hedefAraligindaki": 9,
       "medyanYeniKok": 154,
       "sozluguOlan": 6,
       "deyimAtasozuOlan": 1,
       "insanOnayli": 0,
+      "aiKanitOnayli": 1,
       "yeniKokBandi": {
         "alt": 113,
         "ust": 188,
@@ -426,6 +428,7 @@
       "sozluguOlan": 0,
       "deyimAtasozuOlan": 0,
       "insanOnayli": 0,
+      "aiKanitOnayli": 0,
       "yeniKokBandi": {
         "alt": null,
         "ust": null,
@@ -452,6 +455,7 @@
       "sozluguOlan": 7,
       "deyimAtasozuOlan": 0,
       "insanOnayli": 1,
+      "aiKanitOnayli": 0,
       "yeniKokBandi": {
         "alt": 31,
         "ust": 52,
@@ -489,6 +493,7 @@
       "sozluguOlan": 5,
       "deyimAtasozuOlan": 0,
       "insanOnayli": 0,
+      "aiKanitOnayli": 0,
       "yeniKokBandi": {
         "alt": 33,
         "ust": 56,
@@ -526,6 +531,7 @@
       "sozluguOlan": 9,
       "deyimAtasozuOlan": 0,
       "insanOnayli": 0,
+      "aiKanitOnayli": 0,
       "yeniKokBandi": {
         "alt": 57,
         "ust": 95,
@@ -560,6 +566,7 @@
       "sozluguOlan": 7,
       "deyimAtasozuOlan": 2,
       "insanOnayli": 0,
+      "aiKanitOnayli": 1,
       "yeniKokBandi": {
         "alt": 68,
         "ust": 113,
@@ -586,10 +593,11 @@
       },
       "medyanKelime": 1256,
       "hedefAraligindaki": 2,
-      "medyanYeniKok": 92,
+      "medyanYeniKok": 93,
       "sozluguOlan": 3,
       "deyimAtasozuOlan": 0,
       "insanOnayli": 1,
+      "aiKanitOnayli": 0,
       "yeniKokBandi": {
         "alt": null,
         "ust": null,
@@ -616,6 +624,7 @@
       "sozluguOlan": 3,
       "deyimAtasozuOlan": 1,
       "insanOnayli": 0,
+      "aiKanitOnayli": 0,
       "yeniKokBandi": {
         "alt": 58,
         "ust": 96,
@@ -644,6 +653,7 @@
       "sozluguOlan": 5,
       "deyimAtasozuOlan": 1,
       "insanOnayli": 0,
+      "aiKanitOnayli": 1,
       "yeniKokBandi": {
         "alt": 65,
         "ust": 109,
@@ -674,6 +684,7 @@
       "sozluguOlan": 0,
       "deyimAtasozuOlan": 0,
       "insanOnayli": 0,
+      "aiKanitOnayli": 0,
       "yeniKokBandi": {
         "alt": null,
         "ust": null,
@@ -794,6 +805,9 @@
       "atasozu": 0,
       "kulturelOge": 2,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 92,
       "yeniKokOrani": 0.295
@@ -828,6 +842,9 @@
       "atasozu": 0,
       "kulturelOge": 1,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 80,
       "yeniKokOrani": 0.178
@@ -862,6 +879,9 @@
       "atasozu": 0,
       "kulturelOge": 2,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 70,
       "yeniKokOrani": 0.107
@@ -896,6 +916,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 82,
       "yeniKokOrani": 0.151
@@ -930,6 +953,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 161,
       "yeniKokOrani": 1
@@ -964,6 +990,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 154,
       "yeniKokOrani": 1
@@ -998,6 +1027,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 170,
       "yeniKokOrani": 1
@@ -1032,6 +1064,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 54,
       "yeniKokOrani": 0.281
@@ -1066,6 +1101,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 56,
       "yeniKokOrani": 0.315
@@ -1100,6 +1138,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 75,
       "yeniKokOrani": 0.213
@@ -1134,6 +1175,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 202,
       "yeniKokOrani": 0.745
@@ -1168,6 +1212,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 97,
       "yeniKokOrani": 0.198
@@ -1202,6 +1249,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 98,
       "yeniKokOrani": 0.175
@@ -1236,6 +1286,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 177,
       "yeniKokOrani": 0.358
@@ -1270,6 +1323,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 77,
       "yeniKokOrani": 0.111
@@ -1304,6 +1360,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 84,
       "yeniKokOrani": 0.132
@@ -1338,6 +1397,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 87,
       "yeniKokOrani": 0.119
@@ -1372,6 +1434,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 103,
       "yeniKokOrani": 0.148
@@ -1406,6 +1471,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 91,
       "yeniKokOrani": 0.127
@@ -1429,10 +1497,10 @@
       "hakDurumu": "okurio-ozgun-ai-destekli",
       "kaynakVar": true,
       "bolumSayisi": 5,
-      "kelimeSayisi": 286,
+      "kelimeSayisi": 287,
       "benzersizYuzey": 211,
-      "benzersizKokYaklasigi": 188,
-      "turBelirtkeOrani": 0.738,
+      "benzersizKokYaklasigi": 189,
+      "turBelirtkeOrani": 0.735,
       "ortCumleKelime": 6.4,
       "enUzunCumle": 11,
       "sozlukGirdisi": 5,
@@ -1440,8 +1508,14 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "ai-onayli",
+        "engeller": 0,
+        "hatalar": 0,
+        "tarih": "2026-10-18T14:00:00Z"
+      },
       "releaseReady": false,
-      "yeniKokKatkisi": 188,
+      "yeniKokKatkisi": 189,
       "yeniKokOrani": 1
     },
     {
@@ -1463,19 +1537,25 @@
       "hakDurumu": "kamu-mali",
       "kaynakVar": true,
       "bolumSayisi": 7,
-      "kelimeSayisi": 1094,
-      "benzersizYuzey": 711,
-      "benzersizKokYaklasigi": 563,
-      "turBelirtkeOrani": 0.65,
-      "ortCumleKelime": 7.2,
+      "kelimeSayisi": 1098,
+      "benzersizYuzey": 715,
+      "benzersizKokYaklasigi": 565,
+      "turBelirtkeOrani": 0.651,
+      "ortCumleKelime": 7.3,
       "enUzunCumle": 15,
       "sozlukGirdisi": 7,
       "deyim": 1,
       "atasozu": 1,
       "kulturelOge": 1,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "ai-onayli",
+        "engeller": 0,
+        "hatalar": 0,
+        "tarih": "2026-10-18T14:00:00Z"
+      },
       "releaseReady": false,
-      "yeniKokKatkisi": 171,
+      "yeniKokKatkisi": 172,
       "yeniKokOrani": 0.304
     },
     {
@@ -1497,10 +1577,10 @@
       "hakDurumu": "okurio-ozgun-ai-destekli",
       "kaynakVar": true,
       "bolumSayisi": 8,
-      "kelimeSayisi": 1841,
-      "benzersizYuzey": 905,
-      "benzersizKokYaklasigi": 656,
-      "turBelirtkeOrani": 0.492,
+      "kelimeSayisi": 1844,
+      "benzersizYuzey": 906,
+      "benzersizKokYaklasigi": 657,
+      "turBelirtkeOrani": 0.491,
       "ortCumleKelime": 6.6,
       "enUzunCumle": 12,
       "sozlukGirdisi": 7,
@@ -1508,6 +1588,12 @@
       "atasozu": 1,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "ai-onayli",
+        "engeller": 0,
+        "hatalar": 0,
+        "tarih": "2026-10-18T14:00:00Z"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 58,
       "yeniKokOrani": 0.088
@@ -1544,9 +1630,12 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
-      "yeniKokKatkisi": 77,
-      "yeniKokOrani": 0.294
+      "yeniKokKatkisi": 76,
+      "yeniKokOrani": 0.29
     },
     {
       "id": "okurio-lili-kayip-tohum-haritasi",
@@ -1580,9 +1669,12 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
-      "yeniKokKatkisi": 102,
-      "yeniKokOrani": 0.327
+      "yeniKokKatkisi": 101,
+      "yeniKokOrani": 0.324
     },
     {
       "id": "oki-sesleri-dinliyor",
@@ -1613,6 +1705,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 160,
       "yeniKokOrani": 1
@@ -1646,6 +1741,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 150,
       "yeniKokOrani": 1
@@ -1679,6 +1777,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 154,
       "yeniKokOrani": 1
@@ -1714,6 +1815,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 6,
       "yeniKokOrani": 0.375
@@ -1749,6 +1853,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 4,
       "yeniKokOrani": 0.19
@@ -1784,6 +1891,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 3,
       "yeniKokOrani": 0.143
@@ -1818,6 +1928,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 5,
       "yeniKokOrani": 0.313
@@ -1852,6 +1965,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 32,
       "yeniKokOrani": 0.206
@@ -1886,6 +2002,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 7,
       "yeniKokOrani": 0.35
@@ -1921,6 +2040,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 4,
       "yeniKokOrani": 0.211
@@ -1956,6 +2078,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 5,
       "yeniKokOrani": 0.25
@@ -1991,6 +2116,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 6,
       "yeniKokOrani": 0.333
@@ -2026,6 +2154,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 6,
       "yeniKokOrani": 0.333
@@ -2061,6 +2192,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 4,
       "yeniKokOrani": 0.211
@@ -2096,9 +2230,12 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
-      "yeniKokKatkisi": 52,
-      "yeniKokOrani": 0.294
+      "yeniKokKatkisi": 51,
+      "yeniKokOrani": 0.288
     },
     {
       "id": "lili-ile-at",
@@ -2131,6 +2268,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 37,
       "yeniKokOrani": 0.236
@@ -2165,6 +2305,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 3,
       "yeniKokOrani": 0.188
@@ -2199,6 +2342,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 2,
       "yeniKokOrani": 0.143
@@ -2233,6 +2379,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 46,
       "yeniKokOrani": 0.258
@@ -2268,6 +2417,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 15,
       "yeniKokOrani": 0.158
@@ -2303,6 +2455,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 26,
       "yeniKokOrani": 0.317
@@ -2338,6 +2493,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 15,
       "yeniKokOrani": 0.319
@@ -2373,6 +2531,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 128,
       "yeniKokOrani": 0.347
@@ -2408,9 +2569,12 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
-      "yeniKokKatkisi": 92,
-      "yeniKokOrani": 0.175
+      "yeniKokKatkisi": 93,
+      "yeniKokOrani": 0.176
     },
     {
       "id": "diyet",
@@ -2443,6 +2607,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 15,
       "yeniKokOrani": 0.357
@@ -2478,6 +2645,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 82,
       "yeniKokOrani": 0.177
@@ -2514,6 +2684,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 183,
       "yeniKokOrani": 1
@@ -2551,6 +2724,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 61,
       "yeniKokOrani": 1
@@ -2586,6 +2762,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 197,
       "yeniKokOrani": 0.494
@@ -2622,6 +2801,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 150,
       "yeniKokOrani": 1
@@ -2657,6 +2839,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 109,
       "yeniKokOrani": 0.491
@@ -2691,6 +2876,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "approved",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": true,
       "yeniKokKatkisi": 241,
       "yeniKokOrani": 0.984
@@ -2725,6 +2913,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 306,
       "yeniKokOrani": 0.801
@@ -2760,6 +2951,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 171,
       "yeniKokOrani": 0.707
@@ -2794,6 +2988,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 23,
       "yeniKokOrani": 0.622
@@ -2828,6 +3025,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 7,
       "yeniKokOrani": 0.241
@@ -2862,6 +3062,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 7,
       "yeniKokOrani": 0.194
@@ -2896,6 +3099,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 180,
       "yeniKokOrani": 0.49
@@ -2930,6 +3136,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 214,
       "yeniKokOrani": 0.459
@@ -2964,6 +3173,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 201,
       "yeniKokOrani": 0.555
@@ -2998,6 +3210,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 1,
       "yeniKokOrani": 0.038
@@ -3031,6 +3246,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 6,
       "yeniKokOrani": 0.214
@@ -3065,6 +3283,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 118,
       "yeniKokOrani": 0.334
@@ -3100,6 +3321,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 63,
       "yeniKokOrani": 0.301
@@ -3135,6 +3359,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 73,
       "yeniKokOrani": 0.335
@@ -3169,6 +3396,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 153,
       "yeniKokOrani": 1
@@ -3203,6 +3433,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 31,
       "yeniKokOrani": 1
@@ -3237,6 +3470,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 5,
       "yeniKokOrani": 0.125
@@ -3271,6 +3507,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 65,
       "yeniKokOrani": 0.189
@@ -3305,6 +3544,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 90,
       "yeniKokOrani": 0.212
@@ -3340,6 +3582,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "approved",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": true,
       "yeniKokKatkisi": 101,
       "yeniKokOrani": 0.147
@@ -3374,6 +3619,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 53,
       "yeniKokOrani": 0.083
@@ -3408,6 +3656,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 43,
       "yeniKokOrani": 0.219
@@ -3442,6 +3693,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 46,
       "yeniKokOrani": 0.191
@@ -3476,6 +3730,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 76,
       "yeniKokOrani": 0.226
@@ -3512,6 +3769,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 5,
       "yeniKokOrani": 0.5
@@ -3548,6 +3808,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 12,
       "yeniKokOrani": 0.8
@@ -3584,6 +3847,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 11,
       "yeniKokOrani": 0.733
@@ -3618,6 +3884,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 16,
       "yeniKokOrani": 1
@@ -3652,6 +3921,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 14,
       "yeniKokOrani": 1
@@ -3687,6 +3959,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 5,
       "yeniKokOrani": 0.357
@@ -3721,6 +3996,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 4,
       "yeniKokOrani": 0.154
@@ -3755,6 +4033,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 3,
       "yeniKokOrani": 0.143
@@ -3789,6 +4070,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 1,
       "yeniKokOrani": 0.033
@@ -3823,6 +4107,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 3,
       "yeniKokOrani": 0.188
@@ -3857,6 +4144,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 2,
       "yeniKokOrani": 0.111
@@ -3890,6 +4180,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 3,
       "yeniKokOrani": 0.143
@@ -3923,6 +4216,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 85,
       "yeniKokOrani": 0.293
@@ -3957,6 +4253,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 100,
       "yeniKokOrani": 0.275
@@ -3991,6 +4290,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 105,
       "yeniKokOrani": 0.285
@@ -4026,6 +4328,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 31,
       "yeniKokOrani": 0.185
@@ -4060,6 +4365,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 67,
       "yeniKokOrani": 0.199
@@ -4094,6 +4402,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 21,
       "yeniKokOrani": 1
@@ -4128,6 +4439,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 11,
       "yeniKokOrani": 0.423
@@ -4162,6 +4476,9 @@
       "atasozu": 0,
       "kulturelOge": 0,
       "insanOnayi": "pending",
+      "aiKanitOnayi": {
+        "durum": "yok"
+      },
       "releaseReady": false,
       "yeniKokKatkisi": 2,
       "yeniKokOrani": 0.071

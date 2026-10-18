@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0",
+  "reviewType": "ai-evidence",
+  "icerikId": "<katalog id>",
+  "status": "ai-onayli",
+  "model": "<model kimliği>",
+  "reviewedAt": "<ISO tarih>",
+  "reviewedCommit": "<git rev-parse HEAD>",
+  "contentFingerprint": "<--icerik çıktısındaki değer>",
+  "kamuyaAciklama": "AI destekli kanıt denetiminden geçti",
+  "insanOnayi": "bekliyor",
+  "checks": {
+    "dilSeviyesi": { "sonuc": "gecti", "ajan": "okurio-gozetim-ajani", "not": "" },
+    "guvenlik": { "sonuc": "gecti", "ajan": "okurio-gozetim-ajani", "not": "" },
+    "hakOzgunluk": { "sonuc": "gecti", "ajan": "okurio-gozetim-ajani", "not": "" },
+    "mufredat": { "sonuc": "gecti", "ajan": "okurio-gozetim-ajani", "not": "" },
+    "erisilebilirlik": { "sonuc": "uygulanmaz", "ajan": "", "not": "" },
+    "olgusalKanit": { "sonuc": "gecti", "ajan": "okurio-kanit-denetcisi", "not": "" }
+  },
+  "iddialar": [
+    {
+      "iddia": "<metinden alıntı>",
+      "tur": "olgusal",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        { "kaynak": "PubMed", "baslik": "<makale başlığı>", "yil": 2020, "pmid": "<PMID>", "doi": "", "url": "", "kanitGucu": "orta" }
+      ]
+    }
+  ],
+  "sinirlar": "AI kanıt denetimidir; insan editör veya uzman onayı değildir. Edebî nitelik, çocuk gelişimi uzmanlığı ve hukuki hak durumu garanti edilmez."
+}

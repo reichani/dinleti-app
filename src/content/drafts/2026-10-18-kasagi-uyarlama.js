@@ -5,7 +5,7 @@ const sourceTruth = Object.freeze({
   work: "Kaşağı",
   author: "Ömer Seyfettin",
   authorDeathYear: 1920,
-  firstPublication: "1926, Ali Canip Yöntem'in hazırladığı ölüm sonrası derleme (Vikipedi, Kaşağı (hikâye), Türk Edebiyatı Ansiklopedisi c.4 s.961'e atıfla)",
+  firstPublication: "Kesin değil: Vikipedi (Türk Edebiyatı Ansiklopedisi c.4 s.961 atfıyla) 1926 ölüm sonrası derlemeyi verir; hakemli bir kaynak (Cansız Kundakçı 2020, Hars Akademi) öyküyü 1919 ile tarihlendirir. Yazar 1920'de öldüğü için kamu malı durumu bu tarihten bağımsızdır.",
   sourceType: "public-domain-graded-short-adaptation",
   rightsStatus: "kamu-mali",
   rightsBasis: "5846 sayılı FSEK md.27: yazarın ölümünü izleyen yıldan itibaren 70 yıl; 1920 ölümüyle süre 1990 sonunda doldu. Reyhan Açar kamu malı olarak teyit etti (K-2026-10-18-03, ontology/karar-kayitlari.json); bu teyit içerik veya yayın onayı değildir.",
@@ -37,8 +37,8 @@ export const KASAGI_UYARLAMA_DRAFT = {
   structuralValid: true,
   releaseReady: false,
   estimatedWordsPerMinute: 155,
-  wordCount: 1094,
-  estimatedSeconds: 424,
+  wordCount: 1098,
+  estimatedSeconds: 426,
   contentWarnings: ["kardeşin hastalık sonucu ölümü (ayrıntısız)", "çocuğa tokat (ayrıntısız)", "iftira ve suçluluk duygusu"],
   sections: [
     {
@@ -124,7 +124,7 @@ export const KASAGI_UYARLAMA_DRAFT = {
       paragraphs: [
         "Bu son bölüm Ömer Seyfettin'e ait değildir, Okurio tarafından eklenmiştir. Öykü, küçük bir yalanın nasıl büyük bir haksızlığa dönüştüğünü gösterir. Okurken anlatıcının neden bu kadar uzun süre sustuğunu da düşünebilirsin.",
         "Halk arasında yalancının mumu yatsıya kadar yanar, denir. Yani yalan uzun sürmez, gerçek er geç ortaya çıkar. Öyküde anlatıcı gerçeği söylemeye karar verdiğinde ise çok geç kalmıştır.",
-        "Bugün kuşpalazına difteri denir ve aşıyla önlenebilir. Çocuklara fiziksel ceza vermek de artık kabul edilmez. Bir hata yaptığında bunu güvendiğin bir yetişkine söylemek her zaman mümkündür.",
+        "Bugün kuşpalazına difteri denir ve aşıyla önlenebilir. Bugün çocuk hakları ilkeleri ve araştırmalar, çocuklara fiziksel ceza verilmemesi gerektiğini söyler. Bir hata yaptığında bunu güvendiğin bir yetişkine söylemek her zaman mümkündür.",
         "Öykü bir soru daha bırakır: Baba, Hasan'ı dinlemeden cezalandırdığında o da haksızlık etmiş olmaz mı? Doğruyu bulmak için herkesi sakin bir şekilde dinlemek gerekir.",
         "Bu öykü sana üzüntü verdiyse, bunu güvendiğin biriyle konuşabilirsin. Duyguların hakkında konuşmak iyi gelebilir.",
       ],
