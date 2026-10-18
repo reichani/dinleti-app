@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { YARIM_KALAN_AYRAC_DRAFT as story } from "../../src/content/drafts/2026-10-18-yarim-kalan-ayrac.js";
 import { evaluateContentQualityReview } from "../../src/content/contentQualityReview.js";
 import { READING_LEVEL_WORD_TARGETS } from "../../src/content/readingLevelPolicy.js";
+import { PASSAGE_WORD_TARGETS } from "../../src/content/lengthOptimizationPolicy.js";
 
 const words = (t) => String(t ?? "").match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
 const sentences = (t) => String(t ?? "").split(/(?<=[.!?])\s+/u).map((s) => s.trim()).filter(Boolean);
@@ -23,7 +24,8 @@ test(`${story.title}: okuma yolu, uzunluk ve süre sözleşmesi`, () => {
 
 test(`${story.title}: cümle, paragraf, sözlük ve dil profili sözleşmesi`, () => {
   const sw = paragraphs.flatMap(sentences).map(words);
-  assert.ok(Math.max(...sw) <= 12);
+  // Cümle sınırı karar kaynağından: ontology/karar-kayitlari.json kaynaklar.cumleSiniri
+  assert.ok(Math.max(...sw) <= PASSAGE_WORD_TARGETS[story.readingPathId].maxSentenceWords);
   const avg = sw.reduce((a, b) => a + b, 0) / sw.length;
   assert.ok(avg >= 6 && avg <= 10, `ortalama ${avg}`);
   assert.ok(paragraphs.every((p) => sentences(p).length <= 3));

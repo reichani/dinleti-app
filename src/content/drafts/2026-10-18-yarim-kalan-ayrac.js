@@ -28,8 +28,8 @@ export const YARIM_KALAN_AYRAC_DRAFT = {
   structuralValid: true,
   releaseReady: false,
   estimatedWordsPerMinute: 155,
-  wordCount: 1824,
-  estimatedSeconds: 707,
+  wordCount: 1841,
+  estimatedSeconds: 713,
   sections: [
     {
       title: "Rafın Tozu",
@@ -53,7 +53,7 @@ export const YARIM_KALAN_AYRAC_DRAFT = {
         "Akşam yemeğinden sonra kızı Defne kitabı fark etti. Defne on altı yaşındaydı ve her şeyi sorgulardı. Bunu sen mi okuyorsun, diye sordu.",
         "Okuyordum, dedi Nermin, yıllar önce. Defne kitabı çevirip arka kapağını okudu. Güzel görünüyor, neden bitirmedin, diye sordu.",
         "Nermin bir an cevap veremedi. Aslında nedenini biliyordu, ama söylemesi kolay değildi. Okumak ona hep biraz yorucu gelmişti.",
-        "Okulda satırlar gözünün önünde kayar gibi olurdu. Bir paragrafı bitirince başını kaybederdi. Öğretmenleri bunu dikkatsizlik diye yorumlamıştı.",
+        "Okulda uzun bir paragrafın sonuna geldiğinde başını çoğu zaman unuturdu. Öğretmenleri bunu dikkatsizlik diye yorumlamıştı.",
         "Sınıfta sesli okumak ise ayrı bir sıkıntıydı. Takıldığı her kelimede birkaç kişi kıkırdardı. O günden beri uzun metinlere temkinli yaklaşıyordu.",
         "Defne'ye yalnızca zamanım olmadı, dedi. Defne başını salladı, ama inanmamış gibiydi. Kitabı annesinin önüne doğru itti ve odasına gitti.",
         "Nermin bulaşıkları yıkarken okul yıllarını düşündü. Yüksek tavanlı sınıfı ve tahtadaki uzun metinleri hatırladı. O sınıfta kendini hep biraz geride hissederdi.",
@@ -82,7 +82,7 @@ export const YARIM_KALAN_AYRAC_DRAFT = {
       ],
     },
     {
-      title: "Dağılan Dikkat",
+      title: "Satırdan Kopmak",
       paragraphs: [
         "Sonraki günler aynı kolaylıkla geçmedi. Bazı akşamlar çok yorgundu ve gözleri kapanıyordu. Bazen de aklı fırındaki siparişlere gidiyordu.",
         "Bir paragrafın ortasında, yarın kaç tepsi poğaça çıkacağını düşünürken buldu kendini. Geri dönüp aynı satırı yeniden okudu. Sonra yine dağıldı.",
@@ -91,8 +91,8 @@ export const YARIM_KALAN_AYRAC_DRAFT = {
         "Yine de odak bir anda gelmiyordu. Bazen ilk iki sayfa boyunca hiçbir şey aklında kalmıyordu. Sonra hikâye yavaş yavaş onu içine çekiyordu.",
         "Bir akşam kitabı sertçe kapattı. Belki de bu iş bana göre değil, diye mırıldandı. Defne o sırada mutfağa su içmeye gelmişti.",
         "Defne annesinin yanına oturdu. Ben de ders çalışırken dağılıyorum, dedi. Bunun için birkaç küçük yol buldum.",
-        "Önce cetvel gibi düz bir kâğıdı satırın altına koymayı önerdi. Böylece göz, bir sonraki satıra kaymadan ilerleyebilirdi. Nermin bunu denedi ve şaşırdı.",
-        "Kâğıt, göz yorgunluğunu da azalttı. Bir yol kenarı çizgisi gibi onu satırda tutuyordu.",
+        "Önce cetvel gibi düz bir kâğıdı satırın altına koymayı önerdi. Defne'ye göre böylece göz bir sonraki satıra kaymadan ilerleyebilirdi. Nermin bunu denedi ve şaşırdı.",
+        "Kâğıtla satırda kalmak Nermin'e daha az yorucu geldi. Bir yol kenarı çizgisi gibi onu yolunda tutuyordu. Belki bir gün bunu bir uzmana da sorardı; şimdilik işe yarayanı deniyordu.",
         "Sonra Defne kitabın e-kitap sürümünü kendi telefonunda buldu. Sesli okuma açıkken kelimeler ekranda sırayla parlıyordu. Nermin metni hem dinleyip hem de takip edebilirdi.",
         "Nermin önce sesli okumayı küçümsedi. Bu çocuklar için değil mi, diye sordu. Defne omuz silkti ve kimin için olduğu önemli değil, dedi.",
         "Ses, onun okuma hızından biraz hızlıydı. Defne hızı nasıl azaltacağını gösterdi.",
@@ -112,7 +112,7 @@ export const YARIM_KALAN_AYRAC_DRAFT = {
         "Bir akşam Defne, sence kitaptaki kadın doğru mu yaptı, diye sordu. Nermin düşündü ve fikrini anlattı. Defne başka bir açıdan baktı ve tartıştılar.",
         "Bu tartışma ikisini de şaşırttı. Uzun zamandır böyle bir konuda konuşmamışlardı. Kitap, aralarında yeni bir konu açmıştı.",
         "Nermin okuma sırasında bazen sinirleniyordu. Bir cümleyi üç kez okusa da anlamadığı oluyordu. O zaman kitabı bırakıp birkaç dakika yürüyordu.",
-        "Dönüşte aynı cümleyi sesli okuyordu. Çoğu zaman anlam o zaman açılıyordu. Sabır, okumanın en az kelimeler kadar önemli bir parçasıydı.",
+        "Dönüşte aynı cümleyi sesli okuyordu. Çoğu zaman anlam o zaman açılıyordu. Sabırla, acele etmeden okuyunca anlam çoğu zaman kendiliğinden açılıyordu.",
       ],
     },
     {
@@ -143,7 +143,7 @@ export const YARIM_KALAN_AYRAC_DRAFT = {
         "Aklında karakterlerin sözleri dolaşıyordu. Hamur yoğururken bile bazı cümleleri hatırladı. Kitap, gününün sessiz bir parçası olmuştu.",
         "Ertesi hafta Saadet bir kitapla geldi. Gençliğinde yarım bıraktığı bir romandı. Birlikte mutfak masasına oturdular.",
         "İkisi de kendi kitabını açtı ve sayacı kurdu. On dakika boyunca yalnızca sayfa sesleri duyuldu. Süre bitince ikisi de gülümsedi.",
-        "Saadet, gözlerim artık eskisi gibi değil, dedi. Nermin ona satır izleme kâğıdını gösterdi ve ekranda yazının büyütülebildiğini anlattı. Saadet kâğıdı hemen denedi.",
+        "Saadet, gözlerim artık eskisi gibi değil, dedi. Nermin ona satır izleme kâğıdını gösterdi ve ekranda yazının büyütülebildiğini anlattı. Saadet için yazıyı büyütmek daha iyi geldi; gözlükçüye de uğramaya karar verdi.",
         "Okuduklarını birbirlerine kısaca anlattılar. Saadet'in kitabında bir köy düğünü vardı. Nermin'in kitabında ise uzun bir tren yolculuğu.",
         "Bu buluşmalar haftada bir akşama dönüştü. Bazen Defne de katıldı ve kendi kitabını getirdi. Masa, üç farklı hikâyeyle doldu.",
         "Nermin artık okumayı bir görev gibi görmüyordu. Okumak, gün içinde nefes aldığı bir aralık olmuştu. Bu aralığı korumak için küçük kurallar koyuyordu.",
@@ -160,7 +160,7 @@ export const YARIM_KALAN_AYRAC_DRAFT = {
         "Nermin en alt raftaki kitaplara baktı. Hepsini birden okumayı düşünmedi. Yalnızca bir sonrakini seçmek yeterliydi.",
         "İnce, mavi kapaklı bir kitabı aldı. Kırmızı ayracı onun ilk sayfasına yerleştirdi. Artık ayraç yarım kalmış bir hikâyeyi değil, yeni bir başlangıcı gösteriyordu.",
         "Ertesi sabah fırına giderken kitabı çantasına koydu. Hayri Bey'e bitirdiğini söyleyecekti. Belki Emre'ye de ödünç verirdi.",
-        "Hayri Bey haberi duyunca kocaman güldü. Gördün mü, demedim mi, dedi. Damlaya damlaya göl olur, diye ekledi.",
+        "Hayri Bey haberi duyunca kocaman güldü. Gördün mü, demedim mi, dedi.",
         "Emre kitabı ödünç aldı, ama biraz çekingendi. Nermin ona ayraç olarak fırının eski bir fişini verdi. Kaldığın yeri kaybetme, dedi.",
         "O akşam Nermin yeni kitabın ilk sayfasını açtı. Okumaya dönmek bir kez olup biten bir şey değildi. Her gün yeniden seçilen küçük bir başlangıçtı.",
         "Yarın yine on dakikayla başlayacaktı. Belki biraz daha uzun sürecekti, belki de sürmeyecekti. Önemli olan, yarın da masaya oturmasıydı.",
@@ -199,7 +199,7 @@ export const YARIM_KALAN_AYRAC_DRAFT = {
   sourceTruth,
   factualReview: {
     status: "pending-human-review",
-    notes: "Okuma güçlüğüne dair betimlemeler tanı koymaz; satır izleme kâğıdı ve sesli okuma takibi genel destek önerisi olarak insan erişilebilirlik editörü doğrulaması bekliyor.",
+    notes: "Erişilebilirlik editörü ajanı (K-2026-10-18-05) tanı izlenimi bulmadı; destek aracı etkisi karakter deneyimine bağlandı. Okuma güçlüğüne dair betimlemeler tanı koymaz; satır izleme kâğıdı ve sesli okuma takibi genel destek önerisi olarak insan erişilebilirlik editörü doğrulaması bekliyor.",
   },
   originalityRightsReview: {
     status: "pending-human-review",
