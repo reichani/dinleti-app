@@ -8,11 +8,11 @@ const sourceTruth = Object.freeze({
   firstPublication: "1926, Ali Canip Yöntem'in hazırladığı ölüm sonrası derleme (Vikipedi, Kaşağı (hikâye), Türk Edebiyatı Ansiklopedisi c.4 s.961'e atıfla)",
   sourceType: "public-domain-graded-short-adaptation",
   rightsStatus: "kamu-mali",
-  rightsBasis: "5846 sayılı FSEK md.27: yazarın ölümünü izleyen yıldan itibaren 70 yıl; 1920 ölümüyle süre 1990 sonunda doldu. Reyhan teyidi bekliyor.",
+  rightsBasis: "5846 sayılı FSEK md.27: yazarın ölümünü izleyen yıldan itibaren 70 yıl; 1920 ölümüyle süre 1990 sonunda doldu. Reyhan Açar kamu malı olarak teyit etti (K-2026-10-18-03, ontology/karar-kayitlari.json); bu teyit içerik veya yayın onayı değildir.",
   rightsHolder: "Kamu malı (kaynak metin); uyarlama dili Okurio",
   adaptationStatus: "graded-simplified-retelling",
   scope:
-    "Ömer Seyfettin'in Kaşağı öyküsünün olay sırasına bağlı, kısa cümlelerle yeniden anlatılmış sadeleştirilmiş uyarlamasıdır. Tam metin değildir. Yalnız Vikikaynak'taki metinden uyarlanmıştır; modern yayınevi sadeleştirmeleri kullanılmamıştır. Okurio editoryal ekleri: (1) Uzun Bir Yıl bölümünde anlatıcının içindeki sızı ve doğruyu sürekli ertelemesi; (2) Ertelenen Söz bölümünde 'Söylemeyi ertelediğim söz, artık ona hiç ulaşamayacaktı' cümlesi ve yıllar sonrası anma paragrafı; (3) sahnelerdeki kısa açıklamalar (seyis, tımar, yalak tanımları) ve küçük betimleme ekleri ('Akşam karanlık çökene kadar', 'cesur görünmeye çalışırdım' gibi); (4) Okur Notu bölümünün tamamı; (5) Babamın Sorusu, Haksız Ceza ve Uzun Bir Yıl bölümlerinde anlatıcının suskunluğunu ve suçluluğunu veren iç ses cümleleri: 'Söylediklerimin hiçbiri doğru değildi, ama sesim titremedi.', 'Ben arkalarından baktım, ama tek kelime söylemedim. O günkü sessizliğim, yalanımı daha da büyüttü.' ve 'Ben yine susmayı seçtim ve konuşmayı değiştirdim.' Çıkarılan veya yumuşatılan kaynak öğeleri: kuşpalazı için kesilen kuşların boyna sarıldığı halk çaresi sahnesi; babanın 'Eğer yalan söylersen seni döverim!' tehdidi ve 'Utanmaz yalancı' sözü; Pervin'in 'Kardeşin ölecek!' diyaloğu (dolaylı anlatıma çevrildi); son sahnede sofada çiftlik imamıyla Dadaruh'un ağlaması. Ölüm ve tokat ayrıntısız verilmiştir.",
+    "Ömer Seyfettin'in Kaşağı öyküsünün olay sırasına bağlı, kısa cümlelerle yeniden anlatılmış sadeleştirilmiş uyarlamasıdır. Tam metin değildir. Yalnız Vikikaynak'taki metinden uyarlanmıştır; modern yayınevi sadeleştirmeleri kullanılmamıştır. Okurio editoryal ekleri: (1) Uzun Bir Yıl bölümünde anlatıcının içindeki sızı ve doğruyu sürekli ertelemesi; (2) Ertelenen Söz bölümünde 'Söylemeyi ertelediğim söz, artık ona hiç ulaşamayacaktı' cümlesi ve yıllar sonrası anma paragrafı; (3) sahnelerdeki kısa açıklamalar (seyis, tımar, yalak tanımları) ve küçük betimleme ekleri ('Akşam karanlık çökene kadar', 'cesur görünmeye çalışırdım', ahırın saman ve arpa kokusu, Uzun Bir Yıl bölümündeki 'Hasan'ın boş yeri' paragrafı gibi); (4) Okur Notu bölümünün tamamı; (5) Babamın Sorusu ve Haksız Ceza ile Uzun Bir Yıl bölümlerinde anlatıcının suskunluğunu ve suçluluğunu veren iç ses cümleleri: 'Söylediklerimin hiçbiri doğru değildi, ama sesim titremedi.', 'Ben arkalarından baktım, ama tek kelime söylemedim. O günkü sessizliğim, yalanımı daha da büyüttü.' ve 'Ben yine susmayı seçtim ve konuşmayı değiştirdim.' Çıkarılan veya yumuşatılan kaynak öğeleri: kuşpalazı için kesilen kuşların boyna sarıldığı halk çaresi sahnesi; babanın 'Eğer yalan söylersen seni döverim!' tehdidi ve 'Utanmaz yalancı' sözü; Pervin'in 'Kardeşin ölecek!' diyaloğu (dolaylı anlatıma çevrildi); son sahnede sofada çiftlik imamıyla Dadaruh'un ağlaması. Ölüm ve tokat ayrıntısız verilmiştir.",
   sourceUrls: [
     "https://tr.wikisource.org/wiki/Ka%C5%9Fa%C4%9F%C4%B1",
     "https://tr.wikipedia.org/wiki/Ka%C5%9Fa%C4%9F%C4%B1_(hik%C3%A2ye)",
@@ -37,8 +37,8 @@ export const KASAGI_UYARLAMA_DRAFT = {
   structuralValid: true,
   releaseReady: false,
   estimatedWordsPerMinute: 155,
-  wordCount: 1015,
-  estimatedSeconds: 393,
+  wordCount: 1095,
+  estimatedSeconds: 424,
   contentWarnings: ["kardeşin hastalık sonucu ölümü (ayrıntısız)", "çocuğa tokat (ayrıntısız)", "iftira ve suçluluk duygusu"],
   sections: [
     {
@@ -49,6 +49,7 @@ export const KASAGI_UYARLAMA_DRAFT = {
         "Dadaruh babamın seyisiydi, yani atlarına bakan yaşlı bir adamdı. Sabah erkenden kalkar, kahvaltıyı bitirir bitirmez ona koşardık. Akşam karanlık çökene kadar da peşinden ayrılmazdık.",
         "En çok sevdiğimiz şey atlardı. Onları Dadaruh'la birlikte dereye suya götürmek büyük bir sevinçti. Eyersiz, çıplak sırtlarına binmek ise doyulmaz bir zevkti.",
         "Hasan atlardan biraz korkardı ve yalnız binemezdi. Dadaruh onu kendi önüne oturtur, sıkıca tutardı. Ben ise yanlarında elimden geldiğince cesur görünmeye çalışırdım.",
+        "Ahır, taze saman ve arpa kokardı. Atlar bizi görünce başlarını yemlikten kaldırır, burunlarından ılık bir soluk verirlerdi.",
       ],
     },
     {
@@ -78,7 +79,7 @@ export const KASAGI_UYARLAMA_DRAFT = {
       ],
     },
     {
-      title: "Babamın Sorusu",
+      title: "Babamın Sorusu ve Haksız Ceza",
       paragraphs: [
         "Babam her sabah dışarı çıkmadan önce ahıra uğrardı. O gün de çeşmenin başında durup etrafa baktı. Yalağın içindeki kırık kaşağıyı hemen gördü.",
         "Gel buraya, diye Dadaruh'a seslendi. Dadaruh şaşkın şaşkın geldi, kaşağıyı kimin kırdığını bilmiyordu. Ben ise nedenini anlamadan çok korkmuştum, nefesim kesilecek gibiydi.",
@@ -86,14 +87,9 @@ export const KASAGI_UYARLAMA_DRAFT = {
         "Dün Dadaruh uyurken odaya girdiğini anlattım. Kaşağıyı sandıktan alıp yalağın taşında ezdiğini söyledim. Söylediklerimin hiçbiri doğru değildi, ama sesim titremedi.",
         "Babam, neden Dadaruh'a haber vermedin, diye sordu. Uyuyordu, dedim. Babam Hasan'ı çağırmamı istedi.",
         "Gölgeli yoldan eve doğru koştum ve kardeşimi buldum. Zavallının hiçbir şeyden haberi yoktu. Koşarak, neşeyle arkamdan geldi.",
-      ],
-    },
-    {
-      title: "Haksız Ceza",
-      paragraphs: [
         "Babam çok sert bir adamdı, bir bakışı bile ikimizi korkuturdu. Hasan'a yalan söylememesini sıkıca tembihledi. Sonra kaşağıyı neden kırdığını sordu.",
         "Hasan, Dadaruh'un elindeki kırık alete şaşkınlıkla baktı. Sarı saçlı başını iki yana salladı. Ben kırmadım, dedi.",
-        "Babam, doğruyu söylersen darılmayacağım, dedi. Hasan yine de kırmadığını sakin sakin tekrarladı. Çünkü gerçekten kırmamıştı.",
+        "Babam, doğruyu söylersen darılmayacağım, yalan çok fenadır, dedi. Hasan inkârında inat etti ve kırmadığını sakin sakin tekrarladı. Çünkü gerçekten kırmamıştı.",
         "Babam bu ısrarı inatçı bir yalan sandı ve öfkelendi. Hasan'ın yüzüne bir tokat attı. Onu bir daha ahıra sokmamasını Dadaruh'a sert bir sesle emretti.",
         "Dadaruh ağlayan kardeşimi kucağına alıp çitin kapısına doğru yürüdü. Ben arkalarından baktım, ama tek kelime söylemedim. O günkü sessizliğim, yalanımı daha da büyüttü.",
       ],
@@ -101,11 +97,12 @@ export const KASAGI_UYARLAMA_DRAFT = {
     {
       title: "Uzun Bir Yıl",
       paragraphs: [
-        "O günden sonra ahırda hep yalnız oynadım. Hasan evde, hizmetçimiz Pervin'in yanında kalıyordu. Annem döndükten sonra bile babam onu affetmedi.",
+        "O günden sonra ahırda hep yalnız oynadım. Hasan evde, hizmetçimiz Pervin'in yanında, adeta bir mahpus gibi kalıyordu. Annem döndükten sonra bile babam onu affetmedi.",
         "Babam fırsat buldukça ondan, o yalancı, diye söz ederdi. Hasan o tokadı hatırladıkça ağlamaya başlar, güçlükle susardı. Annem ise benim iftira atabileceğime hiç ihtimal vermiyordu.",
         "Annem kaşağının hikâyesini duyunca başka bir şeyden şüphelendi. Dadaruh dikkatsiz davranıp atlara ezdirmiş olmasın, dedi. Ben yine susmayı seçtim ve konuşmayı değiştirdim.",
         "Ertesi yaz annem yine İstanbul'a gitti. Hasan'a ahıra girmek hâlâ yasaktı. Geceleri yatakta bana atların ne yaptığını, tayların büyüyüp büyümediğini sorardı.",
         "Ben ona tayların ne kadar büyüdüğünü anlatırdım. Her sorusunda içimde küçük bir sızı duyardım. Yine de doğruyu söylemeyi hep bir sonraki güne bırakıyordum.",
+        "Ahırda tek başıma oynarken bazen Hasan'ın boş yerine bakardım. O yer bana her seferinde sessiz bir soru soruyor gibiydi.",
       ],
     },
     {
@@ -125,9 +122,10 @@ export const KASAGI_UYARLAMA_DRAFT = {
       title: "Okur Notu",
       editorial: true,
       paragraphs: [
-        "Bu son bölüm Ömer Seyfettin'e ait değildir, Okurio tarafından eklenmiştir. Öykü, küçük bir yalanın nasıl büyük bir haksızlığa dönüştüğünü gösterir.",
+        "Bu son bölüm Ömer Seyfettin'e ait değildir, Okurio tarafından eklenmiştir. Öykü, küçük bir yalanın nasıl büyük bir haksızlığa dönüştüğünü gösterir. Okurken anlatıcının neden bu kadar uzun süre sustuğunu da düşünebilirsin.",
         "Halk arasında yalancının mumu yatsıya kadar yanar, denir. Yani yalan uzun sürmez, gerçek er geç ortaya çıkar. Öyküde anlatıcı gerçeği söylemeye karar verdiğinde ise çok geç kalmıştır.",
         "Bugün kuşpalazına difteri denir ve aşıyla önlenebilir. Çocuklara fiziksel ceza vermek de artık kabul edilmez. Bir hata yaptığında bunu güvendiğin bir yetişkine söylemek her zaman mümkündür.",
+        "Öykü bir soru daha bırakır: Baba, Hasan'ı dinlemeden cezalandırdığında o da haksızlık etmiş olmaz mı? Doğruyu bulmak için herkesi sakin bir şekilde dinlemek gerekir.",
         "Bu öykü sana üzüntü verdiyse, bunu güvendiğin biriyle konuşabilirsin. Duyguların hakkında konuşmak iyi gelebilir.",
       ],
     },
@@ -175,7 +173,7 @@ export const KASAGI_UYARLAMA_DRAFT = {
   },
   originalityRightsReview: {
     status: "pending-human-review",
-    notes: "Kamu malı dayanak (yazar 1920'de öldü) ve uyarlamanın modern sadeleştirmelerden bağımsızlığı Reyhan teyidi bekliyor.",
+    notes: "Kamu malı dayanağı Reyhan tarafından teyit edildi (K-2026-10-18-03). Uyarlamanın modern sadeleştirmelerden bağımsızlığı insan incelemesi bekliyor.",
   },
   safeguardingLanguageReview: {
     status: "pending-human-review",
