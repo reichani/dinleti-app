@@ -39,3 +39,21 @@ test("ajan rolleri insan onayı alanlarını doldurmayacaklarını belirtir", ()
   }
   assert.match(yayin, /main'e yazmazsın/);
 });
+
+test("MEB kazanım sözlüğü resmî kod biçiminde ve aday eşleme yalnız sözlükteki kodları kullanır", () => {
+  const vocab = JSON.parse(readFileSync(new URL("../../ontology/vocab/meb-kazanim.json", import.meta.url), "utf8"));
+  assert.deepEqual(vocab.siniflar.map((s) => s.sinif), [1, 2, 3, 4, 5, 6, 7, 8]);
+  const kodlar = new Set();
+  for (const s of vocab.siniflar) for (const k of s.kazanimlar) {
+    assert.match(k.kod, new RegExp(`^T\\.O\\.${s.sinif}\\.\\d+\\.$`));
+    kodlar.add(k.kod);
+    for (const b of k.surecBilesenleri ?? []) kodlar.add(b.altKodTuretilmis);
+  }
+  execFileSync("node", ["scripts/build-curriculum-candidates.mjs"], { stdio: "pipe" });
+  const map = JSON.parse(readFileSync(new URL("../../ontology/mappings/icerik-kazanim-aday.json", import.meta.url), "utf8"));
+  assert.equal(map.kayitlar.length, snapshot.icerikler.length);
+  for (const k of map.kayitlar) {
+    assert.ok(["aday-kural-tabanli", "kapsam-disi"].includes(k.durum));
+    for (const a of k.adayKazanimlar ?? []) assert.ok(kodlar.has(a.kod), `${k.id}: sözlükte olmayan kod ${a.kod}`);
+  }
+});

@@ -6,7 +6,7 @@ Sahip: Reyhan Açar (sürüm onayı, dış kaynak ve lisans kararları). Bakımc
 
 ## Dosyalar
 
-`okurio-ontology.v0.1.json` sınıfları, özellikleri, ilişkileri, metrik tanımlarını, olgunluk seviyelerini (O0-O4) ve açık boşlukları (B1-B7) içerir. `snapshots/catalog-metrics-<tarih>.json` katalogdaki her içerik için ölçülen değerleri ve okuma yolu özetini içerir; `node scripts/build-ontology-snapshot.mjs --date <tarih>` ile üretilir. `vocab/` (henüz yok) dış dayanaklı listeler için ayrılmıştır: MEB kazanım kodları, kelime sıklık bantları, deyim ve atasözü listesi.
+`okurio-ontology.v0.1.json` sınıfları, özellikleri, ilişkileri, metrik tanımlarını, olgunluk seviyelerini (O0-O4) ve açık boşlukları (B1-B7) içerir. `snapshots/catalog-metrics-<tarih>.json` katalogdaki her içerik için ölçülen değerleri ve okuma yolu özetini içerir; `node scripts/build-ontology-snapshot.mjs --date <tarih>` ile üretilir. `vocab/meb-kazanim.json` MEB TYMM Türkçe programının 1-8. sınıf okuma öğrenme çıktılarını (119 çıktı, 349 süreç bileşeni) kodlarıyla tutar; kaynak ve sınırlar `vocab/meb-kazanim-KAYNAK-NOTU.md` dosyasında. `mappings/icerik-kazanim-aday.json` içerik ile kazanım arasındaki kural tabanlı aday eşlemedir; `node scripts/build-curriculum-candidates.mjs` ile üretilir. Kelime sıklık bantları ile deyim ve atasözü listesi henüz yok (B1, B3).
 
 ## Güncelleme metodolojisi
 

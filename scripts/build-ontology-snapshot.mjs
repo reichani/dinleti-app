@@ -202,7 +202,7 @@ const kapsam = {
 };
 
 const snapshot = {
-  ontologyVersion: "0.1.0",
+  ontologyVersion: JSON.parse(readFileSync(new URL("../ontology/okurio-ontology.v0.1.json", import.meta.url), "utf8")).version,
   olusturuldu: dateArg,
   kaynak: "src/App.jsx (KATALOG, ICERIK_METADATA ve kontrollü sözlükler), src/content/*",
   yontem: {
