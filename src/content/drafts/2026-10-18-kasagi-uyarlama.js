@@ -37,7 +37,7 @@ export const KASAGI_UYARLAMA_DRAFT = {
   structuralValid: true,
   releaseReady: false,
   estimatedWordsPerMinute: 155,
-  wordCount: 1095,
+  wordCount: 1094,
   estimatedSeconds: 424,
   contentWarnings: ["kardeşin hastalık sonucu ölümü (ayrıntısız)", "çocuğa tokat (ayrıntısız)", "iftira ve suçluluk duygusu"],
   sections: [
