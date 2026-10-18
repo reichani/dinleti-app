@@ -1,3 +1,18 @@
+import { MINO_MIRILDANIYOR_DRAFT } from "./drafts/2026-10-18-mino-mirildaniyor.js";
+import { LILI_SU_SESI_DRAFT } from "./drafts/2026-10-18-lili-su-sesi.js";
+import { TOTO_ARI_ARIYOR_DRAFT } from "./drafts/2026-10-18-toto-ari-ariyor.js";
+import { OKI_AYAKKABI_TEKI_DRAFT } from "./drafts/2026-10-18-oki-ayakkabi-teki.js";
+import { NANA_PAZAR_RENKLERI_DRAFT } from "./drafts/2026-10-18-nana-pazar-renkleri.js";
+import { KUS_YUVASI_DEFTERI_DRAFT } from "./drafts/2026-10-18-kus-yuvasi-defteri.js";
+import { RAINY_DAY_LIBRARY_EN_DRAFT } from "./drafts/2026-10-18-rainy-day-library-en.js";
+import { TAMIRCI_DEFTERI_DRAFT } from "./drafts/2026-10-18-tamirci-defteri.js";
+import { KENAR_NOTLARI_DRAFT } from "./drafts/2026-10-18-kenar-notlari.js";
+import { LIGHTHOUSE_LOGBOOK_EN_DRAFT } from "./drafts/2026-10-18-lighthouse-logbook-en.js";
+import { ESKI_HARITA_CALISMASI_DRAFT } from "./drafts/2026-10-18-eski-harita-calismasi.js";
+import { MUNAZARA_HAZIRLIGI_DRAFT } from "./drafts/2026-10-18-munazara-hazirligi.js";
+import { SABAH_VAPURU_DRAFT } from "./drafts/2026-10-18-sabah-vapuru.js";
+import { MAHALLENIN_SAATCISI_DRAFT } from "./drafts/2026-10-18-mahallenin-saatcisi.js";
+import { KIRK_DAKIKALIK_BAHCE_DRAFT } from "./drafts/2026-10-18-kirk-dakikalik-bahce.js";
 import { ALI_ILE_ELA_DRAFT } from "./drafts/2026-07-25-ali-ile-ela.js";
 import { KIYIDAKI_SESSIZ_ISTASYON_DRAFT } from "./drafts/2026-07-28-kiyidaki-sessiz-istasyon.js";
 import { LILI_ILE_AT_DRAFT } from "./drafts/2026-08-30-lili-ile-at.js";
@@ -142,7 +157,22 @@ export const PREPARED_DRAFT_PRODUCTION_CANDIDATES = [
 
 // Katalogda karşılığı olmayan, tamamen yeni özgün okumalar (id çakışması yok).
 export const NEW_PRODUCTION_STORIES = [
-  preparedDraftToProductionCandidate(KIYIDAKI_SESSIZ_ISTASYON_DRAFT, { kategori: "Özgün Uzun Okuma", renk: ["#22404A", "#7FB8C4"] }),
+  preparedDraftToProductionCandidate(KIYIDAKI_SESSIZ_ISTASYON_DRAFT, { kategori: "Özgün Uzun Okuma", renk: ["#22404A", "#7FB8C4"] }),  // 2026-10-18: özgün pilot okumalar (yazar ajanları, uzunluk denetimi UYGUN; insan onayı pending)
+  preparedDraftToProductionCandidate(MINO_MIRILDANIYOR_DRAFT, { kategori: "Ses Oyunları", renk: ["#5B3F5E", "#D7A6D9"] }),
+  preparedDraftToProductionCandidate(LILI_SU_SESI_DRAFT, { kategori: "Ses Oyunları", renk: ["#2F5266", "#9FD0E3"] }),
+  preparedDraftToProductionCandidate(TOTO_ARI_ARIYOR_DRAFT, { kategori: "Ses Oyunları", renk: ["#6A5214", "#F2CF5B"] }),
+  preparedDraftToProductionCandidate(OKI_AYAKKABI_TEKI_DRAFT, { kategori: "İlk Okuma", renk: ["#4A3A62", "#B9A2E0"] }),
+  preparedDraftToProductionCandidate(NANA_PAZAR_RENKLERI_DRAFT, { kategori: "İlk Okuma", renk: ["#6B3A22", "#F0A36A"] }),
+  preparedDraftToProductionCandidate(KUS_YUVASI_DEFTERI_DRAFT, { kategori: "Doğa Bilimi", renk: ["#3D4E2A", "#A7C77A"] }),
+  preparedDraftToProductionCandidate(RAINY_DAY_LIBRARY_EN_DRAFT, { kategori: "English Corner", renk: ["#2A3F5E", "#8DB0E0"], dil: "en" }),
+  preparedDraftToProductionCandidate(TAMIRCI_DEFTERI_DRAFT, { kategori: "Özgün Uzun Okuma", renk: ["#4A3524", "#D29B6A"] }),
+  preparedDraftToProductionCandidate(KENAR_NOTLARI_DRAFT, { kategori: "Özgün Uzun Okuma", renk: ["#3A2E4A", "#B39BD6"] }),
+  preparedDraftToProductionCandidate(LIGHTHOUSE_LOGBOOK_EN_DRAFT, { kategori: "English Classics Bridge", renk: ["#1E3A4A", "#7FC0D8"], dil: "en" }),
+  preparedDraftToProductionCandidate(ESKI_HARITA_CALISMASI_DRAFT, { kategori: "Özgün Uzun Okuma", renk: ["#3B3A22", "#CFC07A"] }),
+  preparedDraftToProductionCandidate(MUNAZARA_HAZIRLIGI_DRAFT, { kategori: "Özgün Uzun Okuma", renk: ["#22384A", "#7FA6C8"] }),
+  preparedDraftToProductionCandidate(SABAH_VAPURU_DRAFT, { kategori: "Okumaya Dönüş", renk: ["#203A52", "#8FB4D6"] }),
+  preparedDraftToProductionCandidate(MAHALLENIN_SAATCISI_DRAFT, { kategori: "Okumaya Dönüş", renk: ["#4A3A22", "#D8B678"] }),
+  preparedDraftToProductionCandidate(KIRK_DAKIKALIK_BAHCE_DRAFT, { kategori: "Okumaya Dönüş", renk: ["#2E4A2E", "#9CCB8E"] }),
 ];
 
 
