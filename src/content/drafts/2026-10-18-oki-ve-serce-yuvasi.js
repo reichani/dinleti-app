@@ -27,8 +27,8 @@ export const OKI_VE_SERCE_YUVASI_DRAFT = {
   contentStatus: "draft",
   releaseReady: false,
   estimatedWordsPerMinute: 155,
-  wordCount: 286,
-  estimatedSeconds: 111,
+  wordCount: 287,
+  estimatedSeconds: 112,
   sections: [
     {
       title: "Saçaktaki Ses",
@@ -42,7 +42,7 @@ export const OKI_VE_SERCE_YUVASI_DRAFT = {
       title: "Fısıltıyla Konuşmak",
       paragraphs: [
         "Lili koşarak geldi ve yüksek sesle bağırdı. Serçe korkup hemen yuvadan uzaklaştı. Lili şaşırıp elini ağzına götürdü.",
-        "Oki, kuşların ani seslerden ürktüğünü hatırladı. Lili'nin kulağına bir fısıltı ile konuştu. Artık ikisi de yavaş ve alçak sesle konuşacaktı.",
+        "Oki, kuşların yüksek sesten kolayca ürkebildiğini hatırladı. Lili'nin kulağına bir fısıltı ile konuştu. Artık ikisi de yavaş ve alçak sesle konuşacaktı.",
         "Biraz sonra serçe yuvaya geri döndü. Lili sevindi ve sesini hiç yükseltmedi. Mino da pencerenin önünden onları izledi.",
       ],
     },

@@ -19,7 +19,8 @@
     "mebKademeSinif": "src/content/schoolGradeMapping.js TR_SCHOOL_GRADE_MAP",
     "mebKazanim": "ontology/vocab/meb-kazanim.json (henüz yok: B2 açık)",
     "hakDurumuSozlugu": "ontology/okurio-ontology.v0.1.json kontrolluSozlukler.HakDurumu",
-    "insanKapisi": "docs/AI-ASSISTED-QUALITY-GATE-v1.0.md"
+    "insanKapisi": "docs/AI-ASSISTED-QUALITY-GATE-v1.0.md",
+    "aiKanitOnayi": "src/content/aiEvidenceReview.js evaluateAiEvidenceReview; kayıtlar ontology/reviews/ai-kanit (K-2026-10-18-07)"
   },
   "kararlar": [
     {
@@ -78,6 +79,18 @@
       "konu": "Gözetim ajanı",
       "karar": "Her taslak yazıldıktan sonra okurio-gozetim-ajani bağımsız denetim yapar; engelleyici bulgu kalmayana kadar ya da en fazla 3 tur yazar düzeltir.",
       "uygulama": ".claude/agents/okurio-gozetim-ajani.md (PR #146)"
+    }
+,
+    {
+      "id": "K-2026-10-18-07",
+      "tarih": "2026-10-18",
+      "veren": "Reyhan Açar (sohbet)",
+      "durum": "yururlukte",
+      "konu": "Prototip fazında içerik onay modeli",
+      "karar": "İlk prototip ve pilot fazında içerikler insan onayı yerine kayıtlı bir AI kanıt denetiminden geçer: gözetim ajanının beş denetimi ve olgusal/pedagojik iddiaların PubMed, Consensus, resmî kurum veya birincil metinle doğrulanması. İnsan onayı, marka gelir elde etmeye başladığında bu kaydın üstüne eklenir.",
+      "kamuyaAciklama": "Sunum ve arayüzde yalnız 'AI destekli kanıt denetiminden geçti' ifadesi kullanılır; 'uzman onaylı', 'insan onaylı', 'editör onaylı' veya 'bilimsel olarak kanıtlanmış' denmez.",
+      "sinir": "AI kaydı contentQualityReview, reviewerName, ownerApproval ve releaseReady alanlarını doldurmaz; insan onayı şeması (2.0) ve publicationReady değişmez. Ölüm, şiddet, kamu malı gibi insan yargısı gerektiren konular kayıtta not olarak kalır ve ürün sahibine iletilir.",
+      "uygulama": "src/content/aiEvidenceReview.js; ontology/reviews/ai-kanit/<id>.json; .claude/skills/okurio-ai-kanit-onayi/SKILL.md; .claude/agents/okurio-kanit-denetcisi.md; anlık görüntüde icerikler[].aiKanitOnayi ve kapsam.aiKanitOnayli"
     }
   ],
   "acikSorular": [

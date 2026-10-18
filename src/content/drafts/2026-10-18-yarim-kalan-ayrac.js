@@ -28,8 +28,8 @@ export const YARIM_KALAN_AYRAC_DRAFT = {
   structuralValid: true,
   releaseReady: false,
   estimatedWordsPerMinute: 155,
-  wordCount: 1841,
-  estimatedSeconds: 713,
+  wordCount: 1844,
+  estimatedSeconds: 714,
   sections: [
     {
       title: "Rafın Tozu",
@@ -112,7 +112,7 @@ export const YARIM_KALAN_AYRAC_DRAFT = {
         "Bir akşam Defne, sence kitaptaki kadın doğru mu yaptı, diye sordu. Nermin düşündü ve fikrini anlattı. Defne başka bir açıdan baktı ve tartıştılar.",
         "Bu tartışma ikisini de şaşırttı. Uzun zamandır böyle bir konuda konuşmamışlardı. Kitap, aralarında yeni bir konu açmıştı.",
         "Nermin okuma sırasında bazen sinirleniyordu. Bir cümleyi üç kez okusa da anlamadığı oluyordu. O zaman kitabı bırakıp birkaç dakika yürüyordu.",
-        "Dönüşte aynı cümleyi sesli okuyordu. Çoğu zaman anlam o zaman açılıyordu. Sabırla, acele etmeden okuyunca anlam çoğu zaman kendiliğinden açılıyordu.",
+        "Dönüşte aynı cümleyi sesli okuyordu. Çoğu zaman anlam o zaman açılıyordu. Nermin, sabırla ve acele etmeden okuyunca anlamın çoğu zaman açıldığını fark ediyordu.",
       ],
     },
     {
