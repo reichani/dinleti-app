@@ -34,15 +34,13 @@ export const PEMBE_INCILI_KAFTAN_DRAFT = {
       'Hazırlık sırasında ailesinin geçimi için para bıraktı. Yol arkadaşlarının giysi ve araçlarını da sağladı. Böylece kararının başkalarına yüklediği sorumluluğu azaltmaya çalıştı.',
       'Kaftanın rengi ve incileri uzaktan dikkat çekiyordu. Bu görünüm yalnız zenginlik mesajı taşımıyordu. Karşı tarafın gösteriş diline hazırlanmış bilinçli bir cevaptı.',
     ]},
-    { title: 'Tebriz Sarayında', paragraphs: [
+    { title: 'Tebriz Sarayında Kalan Kaftan', paragraphs: [
       'Elçilik heyeti uzun bir yolculuktan sonra Tebriz’e ulaştı. Pembe incili kaftanın ünü onlardan önce yayılmıştı. Saray görevlileri gösterişli heyeti merakla karşıladı.',
       'Kabul salonunda elçi için bir oturma yeri bırakılmamıştı. Bu düzen, onu görüşme boyunca ayakta tutmayı amaçlıyordu. Muhsin Çelebi sessizce çevresine baktı.',
       'Tartışmayı büyütmek veya birine saldırmak yerine sembolik bir cevap seçti. Kaftanını çıkarıp yere serdi. Sonra onun üzerine sakin biçimde oturdu.',
       'Bu hareket salondaki güç gösterisini değiştirdi. Değerli giysi artık rahatlık sağlayan bir örtüydü. Muhsin Çelebi sözünü açıkça iletti.',
       'Saray görevlileri şaşkınlıkla onu izledi. Önceden hazırlanmış düzen beklenen sonucu vermemişti. Elçi, karşısındakileri küçük düşürmeden kendi konumunu görünür kıldı.',
       'Görüşme boyunca sesini ve hareketlerini kontrol etti. Tehditlere aynı biçimde karşılık vermedi. Sembolik hareket, fiziksel çatışmanın yerini aldı.',
-    ]},
-    { title: 'Geride Bırakılan Kaftan', paragraphs: [
       'Görüşme sona erince Muhsin Çelebi kapıya yürüdü. Bir görevli kaftanı unuttuğunu düşünerek arkasından geldi. Kaftanı kendisine uzattı.',
       'Muhsin Çelebi onu unutmadığını söyledi. Yere serdiği giysiyi yeniden giymeyeceğini belirtti. Kaftanı sarayda bırakarak yoluna devam etti.',
       'Bu cümle gurur kadar büyük bir maddi kaybı da taşıyordu. Sembolik davranış amacına ulaşmıştı. Fakat bedeli yalnız o anla sınırlı kalmayacaktı.',
