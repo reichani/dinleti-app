@@ -13,6 +13,9 @@ import { MUNAZARA_HAZIRLIGI_DRAFT } from "./drafts/2026-10-18-munazara-hazirligi
 import { SABAH_VAPURU_DRAFT } from "./drafts/2026-10-18-sabah-vapuru.js";
 import { MAHALLENIN_SAATCISI_DRAFT } from "./drafts/2026-10-18-mahallenin-saatcisi.js";
 import { KIRK_DAKIKALIK_BAHCE_DRAFT } from "./drafts/2026-10-18-kirk-dakikalik-bahce.js";
+import { YARIM_KALAN_AYRAC_DRAFT } from "./drafts/2026-10-18-yarim-kalan-ayrac.js";
+import { KASAGI_UYARLAMA_DRAFT } from "./drafts/2026-10-18-kasagi-uyarlama.js";
+import { OKI_VE_SERCE_YUVASI_DRAFT } from "./drafts/2026-10-18-oki-ve-serce-yuvasi.js";
 import { ALI_ILE_ELA_DRAFT } from "./drafts/2026-07-25-ali-ile-ela.js";
 import { KIYIDAKI_SESSIZ_ISTASYON_DRAFT } from "./drafts/2026-07-28-kiyidaki-sessiz-istasyon.js";
 import { LILI_ILE_AT_DRAFT } from "./drafts/2026-08-30-lili-ile-at.js";
@@ -101,6 +104,7 @@ const preparedDraftToProductionCandidate = (draft, overrides = {}) => {
       structuralValid: draft.structuralValid !== false,
       releaseReady: draft.releaseReady === true,
       glossary: draft.glossary,
+      ...(draft.editorialLanguageProfile ? { editorialLanguageProfile: draft.editorialLanguageProfile } : {}),
       optionalReflectionPrompt: draft.optionalReflectionPrompt,
       sourceTruth,
       factualReview: draft.factualReview,
@@ -173,6 +177,24 @@ export const NEW_PRODUCTION_STORIES = [
   preparedDraftToProductionCandidate(SABAH_VAPURU_DRAFT, { kategori: "Okumaya Dönüş", renk: ["#203A52", "#8FB4D6"] }),
   preparedDraftToProductionCandidate(MAHALLENIN_SAATCISI_DRAFT, { kategori: "Okumaya Dönüş", renk: ["#4A3A22", "#D8B678"] }),
   preparedDraftToProductionCandidate(KIRK_DAKIKALIK_BAHCE_DRAFT, { kategori: "Okumaya Dönüş", renk: ["#2E4A2E", "#9CCB8E"] }),
+  // 2026-10-18 içerik planı (docs/content-plans/2026-10-18.md, PR #150-#152): ürün sahibi
+  // sohbette "taslaklar kataloğa bağlı olmalı" talimatı verdi. Gözetim ve erişilebilirlik
+  // denetiminden geçti; insan kalite onayı alanları değiştirilmez (pending).
+  preparedDraftToProductionCandidate(OKI_VE_SERCE_YUVASI_DRAFT, { kategori: "Ses Oyunları", renk: ["#5A4632", "#D9B98A"] }),
+  preparedDraftToProductionCandidate(KASAGI_UYARLAMA_DRAFT, {
+    kategori: "Kısa Hikâye",
+    renk: ["#4A3524", "#C9A06A"],
+    yazar: "Ömer Seyfettin · Okurio sadeleştirilmiş uyarlama",
+    hakDurumu: "kamu-mali",
+    kaynak: {
+      ad: "Kaşağı (Ömer Seyfettin, Vikikaynak)",
+      tur: KASAGI_UYARLAMA_DRAFT.sourceTruth.sourceType,
+      kapsam: KASAGI_UYARLAMA_DRAFT.sourceTruth.scope,
+      url: KASAGI_UYARLAMA_DRAFT.sourceTruth.sourceUrls[0],
+      urls: KASAGI_UYARLAMA_DRAFT.sourceTruth.sourceUrls,
+    },
+  }),
+  preparedDraftToProductionCandidate(YARIM_KALAN_AYRAC_DRAFT, { kategori: "Okumaya Dönüş", renk: ["#5A2E2E", "#E0A0A0"] }),
 ];
 
 
