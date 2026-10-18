@@ -8,7 +8,26 @@ import { readingPathIdForAgeLabel } from "../../src/content/contentQualityReview
 import { detectTextLanguage } from "../../src/textLanguage.js";
 
 const draftDir = new URL("../../src/content/drafts/", import.meta.url);
-const files = readdirSync(draftDir).filter((f) => f.startsWith("2026-10-18-"));
+// Bu test v2.9.3 ile kataloğa bağlanan 15 özgün pilot taslağı kapsar; aynı tarihli
+// başka taslaklar (ör. içerik planı 2026-10-18 taslakları) kendi testleriyle denetlenir.
+const PILOT_FILES = new Set([
+  "2026-10-18-eski-harita-calismasi.js",
+  "2026-10-18-kenar-notlari.js",
+  "2026-10-18-kirk-dakikalik-bahce.js",
+  "2026-10-18-kus-yuvasi-defteri.js",
+  "2026-10-18-lighthouse-logbook-en.js",
+  "2026-10-18-lili-su-sesi.js",
+  "2026-10-18-mahallenin-saatcisi.js",
+  "2026-10-18-mino-mirildaniyor.js",
+  "2026-10-18-munazara-hazirligi.js",
+  "2026-10-18-nana-pazar-renkleri.js",
+  "2026-10-18-oki-ayakkabi-teki.js",
+  "2026-10-18-rainy-day-library-en.js",
+  "2026-10-18-sabah-vapuru.js",
+  "2026-10-18-tamirci-defteri.js",
+  "2026-10-18-toto-ari-ariyor.js",
+]);
+const files = readdirSync(draftDir).filter((f) => PILOT_FILES.has(f));
 
 test("2026-10-18 özgün pilot okumaları: 15 taslak, hepsi uzunluk politikasında UYGUN", async () => {
   assert.equal(files.length, 15);
