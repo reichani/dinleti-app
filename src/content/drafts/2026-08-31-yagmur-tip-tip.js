@@ -22,9 +22,9 @@ export const YAGMUR_TIP_TIP_DRAFT = {
   structuralValid: true,
   releaseReady: false,
   estimatedWordsPerMinute: 155,
-  wordCount: 360,
-  estimatedSeconds: 140,
-  declaredSeconds: 140,
+  wordCount: 366,
+  estimatedSeconds: 142,
+  declaredSeconds: 142,
   sections: [
     {
       title: "Bahçedeki Plan",
@@ -33,6 +33,7 @@ export const YAGMUR_TIP_TIP_DRAFT = {
         "Oki ilk mavi çizgiyi dikkatle çekti. Lili parlak sarı bir güneş ekledi. Gökyüzü o sırada yavaşça koyulaştı.",
         "İlk soğuk damla Oki'nin eline düştü. İkinci damla sarı güneşe kondu. Sonra çatıda tıp tıp sesleri başladı.",
         "Çocuklar malzemeleri kutuya birlikte hızla yerleştirdi. Nana onları kapalı verandaya çağırdı. Bahçedeki plan şimdilik yarıda kalmıştı.",
+        "Mino taşları da kutunun yanına dizdi.",
       ],
     },
     {

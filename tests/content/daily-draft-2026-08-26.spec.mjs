@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { MINO_NEREDE_DRAFT } from "../../src/content/drafts/2026-08-26-mino-nerede.js";
+import { limits } from "./helpers/draft-policy.mjs";
 
 const story = MINO_NEREDE_DRAFT;
 const countWords = (text) =>
@@ -17,7 +18,7 @@ test("Mino: yaş, gerçek süre ve anlamlı bölüm sözleşmesi", () => {
 
   assert.equal(story.ageBand, "6-7");
   assert.equal(story.readingPathId, "ilk_harfler_6_7");
-  assert.ok(actualWords >= 250 && actualWords <= 500);
+  assert.ok(actualWords >= limits(story).minWords && actualWords <= limits(story).maxWords);
   assert.equal(story.wordCount, actualWords);
   assert.equal(story.estimatedWordsPerMinute, 155);
   assert.equal(story.estimatedSeconds, actualSeconds);
@@ -32,7 +33,7 @@ test("Mino: cümle, paragraf, sözlük ve anlatı sözleşmesi", () => {
   const averageSentenceWords =
     sentenceWords.reduce((sum, count) => sum + count, 0) / sentenceWords.length;
 
-  assert.ok(sentenceWords.every((wordCount) => wordCount <= 12));
+  assert.ok(sentenceWords.every((wordCount) => wordCount <= limits(story).maxSentenceWords));
   assert.ok(averageSentenceWords >= 6 && averageSentenceWords <= 10);
   assert.ok(paragraphs.every((paragraph) => sentences(paragraph).length <= 3));
   assert.ok(story.glossary.length >= 3 && story.glossary.length <= 8);

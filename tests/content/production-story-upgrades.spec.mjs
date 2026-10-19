@@ -5,6 +5,8 @@ import {
   PRODUCTION_STORY_UPGRADES_BY_ID,
 } from "../../src/content/productionStoryUpgrades.js";
 import { mergePilotStories } from "../../src/content/pilotCatalogAdapter.js";
+import { readFileSync } from "node:fs";
+const HAK_DURUMLARI = new Set(JSON.parse(readFileSync(new URL("../../ontology/okurio-ontology.v0.1.json", import.meta.url), "utf8")).kontrolluSozlukler.HakDurumu);
 
 const DURATION_RULES_BY_AGE = {
   "3-4 yaş": { minimumSeconds: 120, wordsPerMinute: 110 },
@@ -43,10 +45,14 @@ test("yenilenen hikâyeler yaş grubunun gerçek minimum süresini karşılar", 
     );
     assert.ok(story.bolumler.length >= 4, `${story.baslik}: en az dört anlatı bölümü gerekli`);
     assert.equal(story.icerikDurumu, "tam-metin");
+    // Hak durumu ontolojinin kontrollü sözlüğünden okunur (ontology/okurio-ontology.v0.1.json).
     assert.ok(
-      ["okurio-ozgun", "okurio-ozgun-ai-destekli"].includes(story.hakDurumu),
+      HAK_DURUMLARI.has(story.hakDurumu),
       `${story.baslik}: tanımsız hak durumu ${story.hakDurumu}`,
     );
+    if (story.hakDurumu === "kamu-mali") {
+      assert.ok(story.kaynak?.url, `${story.baslik}: kamu malı uyarlamada kaynak bağlantısı zorunlu`);
+    }
   }
 });
 

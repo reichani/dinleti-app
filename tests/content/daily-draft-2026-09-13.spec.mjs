@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ALICE_RABBIT_HOLE_DRAFT as story } from '../../src/content/drafts/2026-09-13-alice-rabbit-hole.js';
 import { evaluateContentQualityReview } from '../../src/content/contentQualityReview.js';
+import { limits } from "./helpers/draft-policy.mjs";
 
 const words = text => text.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
 const sentences = text => text.split(/(?<=[.!?])\s+/u).filter(Boolean);
@@ -11,11 +12,11 @@ test('Alice graded adaptation meets age, sections, timing and manifesto bounds',
   const count = words(paragraphs.join(' '));
   const duration = Math.ceil(count * 60 / 155);
   const lengths = paragraphs.flatMap(sentences).map(words);
-  assert.ok(count >= 700 && count <= 1200);
+  assert.ok(count >= limits(story).minWords && count <= limits(story).maxWords);
   assert.ok(story.sections.length >= 3 && story.sections.length <= 8);
   assert.ok(story.sections.every(section => words(section.paragraphs.join(' ')) >= 30));
   assert.ok(paragraphs.every(paragraph => sentences(paragraph).length <= 3));
-  assert.ok(Math.max(...lengths) <= 12);
+  assert.ok(Math.max(...lengths) <= limits(story).maxSentenceWords);
   assert.ok(count / lengths.length >= 6 && count / lengths.length <= 10);
   assert.ok(Math.abs(story.declaredSeconds - duration) / duration <= .15);
 });

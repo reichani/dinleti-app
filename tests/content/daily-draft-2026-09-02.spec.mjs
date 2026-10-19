@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { YILDIZ_GEZEGEN_DRAFT as story } from '../../src/content/drafts/2026-09-02-yildiz-mi-gezegen-mi.js';
+import { limits } from "./helpers/draft-policy.mjs";
 const words = text => text.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
 const sentences = text => text.split(/(?<=[.!?])\s+/u).filter(Boolean);
 function validate(s) {
@@ -9,11 +10,11 @@ function validate(s) {
   const seconds = Math.ceil(count * 60 / 155);
   const lengths = p.flatMap(sentences).map(words);
   const errors = [];
-  if (count < 500 || count > 900) errors.push('age');
+  if (count < limits(s).minWords || count > limits(s).maxWords) errors.push('age');
   if (s.sections.length < 3 || s.sections.length > 8) errors.push('sections');
   if (s.sections.some(x => words(x.paragraphs.join(' ')) < 30 || sentences(x.paragraphs.join(' ')).length < 2)) errors.push('short-section');
   if (Math.abs(s.declaredSeconds - seconds) / seconds > .15) errors.push('duration');
-  if (Math.max(...lengths) > 12 || count / lengths.length < 6 || count / lengths.length > 10 || p.some(x => sentences(x).length > 3)) errors.push('language');
+  if (Math.max(...lengths) > limits(s).maxSentenceWords || count / lengths.length < 6 || count / lengths.length > 10 || p.some(x => sentences(x).length > 3)) errors.push('language');
   if (!s.contentQualityReview) errors.push('review-missing');
   if (s.sourceTruth?.sourceType === 'public-domain' && (!s.sourceTruth.sourceUrl || !s.sourceTruth.scope)) errors.push('source');
   const r = s.contentQualityReview;

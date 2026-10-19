@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { OKI_AYI_GORDU_DRAFT } from "../../src/content/drafts/2026-09-01-oki-ayi-gordu.js";
+import { limits } from "./helpers/draft-policy.mjs";
 
 const story = OKI_AYI_GORDU_DRAFT;
 const countWords = (text) => String(text ?? "").match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
@@ -13,7 +14,7 @@ test("Oki Ay'ı Gördü yaş, süre ve bölüm sözleşmesini karşılar", () =>
   const sectionWords = story.sections.map((section) => countWords(section.paragraphs.join(" ")));
   assert.equal(story.ageBand, "7-8");
   assert.equal(story.readingPathId, "ilk_cumleler_7_8");
-  assert.ok(words >= 350 && words <= 650);
+  assert.ok(words >= limits(story).minWords && words <= limits(story).maxWords);
   assert.equal(story.wordCount, words);
   assert.equal(story.estimatedSeconds, seconds);
   assert.equal(story.declaredSeconds, seconds);
@@ -25,7 +26,7 @@ test("Oki Ay'ı Gördü yaş, süre ve bölüm sözleşmesini karşılar", () =>
 test("Oki Ay'ı Gördü dil ve tamamlanmış anlatı sözleşmesini korur", () => {
   const sentenceWords = paragraphs.flatMap(sentences).map(countWords);
   const average = sentenceWords.reduce((sum, count) => sum + count, 0) / sentenceWords.length;
-  assert.ok(sentenceWords.every((count) => count <= 12));
+  assert.ok(sentenceWords.every((count) => count <= limits(story).maxSentenceWords));
   assert.ok(average >= 6 && average <= 10);
   assert.ok(paragraphs.every((paragraph) => sentences(paragraph).length <= 3));
   assert.ok(story.glossary.length >= 3 && story.glossary.length <= 8);

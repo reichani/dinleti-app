@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { GOKYUZU_SIIRI_DRAFT as story } from '../../src/content/drafts/2026-09-05-gokyuzu-siiri.js';
 import { evaluateContentQualityReview } from '../../src/content/contentQualityReview.js';
+import { limits } from "./helpers/draft-policy.mjs";
 
 const words = text => text.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
 const sentences = text => text.split(/(?<=[.!?])\s+/u).filter(Boolean);
@@ -12,11 +13,11 @@ function validate(candidate) {
   const seconds = Math.ceil(count * 60 / 155);
   const sentenceLengths = paragraphs.flatMap(sentences).map(words);
   const errors = [];
-  if (candidate.ageBand !== '8-10' || candidate.readingPathId !== 'okuma_guveni_8_10' || count < 500 || count > 900) errors.push('age');
+  if (candidate.ageBand !== '8-10' || candidate.readingPathId !== 'okuma_guveni_8_10' || count < limits(candidate).minWords || count > limits(candidate).maxWords) errors.push('age');
   if (candidate.sections.length < 3 || candidate.sections.length > 8) errors.push('sections');
   if (candidate.sections.some(section => words(section.paragraphs.join(' ')) < 30 || sentences(section.paragraphs.join(' ')).length < 2)) errors.push('short-section');
   if (!Number.isFinite(candidate.declaredSeconds) || Math.abs(candidate.declaredSeconds - seconds) / seconds > .15) errors.push('duration');
-  if (Math.max(...sentenceLengths) > 12 || count / sentenceLengths.length < 6 || count / sentenceLengths.length > 10 || paragraphs.some(p => sentences(p).length > 3)) errors.push('language');
+  if (Math.max(...sentenceLengths) > limits(candidate).maxSentenceWords || count / sentenceLengths.length < 6 || count / sentenceLengths.length > 10 || paragraphs.some(p => sentences(p).length > 3)) errors.push('language');
   if (!candidate.contentQualityReview) errors.push('review-missing');
   if (candidate.sourceTruth?.sourceType === 'public-domain' && (!candidate.sourceTruth.sourceUrl || !candidate.sourceTruth.scope)) errors.push('source');
   const human = evaluateContentQualityReview(candidate.contentQualityReview, { readingPathId: candidate.readingPathId });

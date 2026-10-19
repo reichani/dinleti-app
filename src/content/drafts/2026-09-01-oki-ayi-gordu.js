@@ -26,9 +26,9 @@ export const OKI_AYI_GORDU_DRAFT = {
   structuralValid: true,
   releaseReady: false,
   estimatedWordsPerMinute: 155,
-  wordCount: 350,
-  estimatedSeconds: 136,
-  declaredSeconds: 136,
+  wordCount: 385,
+  estimatedSeconds: 150,
+  declaredSeconds: 150,
   sections: [
     {
       title: "İnce Ay",
@@ -36,6 +36,7 @@ export const OKI_AYI_GORDU_DRAFT = {
         "Oki sakin akşam odasındaki perdenin kenarını yavaşça açtı. Lacivert gökyüzünde ince, parlak bir yay gördü. Heyecanla Lili'yi geniş pencereye hemen çağırdı.",
         "Lili parlak yaya uzun süre dikkatle baktı. Bunun ince görünen Ay olduğunu sakince söyledi. Oki, Ay'ın görünmeyen kalanını merak etti.",
         "İkisi gözlem defterini çalışma masasına birlikte getirdi. Oki gördüğü yayı sarı kalemle dikkatle çizdi. Altına o günün tarihini özenle yazdı.",
+        "Lili, ince yayın her akşam değişebileceğini söyledi. Oki ertesi akşam yeniden bakmaya karar verdi.",
       ],
     },
     {
@@ -44,6 +45,7 @@ export const OKI_AYI_GORDU_DRAFT = {
         "Oki, Ay'ın gökte duran küçük lamba olduğunu önce düşündü. Lili onun kendi ışığını yapmadığını dikkatle açıkladı. Ay, Güneş'ten gelen güçlü ışığı bize yansıtıyordu.",
         "Lili küçük el fenerini beyaz oyun topuna tuttu. Topun ışığa doğrudan bakan yanı hemen parladı. Öteki yanı ise daha karanlık kaldı.",
         "Bu düzenek yalnızca küçük ve basit modeldi. Yine de Oki temel fikri kolayca gördü. Işık, topun her yanını aynı anda göstermiyordu.",
+        "Oki, Ay'ın da Güneş ışığıyla böyle aydınlandığını düşündü.",
       ],
     },
     {
@@ -52,6 +54,7 @@ export const OKI_AYI_GORDU_DRAFT = {
         "Ertesi akşam Oki yine aynı pencereye erkenden geldi. Ay, önceki geceden biraz daha farklı görünüyordu. Parlak yay şimdi gözle görülür biçimde çok daha genişti.",
         "Oki eski çizimi yeni gökyüzü görüntüsüyle karşılaştırdı. Ay'ın gerçekten büyüyüp büyümediğini merakla sordu. Lili, değişenin Ay değil, görünüş olduğunu anlattı.",
         "Ay, Dünya çevresindeki uzun yolunda düzenli ilerliyordu. Biz aydınlık bölümün her gece farklı kısmını görüyorduk. Bu değişen görünüşlere Ay'ın evreleri deniyordu.",
+        "Oki yeni çizimin altına da tarihi yazdı.",
       ],
     },
     {
@@ -60,6 +63,7 @@ export const OKI_AYI_GORDU_DRAFT = {
         "Üçüncü akşam ince gri bulutlar bütün gökyüzünü kapladı. Oki bir süre parlak Ay'ı hiçbir yerde bulamadı. Defterine hemen boş ve yuvarlak bir daire çizmek istedi.",
         "Lili önce pencere yanında biraz beklemeyi önerdi. Hafif rüzgâr bulutları yavaşça başka yöne taşıdı. Ay aynı yerde yeniden parlak biçimde göründü.",
         "Oki bulutun Ay'ı aslında değiştirmediğini hemen fark etti. Bulut yalnızca onların görüşünü kısa süre kapatmıştı. Oki yeni çizime küçük gri bulutlar ekledi.",
+        "Lili, sabırlı gözlemin işe yaradığını söyledi.",
       ],
     },
     {

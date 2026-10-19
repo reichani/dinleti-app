@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { LA_FONTAINE_FABLES_DRAFT as story } from '../../src/content/drafts/2026-09-15-la-fontaine-fabllari.js';
 import { evaluateContentQualityReview } from '../../src/content/contentQualityReview.js';
+import { limits } from "./helpers/draft-policy.mjs";
 
 const words = text => text.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
 const sentences = text => text.split(/(?<=[.!?])\s+/u).filter(Boolean);
@@ -11,11 +12,11 @@ test('La Fontaine draft meets 6–7 length, section, duration and language bound
   const count = words(paragraphs.join(' '));
   const seconds = Math.ceil(count * 60 / story.estimatedWordsPerMinute);
   const sentenceWords = paragraphs.flatMap(sentences).map(words);
-  assert.ok(count >= 250 && count <= 500);
+  assert.ok(count >= limits(story).minWords && count <= limits(story).maxWords);
   assert.ok(story.sections.length >= 3 && story.sections.length <= 8);
   assert.ok(story.sections.every(section => words(section.paragraphs.join(' ')) >= 30));
   assert.ok(paragraphs.every(paragraph => sentences(paragraph).length <= 3));
-  assert.ok(Math.max(...sentenceWords) <= 12);
+  assert.ok(Math.max(...sentenceWords) <= limits(story).maxSentenceWords);
   assert.ok(count / sentenceWords.length >= 6 && count / sentenceWords.length <= 10);
   assert.ok(Math.abs(story.declaredSeconds - seconds) / seconds <= .15);
   assert.ok(story.glossary.length >= 3 && story.glossary.length <= 8);

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { OKI_AY_SIIRI_DRAFT as story } from '../../src/content/drafts/2026-09-04-oki-ay-siiri.js';
 import { evaluateContentQualityReview } from '../../src/content/contentQualityReview.js';
+import { limits } from "./helpers/draft-policy.mjs";
 const words = text => text.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
 const sentences = text => text.split(/(?<=[.!?])\s+/u).filter(Boolean);
 function validate(s) {
@@ -10,11 +11,11 @@ function validate(s) {
   const seconds = Math.ceil(count * 60 / 155);
   const lengths = p.flatMap(sentences).map(words);
   const errors = [];
-  if (s.ageBand !== '6-7' || s.readingPathId !== 'ilk_harfler_6_7' || count < 250 || count > 500) errors.push('age');
+  if (s.ageBand !== '6-7' || s.readingPathId !== 'ilk_harfler_6_7' || count < limits(s).minWords || count > limits(s).maxWords) errors.push('age');
   if (s.sections.length < 3 || s.sections.length > 8) errors.push('sections');
   if (s.sections.some(x => words(x.paragraphs.join(' ')) < 30 || sentences(x.paragraphs.join(' ')).length < 2)) errors.push('short-section');
   if (!Number.isFinite(s.declaredSeconds) || Math.abs(s.declaredSeconds - seconds) / seconds > .15) errors.push('duration');
-  if (Math.max(...lengths) > 12 || count / lengths.length < 6 || count / lengths.length > 10 || p.some(x => sentences(x).length > 3)) errors.push('language');
+  if (Math.max(...lengths) > limits(s).maxSentenceWords || count / lengths.length < 6 || count / lengths.length > 10 || p.some(x => sentences(x).length > 3)) errors.push('language');
   if (!s.contentQualityReview) errors.push('review-missing');
   if (s.sourceTruth?.sourceType === 'public-domain' && (!s.sourceTruth.sourceUrl || !s.sourceTruth.scope)) errors.push('source');
   const human = evaluateContentQualityReview(s.contentQualityReview, {readingPathId: s.readingPathId});

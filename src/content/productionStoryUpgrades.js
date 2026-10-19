@@ -40,6 +40,25 @@ import { NANA_ANLATIYOR_DRAFT } from "./drafts/2026-08-18-nana-anlatiyor.js";
 import { ARIADNENIN_IPI_YOL_BULMAK_DRAFT } from "./drafts/2026-08-19-ariadnenin-ipi-yol-bulmak.js";
 import { IKARUS_BUGUN_NE_ANLATIR_DRAFT } from "./drafts/2026-08-22-ikarus-bugun-ne-anlatir.js";
 import { AESOPS_FABLES_DRAFT } from "./drafts/2026-09-16-aesops-fables.js";
+// 2026-10-19 konsolidasyonu (PR #163; eski PR #102-#124): docs/content/KONSOLIDASYON-2026-10-19.md
+import { MINO_NEREDE_DRAFT } from "./drafts/2026-08-26-mino-nerede.js";
+import { ELA_EL_ELE_DRAFT } from "./drafts/2026-08-28-ela-el-ele.js";
+import { OKI_EL_ELE_DRAFT } from "./drafts/2026-08-29-oki-el-ele.js";
+import { YAGMUR_TIP_TIP_DRAFT } from "./drafts/2026-08-31-yagmur-tip-tip.js";
+import { OKI_AYI_GORDU_DRAFT } from "./drafts/2026-09-01-oki-ayi-gordu.js";
+import { COMPLETED_ENGLISH_FABLES } from "./drafts/completed-english-fables.js";
+import { YILDIZ_GEZEGEN_DRAFT } from "./drafts/2026-09-02-yildiz-mi-gezegen-mi.js";
+import { LILI_AY_ISIGI_DRAFT } from "./drafts/2026-09-03-lili-ay-isigi.js";
+import { OKI_AY_SIIRI_DRAFT } from "./drafts/2026-09-04-oki-ay-siiri.js";
+import { GOKYUZU_SIIRI_DRAFT } from "./drafts/2026-09-05-gokyuzu-siiri.js";
+import { LITTLE_STAR_POEM_EN_DRAFT } from "./drafts/2026-09-06-little-star-poem-en.js";
+import { SPACE_POEM_EN_DRAFT } from "./drafts/2026-09-07-space-poem-en.js";
+import { MOON_POEM_EN_DRAFT } from "./drafts/2026-09-08-moon-poem-en.js";
+import { DIYET_DRAFT } from "./drafts/2026-09-10-diyet.js";
+import { OKI_VE_PEGASUS_DRAFT } from "./drafts/2026-09-11-oki-ve-pegasus.js";
+import { YUKSEK_OKCELER_DRAFT } from "./drafts/2026-09-12-yuksek-okceler.js";
+import { ALICE_RABBIT_HOLE_DRAFT } from "./drafts/2026-09-13-alice-rabbit-hole.js";
+import { LA_FONTAINE_FABLES_DRAFT } from "./drafts/2026-09-15-la-fontaine-fabllari.js";
 
 const normalize = (text) => text.replace(/\s+/gu, " ").trim();
 
@@ -115,6 +134,13 @@ const preparedDraftToProductionCandidate = (draft, overrides = {}) => {
   };
 };
 
+// Kamu malı uyarlamalarda kaynak ve hak durumu taslağın sourceTruth alanından alınır.
+const kamuMaliKaynak = (draft, ad) => {
+  const st = draft.sourceTruth ?? {};
+  const urls = st.sourceUrls ?? (st.sourceUrl ? [st.sourceUrl] : []);
+  return { hakDurumu: "kamu-mali", kaynak: { ad, tur: st.sourceType, kapsam: st.scope, url: urls[0] ?? null, urls } };
+};
+
 export const PREPARED_DRAFT_PRODUCTION_CANDIDATES = [
   preparedDraftToProductionCandidate(OKI_GUNESIN_HIKAYESI_DRAFT, { kategori: "Okumaya Hazırlık", renk: ["#8D6A22", "#F1C75B"] }),
   preparedDraftToProductionCandidate(OKI_ATI_TANIYOR_DRAFT, { kategori: "Hayvanları Tanıyalım", renk: ["#4E6B3A", "#B6D17A"] }),
@@ -157,6 +183,57 @@ export const PREPARED_DRAFT_PRODUCTION_CANDIDATES = [
   preparedDraftToProductionCandidate(HAPPY_PRINCE_DRAFT, { kategori: "English Classics Bridge", renk: ["#5A4A1E", "#E8C960"], dil: "en", yazar: "Oscar Wilde · Okurio graded adaptation" }),
   preparedDraftToProductionCandidate(PROMETHEUSUN_SECIMI_DRAFT, { kategori: "Mitoloji ve Kahramanlar", renk: ["#5A2A1E", "#E58B5E"] }),
   preparedDraftToProductionCandidate(MAI_VE_SIYAH_DRAFT, { kategori: "Klasik Roman", renk: ["#1F2F4A", "#6F8FC0"], yazar: "Halit Ziya Uşaklıgil · Okurio sadeleştirilmiş uyarlama" }),
+  // 2026-10-19 konsolidasyonu (PR #163; eski PR #102-#124). Ürün sahibi sohbette "kataloğa bağla"
+  // talimatı verdi. Güncel uzunluk politikasına uygun; insan kalite onayı alanları değiştirilmez
+  // (candidate-deployed-human-review-pending). Kategori, renk ve yazar mevcut katalog kaydından korunur.
+  preparedDraftToProductionCandidate(MINO_NEREDE_DRAFT, { kategori: "İlk Okuma", renk: ["#4E4A2D", "#C0B15A"], yazar: "Okurio İlk Okuma" }),
+  preparedDraftToProductionCandidate(ELA_EL_ELE_DRAFT, { kategori: "İlk Okuma", renk: ["#2E5A5A", "#71A9A6"], yazar: "Okurio İlk Okuma" }),
+  preparedDraftToProductionCandidate(OKI_EL_ELE_DRAFT, { kategori: "İlk Okuma", renk: ["#3A4E71", "#789BDB"], yazar: "Okurio İlk Okuma" }),
+  preparedDraftToProductionCandidate(YAGMUR_TIP_TIP_DRAFT, { kategori: "Şiir", renk: ["#24556B", "#74B7D6"], yazar: "Okurio Şiir Ekibi" }),
+  preparedDraftToProductionCandidate(OKI_AYI_GORDU_DRAFT, { kategori: "Bilim Hikâyesi", renk: ["#263B5E", "#6A8CC7"], yazar: "Okurio Özgün İçerik" }),
+  ...COMPLETED_ENGLISH_FABLES.map((draft) => preparedDraftToProductionCandidate(draft, {
+    kategori: "English Easy",
+    renk: draft.replacesIdAfterApproval === "fox-and-grapes-en" ? ["#4A3B2A", "#B07A3A"] : ["#4C3A1F", "#D59A3C"],
+    dil: "en",
+    yazar: "Aesop · Okurio graded retelling",
+    ...kamuMaliKaynak(draft, `${draft.title} (Aesop, Project Gutenberg #28)`),
+  })),
+  preparedDraftToProductionCandidate(YILDIZ_GEZEGEN_DRAFT, { kategori: "Bilim Hikâyesi", renk: ["#203047", "#5978A8"], yazar: "Okurio Özgün İçerik" }),
+  // Yol: okumaya_hazirlik_5_6 (KONSOLIDASYON-2026-10-19.md, "Yol kararları").
+  preparedDraftToProductionCandidate(LILI_AY_ISIGI_DRAFT, { kategori: "Eski Masallar", renk: ["#263B63", "#88A8E8"], yazar: "Oki Mitoloji Yolu" }),
+  preparedDraftToProductionCandidate(OKI_AY_SIIRI_DRAFT, { kategori: "Şiir", renk: ["#24385F", "#8FA9D9"], yazar: "Okurio Şiir Ekibi" }),
+  preparedDraftToProductionCandidate(GOKYUZU_SIIRI_DRAFT, { kategori: "Şiir", renk: ["#162B45", "#5F8DC2"], yazar: "Okurio Şiir Ekibi" }),
+  preparedDraftToProductionCandidate(LITTLE_STAR_POEM_EN_DRAFT, { kategori: "English Poem", renk: ["#1B2C52", "#C9D778"], dil: "en", yazar: "Okurio English Team" }),
+  preparedDraftToProductionCandidate(SPACE_POEM_EN_DRAFT, { kategori: "English Poem", renk: ["#161B3E", "#6C86D4"], dil: "en", yazar: "Okurio English Team" }),
+  preparedDraftToProductionCandidate(MOON_POEM_EN_DRAFT, { kategori: "English Poem", renk: ["#203656", "#AFC3E8"], dil: "en", yazar: "Okurio English Team" }),
+  // Yol: klasiklere_hazirlik_14_16. Kaynak metin kahramanın kendi kolunu kesmesiyle biter; taslak
+  // sahneyi grafikleştirmez. Hak: yazar 1920'de öldü (K-2026-10-18-03 ile aynı gerekçe).
+  preparedDraftToProductionCandidate(DIYET_DRAFT, {
+    kategori: "Hikâye",
+    renk: ["#2E3B2B", "#5C7A52"],
+    yazar: "Ömer Seyfettin · Okurio sadeleştirilmiş uyarlama",
+    ...kamuMaliKaynak(DIYET_DRAFT, "Diyet (Ömer Seyfettin, Vikikaynak)"),
+  }),
+  preparedDraftToProductionCandidate(OKI_VE_PEGASUS_DRAFT, { kategori: "Mitoloji", renk: ["#3D3263", "#9B86D8"], yazar: "Oki Mitoloji Yolu" }),
+  preparedDraftToProductionCandidate(YUKSEK_OKCELER_DRAFT, {
+    kategori: "Hikâye",
+    renk: ["#4A3728", "#8C6A4A"],
+    yazar: "Ömer Seyfettin · Okurio sadeleştirilmiş uyarlama",
+    ...kamuMaliKaynak(YUKSEK_OKCELER_DRAFT, "Yüksek Ökçeler (Ömer Seyfettin, Vikikaynak)"),
+  }),
+  preparedDraftToProductionCandidate(ALICE_RABBIT_HOLE_DRAFT, {
+    kategori: "English Reading",
+    renk: ["#2E4A5A", "#6FA3B8"],
+    dil: "en",
+    yazar: "Lewis Carroll · Okurio graded retelling",
+    ...kamuMaliKaynak(ALICE_RABBIT_HOLE_DRAFT, "Alice's Adventures in Wonderland (Project Gutenberg #11)"),
+  }),
+  preparedDraftToProductionCandidate(LA_FONTAINE_FABLES_DRAFT, {
+    kategori: "Masal",
+    renk: ["#2E5A32", "#6FA05C"],
+    yazar: "Jean de La Fontaine · Okurio kısa uyarlaması",
+    ...kamuMaliKaynak(LA_FONTAINE_FABLES_DRAFT, "The Fables of La Fontaine (Project Gutenberg)"),
+  }),
 ];
 
 // Katalogda karşılığı olmayan, tamamen yeni özgün okumalar (id çakışması yok).

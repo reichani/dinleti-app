@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MOON_POEM_EN_DRAFT as story } from '../../src/content/drafts/2026-09-08-moon-poem-en.js';
 import { evaluateContentQualityReview } from '../../src/content/contentQualityReview.js';
+import { limits } from "./helpers/draft-policy.mjs";
 
 const words = text => text.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
 const sentences = text => text.split(/(?<=[.!?])\s+/u).filter(Boolean);
@@ -12,11 +13,11 @@ function validate(candidate) {
   const seconds = Math.ceil(count * 60 / 155);
   const lengths = paragraphs.flatMap(sentences).map(words);
   const errors = [];
-  if (candidate.language !== 'en' || candidate.ageBand !== '8-10' || candidate.readingPathId !== 'okuma_guveni_8_10' || count < 500 || count > 900) errors.push('age-language');
+  if (candidate.language !== 'en' || candidate.ageBand !== '8-10' || candidate.readingPathId !== 'okuma_guveni_8_10' || count < limits(candidate).minWords || count > limits(candidate).maxWords) errors.push('age-language');
   if (candidate.sections.length < 3 || candidate.sections.length > 8) errors.push('sections');
   if (candidate.sections.some(section => words(section.paragraphs.join(' ')) < 30 || sentences(section.paragraphs.join(' ')).length < 2)) errors.push('short-section');
   if (!Number.isFinite(candidate.declaredSeconds) || Math.abs(candidate.declaredSeconds - seconds) / seconds > .15) errors.push('duration');
-  if (Math.max(...lengths) > 12 || count / lengths.length < 6 || count / lengths.length > 10 || paragraphs.some(p => sentences(p).length > 3)) errors.push('language');
+  if (Math.max(...lengths) > limits(candidate).maxSentenceWords || count / lengths.length < 6 || count / lengths.length > 10 || paragraphs.some(p => sentences(p).length > 3)) errors.push('language');
   if (!candidate.contentQualityReview) errors.push('review-missing');
   if (candidate.sourceTruth?.sourceType === 'factual-original' && (!Array.isArray(candidate.sourceTruth.sourceUrls) || candidate.sourceTruth.sourceUrls.length < 2 || !candidate.sourceTruth.scope)) errors.push('source');
   const human = evaluateContentQualityReview(candidate.contentQualityReview, { readingPathId: candidate.readingPathId });

@@ -6,7 +6,7 @@ const sections = [
     'Sınıftaki herkes tek bir dize önerecekti. Oki mavi kâğıdını açtı, fakat hiçbir şey yazamadı. Gökyüzü ona fazla geniş görünüyordu.',
     'Lili, önce küçük bir ayrıntı seçmesini önerdi. İkisi çınarın altındaki banka oturdu. Başlarını kaldırıp sessizce çevrelerine baktılar.',
     'İnce bir bulut, çatının üstünden ağır ağır geçti. Bir serçe rüzgârla yön değiştirip dala kondu. Oki ilk görüntüsünü sonunda bulmuştu.',
-    'Defterine saati ve baktığı yönü de ekledi. Böylece aynı yeri sonra yeniden karşılaştırabilecekti.',
+    'Defterine saati ve baktığı yönü de ekledi. Böylece aynı yeri sonra yeniden karşılaştırabilecekti. Sonra kalemini hazırlayıp şiire başladı.',
   ] },
   { title: 'Gündüzün Renkleri', paragraphs: [
     'Oki bulutu, denizde ilerleyen beyaz bir adaya benzetti. Lili serçenin gökte bıraktığı görünmez yolu düşündü. İki fikri küçük deftere birlikte kaydettiler.',
