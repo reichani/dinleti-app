@@ -51,8 +51,10 @@ export function summarizeLanguages(text) {
 }
 
 /** Okuma bölümlerini üretir: { ad, dk, metin, dil }. `ingilizceSesli` false ise
- *  bütün bölümler Türkçe sesle okunur (kullanıcı tercihi). */
-export function buildStudySections(text, { ingilizceSesli = true } = {}) {
+ *  bütün bölümler Türkçe sesle okunur (kullanıcı tercihi). `bolumKelime` okuma
+ *  yolunun ideal pasaj uzunluğudur (lengthOptimizationPolicy.ownTextChunkWords). */
+export function buildStudySections(text, { ingilizceSesli = true, bolumKelime = BOLUM_KELIME_HEDEFI } = {}) {
+  const hedef = Number(bolumKelime) > 0 ? Number(bolumKelime) : BOLUM_KELIME_HEDEFI;
   const paragraflar = paragraphLanguages(text).map((p) => ({ ...p, dil: ingilizceSesli ? p.dil : "tr" }));
   const bolumler = [];
   let buf = [];
@@ -74,7 +76,7 @@ export function buildStudySections(text, { ingilizceSesli = true } = {}) {
       satir.push(c);
       bufKelime += kelimeSay(c);
       // Önceki sürümle aynı kural: bölüm 90 kelimeye ulaştığı cümleyle kapanır.
-      if (bufKelime >= BOLUM_KELIME_HEDEFI) {
+      if (bufKelime >= hedef) {
         buf.push(satir.join("").trim());
         satir = [];
         kapat();

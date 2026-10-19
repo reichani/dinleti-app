@@ -1,0 +1,170 @@
+{
+  "schemaVersion": "1.0",
+  "reviewType": "ai-evidence",
+  "icerikId": "oki-ve-serce-yuvasi",
+  "status": "ai-onayli",
+  "model": "claude-opus-5-5",
+  "reviewedAt": "2026-10-18T14:00:00Z",
+  "reviewedCommit": "942f28f7b81f7a19687f4c22ab66e9273faa0895",
+  "contentFingerprint": "sha256:c1adbc6482c82c99dcdfb10fe606a64acc721fc1d603f4fe48977fb745f75746",
+  "kamuyaAciklama": "AI destekli kanıt denetiminden geçti",
+  "insanOnayi": "bekliyor",
+  "checks": {
+    "dilSeviyesi": {
+      "sonuc": "gecti",
+      "ajan": "okurio-gozetim-ajani",
+      "not": "Tur 2: 287 kelime, en uzun cümle 11; yeni kök bandı yetersiz örneklem (K-04)."
+    },
+    "guvenlik": {
+      "sonuc": "gecti",
+      "ajan": "okurio-gozetim-ajani",
+      "not": "Tur 2: taklit edilebilir riskli davranış yok; kuluçka süresi düzeltildi."
+    },
+    "hakOzgunluk": {
+      "sonuc": "gecti",
+      "ajan": "okurio-gozetim-ajani",
+      "not": "Özgün Okurio kurgusu; web aramasında eşleşme yok (gösterge)."
+    },
+    "mufredat": {
+      "sonuc": "gecti",
+      "ajan": "okurio-gozetim-ajani",
+      "not": "okul_oncesi / Ana Sınıfı; B2 açık."
+    },
+    "erisilebilirlik": {
+      "sonuc": "uygulanmaz",
+      "ajan": "",
+      "not": "Okuma güçlüğü veya destek aracı teması yok."
+    },
+    "olgusalKanit": {
+      "sonuc": "gecti",
+      "ajan": "okurio-kanit-denetcisi",
+      "not": "6 iddia: 5 destekleniyor, 1 kısmen. Kısmen olan iddia kanıt denetimi sonrası yumuşatıldı ('yüksek sesten kolayca ürkebilir')."
+    }
+  },
+  "iddialar": [
+    {
+      "iddia": "Saçağın altında kuru otlardan küçük bir yuva vardı. Serçe gagasında ince bir ot taşıyordu.",
+      "tur": "olgusal",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "House sparrow (Passer domesticus) — Natural History Museum, London",
+          "yil": null,
+          "pmid": "",
+          "doi": "",
+          "url": "https://nhm.ac.uk/discover/house-sparrow-passer-domesticus.html",
+          "kanitGucu": "orta"
+        },
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "House Sparrow Life History — All About Birds, Cornell Lab of Ornithology",
+          "yil": null,
+          "pmid": "",
+          "doi": "",
+          "url": "https://www.allaboutbirds.org/guide/House_Sparrow/lifehistory",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "Oki, kuşların yüksek sesten kolayca ürkebildiğini hatırladı.",
+      "tur": "olgusal",
+      "sonuc": "kismen",
+      "kanit": [
+        {
+          "kaynak": "Consensus",
+          "baslik": "Impact of chronic noise exposure on antipredator behavior: an experiment in breeding house sparrows (Meillère et al., Behavioral Ecology)",
+          "yil": 2015,
+          "pmid": "",
+          "doi": "",
+          "url": "https://consensus.app/papers/details/830c3e99723257ad95f9a221bdfb1d88/",
+          "kanitGucu": "zayif"
+        }
+      ]
+    },
+    {
+      "iddia": "Nana, yuvalara elle dokunmamamız gerektiğini anlattı. Serçeye en iyi yardım, uzak durmaktı.",
+      "tur": "saglik-guvenlik",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Moving bird nests — RSPCA",
+          "yil": null,
+          "pmid": "",
+          "doi": "",
+          "url": "https://rspca.org.uk/adviceandwelfare/wildlife/birds/nests/moving",
+          "kanitGucu": "orta"
+        },
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Public urged to avoid birds' nests during gardening and building work — NatureScot",
+          "yil": 2017,
+          "pmid": "",
+          "doi": "",
+          "url": "https://presscentre.nature.scot/news/public-urged-to-avoid-birds-nests-during-gardening-and-building-work",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "Tabağı çalılardan biraz uzağa, açık bir yere bıraktılar.",
+      "tur": "saglik-guvenlik",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Make the perfect bird bath — RSPB",
+          "yil": null,
+          "pmid": "",
+          "doi": "",
+          "url": "https://www.rspb.org.uk/helping-nature/what-you-can-do/activities/make-the-perfect-bird-bath",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "Mino serçeyi ürkütmesin diye onu içeride tuttular.",
+      "tur": "saglik-guvenlik",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "PubMed",
+          "baslik": "The impact of free-ranging domestic cats on wildlife of the United States.",
+          "yil": 2013,
+          "pmid": "23360987",
+          "doi": "10.1038/ncomms2380",
+          "url": "",
+          "kanitGucu": "guclu"
+        }
+      ]
+    },
+    {
+      "iddia": "Birkaç hafta sonra saçaktan cıvıl cıvıl minik sesler geldi.",
+      "tur": "olgusal",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "House Sparrow — BTO Garden BirdWatch factsheet",
+          "yil": null,
+          "pmid": "",
+          "doi": "",
+          "url": "https://www.bto.org/file/factsheethousppdf",
+          "kanitGucu": "orta"
+        },
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "House Sparrow Life History — All About Birds, Cornell Lab of Ornithology",
+          "yil": null,
+          "pmid": "",
+          "doi": "",
+          "url": "https://www.allaboutbirds.org/guide/House_Sparrow/lifehistory",
+          "kanitGucu": "orta"
+        }
+      ]
+    }
+  ],
+  "sinirlar": "AI kanıt denetimidir; insan editör veya uzman onayı değildir. Edebî nitelik, çocuk gelişimi uzmanlığı ve hukuki hak durumu garanti edilmez. Kanıt denetimi tıbbi veya hukuki görüş değildir."
+}

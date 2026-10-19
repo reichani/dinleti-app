@@ -1,13 +1,11 @@
 import { createPendingContentQualityReview } from '../contentQualityReview.js';
 
 const sections = [
-  { title: 'The Silver Star Card', paragraphs: [
+  { title: 'The Silver Star Card and What Makes a Star', paragraphs: [
     'The library prepared a night-sky exhibition for Friday. Oki found one unfinished label beneath a Moon photograph. It read, “Our nearest silver star.”',
     'The phrase sounded beautiful, but Lili paused. She remembered that stars and moons belonged to different groups. Toto wanted to keep the label because visitors would notice it.',
     'Nana asked the team to separate beauty from classification. A poetic phrase could create an image. A science label needed evidence that another reader could check.',
     'The group placed a question card beside the photograph. “What kind of object is the Moon?” it asked. Their search now had one clear purpose.',
-  ] },
-  { title: 'What Makes a Star', paragraphs: [
     'Oki opened NASA’s introduction to stars. Stars are enormous objects made mostly from hydrogen and helium. Their hot centers release energy through nuclear fusion.',
     'Lili added “fusion” to their glossary. The process joins light atomic nuclei and releases energy. She kept the explanation short without calling a star ordinary fire.',
     'Toto drew a glowing circle for the label. Then he wrote that every bright object was a star. Oki tested that rule against their own Moon photograph.',

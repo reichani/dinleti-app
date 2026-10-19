@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1.0",
+  "reviewType": "ai-evidence",
+  "icerikId": "yarim-kalan-ayrac",
+  "status": "ai-onayli",
+  "model": "claude-opus-5-5",
+  "reviewedAt": "2026-10-18T14:00:00Z",
+  "reviewedCommit": "942f28f7b81f7a19687f4c22ab66e9273faa0895",
+  "contentFingerprint": "sha256:f123aebf55ea36f8d81ad1792e5d384483a9188842e77f20b82fb81c213e9dd8",
+  "kamuyaAciklama": "AI destekli kanıt denetiminden geçti",
+  "insanOnayi": "bekliyor",
+  "checks": {
+    "dilSeviyesi": {
+      "sonuc": "gecti",
+      "ajan": "okurio-gozetim-ajani",
+      "not": "Tur 2: 1844 kelime, 8 bölüm, en uzun cümle 12 (sınır 35)."
+    },
+    "guvenlik": {
+      "sonuc": "gecti",
+      "ajan": "okurio-gozetim-ajani",
+      "not": "Tur 2: damgalayıcı veya klinik dil yok."
+    },
+    "hakOzgunluk": {
+      "sonuc": "gecti",
+      "ajan": "okurio-gozetim-ajani",
+      "not": "Özgün Okurio kurgusu; 5 aramada eşleşme yok (gösterge)."
+    },
+    "mufredat": {
+      "sonuc": "gecti",
+      "ajan": "okurio-gozetim-ajani",
+      "not": "yetiskin / Mezun-Yetişkin; B2 açık."
+    },
+    "erisilebilirlik": {
+      "sonuc": "gecti",
+      "ajan": "okurio-erisilebilirlik-editoru",
+      "not": "Tanı izlenimi yok; tek engelleyici (göz yorgunluğu iddiası) karakter deneyimine çevrildi."
+    },
+    "olgusalKanit": {
+      "sonuc": "gecti",
+      "ajan": "okurio-kanit-denetcisi",
+      "not": "Destek aracı etkileri karakter deneyimi olarak anlatılıyor; tek genel ifade ('sabırla okuyunca anlam açılır') Nermin'in deneyimine bağlandı ve iddia olmaktan çıktı. TTS meta-analizi çocuk ve ergen örneklemlidir, yetişkin için genel doğru yazılmadı."
+    }
+  },
+  "iddialar": [
+    {
+      "iddia": "Sesli okuma açıkken kelimeler ekranda sırayla parlıyordu. Nermin metni hem dinleyip hem de takip edebilirdi. Defne hızı nasıl azaltacağını gösterdi.",
+      "tur": "destek-araci",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "What is text-to-speech technology (TTS)? (Understood.org)",
+          "yil": null,
+          "pmid": "",
+          "doi": "",
+          "url": "https://www.understood.org/en/articles/text-to-speech-technology-what-it-is-and-how-it-works",
+          "kanitGucu": "orta"
+        },
+        {
+          "kaynak": "PubMed",
+          "baslik": "Does Use of Text-to-Speech and Related Read-Aloud Tools Improve Reading Comprehension for Students With Reading Disabilities? A Meta-Analysis",
+          "yil": 2017,
+          "pmid": "28112580",
+          "doi": "10.1177/0022219416688170",
+          "url": "",
+          "kanitGucu": "guclu"
+        }
+      ]
+    }
+  ],
+  "sinirlar": "AI kanıt denetimidir; insan editör veya uzman onayı değildir. Edebî nitelik, çocuk gelişimi uzmanlığı ve hukuki hak durumu garanti edilmez. Kanıt denetimi tıbbi veya hukuki görüş değildir."
+}
