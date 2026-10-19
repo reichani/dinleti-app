@@ -78,6 +78,7 @@ Metadata'daki ilk segment (okumaya_hazirlik), rafın gösterildiği en yüksek y
 | #108, #109, #114 pasaj düzeltmeleri | Claude |
 | 19 taslak için AI kanıt kaydı (K-2026-10-18-07) | Claude |
 | Kataloğa bağlama PR'ı | Claude |
+| Bağlama PR'ında eski taslak testlerinin sabit sınırlarını (kelime, cümle, paragraf) lengthOptimizationPolicy'den okuyacak şekilde güncellemek | Claude |
 | Bu PR'ı birleştirmek ve eski 18 PR'ı kapatmak | Reyhan |
 | ICERIK_METADATA `anaYol` alanı kararı | Reyhan |
 
