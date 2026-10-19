@@ -79,8 +79,7 @@
       "konu": "Gözetim ajanı",
       "karar": "Her taslak yazıldıktan sonra okurio-gozetim-ajani bağımsız denetim yapar; engelleyici bulgu kalmayana kadar ya da en fazla 3 tur yazar düzeltir.",
       "uygulama": ".claude/agents/okurio-gozetim-ajani.md (PR #146)"
-    }
-,
+    },
     {
       "id": "K-2026-10-18-07",
       "tarih": "2026-10-18",
@@ -91,6 +90,25 @@
       "kamuyaAciklama": "Sunum ve arayüzde yalnız 'AI destekli kanıt denetiminden geçti' ifadesi kullanılır; 'uzman onaylı', 'insan onaylı', 'editör onaylı' veya 'bilimsel olarak kanıtlanmış' denmez.",
       "sinir": "AI kaydı contentQualityReview, reviewerName, ownerApproval ve releaseReady alanlarını doldurmaz; insan onayı şeması (2.0) ve publicationReady değişmez. Ölüm, şiddet, kamu malı gibi insan yargısı gerektiren konular kayıtta not olarak kalır ve ürün sahibine iletilir.",
       "uygulama": "src/content/aiEvidenceReview.js; ontology/reviews/ai-kanit/<id>.json; .claude/skills/okurio-ai-kanit-onayi/SKILL.md; .claude/agents/okurio-kanit-denetcisi.md; anlık görüntüde icerikler[].aiKanitOnayi ve kapsam.aiKanitOnayli"
+    },
+    {
+      "id": "K-2026-10-19-01",
+      "tarih": "2026-10-19",
+      "veren": "Reyhan Açar (sohbet)",
+      "durum": "yururlukte",
+      "konu": "İçerik planı 2026-10-19 brifleri",
+      "karar": "Brif 1 (okumaya_hazirlik_5_6, fabl), Brif 2 (genc_okurlar_12_14, bilim_hikayesi) ve Brif 3 (klasiklere_hazirlik_14_16, Semaver uyarlaması) onaylandı; taslaklara geçildi.",
+      "kayit": "docs/content-plans/2026-10-19.md; PR #157"
+    },
+    {
+      "id": "K-2026-10-19-02",
+      "tarih": "2026-10-19",
+      "veren": "Reyhan Açar (sohbet)",
+      "durum": "yururlukte",
+      "konu": "Semaver (Sait Faik Abasıyanık) hak durumu",
+      "karar": "Semaver kamu malı olarak kabul edildi (yazar 1954'te öldü).",
+      "kapsam": "Yalnız hak durumu kararıdır. İçerik kalite onayı, ownerApproval veya yayın onayı değildir; bu alanlar insan incelemesiyle ayrıca doldurulur.",
+      "kayit": "docs/content-plans/2026-10-19.md Brif 3; PR #157"
     }
   ],
   "acikSorular": [
