@@ -6,7 +6,7 @@ Sahip: Reyhan Açar (sürüm onayı, dış kaynak ve lisans kararları). Bakımc
 
 ## Dosyalar
 
-`okurio-ontology.v0.1.json` sınıfları, özellikleri, ilişkileri, metrik tanımlarını, olgunluk seviyelerini (O0-O4) ve açık boşlukları (B1-B7) içerir. `snapshots/catalog-metrics-<tarih>.json` katalogdaki her içerik için ölçülen değerleri ve okuma yolu özetini içerir; `node scripts/build-ontology-snapshot.mjs --date <tarih>` ile üretilir. `vocab/` (henüz yok) dış dayanaklı listeler için ayrılmıştır: MEB kazanım kodları, kelime sıklık bantları, deyim ve atasözü listesi.
+`okurio-ontology.v0.1.json` sınıfları, özellikleri, ilişkileri, metrik tanımlarını, olgunluk seviyelerini (O0-O4) ve açık boşlukları (B1-B7) içerir. `snapshots/catalog-metrics-<tarih>.json` katalogdaki her içerik için ölçülen değerleri ve okuma yolu özetini içerir; `node scripts/build-ontology-snapshot.mjs --date <tarih>` ile üretilir. `vocab/meb-kazanim.json` MEB TYMM Türkçe programının 1-8. sınıf okuma öğrenme çıktılarını (119 çıktı, 349 süreç bileşeni) kodlarıyla tutar; kaynak ve sınırlar `vocab/meb-kazanim-KAYNAK-NOTU.md` dosyasında. `mappings/icerik-kazanim-aday.json` içerik ile kazanım arasındaki kural tabanlı aday eşlemedir; `node scripts/build-curriculum-candidates.mjs` ile üretilir. `vocab/uluslararasi-cerceveler.json` PIRLS 2026 ve PISA 2018 okuma süreçlerini ve MEB çıktılarını bunlara bağlayan beceri köprüsünü tutar; aday eşlemedeki her kazanım bu köprüyle PIRLS ve PISA süreçlerine kancalanır. Kelime sıklık bantları ile deyim ve atasözü listesi henüz yok (B1, B3).
 
 ## Güncelleme metodolojisi
 
@@ -27,3 +27,7 @@ Hiçbir ajan `contentQualityReview.reviewerName` veya `ownerApproval.ownerName` 
 ## Metrik notları
 
 Kelime sayımı `scripts/audit-full-catalog.mjs` ile aynı ifadeyi kullanır, bu yüzden iki rapor karşılaştırılabilir. Kök sayısı Türkçe için 5 harflik önek kesmedir (Can ve diğ., 2008, JASIST, F5 kök bulma); biçimbirim çözümleyici değildir ve yaklaşık değer olarak okunmalıdır. Yeni kök katkısı yalnız katalog içidir: bir içeriğin, kendi okuma yolundan önceki yollardaki aynı dilli içeriklerde görülmemiş kök sayısıdır. Mikro alıştırmalar (harf, hece, kelime kartı, tekerleme, bilmece) okuma yolu medyanlarına katılmaz.
+
+## Doğrulama yöntemi ve metodoloji referansları
+
+Tüm referanslar ontoloji JSON'unun `metodolojiReferanslari` bölümündedir. Program PDF'inden çıkarım, Cochrane MECIR C45 ilkesine göre iki bağımsız yöntemle yapılır (koordinat tabanlı tablo çıkarımı ve sayfa görüntüsünün görsel okunması); farklar insan tarafından karara bağlanır. İçerik-kazanım eşlemesi Webb hizalama yaklaşımına göre en az iki bağımsız değerlendiriciyle (AI önerisi ve Türkçe öğretmeni) doğrulanır; mutlak uyum %75'in altındaysa eşleme kuralları gözden geçirilir. MEB ile PIRLS/PISA arasındaki beceri köprüsü resmî bir eşleme değildir, Okurio'nun analitik önerisidir.

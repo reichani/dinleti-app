@@ -40,6 +40,38 @@ test("ajan rolleri insan onayı alanlarını doldurmayacaklarını belirtir", ()
   assert.match(yayin, /main'e yazmazsın/);
 });
 
+test("MEB kazanım sözlüğü resmî kod biçiminde ve aday eşleme yalnız sözlükteki kodları kullanır", () => {
+  const vocab = JSON.parse(readFileSync(new URL("../../ontology/vocab/meb-kazanim.json", import.meta.url), "utf8"));
+  assert.deepEqual(vocab.siniflar.map((s) => s.sinif), [1, 2, 3, 4, 5, 6, 7, 8]);
+  const kodlar = new Set();
+  for (const s of vocab.siniflar) for (const k of s.kazanimlar) {
+    assert.match(k.kod, new RegExp(`^T\\.O\\.${s.sinif}\\.\\d+\\.$`));
+    kodlar.add(k.kod);
+    for (const b of k.surecBilesenleri ?? []) kodlar.add(b.altKodTuretilmis);
+  }
+  execFileSync("node", ["scripts/build-curriculum-candidates.mjs"], { stdio: "pipe" });
+  const map = JSON.parse(readFileSync(new URL("../../ontology/mappings/icerik-kazanim-aday.json", import.meta.url), "utf8"));
+  assert.equal(map.kayitlar.length, snapshot.icerikler.length);
+  for (const k of map.kayitlar) {
+    assert.ok(["aday-kural-tabanli", "kapsam-disi"].includes(k.durum));
+    for (const a of k.adayKazanimlar ?? []) assert.ok(kodlar.has(a.kod), `${k.id}: sözlükte olmayan kod ${a.kod}`);
+  }
+});
+
+test("her MEB beceri etiketi PIRLS/PISA köprüsünde tanımlı ve kodlar çerçevede var", () => {
+  const vocab = JSON.parse(readFileSync(new URL("../../ontology/vocab/meb-kazanim.json", import.meta.url), "utf8"));
+  const intl = JSON.parse(readFileSync(new URL("../../ontology/vocab/uluslararasi-cerceveler.json", import.meta.url), "utf8"));
+  const pirls = new Set(intl.cerceveler.PIRLS2026.surecler.map((s) => s.kod));
+  const pisa = new Set(intl.cerceveler.PISA2018.surecler.flatMap((s) => [s.kod, ...(s.alt ?? []).map((a) => a.kod)]));
+  for (const s of vocab.siniflar) for (const k of s.kazanimlar) {
+    const e = intl.beceriKopru.eslesme[k.beceri];
+    assert.ok(e, `köprüde olmayan beceri: ${k.beceri}`);
+    for (const c of [...(e.pirls ?? []), ...(e.kural?.pirls ?? [])]) assert.ok(pirls.has(c), c);
+    for (const c of e.pisa ?? []) assert.ok(pisa.has(c), c);
+  }
+  assert.ok(Array.isArray(ontology.metodolojiReferanslari) && ontology.metodolojiReferanslari.length >= 5);
+});
+
 test("AI batch betiği bütçeyi aşınca durur ve onay alanlarına yazmaz", () => {
   const src = readFileSync(new URL("../../scripts/ai-batch-review.mjs", import.meta.url), "utf8");
   assert.doesNotMatch(src, /reviewerName\s*[:=]/);
