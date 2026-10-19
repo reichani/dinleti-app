@@ -29,6 +29,14 @@ test("uses the dominant language in realistic academic text", () => {
   );
 });
 
+test("İngilizce 'I' Türkçe yerelinde 'ı' sayılmaz (v2.10 kök neden)", () => {
+  assert.equal(
+    detectTextLanguage("Every morning I wake up early. I have breakfast and I walk to school with my friends."),
+    "en",
+  );
+  assert.equal(detectTextLanguage("IŞIK ODAYA YAVAŞÇA GİRDİ VE HER ŞEYİ AYDINLATTI."), "tr");
+});
+
 test("v2.9.3: capital I/It/In/Is no longer flips English text to Turkish", () => {
   const samples = [
     "It was a cold morning. I looked out of the window. In the garden, a small bird sang. It is spring now, I said.",

@@ -123,3 +123,39 @@ export function timelineWordFromElapsed({
   const candidate = Math.min(endIndex, baseIndex + localIndex);
   return candidate > currentIndex ? candidate : null;
 }
+
+/* v2.10.1 — Cümle bazlı atlama. Okuyucunun cümle sınırı kuralıyla aynıdır
+ * (kelime . ! ? … ile biterse cümle biter). delta: -1 önceki cümle, 0 bu cümlenin
+ * başı (tekrarla), +1 sonraki cümle. Bölüm sınırında komşu bölüme geçer. */
+export function sentenceStarts(text = "") {
+  const list = words(text);
+  const starts = [];
+  let start = 0;
+  list.forEach((word, index) => {
+    if (/[.!?…]$/u.test(word) || index === list.length - 1) {
+      starts.push(start);
+      start = index + 1;
+    }
+  });
+  return starts.length ? starts : [0];
+}
+
+export function cursorForSentenceStep(sections, sectionIndex, wordIndex, delta) {
+  if (!Array.isArray(sections) || sections.length === 0) return { sectionIndex: 0, wordIndex: 0 };
+  const s = Math.max(0, Math.min(sections.length - 1, Number(sectionIndex) || 0));
+  const starts = sentenceStarts(sections[s]?.metin);
+  const w = Math.max(0, Number(wordIndex) || 0);
+  let current = 0;
+  starts.forEach((start, i) => { if (start <= w) current = i; });
+  const target = current + Math.sign(Number(delta) || 0);
+  if (target < 0) {
+    if (s === 0) return { sectionIndex: 0, wordIndex: 0 };
+    const prev = sentenceStarts(sections[s - 1]?.metin);
+    return { sectionIndex: s - 1, wordIndex: prev[prev.length - 1] };
+  }
+  if (target >= starts.length) {
+    if (s === sections.length - 1) return { sectionIndex: s, wordIndex: starts[starts.length - 1] };
+    return { sectionIndex: s + 1, wordIndex: 0 };
+  }
+  return { sectionIndex: s, wordIndex: starts[target] };
+}
