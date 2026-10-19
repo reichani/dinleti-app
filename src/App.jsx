@@ -3,6 +3,7 @@ import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, Chevron
 import GlossaryCard from "./components/GlossaryCard.jsx";
 import OkurioProvenanceStamp from "./components/OkurioProvenanceStamp.jsx";
 import { extractDocumentText, normalizeDocumentText, SUPPORTED_DOCUMENT_ACCEPT } from "./documentImport.js";
+import { detectTextLanguage } from "./textLanguage.js";
 import { buildStudySections, dominantLanguage, summarizeLanguages } from "./studyText.js";
 import { findGlossaryEntry, mergePilotStories } from "./content/pilotCatalogAdapter.js";
 import { PETER_RABBIT_FULL } from "./content/fullPublicDomainStories.js";
