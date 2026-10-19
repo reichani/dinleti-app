@@ -37,7 +37,7 @@ export const PROMETHEUSUN_SECIMI_DRAFT = {
       'Oki tahtaya ikinci soruyu yazdı. Bilgiye erişimi kim belirlemeliydi? Grubun cevabı henüz tamamlanmamıştı.',
       'Onlar becerileri Prometheus’un tek başına icat ettiğini iddia etmedi. Yalnız seçtikleri anlatı geleneğinin çerçevesini aktardılar.',
     ]},
-    { title: 'Kararın Haritası', paragraphs: [
+    { title: 'Kararın Haritası, Bedel ve Adalet', paragraphs: [
       'Çocuklar büyük bir karar haritası hazırladı. Ortaya Prometheus’un seçimini yazdılar. Çevresine yararları, riskleri ve etkilenenleri yerleştirdiler.',
       'İnsanlar sıcaklık ve üretim imkânı kazanıyordu. Prometheus, Zeus’un öfkesini göze alıyordu. Doğa ise ateşin kullanımından etkilenebilirdi.',
       'Toto, kararın yalnız iki seçeneği olmadığını söyledi. Ateş güvenli kullanım bilgisiyle birlikte verilebilirdi. Sorumluluk ayrıca paylaşılabilirdi.',
@@ -45,8 +45,6 @@ export const PROMETHEUSUN_SECIMI_DRAFT = {
       'Oki kahramanlık sözcüğünün yanına bir soru koydu. Büyük risk almak her zaman kahramanlık sayılır mıydı? Risk başkalarını etkiliyorsa cevap zorlaşıyordu.',
       'Nana, seçeneklerin sonuçlarını önceden tartmanın korkaklık olmadığını söyledi. Dikkat, cesareti küçültmezdi. Onu daha sorumlu hâle getirebilirdi.',
       'Haritada beklenmeyen sonuçlar için ayrı bir alan vardı. Çünkü iyi planlar bile yeni sorunlarla karşılaşabilirdi.',
-    ]},
-    { title: 'Bedel ve Adalet', paragraphs: [
       'Kaynaklarda Prometheus ağır bir cezaya bağlanıyordu. Grup bu kısmı grafik ayrıntılar olmadan okudu. Cezanın amacı, itaat sağlamaktı.',
       'Toto cezanın adil olup olmadığını sordu. Lili, gücü elinde tutanın karar verdiğini belirtti. Güçlü olmak, adil olmakla aynı değildi.',
       'Oki, Prometheus’un acısını yüceltmek istemedi. Acı çekmek bir görüşü otomatik olarak doğrulamazdı. Kendine zarar vermek de cesaret ölçüsü değildi.',

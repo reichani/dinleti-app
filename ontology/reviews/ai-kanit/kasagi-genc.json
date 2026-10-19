@@ -1,0 +1,320 @@
+{
+  "schemaVersion": "1.0",
+  "reviewType": "ai-evidence",
+  "icerikId": "kasagi-genc",
+  "status": "ai-onayli",
+  "model": "claude-opus-5-5",
+  "reviewedAt": "2026-10-18T14:00:00Z",
+  "reviewedCommit": "942f28f7b81f7a19687f4c22ab66e9273faa0895",
+  "contentFingerprint": "sha256:0f965804bf9c728e840e063d26606952f19fc04f4beddca452d2e90d38eee439",
+  "kamuyaAciklama": "AI destekli kanıt denetiminden geçti",
+  "insanOnayi": "bekliyor",
+  "checks": {
+    "dilSeviyesi": {
+      "sonuc": "gecti",
+      "ajan": "okurio-gozetim-ajani",
+      "not": "Ek tur: 1098 kelime, 7 bölüm, en uzun cümle 15 (sınır 18, K-02); uzunluk denetimi uygun."
+    },
+    "guvenlik": {
+      "sonuc": "gecti",
+      "ajan": "okurio-gozetim-ajani",
+      "not": "İnsan kararı gerekli: kardeş ölümü, tokat ve suçluluk teması 12-14 yaş için ayrıntısız verildi; contentWarnings dolu; Okur Notu destek cümlesi içerir."
+    },
+    "hakOzgunluk": {
+      "sonuc": "gecti",
+      "ajan": "okurio-gozetim-ajani",
+      "not": "Kamu malı (K-03, Reyhan teyidi); bütün ekler ve çıkarmalar sourceTruth.scope'ta beyanlı."
+    },
+    "mufredat": {
+      "sonuc": "gecti",
+      "ajan": "okurio-gozetim-ajani",
+      "not": "ortaokul / 7-8. sınıf; B2 açık."
+    },
+    "erisilebilirlik": {
+      "sonuc": "uygulanmaz",
+      "ajan": "",
+      "not": "Okuma güçlüğü veya destek aracı teması yok."
+    },
+    "olgusalKanit": {
+      "sonuc": "gecti",
+      "ajan": "okurio-kanit-denetcisi",
+      "not": "12 iddia: 11 destekleniyor, 1 kısmen (ilk yayım tarihi, yalnız kaynak kaydında). Fiziksel ceza cümlesi kanıt denetimi sonrası kaynaklarla uyumlu biçime getirildi."
+    }
+  },
+  "iddialar": [
+    {
+      "iddia": "Bugün kuşpalazına difteri denir ve aşıyla önlenebilir. (Okur Notu) / Doktor, kuşpalazı denen ağır bir boğaz hastalığı olduğunu söyledi. (Ertelenen Söz)",
+      "tur": "saglik-guvenlik",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Türk Dil Kurumu Güncel Türkçe Sözlük: kuşpalazı (► difteri); difteri (... burun, boğaz, yutak çeperine yerleşen mikropların yol açtığı bulaşıcı hastalık; kuşpalazı)",
+          "yil": 2026,
+          "pmid": "",
+          "doi": "",
+          "url": "https://eski.sozluk.gov.tr/?ara=ku%C5%9Fpalaz%C4%B1",
+          "kanitGucu": "orta"
+        },
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "World Health Organization fact sheet: Diphtheria (15 July 2026) — üst solunum yolunu (boğaz, bademcik, burun) tutan, aşıyla önlenebilir hastalık",
+          "yil": 2026,
+          "pmid": "",
+          "doi": "",
+          "url": "https://who.int/news-room/fact-sheets/detail/diphtheria",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "Bugün çocuk hakları ilkeleri ve araştırmalar, çocuklara fiziksel ceza verilmemesi gerektiğini söyler.",
+      "tur": "saglik-guvenlik",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "UN Committee on the Rights of the Child, General comment No. 8 (2006): The right of the child to protection from corporal punishment and other cruel or degrading forms of punishment (CRC/C/GC/8)",
+          "yil": 2006,
+          "pmid": "",
+          "doi": "",
+          "url": "https://digitallibrary.un.org/record/583961?ln=en",
+          "kanitGucu": "orta"
+        },
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "World Health Organization fact sheet: Corporal punishment of children and health",
+          "yil": 2025,
+          "pmid": "",
+          "doi": "",
+          "url": "https://www.who.int/news-room/fact-sheets/detail/corporal-punishment-and-health",
+          "kanitGucu": "orta"
+        },
+        {
+          "kaynak": "PubMed",
+          "baslik": "Spanking and child outcomes: Old controversies and new meta-analyses (Gershoff ET, Grogan-Kaylor A; J Fam Psychol 30(4):453-69)",
+          "yil": 2016,
+          "pmid": "27055181",
+          "doi": "10.1037/fam0000191",
+          "url": "",
+          "kanitGucu": "guclu"
+        },
+        {
+          "kaynak": "PubMed",
+          "baslik": "Physical punishment and child outcomes: a narrative review of prospective studies (Heilmann A et al.; Lancet 398(10297):355-364)",
+          "yil": 2021,
+          "pmid": "34197808",
+          "doi": "10.1016/S0140-6736(21)00582-1",
+          "url": "",
+          "kanitGucu": "orta"
+        },
+        {
+          "kaynak": "Consensus",
+          "baslik": "Physical punishment and lifelong outcomes in low- and middle-income countries: a systematic review and multilevel meta-analysis (Cuartas J et al.; Nature Human Behaviour)",
+          "yil": 2025,
+          "pmid": "",
+          "doi": "",
+          "url": "https://consensus.app/papers/details/d5cf2c9a50ef5faf9e28986e87bb8cac/",
+          "kanitGucu": "guclu"
+        }
+      ]
+    },
+    {
+      "iddia": "Kaşağı: Atların tüylerini taramak ve temizlemek için kullanılan dişli demir tarak. / Bu iş için kaşağı denen dişli bir demir tarak kullanılırdı.",
+      "tur": "olgusal",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Türk Dil Kurumu Güncel Türkçe Sözlük: kaşağı — Hayvanları tımar etmek için kullanılan, sacdan, dişli araç",
+          "yil": 2026,
+          "pmid": "",
+          "doi": "",
+          "url": "https://eski.sozluk.gov.tr/?ara=ka%C5%9Fa%C4%9F%C4%B1",
+          "kanitGucu": "orta"
+        },
+        {
+          "kaynak": "birincil-metin",
+          "baslik": "Ömer Seyfettin, Kaşağı (Vikikaynak): 'Bu demir aleti hayvanın üstüne sürter...'",
+          "yil": 2025,
+          "pmid": "",
+          "doi": "",
+          "url": "https://tr.wikisource.org/wiki/Ka%C5%9Fa%C4%9F%C4%B1",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "Tımar: Atın tüylerini tarayıp bakımını yapma işi. / Tımar, atın tüylerini tarayıp temizleyerek bakımını yapmaktı.",
+      "tur": "olgusal",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Türk Dil Kurumu Güncel Türkçe Sözlük: kaşağı — 'Hayvanları tımar etmek için kullanılan ... dişli araç' (tımar maddesi ayrıca çekilemedi)",
+          "yil": 2026,
+          "pmid": "",
+          "doi": "",
+          "url": "https://eski.sozluk.gov.tr/?ara=ka%C5%9Fa%C4%9F%C4%B1",
+          "kanitGucu": "zayif"
+        },
+        {
+          "kaynak": "birincil-metin",
+          "baslik": "Ömer Seyfettin, Kaşağı (Vikikaynak): Dadaruh'un kaşağıyla atları tımar etmesi",
+          "yil": 2025,
+          "pmid": "",
+          "doi": "",
+          "url": "https://tr.wikisource.org/wiki/Ka%C5%9Fa%C4%9F%C4%B1",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "Yalak, çeşmenin önünde hayvanların su içtiği taş bir tekneydi. / Çeşme başındaki taş su teknesi.",
+      "tur": "olgusal",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Türk Dil Kurumu Güncel Türkçe Sözlük: yalak — 1. Hayvanların su içtikleri taş veya ağaçtan oyma kap; 2. ... çeşme, musluk vb.nin altına konulan delikli taş tekne",
+          "yil": 2026,
+          "pmid": "",
+          "doi": "",
+          "url": "https://eski.sozluk.gov.tr/?ara=yalak",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "Dadaruh babamın seyisiydi, yani atlarına bakan yaşlı bir adamdı.",
+      "tur": "olgusal",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Türk Dil Kurumu Güncel Türkçe Sözlük: seyis — at bakıcısı",
+          "yil": 2026,
+          "pmid": "",
+          "doi": "",
+          "url": "https://eski.sozluk.gov.tr/?ara=seyis",
+          "kanitGucu": "orta"
+        },
+        {
+          "kaynak": "birincil-metin",
+          "baslik": "Ömer Seyfettin, Kaşağı (Vikikaynak): 'Bu, babamın seyisi, ihtiyar bir adamdı.'",
+          "yil": 2025,
+          "pmid": "",
+          "doi": "",
+          "url": "https://tr.wikisource.org/wiki/Ka%C5%9Fa%C4%9F%C4%B1",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "Sağrı: Atın sırtının kalçaya yakın arka kısmı.",
+      "tur": "olgusal",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Türk Dil Kurumu Güncel Türkçe Sözlük: sağrı — Memeli hayvanlarda bel ile kuyruk arasındaki dolgun ve yuvarlakça bölüm",
+          "yil": 2026,
+          "pmid": "",
+          "doi": "",
+          "url": "https://eski.sozluk.gov.tr/?ara=sa%C4%9Fr%C4%B1",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "Ahır: Atların ve büyükbaş hayvanların barındığı kapalı yer.",
+      "tur": "olgusal",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Türk Dil Kurumu Güncel Türkçe Sözlük: ahır — Evcil büyükbaş hayvanların barındığı kapalı yer; dam, hayvan damı",
+          "yil": 2026,
+          "pmid": "",
+          "doi": "",
+          "url": "https://eski.sozluk.gov.tr/?ara=ah%C4%B1r",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "İftira: Birini yapmadığı bir şeyle suçlamak.",
+      "tur": "olgusal",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Türk Dil Kurumu Güncel Türkçe Sözlük: iftira — Bir kimseye kasıtlı ve asılsız suç yükleme",
+          "yil": 2026,
+          "pmid": "",
+          "doi": "",
+          "url": "https://eski.sozluk.gov.tr/?ara=iftira",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "Halk arasında yalancının mumu yatsıya kadar yanar, denir. Yani yalan uzun sürmez, gerçek er geç ortaya çıkar.",
+      "tur": "olgusal",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Türk Dil Kurumu Atasözleri ve Deyimler Sözlüğü: yalancının mumu yatsıya kadar yanar — 'söylenen söz yalansa durum çok geçmeden anlaşılır'",
+          "yil": 2026,
+          "pmid": "",
+          "doi": "",
+          "url": "https://eski.sozluk.gov.tr/?ara=yalanc%C4%B1n%C4%B1n%20mumu%20yats%C4%B1ya%20kadar%20yanar",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "Ömer Seyfettin 1920'de öldü (kaynak kaydı authorDeathYear: 1920; kamu malı gerekçesi).",
+      "tur": "olgusal",
+      "sonuc": "destekleniyor",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "MEB Kabataş Erkek Lisesi: Ömer SEYFETTİN — '6 Mart 1920'de 35 yaşında hayatını kaybetti.'",
+          "yil": 2026,
+          "pmid": "",
+          "doi": "",
+          "url": "https://kabataserkeklisesi.meb.k12.tr/icerikler/omerseyfettin_16611001.html",
+          "kanitGucu": "orta"
+        },
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Cansız Kundakçı S., Kısa Bir Ömrün Uzun Hikâyesi: Hikâyelerinde Ömer Seyfettin, Hars Akademi Uluslararası Hakemli Kültür-Sanat-Mimarlık Dergisi, Özel Sayı (DergiPark) — '6 Mart 1920'de Haydarpaşa Tıp Fakültesi'nde ... sona erdi'",
+          "yil": 2020,
+          "pmid": "",
+          "doi": "",
+          "url": "https://dergipark.org.tr/tr/download/article-file/1297193",
+          "kanitGucu": "orta"
+        }
+      ]
+    },
+    {
+      "iddia": "Kaynak kaydı: ilk yayım tarihi kesin değil (1926 derleme veya 1919); kamu malı durumu yazarın 1920 ölümüne dayanır.",
+      "tur": "olgusal",
+      "sonuc": "kismen",
+      "kanit": [
+        {
+          "kaynak": "resmi-kurum",
+          "baslik": "Cansız Kundakçı S., Kısa Bir Ömrün Uzun Hikâyesi: Hikâyelerinde Ömer Seyfettin, Hars Akademi Dergisi, 2020 — öyküyü 'Kaşağı (1919)' olarak tarihlendirir",
+          "yil": 2020,
+          "pmid": "",
+          "doi": "",
+          "url": "https://dergipark.org.tr/tr/download/article-file/1297193",
+          "kanitGucu": "zayif"
+        }
+      ]
+    }
+  ],
+  "sinirlar": "AI kanıt denetimidir; insan editör veya uzman onayı değildir. Edebî nitelik, çocuk gelişimi uzmanlığı ve hukuki hak durumu garanti edilmez. Kanıt denetimi tıbbi veya hukuki görüş değildir."
+}

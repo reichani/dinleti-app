@@ -1,6 +1,6 @@
 # Kaynak Notu: MEB Türkçe Dersi Öğretim Programı, Okuma Öğrenme Çıktıları
 
-Hazırlanma ve erişim tarihi: 2026-10-18. Çıktı dosyası: `/home/claude/meb-work/meb-kazanim.json`.
+Hazırlanma ve erişim tarihi: 2026-10-18. Çıktı dosyası: `ontology/vocab/meb-kazanim.json`.
 
 ## Kullanılan belge
 

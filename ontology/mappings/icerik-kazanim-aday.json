@@ -5,13 +5,13 @@
     "vocab": "ontology/vocab/meb-kazanim.json",
     "uluslararasi": "ontology/vocab/uluslararasi-cerceveler.json",
     "program": "Türkçe Dersi Öğretim Programı (İlkokul 1-4. ve Ortaokul 5-8. Sınıflar), Türkiye Yüzyılı Maarif Modeli",
-    "snapshot": "ontology/snapshots/catalog-metrics-2026-10-18.json"
+    "snapshot": "ontology/snapshots/catalog-metrics-2026-10-19.json"
   },
   "not": "Öneridir, onay değildir. Doğrulama: Reyhan veya bir Türkçe öğretmeni (ontoloji aksiyonu A5).",
   "ozet": {
-    "toplam": 80,
-    "adayli": 37,
-    "kapsamDisi": 43,
+    "toplam": 99,
+    "adayli": 44,
+    "kapsamDisi": 55,
     "metinTuruProgramdaDegil": 0
   },
   "kayitlar": [
@@ -147,6 +147,526 @@
       "baslik": "Odysseia: Dönüşün Başladığı Kıyı",
       "anaOkumaYolu": "klasiklere_hazirlik_14_16",
       "sinifEtiketi": "9. ve 10. Sınıf",
+      "durum": "kapsam-disi",
+      "neden": "lise; program 1-8. sınıfları kapsar"
+    },
+    {
+      "id": "kiyidaki-sessiz-istasyon",
+      "baslik": "Kıyıdaki Sessiz İstasyon",
+      "anaOkumaYolu": "genc_okurlar_12_14",
+      "sinifEtiketi": "7. ve 8. Sınıf",
+      "sinif": 7,
+      "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
+      "programMetinTuru": "Öykü (basılı veya dijital)",
+      "metinTuruProgramda": true,
+      "adayKazanimlar": [
+        {
+          "kod": "T.O.7.5.",
+          "metin": "Metnin yüzey anlamını belirleyebilme",
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P1"
+          ],
+          "pisa": [
+            "PISA.LI.1",
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.7.4.",
+          "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.7.14.",
+          "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.7.20.",
+          "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.7.12.",
+          "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
+          "neden": "öyküleyici metin",
+          "pirls": [
+            "PIRLS.P4"
+          ],
+          "pisa": [
+            "PISA.ER.2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mino-mirildaniyor",
+      "baslik": "Mino'nun Mırıl Mırıl Sabahı",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "sinifEtiketi": null,
+      "durum": "kapsam-disi",
+      "neden": "okul öncesi; program 1. sınıftan başlar"
+    },
+    {
+      "id": "lili-su-sesi",
+      "baslik": "Lili ile Sessiz Su Sesi",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "sinifEtiketi": null,
+      "durum": "kapsam-disi",
+      "neden": "okul öncesi; program 1. sınıftan başlar"
+    },
+    {
+      "id": "toto-ari-ariyor",
+      "baslik": "Toto'nun Arı Arayışı",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "sinifEtiketi": null,
+      "durum": "kapsam-disi",
+      "neden": "okul öncesi; program 1. sınıftan başlar"
+    },
+    {
+      "id": "oki-ayakkabi-teki",
+      "baslik": "Oki'nin Kayıp Ayakkabı Teki",
+      "anaOkumaYolu": "ilk_harfler_6_7",
+      "sinifEtiketi": "1. Sınıf",
+      "sinif": 1,
+      "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
+      "programMetinTuru": "Öykü",
+      "metinTuruProgramda": true,
+      "adayKazanimlar": [
+        {
+          "kod": "T.O.1.1.",
+          "metin": "Okuma sürecini yönetebilme",
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
+        },
+        {
+          "kod": "T.O.1.2.",
+          "metin": "Okudukları ile ilgili anlam oluşturabilme",
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nana-pazar-renkleri",
+      "baslik": "Nana ile Pazar Yerinde Renkler",
+      "anaOkumaYolu": "ilk_harfler_6_7",
+      "sinifEtiketi": "1. Sınıf",
+      "sinif": 1,
+      "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
+      "programMetinTuru": "Öykü",
+      "metinTuruProgramda": true,
+      "adayKazanimlar": [
+        {
+          "kod": "T.O.1.1.",
+          "metin": "Okuma sürecini yönetebilme",
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
+        },
+        {
+          "kod": "T.O.1.2.",
+          "metin": "Okudukları ile ilgili anlam oluşturabilme",
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kus-yuvasi-defteri",
+      "baslik": "Kuş Yuvası Defteri",
+      "anaOkumaYolu": "ilk_cumleler_7_8",
+      "sinifEtiketi": "2. Sınıf",
+      "sinif": 2,
+      "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.AUI",
+      "programMetinTuru": "Bilimsel yazılar",
+      "metinTuruProgramda": true,
+      "adayKazanimlar": [
+        {
+          "kod": "T.O.2.1.",
+          "metin": "Okuma sürecini yönetebilme",
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.TM.1",
+            "PISA.TM.2",
+            "PISA.RF"
+          ]
+        },
+        {
+          "kod": "T.O.2.2.",
+          "metin": "Okudukları ile ilgili anlam oluşturabilme",
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P2",
+            "PIRLS.P3"
+          ],
+          "pisa": [
+            "PISA.UN.2"
+          ]
+        },
+        {
+          "kod": "T.O.2.2.f)",
+          "ustKod": "T.O.2.2.",
+          "metin": "Okuduğu metindeki zıt anlamlı sözcükleri bulur.",
+          "neden": "sözlük girdisi var",
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rainy-day-library-en",
+      "baslik": "Lili and the Rainy Day Library",
+      "anaOkumaYolu": "ilk_cumleler_7_8",
+      "sinifEtiketi": "2. Sınıf",
+      "durum": "kapsam-disi",
+      "neden": "İngilizce içerik; Türkçe programına eşlenmez"
+    },
+    {
+      "id": "tamirci-defteri",
+      "baslik": "Tamirci Defteri",
+      "anaOkumaYolu": "akici_okuma_10_12",
+      "sinifEtiketi": "5. ve 6. Sınıf",
+      "sinif": 5,
+      "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
+      "programMetinTuru": "Öykü (basılı veya dijital)",
+      "metinTuruProgramda": true,
+      "adayKazanimlar": [
+        {
+          "kod": "T.O.5.2.",
+          "metin": "Akıcı okuyabilme",
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.RF"
+          ]
+        },
+        {
+          "kod": "T.O.5.6.",
+          "metin": "Metnin yüzey anlamını belirleyebilme",
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P1"
+          ],
+          "pisa": [
+            "PISA.LI.1",
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.5.",
+          "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.15.",
+          "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.20.",
+          "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.13.",
+          "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
+          "neden": "öyküleyici metin",
+          "pirls": [
+            "PIRLS.P4"
+          ],
+          "pisa": [
+            "PISA.ER.2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kenar-notlari",
+      "baslik": "Kenar Notları",
+      "anaOkumaYolu": "akici_okuma_10_12",
+      "sinifEtiketi": "5. ve 6. Sınıf",
+      "sinif": 5,
+      "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
+      "programMetinTuru": "Öykü (basılı veya dijital)",
+      "metinTuruProgramda": true,
+      "adayKazanimlar": [
+        {
+          "kod": "T.O.5.2.",
+          "metin": "Akıcı okuyabilme",
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.RF"
+          ]
+        },
+        {
+          "kod": "T.O.5.6.",
+          "metin": "Metnin yüzey anlamını belirleyebilme",
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P1"
+          ],
+          "pisa": [
+            "PISA.LI.1",
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.5.",
+          "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.15.",
+          "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.20.",
+          "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.13.",
+          "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
+          "neden": "öyküleyici metin",
+          "pirls": [
+            "PIRLS.P4"
+          ],
+          "pisa": [
+            "PISA.ER.2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lighthouse-logbook-en",
+      "baslik": "The Lighthouse Logbook",
+      "anaOkumaYolu": "akici_okuma_10_12",
+      "sinifEtiketi": "5. ve 6. Sınıf",
+      "durum": "kapsam-disi",
+      "neden": "İngilizce içerik; Türkçe programına eşlenmez"
+    },
+    {
+      "id": "eski-harita-calismasi",
+      "baslik": "Eski Harita Çalışması",
+      "anaOkumaYolu": "klasiklere_hazirlik_14_16",
+      "sinifEtiketi": "9. ve 10. Sınıf",
+      "durum": "kapsam-disi",
+      "neden": "lise; program 1-8. sınıfları kapsar"
+    },
+    {
+      "id": "munazara-hazirligi",
+      "baslik": "Münazara Hazırlığı",
+      "anaOkumaYolu": "klasiklere_hazirlik_14_16",
+      "sinifEtiketi": "9. ve 10. Sınıf",
+      "durum": "kapsam-disi",
+      "neden": "lise; program 1-8. sınıfları kapsar"
+    },
+    {
+      "id": "sabah-vapuru",
+      "baslik": "Sabah Vapuru",
+      "anaOkumaYolu": "lise_okuma_16_18",
+      "sinifEtiketi": "11. ve 12. Sınıf",
+      "durum": "kapsam-disi",
+      "neden": "lise; program 1-8. sınıfları kapsar"
+    },
+    {
+      "id": "mahallenin-saatcisi",
+      "baslik": "Mahallenin Saatçisi",
+      "anaOkumaYolu": "lise_okuma_16_18",
+      "sinifEtiketi": "11. ve 12. Sınıf",
+      "durum": "kapsam-disi",
+      "neden": "lise; program 1-8. sınıfları kapsar"
+    },
+    {
+      "id": "kirk-dakikalik-bahce",
+      "baslik": "Kırk Dakikalık Bahçe",
+      "anaOkumaYolu": "lise_okuma_16_18",
+      "sinifEtiketi": "11. ve 12. Sınıf",
+      "durum": "kapsam-disi",
+      "neden": "lise; program 1-8. sınıfları kapsar"
+    },
+    {
+      "id": "oki-ve-serce-yuvasi",
+      "baslik": "Oki ve Serçe Yuvası",
+      "anaOkumaYolu": "okul_oncesi_3_4",
+      "sinifEtiketi": null,
+      "durum": "kapsam-disi",
+      "neden": "okul öncesi; program 1. sınıftan başlar"
+    },
+    {
+      "id": "kasagi-genc",
+      "baslik": "Kaşağı",
+      "anaOkumaYolu": "akici_okuma_10_12",
+      "sinifEtiketi": "5. ve 6. Sınıf",
+      "sinif": 5,
+      "durum": "aday-kural-tabanli",
+      "pirlsAmac": "PIRLS.A.LE",
+      "programMetinTuru": "Öykü (basılı veya dijital)",
+      "metinTuruProgramda": true,
+      "adayKazanimlar": [
+        {
+          "kod": "T.O.5.2.",
+          "metin": "Akıcı okuyabilme",
+          "neden": "tam okuma: akıcı okuma",
+          "pirls": [],
+          "pisa": [
+            "PISA.RF"
+          ]
+        },
+        {
+          "kod": "T.O.5.6.",
+          "metin": "Metnin yüzey anlamını belirleyebilme",
+          "neden": "tam okuma: anlama",
+          "pirls": [
+            "PIRLS.P1"
+          ],
+          "pisa": [
+            "PISA.LI.1",
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.5.",
+          "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.15.",
+          "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.20.",
+          "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.13.",
+          "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
+          "neden": "öyküleyici metin",
+          "pirls": [
+            "PIRLS.P4"
+          ],
+          "pisa": [
+            "PISA.ER.2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "yarim-kalan-ayrac",
+      "baslik": "Yarım Kalan Ayraç",
+      "anaOkumaYolu": "lise_okuma_16_18",
+      "sinifEtiketi": "11. ve 12. Sınıf",
       "durum": "kapsam-disi",
       "neden": "lise; program 1-8. sınıfları kapsar"
     },
@@ -793,7 +1313,7 @@
           "kod": "T.O.3.2.h)",
           "ustKod": "T.O.3.2.",
           "metin": "Okuduğu metindeki zıt anlamlı ve eş anlamlı sözcükleri bulur.",
-          "neden": "yeni kök oranı ≥ 0,30",
+          "neden": "sözlük girdisi var",
           "turetilmisKod": true,
           "pirls": [
             "PIRLS.P2"
@@ -806,7 +1326,7 @@
           "kod": "T.O.3.3.d)",
           "ustKod": "T.O.3.3.",
           "metin": "Gerçek ve mecaz anlamlı sözcüklerin metinle ilişkisini belirler.",
-          "neden": "yeni kök oranı ≥ 0,30",
+          "neden": "sözlük girdisi var",
           "turetilmisKod": true,
           "pirls": [
             "PIRLS.P2"
@@ -843,7 +1363,7 @@
         {
           "kod": "T.O.7.4.",
           "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
-          "neden": "yeni kök oranı ≥ 0,30",
+          "neden": "sözlük girdisi var",
           "pirls": [
             "PIRLS.P2"
           ],
@@ -854,7 +1374,7 @@
         {
           "kod": "T.O.7.14.",
           "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
-          "neden": "yeni kök oranı ≥ 0,30",
+          "neden": "sözlük girdisi var",
           "pirls": [
             "PIRLS.P2"
           ],
@@ -865,7 +1385,7 @@
         {
           "kod": "T.O.7.20.",
           "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
-          "neden": "yeni kök oranı ≥ 0,30",
+          "neden": "sözlük girdisi var",
           "pirls": [
             "PIRLS.P2"
           ],
@@ -995,7 +1515,7 @@
     },
     {
       "id": "keloglan-masallari",
-      "baslik": "Keloğlan Masalları",
+      "baslik": "Keloğlan ve Duran Değirmen",
       "anaOkumaYolu": "okul_oncesi_3_4",
       "sinifEtiketi": null,
       "durum": "kapsam-disi",
@@ -1422,6 +1942,32 @@
           "pisa": [
             "PISA.UN.2"
           ]
+        },
+        {
+          "kod": "T.O.3.2.h)",
+          "ustKod": "T.O.3.2.",
+          "metin": "Okuduğu metindeki zıt anlamlı ve eş anlamlı sözcükleri bulur.",
+          "neden": "sözlük girdisi var",
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.3.3.d)",
+          "ustKod": "T.O.3.3.",
+          "metin": "Gerçek ve mecaz anlamlı sözcüklerin metinle ilişkisini belirler.",
+          "neden": "sözlük girdisi var",
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
@@ -1454,6 +2000,39 @@
           ],
           "pisa": [
             "PISA.LI.1",
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.5.",
+          "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.15.",
+          "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.5.20.",
+          "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
             "PISA.UN.1"
           ]
         },
@@ -1866,6 +2445,19 @@
           "pisa": [
             "PISA.UN.2"
           ]
+        },
+        {
+          "kod": "T.O.2.2.f)",
+          "ustKod": "T.O.2.2.",
+          "metin": "Okuduğu metindeki zıt anlamlı sözcükleri bulur.",
+          "neden": "sözlük girdisi var",
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
@@ -1901,6 +2493,32 @@
           ],
           "pisa": [
             "PISA.UN.2"
+          ]
+        },
+        {
+          "kod": "T.O.3.2.h)",
+          "ustKod": "T.O.3.2.",
+          "metin": "Okuduğu metindeki zıt anlamlı ve eş anlamlı sözcükleri bulur.",
+          "neden": "sözlük girdisi var",
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.3.3.d)",
+          "ustKod": "T.O.3.3.",
+          "metin": "Gerçek ve mecaz anlamlı sözcüklerin metinle ilişkisini belirler.",
+          "neden": "sözlük girdisi var",
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
           ]
         }
       ]

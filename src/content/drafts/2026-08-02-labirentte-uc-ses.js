@@ -71,7 +71,7 @@ export const LABIRENTTE_UC_SES_DRAFT = {
       ],
     },
     {
-      title: "Üçüncü Sesin Sessiz Aralığı",
+      title: "Üçüncü Sesin Aralığı ve Düğümdeki Anlaşmazlık",
       paragraphs: [
         "Anlatıcı: Üçüncü zil uzun ve eşit aralıklarla çalıyordu. Lili: Sesler arasında düzenli bir zaman boşluğu var. Toto: Belki bu aralıklar bize sayı veriyor.",
         "Oki: Bir, iki, sonra üç vuruş geliyor. Lili: Mozaikte de aynı sıra çizilmiş. Toto: Kapıları sırayla denemeliyiz.",
@@ -79,11 +79,6 @@ export const LABIRENTTE_UC_SES_DRAFT = {
         "Toto: Üçüncü kapı hemen doğru görünüyor. Oki: Görünüş yine tek başına yetmez. Lili: İpin dönüş yolunu kontrol edelim.",
         "Anlatıcı: Kırmızı ip hâlâ girişe uzanıyordu. Düğümler sağlam, dönüşler açık görünüyordu. Ekip şimdi merdivene güvenle ilerleyebilirdi.",
         "Lili: Üçüncü ses bir emir vermedi. Oki: Bize sınanabilir bir düzen sundu. Toto: Düzeni mozaikle karşılaştırdık.",
-      ],
-    },
-    {
-      title: "Düğümdeki Anlaşmazlık",
-      paragraphs: [
         "Anlatıcı: Dar merdivenin sonunda kırmızı ip aniden gerildi. Toto: Bir yere takıldı, hemen güçlüce çekiyorum. Lili: Dur, bu sert çekiş ipi koparabilir.",
         "Oki: Ben geri dönüp köşeyi kontrol ederim. Toto: Tek başına gitmeni istemiyorum. Lili: Hepimiz birlikte geri yürüyelim.",
         "Anlatıcı: Düğüm, taş çıkıntıya sıkışmıştı. Oki taşı oynatmayı düşündü. Lili yapının korunması gerektiğini hatırlattı.",

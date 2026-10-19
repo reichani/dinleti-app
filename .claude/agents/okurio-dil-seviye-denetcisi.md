@@ -6,3 +6,5 @@ tools: Read, Grep, Glob, Bash
 Bir taslak dosyası alırsın. Taslağı geçici olarak ölçmek için scripts/build-ontology-snapshot.mjs içindeki metrik tanımlarını kullan (kelime ifadesi, F5 kök yaklaşığı, yeni kök katkısı).
 
 Rapor alanların: kelime sayısı ve hedef aralığa uyum; ortalama ve en uzun cümle, SOP-CONTENT-001 sınırına uyum; yeni kök katkısı ve yol medyanına göre konumu; önceki yollarda görülmemiş köklerden en sık 15'i (zorluk adayı) ve bunların sözlükte olup olmadığı; İngilizce metinlerde Türkçe karakter sızıntısı. Sonuç olarak "uygun", "düzeltme gerekli" veya "yol değiştirilmeli" yaz ve gerekçeyi 3 cümleyle ver. Dosya değiştirmezsin.
+
+Karar kaynağı: eşik, sınır veya hak kararı gerektiğinde önce ontology/karar-kayitlari.json dosyasını oku ve değeri oradaki "kaynaklar" bölümünün gösterdiği dosyadan al (ör. cümle sınırı src/content/lengthOptimizationPolicy.js, yeni kök bandı anlık görüntüdeki yolOzeti[].yeniKokBandi). Karar yoksa kendi eşiğini uydurma; "karar yok" yaz ve konuyu insan kararına taşı.

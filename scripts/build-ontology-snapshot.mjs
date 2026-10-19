@@ -15,7 +15,8 @@
  *   içeriklerinde görülmemiş köklerin sayısıdır (katalog içi ölçüm). Dış bir
  *   yaş/sınıf sıklık listesi henüz yoktur; ontolojide boşluk olarak işaretlidir.
  */
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from "node:fs";
+import { contentFingerprint, evaluateAiEvidenceReview } from "../src/content/aiEvidenceReview.js";
 import vm from "node:vm";
 import { COMPLETE_OKURIO_SESSIONS } from "../src/content/completeOkurioSessions.js";
 import { PETER_RABBIT_FULL } from "../src/content/fullPublicDomainStories.js";
@@ -107,6 +108,15 @@ const anaYol = (meta) => {
   return sirali.length ? yolSirasi[sirali[0]] : null;
 };
 
+// K-2026-10-18-07: AI kanıt onayı kayıtları (insan onayı değildir).
+const aiKayitDizini = new URL("../ontology/reviews/ai-kanit/", import.meta.url);
+const aiKayitlari = existsSync(aiKayitDizini)
+  ? Object.fromEntries(readdirSync(aiKayitDizini).filter((f) => f.endsWith(".json") && f !== "SABLON.json").map((f) => {
+      const r = JSON.parse(readFileSync(new URL(f, aiKayitDizini), "utf8"));
+      return [r.icerikId, r];
+    }))
+  : {};
+
 const kayitlar = catalog.map((story) => {
   const meta = ICERIK_METADATA[story.id] ?? null;
   const dil = story.dil === "en" ? "en" : "tr";
@@ -147,6 +157,12 @@ const kayitlar = catalog.map((story) => {
     atasozu: (dilProfili.proverbs ?? []).length,
     kulturelOge: (dilProfili.culturalObjects ?? []).length,
     insanOnayi: story.contentQualityReview?.status ?? "yok",
+    aiKanitOnayi: (() => {
+      const r = aiKayitlari[story.id];
+      if (!r) return { durum: "yok" };
+      const e = evaluateAiEvidenceReview(r, { fingerprint: contentFingerprint(story.bolumler ?? []) });
+      return { durum: e.aiApproved ? "ai-onayli" : e.valid ? r.status : "gecersiz-kayit", engeller: e.blockers.length, hatalar: e.errors.length, tarih: r.reviewedAt };
+    })(),
     releaseReady: story.releaseReady === true,
     _kokler: kokler,
   };
@@ -168,11 +184,45 @@ for (const k of kayitlar) {
 }
 kayitlar.forEach((k) => delete k._kokler);
 
+// Gerçek ortanca: çift sayılı listede ortadaki iki değerin ortalaması (v0.1.1 düzeltmesi).
+const med = (arr) => {
+  if (!arr.length) return 0;
+  const s = [...arr].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : Number(((s[m - 1] + s[m]) / 2).toFixed(1));
+};
+
+// Yaş etiketi aralığı ("5-9 yaş", "5–6", "18+") → [alt, üst].
+const yasAraligi = (etiket) => {
+  const m = String(etiket ?? "").match(/(\d+)\s*[-–]\s*(\d+)/u);
+  if (m) return [Number(m[1]), Number(m[2])];
+  const p = String(etiket ?? "").match(/(\d+)\s*\+/u);
+  return p ? [Number(p[1]), 99] : null;
+};
+const yolYasi = Object.fromEntries(OKUMA_YOLLARI.map((y) => [y.id, yasAraligi(y.yas)]));
+
+// K-2026-10-18-04 yeni kök bandı yöntemi (ontology/karar-kayitlari.json):
+// örneklem = yolun Türkçe tam okumaları içinden yaş etiketi aralığı yolun yaş
+// aralığıyla kesişenler; n >= 3 ise bant = gerçek ortanca ±%25, değilse null.
+const BANT_MIN_ORNEKLEM = 3;
+const yasUyumlu = (k) => {
+  const y = yolYasi[k.anaOkumaYolu]; const e = yasAraligi(k.yasEtiketi);
+  if (!y || !e) return false;
+  return e[0] <= y[1] && e[1] >= y[0];
+};
+const yasYolTutarsizliklari = kayitlar
+  .filter((k) => !k.mikroAlistirma && k.anaOkumaYolu && yasAraligi(k.yasEtiketi) && !yasUyumlu(k))
+  .map((k) => ({ id: k.id, yasEtiketi: k.yasEtiketi, anaOkumaYolu: k.anaOkumaYolu, yolYasi: OKUMA_YOLLARI.find((y) => y.id === k.anaOkumaYolu)?.yas ?? null }));
+
 const yolOzeti = yolSirasi.map((yolId) => {
   const tum = kayitlar.filter((k) => k.anaOkumaYolu === yolId);
   const ic = tum.filter((k) => !k.mikroAlistirma);
   const hedef = READING_LEVEL_WORD_TARGETS[yolId] ?? null;
-  const med = (arr) => { if (!arr.length) return 0; const s = [...arr].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
+  const orneklem = ic.filter((k) => k.dil === "tr" && yasUyumlu(k));
+  const bantMedyan = orneklem.length >= BANT_MIN_ORNEKLEM ? med(orneklem.map((k) => k.yeniKokKatkisi ?? 0)) : null;
+  const yeniKokBandi = bantMedyan === null
+    ? { alt: null, ust: null, orneklem: orneklem.map((k) => k.id), durum: "yetersiz-orneklem", karar: "K-2026-10-18-04" }
+    : { alt: Math.round(bantMedyan * 0.75), ust: Math.round(bantMedyan * 1.25), medyan: bantMedyan, orneklem: orneklem.map((k) => k.id), durum: "hesaplandi", karar: "K-2026-10-18-04" };
   return {
     yolId,
     icerikSayisi: tum.length,
@@ -185,6 +235,8 @@ const yolOzeti = yolSirasi.map((yolId) => {
     sozluguOlan: ic.filter((k) => k.sozlukGirdisi > 0).length,
     deyimAtasozuOlan: ic.filter((k) => k.deyim + k.atasozu > 0).length,
     insanOnayli: ic.filter((k) => k.insanOnayi === "approved").length,
+    aiKanitOnayli: ic.filter((k) => k.aiKanitOnayi?.durum === "ai-onayli").length,
+    yeniKokBandi,
   };
 });
 
@@ -198,6 +250,7 @@ const kapsam = {
   kaynakBeyanli: kayitlar.filter((k) => k.kaynakVar).length,
   hakDurumuBeyanli: kayitlar.filter((k) => k.hakDurumu).length,
   insanOnayli: kayitlar.filter((k) => k.insanOnayi === "approved").length,
+  aiKanitOnayli: kayitlar.filter((k) => k.aiKanitOnayi?.durum === "ai-onayli").length,
   mebKazanimKoduOlan: 0,
 };
 
@@ -209,6 +262,8 @@ const snapshot = {
     kelime: "[\\p{L}\\p{N}]+(?:['’][\\p{L}\\p{N}]+)* (katalog denetimiyle aynı)",
     kokYaklasigi: "Türkçe 5 harflik önek (F5); İngilizce küçük harf yüzey biçimi",
     yeniKokKatkisi: "Önceki okuma yollarındaki aynı dildeki içeriklerde görülmemiş kök sayısı",
+    medyan: "Gerçek ortanca (çift sayıda ortadaki iki değerin ortalaması)",
+    yeniKokBandi: "K-2026-10-18-04: yaş etiketi aralığı yolun yaş aralığıyla kesişen Türkçe tam okumalar; n>=3 ise gerçek ortanca ±%25, değilse yetersiz-orneklem",
   },
   kontrolluSozlukler: {
     okumaYollari: OKUMA_YOLLARI.map(({ id, baslik, yas, mod, evre }) => ({ id, baslik, yas, mod, varsayilanEvre: evre })),
@@ -221,8 +276,26 @@ const snapshot = {
   },
   kapsam,
   yolOzeti,
+  yasYolTutarsizliklari,
   icerikler: kayitlar,
 };
+
+// AI kanıt denetimi girdisi: node scripts/build-ontology-snapshot.mjs --icerik <id>
+if (args.includes("--icerik")) {
+  const id = args[args.indexOf("--icerik") + 1];
+  const story = catalog.find((x) => x.id === id);
+  if (!story) { console.error(`İçerik bulunamadı: ${id}`); process.exit(1); }
+  const k = kayitlar.find((x) => x.id === id);
+  const pilotMeta = getStoryMetadata(id) ?? story.metadata ?? {};
+  process.stdout.write(JSON.stringify({
+    icerikId: id, baslik: story.baslik, dil: k.dil, anaOkumaYolu: k.anaOkumaYolu, yasEtiketi: story.yas ?? null,
+    hakDurumu: k.hakDurumu, kaynak: story.kaynak ?? null, contentFingerprint: contentFingerprint(story.bolumler ?? []),
+    sozluk: getGlossaryForStory(id) ?? pilotMeta.glossary ?? [], editorialLanguageProfile: pilotMeta.editorialLanguageProfile ?? null,
+    bolumler: (story.bolumler ?? []).map((b) => ({ ad: b.ad, metin: b.metin })),
+    mevcutAiKaydi: k.aiKanitOnayi,
+  }, null, 2));
+  process.exit(0);
+}
 
 const json = JSON.stringify(snapshot, null, 2);
 if (args.includes("--stdout")) process.stdout.write(json);
