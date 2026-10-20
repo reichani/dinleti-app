@@ -113,4 +113,37 @@ test.describe("Okuma yüzeyi erişilebilirliği", () => {
     const renk = await page.locator("#odak-denemesi").evaluate((el) => getComputedStyle(el).outlineColor);
     expect(renk).toBe("rgb(154, 90, 18)");
   });
+
+  test("metin kutusunun odak halkası kutunun içine çizilir ve kırpılmaz", async ({ page }) => {
+    const metin = await okuyucuyuAc(page);
+    await metin.focus();
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Shift+Tab");
+    await expect(metin).toBeFocused();
+    const stil = await metin.evaluate((el) => ({ eslesir: el.matches(":focus-visible"), ofset: getComputedStyle(el).outlineOffset, renk: getComputedStyle(el).outlineColor, kalinlik: getComputedStyle(el).outlineWidth }));
+    expect(stil.eslesir).toBe(true);
+    expect(parseFloat(stil.ofset)).toBeLessThan(0);
+    expect(stil.kalinlik).toBe("3px");
+    expect(stil.renk).toBe("rgb(154, 90, 18)");
+  });
+
+  test("Kendim okuyorum modunda odak cümlesi bandı nötralize edilir", async ({ page }) => {
+    const metin = await okuyucuyuAc(page);
+    await expect(metin.locator('[data-odak-cumle="1"]').first()).toBeAttached();
+    const panel = page.locator("[data-reader-settings]");
+    if (!(await panel.isVisible())) await page.locator("[data-reader-settings-toggle]").click();
+    await page.locator("[data-okuma-modu-kompakt] button").click();
+    await page.locator('[data-okuma-modu="kendim"]').click();
+    await expect(metin).toHaveAttribute("data-akilli-takip", "kendim", { timeout: 10000 });
+    const zeminler = await metin.evaluate((el) => [...el.querySelectorAll('[data-odak-cumle="1"]')].map((k) => getComputedStyle(k).backgroundColor));
+    for (const z of zeminler) expect(z).toBe("rgba(0, 0, 0, 0)");
+  });
+
+  test("zorlanmış renk modunda aktif cümle çerçeveyle ayrılır", async ({ page }) => {
+    await page.emulateMedia({ forcedColors: "active" });
+    const metin = await okuyucuyuAc(page);
+    const bant = metin.locator('[data-odak-cumle="1"]').first();
+    await expect(bant).toBeAttached();
+    expect(await bant.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe("solid");
+  });
 });

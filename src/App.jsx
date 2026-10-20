@@ -3504,7 +3504,10 @@ export default function DinletiApp() {
                     fontFamily: fontAile(ayar.font),
                     textAlign: "left", minHeight: 0, height: "100%", maxHeight: "none", overflowY: "auto", WebkitOverflowScrolling: "touch", touchAction: "pan-y",
                     scrollBehavior: "smooth", overscrollBehavior: "contain",
-                  }} onTouchStart={okuyucuTakibiniGeciciDurdur} onPointerDown={okuyucuTakibiniGeciciDurdur} onWheel={okuyucuTakibiniGeciciDurdur}>
+                  }} onTouchStart={okuyucuTakibiniGeciciDurdur} onPointerDown={okuyucuTakibiniGeciciDurdur} onWheel={okuyucuTakibiniGeciciDurdur} onKeyDown={(event) => {
+                    // Klavyeyle kaydırma da otomatik takibi kısa süre durdurur; aksi halde sesli okuma kaydırmayı geri çeker (UX denetimi U2).
+                    if (event.target === event.currentTarget && ["PageDown", "PageUp", "ArrowDown", "ArrowUp", "Home", "End", " "].includes(event.key)) okuyucuTakibiniGeciciDurdur();
+                  }}>
                     {gorunecek.map((k, i) => {
                       const gercekIx = i + kaydirma;
                       const aktifMi = ayar.vurgu && gercekIx === kelimeIx;

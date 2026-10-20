@@ -37,9 +37,20 @@
   outline-offset: 2px;
 }
 
+/* Üst kapsayıcılar taşmayı gizlediği için halka kutunun içine çizilir. */
 [data-okuma-metin="1"]:focus-visible {
   outline: 3px solid #f2b654;
-  outline-offset: 3px;
+  outline-offset: -3px;
+}
+
+[data-okuma-metin="1"][data-tema="krem"]:focus-visible {
+  outline-color: #9a5a12;
+}
+
+/* Ses varken iki bant çakışmasın: odak modunda cümle bandını React'in
+   data-odak-cumle işareti taşır; ses takibinin bandı yalnız onunla örtüşürse görünür. */
+[data-okuma-metin="1"][data-odak="1"] [data-aktif-cumle="1"]:not([data-odak-cumle="1"]) {
+  background: transparent;
 }
 
 /* Aktif kelime: yerleşimi değiştirmeyen vurgu. Padding, margin ve kalınlık
@@ -73,7 +84,8 @@
    controls the reading position manually, like a conventional ebook reader. */
 [data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif="1"],
 [data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif="1"] > [data-kelime-govde],
-[data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif-cumle="1"] {
+[data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif-cumle="1"],
+[data-okuma-metin="1"][data-akilli-takip="kendim"] [data-odak-cumle="1"] {
   padding: 0 !important;
   margin: 0 !important;
   border-radius: 0 !important;
@@ -130,7 +142,8 @@
 }
 
 @media (forced-colors: active) {
-  [data-okuma-metin="1"] [data-aktif-cumle="1"] {
+  [data-okuma-metin="1"] [data-aktif-cumle="1"],
+  [data-okuma-metin="1"][data-odak="1"] [data-odak-cumle="1"] {
     outline: 1px solid CanvasText;
     background: Canvas !important;
     box-shadow: none !important;
