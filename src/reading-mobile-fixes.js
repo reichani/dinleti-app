@@ -29,6 +29,8 @@ function getPlayer(root = document) {
 
 function isManualMode(player = getPlayer()) {
   if (!(player instanceof HTMLElement)) return false;
+  // Okuyucu kabuğu React'in okuma modunu doğrudan taşır; menü kapalıyken de güvenilir kaynak budur.
+  if (player.dataset.okumaModuAktif) return player.dataset.okumaModuAktif === 'kendim';
   const manualMode = player.querySelector('[data-okuma-modu="kendim"]');
   return Boolean(
     (manualMode instanceof HTMLElement
@@ -97,6 +99,10 @@ function bindReadingViewport(readingText) {
   readingText.addEventListener('touchstart', noteManualInteraction, { passive: true });
   readingText.addEventListener('pointerdown', noteManualInteraction, { passive: true });
   readingText.addEventListener('wheel', noteManualInteraction, { passive: true });
+  readingText.addEventListener('keydown', (event) => {
+    if (event.target !== readingText) return;
+    if (['PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Home', 'End', ' '].includes(event.key)) noteManualInteraction(event);
+  });
 }
 
 export function getReaderVisibleRect(readingText) {
@@ -267,7 +273,7 @@ export function installReadingMobileFixes() {
     subtree: true,
     childList: true,
     attributes: true,
-    attributeFilter: ['data-aktif', 'aria-pressed', 'style'],
+    attributeFilter: ['data-aktif', 'aria-pressed', 'style', 'data-okuma-modu-aktif'],
   });
 
   const refreshLayout = () => { syncVisualViewport(); scheduleRefresh({ forceScroll: true }); };

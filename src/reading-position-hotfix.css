@@ -17,6 +17,42 @@
   background: rgba(154, 90, 18, 0.10);
 }
 
+/* Odak modunda diğer cümleler artık yalnız 0,67 opaklığa iner (WCAG 1.4.3);
+   aktif cümle bu yüzden opaklık farkına ek olarak, ses dursa da görünen
+   bir zemin bandıyla ayrılır (data-odak-cumle React tarafından yazılır). Kaynak: 20.10.2026 UX denetimi U1, onay Reyhan Açar. */
+[data-okuma-metin="1"][data-odak="1"] [data-odak-cumle="1"] {
+  background: rgba(232, 163, 61, 0.18);
+}
+
+[data-okuma-metin="1"][data-odak="1"][data-tema="krem"] [data-odak-cumle="1"] {
+  background: rgba(154, 90, 18, 0.18);
+}
+
+/* Krem zeminde amber odak halkası 1,54:1 kalıyordu (WCAG 1.4.11 için 3:1).
+   Metin içindeki odaklanabilir öğelerde koyu kahve halka 4,64:1 verir.
+   Metin kutusunun kendi halkası koyu sayfa zemininde kalır (amber yeterli).
+   Kaynak: UX denetimi U14. */
+[data-okuma-metin="1"][data-tema="krem"] *:focus-visible {
+  outline: 3px solid #9a5a12 !important;
+  outline-offset: 2px;
+}
+
+/* Üst kapsayıcılar taşmayı gizlediği için halka kutunun içine çizilir. */
+[data-okuma-metin="1"]:focus-visible {
+  outline: 3px solid #f2b654;
+  outline-offset: -3px;
+}
+
+[data-okuma-metin="1"][data-tema="krem"]:focus-visible {
+  outline-color: #9a5a12;
+}
+
+/* Ses varken iki bant çakışmasın: odak modunda cümle bandını React'in
+   data-odak-cumle işareti taşır; ses takibinin bandı yalnız onunla örtüşürse görünür. */
+[data-okuma-metin="1"][data-odak="1"] [data-aktif-cumle="1"]:not([data-odak-cumle="1"]) {
+  background: transparent;
+}
+
 /* Aktif kelime: yerleşimi değiştirmeyen vurgu. Padding, margin ve kalınlık
    değişimi yok; kelime genişliği sabit kalır, satırlar zıplamaz. Görsel iç
    boşluk box-shadow ile verilir. */
@@ -48,7 +84,8 @@
    controls the reading position manually, like a conventional ebook reader. */
 [data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif="1"],
 [data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif="1"] > [data-kelime-govde],
-[data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif-cumle="1"] {
+[data-okuma-metin="1"][data-akilli-takip="kendim"] [data-aktif-cumle="1"],
+[data-okuma-metin="1"][data-akilli-takip="kendim"] [data-odak-cumle="1"] {
   padding: 0 !important;
   margin: 0 !important;
   border-radius: 0 !important;
@@ -105,7 +142,8 @@
 }
 
 @media (forced-colors: active) {
-  [data-okuma-metin="1"] [data-aktif-cumle="1"] {
+  [data-okuma-metin="1"] [data-aktif-cumle="1"],
+  [data-okuma-metin="1"][data-odak="1"] [data-odak-cumle="1"] {
     outline: 1px solid CanvasText;
     background: Canvas !important;
     box-shadow: none !important;
