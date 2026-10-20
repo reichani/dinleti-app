@@ -1,7 +1,7 @@
 {
-  "name": "Dinleti (Okurio) - Sesli Kitap ve Masal",
-  "short_name": "Dinleti",
-  "description": "Telifsiz Turk klasikleri ve masallar; disleksi ve DEHB dostu senkron okuma gorunumu.",
+  "name": "Okurio - Erişilebilir Okuma",
+  "short_name": "Okurio",
+  "description": "Okurio: Türkçe sesli ve senkron okuma desteği; okumayı zorlayıcı bulan çocuklar ve yetişkinler için ayarlanabilir okuma görünümü.",
   "start_url": "/?kaynak=pwa",
   "scope": "/",
   "display": "standalone",
