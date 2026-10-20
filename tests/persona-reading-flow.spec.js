@@ -167,7 +167,7 @@ test.describe("Persona bazlı okuma akışı", () => {
     await expect(player.getByText(/Odak modu:\s*cümle/i)).toBeVisible();
     // 20.10.2026: deneysel biyonik vurgu ayarlarda görünür ama hiçbir ihtiyaç onu açmaz.
     await expect(panel.getByRole("button", { name: "Biyonik vurgu, deneysel" })).toHaveAttribute("aria-pressed", "false");
-    await expect(player.locator("[data-okuma-metin] strong")).toHaveCount(0);
+    await expect(player.locator("[data-okuma-metin] [data-biyonik]")).toHaveCount(0);
     const readingText = player.locator("[data-okuma-metin]");
     await expect(readingText).toContainText("Cümle 1");
     await expect(readingText).toContainText("Cümle 9");
