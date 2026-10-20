@@ -118,3 +118,44 @@
     box-shadow: none !important;
   }
 }
+
+/* Bölüm listesi açıkken okuma alanı kalan yüksekliğe küçülür; oynatma
+   kontrolleri (duraklat, tekrar, sonraki) dikey ya da yatay hiçbir ekranda
+   görünür alanın dışına itilmez. Medya sorgusu dışında tutuldu: v2.8.4 kuralı
+   dokunmatik yatay ekranlarda da (pointer: coarse) alanı esnemez yapıyor.
+   Kaynak: 20.10.2026 mobil UX incelemesi, bulgu 1. */
+[data-reader-shell][data-bolum-listesi-acik="1"] [data-okuma-alani] {
+  flex: 1 1 0 !important;
+  min-block-size: 0 !important;
+}
+
+/* Satır içi stil 180px yedeğini taşır; destekleyen tarayıcıda liste görünür
+   yüksekliğin %24'ünü aşmaz. Kabukla aynı yükseklik kaynağı kullanılır. */
+[data-reader-shell] [data-bolum-listesi] {
+  max-block-size: min(180px, calc(var(--okurio-visual-viewport-height, 100vh) * 0.24)) !important;
+}
+
+/* Kısa ekranlarda (yatay telefon) okuma alanının alt sınırı kontroller ile
+   başlığa yer bırakmıyordu; alan kalan yüksekliğe küçülür, kontroller ekranda
+   kalır. Kaynak: 20.10.2026 gözetim incelemesi, yatay ekran bulgusu. */
+@media (max-height: 520px) {
+  [data-reader-shell] [data-okuma-alani] {
+    flex: 1 1 0 !important;
+    min-block-size: 0 !important;
+  }
+
+  /* Başlık satırı kısa ekranda tek satıra iner; kapak ve ses tonu satırı
+     okuma metnine yer açmak için gizlenir. */
+  [data-reader-shell] [data-kompakt-baslik] {
+    margin-block: 0 2px !important;
+  }
+
+  [data-reader-shell] [data-baslik-kapak],
+  [data-reader-shell] [data-kompakt-baslik] [data-ses-tonu] {
+    display: none !important;
+  }
+
+  [data-reader-shell] [data-progress-time] {
+    margin-block-start: -12px !important;
+  }
+}

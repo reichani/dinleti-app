@@ -1895,6 +1895,14 @@ export default function DinletiApp() {
   const [okumaAcik, setOkumaAcik] = useState(true);
   const [ayarPaneliAcik, setAyarPaneliAcik] = useState(false);
   const [bolumlerAcik, setBolumlerAcik] = useState(false);
+  // Liste açılınca aktif bölüm, yalnız liste kutusu içinde görünür alana alınır
+  // (scrollIntoView ata kapsayıcıları da kaydırabildiği için kullanılmaz).
+  useEffect(() => {
+    if (!bolumlerAcik) return;
+    const liste = document.querySelector("[data-bolum-listesi]");
+    const aktifSatir = liste?.querySelector('[aria-current="true"]');
+    if (liste && aktifSatir) liste.scrollTop = Math.max(0, aktifSatir.offsetTop - liste.offsetTop - 8);
+  }, [bolumlerAcik]);
   // Okuma profili: birleşimli, YALNIZCA oturum belleğinde tutulur (KVKK veri minimizasyonu —
   // tanı etiketi hiçbir zaman kalıcı depoya yazılmaz; kalıcı olan yalnız nötr ayar sonuçlarıdır)
   const [profil, setProfil] = useState({ dis: false, dehb: false, gorsel: false, sade: false });
@@ -3403,7 +3411,7 @@ export default function DinletiApp() {
     const cip = (aktifMi) => ({ background: aktifMi ? "rgba(232,163,61,0.18)" : "rgba(255,255,255,0.08)", border: "none", borderRadius: 8, padding: mobilDar ? "6px 9px" : "7px 11px", color: aktifMi ? S.vurgu : S.metin, cursor: "pointer", fontSize: mobilDar ? 11 : 12, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" });
     return (
       <div data-reader-backdrop style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.78)" }}>
-        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.4" data-reader-shell data-playing={caliyor ? "1" : "0"} data-okuma-bitti={okumaBitti ? "1" : "0"} data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "var(--okurio-visual-viewport-height, 100dvh)", maxHeight: "var(--okurio-visual-viewport-height, 100dvh)", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
+        <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.4" data-reader-shell data-bolum-listesi-acik={bolumlerAcik ? "1" : "0"} data-playing={caliyor ? "1" : "0"} data-okuma-bitti={okumaBitti ? "1" : "0"} data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "var(--okurio-visual-viewport-height, 100dvh)", maxHeight: "var(--okurio-visual-viewport-height, 100dvh)", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
 
           {sesUyarisi && (
             <div data-ses-uyarisi={sesUyarisi.tur} role={sesUyarisi.tur === "hata" ? "alert" : "status"} style={{ position: "absolute", zIndex: 30, top: 10, left: "50%", transform: "translateX(-50%)", width: "min(560px, calc(100% - 120px))", boxSizing: "border-box", display: "flex", alignItems: "center", gap: 10, background: sesUyarisi.tur === "hata" ? "#3A1F1A" : "#22293A", border: `1px solid ${sesUyarisi.tur === "hata" ? "rgba(240,140,110,0.6)" : "rgba(232,163,61,0.45)"}`, borderRadius: 12, padding: "8px 10px 8px 14px", color: S.metin, fontSize: 13, lineHeight: 1.4, boxShadow: "0 12px 34px rgba(0,0,0,0.45)" }}>
@@ -3425,7 +3433,7 @@ export default function DinletiApp() {
           <div data-kompakt-baslik role="button" tabIndex={0} aria-expanded={bolumlerAcik} aria-controls="okurio-bolum-listesi" onClick={() => setBolumlerAcik(!bolumlerAcik)} onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setBolumlerAcik(!bolumlerAcik); }
           }} style={{ display: "flex", alignItems: "center", gap: mobilDar ? 7 : 12, margin: mobilDar ? "2px 0 4px" : "8px 0 6px", minHeight: mobilDar ? 54 : undefined, maxHeight: mobilDar ? 60 : undefined, flexShrink: 0, cursor: "pointer" }}>
-            {!mobilDar && <Kapak kitap={aktif} boyut={44} radius={6} />}
+            {!mobilDar && <span data-baslik-kapak style={{ display: "flex", flexShrink: 0 }}><Kapak kitap={aktif} boyut={44} radius={6} /></span>}
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ ...baslikStil, fontSize: mobilDar ? 15 : 16, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{aktif.baslik}</div>
               <div style={{ color: S.soluk, fontSize: mobilDar ? 11 : 12, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.ad} · {aktifBolumIx + 1}/{aktif.bolumler.length} bölüm</div>
@@ -3440,7 +3448,7 @@ export default function DinletiApp() {
               {aktif.bolumler.map((bb, i) => (
                 <div key={i} role="button" tabIndex={0} onClick={() => { bolumeGit(i); setBolumlerAcik(false); }} onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") { event.preventDefault(); bolumeGit(i); setBolumlerAcik(false); }
-                }} style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: i < aktif.bolumler.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none", cursor: "pointer", fontSize: 13, color: i === aktifBolumIx ? S.vurgu : S.metin, fontWeight: i === aktifBolumIx ? 600 : 400 }}>
+                }} data-bolum-satiri aria-current={i === aktifBolumIx ? "true" : undefined} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 44, boxSizing: "border-box", padding: "9px 0", borderBottom: i < aktif.bolumler.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none", cursor: "pointer", fontSize: 13, color: i === aktifBolumIx ? S.vurgu : S.metin, fontWeight: i === aktifBolumIx ? 600 : 400 }}>
                   <span>{i + 1}. {bb.ad}</span><span style={{ color: S.soluk, fontSize: 12 }}>{sureYaz(bolumSn(bb))}</span>
                 </div>
               ))}
