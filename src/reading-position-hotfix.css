@@ -66,6 +66,14 @@
     overflow: hidden !important;
   }
 
+  /* Bölüm listesi açıkken okuma alanı kalan yüksekliğe küçülür; oynatma
+     kontrolleri (duraklat, tekrar, sonraki) hiçbir ekran boyunda görünür
+     alanın dışına itilmez. Kaynak: 20.10.2026 mobil UX incelemesi, bulgu 1. */
+  [data-reader-shell][data-bolum-listesi-acik="1"] [data-okuma-alani] {
+    flex: 1 1 0 !important;
+    min-block-size: 0 !important;
+  }
+
   [data-reader-workspace] {
     block-size: 100% !important;
     min-block-size: 0 !important;
