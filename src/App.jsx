@@ -1810,6 +1810,15 @@ function kendiIcerikleriKatalogaUygula(liste) {
 /* ------------------------------------------------------------------ */
 /* Kapak bileşeni                                                      */
 /* ------------------------------------------------------------------ */
+// Deneysel biyonik vurgu için kelimeyi [kalın, kalan] olarak grafem güvenli böler; 3 harf ve altı bölünmez.
+const biyonikSegmenter = typeof Intl !== "undefined" && Intl.Segmenter ? new Intl.Segmenter("tr", { granularity: "grapheme" }) : null;
+function biyonikBol(kelime) {
+  const harfler = biyonikSegmenter ? [...biyonikSegmenter.segment(kelime)].map((p) => p.segment) : Array.from(kelime);
+  if (harfler.length <= 3) return null;
+  const n = Math.max(1, Math.ceil(harfler.length * 0.45));
+  return [harfler.slice(0, n).join(""), harfler.slice(n).join("")];
+}
+
 function Kapak({ kitap, boyut = 120, radius = 10 }) {
   const [c1, c2] = kitap.renk;
   return (
@@ -1910,7 +1919,8 @@ export default function DinletiApp() {
   const profilUygula = (yeniProfil) => {
     setProfil(yeniProfil);
     // Taban ayardan başlayıp aktif profillerin birleşimini uygula
-    const a = { punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend" };
+    // Deneysel biyonik vurgu hiçbir ihtiyaç tarafından açılmaz; kullanıcının kendi seçimi korunur.
+    const a = { punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", biyonik: Boolean(ayar.biyonik), biyonikSurum: ayar.biyonikSurum };
     if (yeniProfil.dis) { a.aralik = Math.max(a.aralik, 1); a.vurgu = true; a.tema = "krem"; a.font = "lexend"; }
     if (yeniProfil.gorsel) { a.punto = 2; a.aralik = Math.max(a.aralik, 1); }
     if (yeniProfil.dis && yeniProfil.gorsel) a.aralik = 2; // eşzamanlılıkta sıkışıklık en güçlü (Liu 2024)
@@ -1932,7 +1942,7 @@ export default function DinletiApp() {
   useEffect(() => { if (!onboardingAcik) setYolTaslagi(null); }, [onboardingAcik]);
   const [profilMesaji, setProfilMesaji] = useState("");
   // v2.10.1: atlama "cumle" (varsayılan) ya da "sure" (15 sn geri / 30 sn ileri).
-  const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", atlama: "cumle" });
+  const [ayar, setAyar] = useState({ punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", atlama: "cumle", biyonik: false });
   const [kelimeIx, setKelimeIx] = useState(0);
   const [kendiMetin, setKendiMetin] = useState("");
   const [kendiBaslik, setKendiBaslik] = useState("Kendi Metnim");
@@ -2155,6 +2165,9 @@ export default function DinletiApp() {
           window.storage.get("dinleti-okuma-ayar-v1"),
         ]);
         const kayitli = kayitliAyar ? JSON.parse(kayitliAyar.value) : {};
+        // v2.9.2 öncesinde görünür olan eski biyonik düğmesinin kaydı yok sayılır; yalnız
+        // deneysel destek olarak bilinçli açılan (biyonikSurum 2) seçim geri yüklenir.
+        if (!(kayitli.biyonikSurum === 2 && kayitli.biyonik === true)) { kayitli.biyonik = false; delete kayitli.biyonikSurum; }
         if (r) {
           const y = { ...VARSAYILAN_OKUMA_YOLU, ...JSON.parse(r.value), secildi: true };
           setOkumaYolu(y);
@@ -3522,6 +3535,9 @@ export default function DinletiApp() {
                       const aktifCumledeMi = gercekIx >= aktifCumle[0] && gercekIx <= aktifCumle[1];
                       const temiz = k.replace(/[.,!?…;:]+$/u, "");
                       const sozluk = findGlossaryEntry(aktif.id, temiz);
+                      // Deneysel biyonik vurgu: 4+ harfli kelimenin ilk ~%45'i kalın. Kelime metni ve indeksi değişmez.
+                      // Bölme grafem bazlıdır (ayrışık ç/ğ ya da emoji yarıdan kopmaz).
+                      const biyonikParca = ayar.biyonik ? biyonikBol(temiz) : null;
                       return <React.Fragment key={gercekIx}>
                         {/* div: cümle vurgusu ve uzun-token işaretleyicileri yalnız span'leri tarar; satır sonu onlara karışmaz. */}
                         {paragrafBaslari.has(gercekIx) && <div data-paragraf-sonu aria-hidden="true" style={{ height: "0.45em" }} />}
@@ -3550,7 +3566,7 @@ export default function DinletiApp() {
                           textUnderlineOffset: sozluk ? 3 : undefined,
                         }}>
                         {/* Kelime gövdesi ayrı: aktif kelime vurgusu sondaki boşluğu boyamaz; boşluk dış span'de kalır, cümle bandı satırda kesintisiz olur. */}
-                        <span data-kelime-govde>{k}</span>{" "}
+                        <span data-kelime-govde>{biyonikParca ? <><b data-biyonik style={{ fontWeight: 600 }}>{biyonikParca[0]}</b>{biyonikParca[1]}{k.slice(temiz.length)}</> : k}</span>{" "}
                       </span>
                       </React.Fragment>;
                     })}
@@ -3599,12 +3615,19 @@ export default function DinletiApp() {
                     <button onClick={() => setAyar({ ...ayar, tema: ayar.tema === "krem" ? "koyu" : "krem" })} aria-label={`Zemin: ${ayar.tema === "krem" ? "Krem" : "Koyu"}`} aria-pressed={ayar.tema === "krem"} style={cip(ayar.tema === "krem")}>
                       Zemin: {ayar.tema === "krem" ? "Krem" : "Koyu"}
                     </button>
+                    <button data-biyonik-toggle onClick={() => setAyar({ ...ayar, biyonik: !ayar.biyonik, biyonikSurum: 2 })} aria-label="Biyonik vurgu, deneysel" aria-pressed={Boolean(ayar.biyonik)} aria-describedby="okurio-biyonik-not" style={cip(Boolean(ayar.biyonik))}>
+                      Biyonik vurgu · deneysel
+                    </button>
                     <button onClick={() => setAyar({ ...ayar, font: sonrakiFont(ayar.font) })} aria-label={`Yazı tipi: ${fontAd(ayar.font)}`} style={cip(ayar.font === "lexend")}>
                       Yazı: {fontAd(ayar.font)}
                     </button>
                     <button onClick={() => setAyar({ ...ayar, atlama: cumleModu ? "sure" : "cumle" })} aria-label={`Atlama: ${cumleModu ? "Cümle" : "15 / 30 saniye"}`} style={cip(cumleModu)}>
                       Atlama: {cumleModu ? "Cümle" : "15 / 30 sn"}
                     </button>
+                  </div>
+                  {/* Kaynak: Okurio Source of Truth kanıt matrisi v1.0 — biyonik vurgu 🔴 (Snell 2024: okuma hızına etkisi yok). Ürün kararı 20.10.2026, Reyhan Açar: deneysel destek olarak, varsayılan kapalı. */}
+                  <div id="okurio-biyonik-not" data-biyonik-not style={{ marginTop: 8, fontSize: 13, lineHeight: 1.5, color: S.soluk }}>
+                    Biyonik vurgu deneyseldir: bir araştırma (Snell 2024) okuma hızını artırmadığını gösterdi; anlamaya etkisi yeterince çalışılmadı. Sana rahat geliyorsa kullanabilirsin.
                   </div>
                   <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: 12, color: S.soluk }}>Okuma ve ses kontrolleri</div>
                   <div data-okuma-modu-kompakt style={{ display: "flex", marginTop: 8 }}>
