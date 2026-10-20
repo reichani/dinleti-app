@@ -2186,7 +2186,7 @@ export default function DinletiApp() {
   /* Alternatif erişim: bookmarklet + PWA share_target girişi            */
   /* 2026-08-06: Kullanıcı, herhangi bir web sayfasından seçtiği metni    */
   /* (1) bookmarklet ile — okurio.../#oku=...&baslik=... hash parametresi */
-  /* ya da (2) Android'de "Paylaş → Dinleti" ile — manifest.json          */
+  /* ya da (2) Android'de "Paylaş → Okurio" ile — manifest.json          */
   /* share_target'ın ürettiği ?text=&title=&url= query parametreleriyle   */
   /* gönderebilir. İkisi de aynı "Kendi metnini oku" panelini, metin      */
   /* önceden dolu biçimde açar; kullanıcı yine kendi onayıyla "Okuma      */
@@ -3011,7 +3011,7 @@ export default function DinletiApp() {
         <div data-content-scope style={{ fontSize: 11, color: sunum.deployable ? S.vurgu : "#D7B778", fontWeight: 700, marginTop: 4 }}>{sunum.label}</div>
         <OkurioProvenanceStamp stamp={kitap.provenanceStamp} compact />
         <div data-actual-duration style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>{sureYaz(sunum.seconds)} · {kalite.toplamKelime} kelime</div>
-        <div data-oql style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>OQL-{kalite.oql} · ort. cümle {kalite.ortCumle.toFixed(1)}</div>
+        <div data-oql={kalite.oql} style={{ fontSize: 10, color: S.soluk, marginTop: 2 }}>Seviye: {kalite.ad}{kalite.ortCumle > 0 ? ` · cümle başına ortalama ${Math.round(kalite.ortCumle)} kelime` : ""}</div>
       </div>
     );
   };
@@ -3337,7 +3337,7 @@ export default function DinletiApp() {
         </div>
         <OkurioProvenanceStamp stamp={k.provenanceStamp} />
         <div data-kalite-karti style={{ marginTop: 14, fontSize: 12, color: S.soluk, background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "8px 12px" }}>
-          Okuma seviyesi: OQL-{icerikKalitesi(k).oql} · {icerikKalitesi(k).ad}{kitapMeta(k).cefr ? ` · CEFR ${kitapMeta(k).cefr}` : ""} · {icerikKalitesi(k).toplamKelime} kelime · gerçek süre {sureYaz(sunum.seconds)} · ort. cümle {icerikKalitesi(k).ortCumle.toFixed(1)} kelime
+          Okuma seviyesi: {icerikKalitesi(k).ad}{kitapMeta(k).cefr ? ` · CEFR ${kitapMeta(k).cefr}` : ""} · {icerikKalitesi(k).toplamKelime} kelime · süre {sureYaz(sunum.seconds)}{icerikKalitesi(k).ortCumle > 0 ? ` · cümle başına ortalama ${Math.round(icerikKalitesi(k).ortCumle)} kelime` : ""}
         </div>
         <div style={{ marginTop: 14, fontSize: 14, lineHeight: 1.6, color: "rgba(242,236,223,0.85)" }}>{k.ozet}</div>
         <div style={{ ...baslikStil, fontSize: 17, margin: "24px 0 10px" }}>Bölümler</div>
