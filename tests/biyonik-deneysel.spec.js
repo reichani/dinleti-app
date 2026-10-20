@@ -54,7 +54,7 @@ test.describe("Deneysel biyonik vurgu", () => {
     expect((await metin.innerText()).replace(/\s+/g, " ").trim()).toBe(onceMetin);
     expect(await metin.locator("[data-kelime-ix]").count()).toBe(onceSayi);
     const kaplumbaga = metin.locator("[data-kelime-ix='0'] [data-biyonik]");
-    await expect(kaplumbaga).toHaveText("Kapl");
+    await expect(kaplumbaga).toHaveText("Kaplu");
     // 3 harfli kelime kalınlaştırılmaz ("bir").
     const bir = metin.locator("[data-kelime-ix]").filter({ hasText: /^bir$/ });
     await expect(bir.locator("[data-biyonik]")).toHaveCount(0);
