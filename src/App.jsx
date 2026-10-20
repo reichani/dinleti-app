@@ -1912,7 +1912,7 @@ export default function DinletiApp() {
     setProfil(yeniProfil);
     // Taban ayardan başlayıp aktif profillerin birleşimini uygula
     // Deneysel biyonik vurgu hiçbir ihtiyaç tarafından açılmaz; kullanıcının kendi seçimi korunur.
-    const a = { punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", biyonik: Boolean(ayar.biyonik) };
+    const a = { punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", biyonik: Boolean(ayar.biyonik), biyonikSurum: ayar.biyonikSurum };
     if (yeniProfil.dis) { a.aralik = Math.max(a.aralik, 1); a.vurgu = true; a.tema = "krem"; a.font = "lexend"; }
     if (yeniProfil.gorsel) { a.punto = 2; a.aralik = Math.max(a.aralik, 1); }
     if (yeniProfil.dis && yeniProfil.gorsel) a.aralik = 2; // eşzamanlılıkta sıkışıklık en güçlü (Liu 2024)

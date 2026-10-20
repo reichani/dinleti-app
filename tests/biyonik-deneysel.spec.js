@@ -18,6 +18,7 @@ async function okuyucuyuAc(page, { eskiAyar = null, temizle = true } = {}) {
       localStorage.clear();
       sessionStorage.setItem("biyonik-test-hazir", "1");
       localStorage.setItem("okurio-okuma-yolu-v1", JSON.stringify(okumaYolu));
+      localStorage.setItem("dinleti:okurio-okuma-yolu-v1", JSON.stringify(okumaYolu));
       if (eskiAyar) localStorage.setItem("dinleti:dinleti-okuma-ayar-v1", JSON.stringify(eskiAyar));
     }
   }, { okumaYolu: OKUMA_YOLU, eskiAyar, temizle });
@@ -78,7 +79,12 @@ test.describe("Deneysel biyonik vurgu", () => {
     const { panel } = await okuyucuyuAc(page);
     await panel.getByRole("button", { name: "Biyonik vurgu, deneysel" }).click();
     await expect(panel.getByRole("button", { name: "Biyonik vurgu, deneysel" })).toHaveAttribute("aria-pressed", "true");
-    await page.waitForTimeout(300);
+    // Bir ihtiyaç seçmek bilinçli biyonik seçimini ve sürüm işaretini silmemeli.
+    await panel.getByRole("button", { name: "Gözüm çabuk yoruluyor", exact: true }).click();
+    await expect.poll(() => page.evaluate(() => {
+      const kayit = JSON.parse(localStorage.getItem("dinleti:dinleti-okuma-ayar-v1") || "{}");
+      return kayit.biyonik === true && kayit.biyonikSurum === 2;
+    })).toBe(true);
     await page.reload();
     await page.getByRole("button", { name: /Kendi metnini oku/i }).click();
     await page.getByLabel("Kendi metnim", { exact: true }).fill(METIN);
