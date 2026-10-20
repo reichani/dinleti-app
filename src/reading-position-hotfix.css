@@ -159,3 +159,55 @@
     margin-block-start: -12px !important;
   }
 }
+
+/* PR-B: mobilde ve kısa ekranlarda bölüm listesi metnin üzerine açılan bir alt
+   sayfadır. Okuma alanının içinde, metnin üst kenarına yaslanır; akış dışına
+   alındığı için okuma alanı küçülmez ve oynatma kontrollerine uzanmaz. Metne dokunmak (data-bolum-perde) ya da Escape listeyi kapatır.
+   Onay: Reyhan Açar, 20.10.2026. */
+[data-bolum-perde] {
+  display: none;
+}
+
+@container (max-width: 819px) {
+  [data-reader-shell] [data-bolum-listesi] {
+    position: absolute !important;
+    z-index: 25;
+    inset-inline: 8px;
+    top: 8px;
+    margin: 0 !important;
+    background: #1c222d !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+    max-block-size: min(320px, 75%) !important;
+  }
+
+  [data-bolum-perde] {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 24;
+    background: rgba(10, 12, 16, 0.45);
+  }
+}
+
+@media (max-height: 520px) {
+  [data-reader-shell] [data-bolum-listesi] {
+    position: absolute !important;
+    z-index: 25;
+    inset-inline: 8px;
+    top: 8px;
+    margin: 0 !important;
+    background: #1c222d !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+    max-block-size: 75% !important;
+  }
+
+  [data-bolum-perde] {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 24;
+    background: rgba(10, 12, 16, 0.45);
+  }
+}

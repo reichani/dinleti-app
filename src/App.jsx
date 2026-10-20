@@ -1897,11 +1897,24 @@ export default function DinletiApp() {
   const [bolumlerAcik, setBolumlerAcik] = useState(false);
   // Liste açılınca aktif bölüm, yalnız liste kutusu içinde görünür alana alınır
   // (scrollIntoView ata kapsayıcıları da kaydırabildiği için kullanılmaz).
+  // Mobilde liste metnin üzerine açılan bir alt sayfadır; odak aktif bölüme taşınır,
+  // kapanınca başlığa döner (PR-B, onay: Reyhan Açar 20.10.2026).
+  const bolumBaslikRef = useRef(null);
+  const bolumListesiAcikti = useRef(false);
   useEffect(() => {
-    if (!bolumlerAcik) return;
+    if (!bolumlerAcik) {
+      if (bolumListesiAcikti.current) bolumBaslikRef.current?.focus({ preventScroll: true });
+      bolumListesiAcikti.current = false;
+      return;
+    }
+    bolumListesiAcikti.current = true;
     const liste = document.querySelector("[data-bolum-listesi]");
     const aktifSatir = liste?.querySelector('[aria-current="true"]');
-    if (liste && aktifSatir) liste.scrollTop = Math.max(0, aktifSatir.offsetTop - liste.offsetTop - 8);
+    if (liste && aktifSatir) {
+      const fark = aktifSatir.getBoundingClientRect().top - liste.getBoundingClientRect().top;
+      liste.scrollTop = Math.max(0, liste.scrollTop + fark - 8);
+      aktifSatir.focus({ preventScroll: true });
+    }
   }, [bolumlerAcik]);
   // Okuma profili: birleşimli, YALNIZCA oturum belleğinde tutulur (KVKK veri minimizasyonu —
   // tanı etiketi hiçbir zaman kalıcı depoya yazılmaz; kalıcı olan yalnız nötr ayar sonuçlarıdır)
@@ -3430,7 +3443,7 @@ export default function DinletiApp() {
           </div>
 
           {/* Kompakt kitap bilgisi */}
-          <div data-kompakt-baslik role="button" tabIndex={0} aria-expanded={bolumlerAcik} aria-controls="okurio-bolum-listesi" onClick={() => setBolumlerAcik(!bolumlerAcik)} onKeyDown={(event) => {
+          <div ref={bolumBaslikRef} data-kompakt-baslik role="button" tabIndex={0} aria-expanded={bolumlerAcik} aria-controls="okurio-bolum-listesi" onClick={() => setBolumlerAcik(!bolumlerAcik)} onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setBolumlerAcik(!bolumlerAcik); }
           }} style={{ display: "flex", alignItems: "center", gap: mobilDar ? 7 : 12, margin: mobilDar ? "2px 0 4px" : "8px 0 6px", minHeight: mobilDar ? 54 : undefined, maxHeight: mobilDar ? 60 : undefined, flexShrink: 0, cursor: "pointer" }}>
             {!mobilDar && <span data-baslik-kapak style={{ display: "flex", flexShrink: 0 }}><Kapak kitap={aktif} boyut={44} radius={6} /></span>}
@@ -3442,21 +3455,24 @@ export default function DinletiApp() {
             <ListMusic size={17} color={bolumlerAcik ? S.vurgu : S.soluk} />
           </div>
 
-          {/* Bölüm listesi (katlanır) */}
-          {bolumlerAcik && (
-            <div id="okurio-bolum-listesi" data-bolum-listesi style={{ flexShrink: 0, maxHeight: 180, overflowY: "auto", background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "4px 12px", marginBottom: 10 }}>
-              {aktif.bolumler.map((bb, i) => (
-                <div key={i} role="button" tabIndex={0} onClick={() => { bolumeGit(i); setBolumlerAcik(false); }} onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") { event.preventDefault(); bolumeGit(i); setBolumlerAcik(false); }
-                }} data-bolum-satiri aria-current={i === aktifBolumIx ? "true" : undefined} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 44, boxSizing: "border-box", padding: "9px 0", borderBottom: i < aktif.bolumler.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none", cursor: "pointer", fontSize: 13, color: i === aktifBolumIx ? S.vurgu : S.metin, fontWeight: i === aktifBolumIx ? 600 : 400 }}>
-                  <span>{i + 1}. {bb.ad}</span><span style={{ color: S.soluk, fontSize: 12 }}>{sureYaz(bolumSn(bb))}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
           {/* OKUMA ALANI: ekranın ana yüzeyi */}
           <div data-okuma-alani style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: mobilDar ? 10 : 14, position: "relative", display: "flex", flexDirection: "column" }}>
+            {/* Mobil alt sayfa açıkken metne dokunmak listeyi kapatır; masaüstünde CSS gizler. */}
+            {bolumlerAcik && <div data-bolum-perde aria-hidden="true" onClick={() => setBolumlerAcik(false)} />}
+            {/* Bölüm listesi: masaüstünde okuma alanının üstünde satır içi, mobilde metnin üzerine açılan alt sayfa. */}
+            {bolumlerAcik && (
+              <div id="okurio-bolum-listesi" data-bolum-listesi role="group" aria-label="Bölümler" onKeyDown={(event) => {
+                if (event.key === "Escape") { event.stopPropagation(); event.preventDefault(); setBolumlerAcik(false); }
+              }} style={{ flexShrink: 0, maxHeight: 180, overflowY: "auto", background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "4px 12px", marginBottom: 10 }}>
+                {aktif.bolumler.map((bb, i) => (
+                  <div key={i} role="button" tabIndex={0} onClick={() => { bolumeGit(i); setBolumlerAcik(false); }} onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); bolumeGit(i); setBolumlerAcik(false); }
+                  }} data-bolum-satiri aria-current={i === aktifBolumIx ? "true" : undefined} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 44, boxSizing: "border-box", padding: "9px 0", borderBottom: i < aktif.bolumler.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none", cursor: "pointer", fontSize: 13, color: i === aktifBolumIx ? S.vurgu : S.metin, fontWeight: i === aktifBolumIx ? 600 : 400 }}>
+                    <span>{i + 1}. {bb.ad}</span><span style={{ color: S.soluk, fontSize: 12 }}>{sureYaz(bolumSn(bb))}</span>
+                  </div>
+                ))}
+              </div>
+            )}
             <div data-reader-stage-header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginBottom: mobilDar ? 5 : 10, minHeight: mobilDar ? 44 : undefined }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: S.soluk, fontSize: mobilDar ? 11 : 13 }}><BookOpen size={mobilDar ? 13 : 15} /> Okuma görünümü</div>
               <div style={{ display: "flex", gap: 6 }}>
