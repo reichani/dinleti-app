@@ -1168,39 +1168,6 @@
           ]
         },
         {
-          "kod": "T.O.5.5.",
-          "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
-          "neden": "yeni kök oranı ≥ 0,30",
-          "pirls": [
-            "PIRLS.P2"
-          ],
-          "pisa": [
-            "PISA.UN.1"
-          ]
-        },
-        {
-          "kod": "T.O.5.15.",
-          "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
-          "neden": "yeni kök oranı ≥ 0,30",
-          "pirls": [
-            "PIRLS.P2"
-          ],
-          "pisa": [
-            "PISA.UN.1"
-          ]
-        },
-        {
-          "kod": "T.O.5.20.",
-          "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
-          "neden": "yeni kök oranı ≥ 0,30",
-          "pirls": [
-            "PIRLS.P2"
-          ],
-          "pisa": [
-            "PISA.UN.1"
-          ]
-        },
-        {
           "kod": "T.O.5.13.",
           "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
           "neden": "öyküleyici metin",
@@ -1251,7 +1218,7 @@
           "kod": "T.O.3.2.h)",
           "ustKod": "T.O.3.2.",
           "metin": "Okuduğu metindeki zıt anlamlı ve eş anlamlı sözcükleri bulur.",
-          "neden": "yeni kök oranı ≥ 0,30",
+          "neden": "sözlük girdisi var",
           "turetilmisKod": true,
           "pirls": [
             "PIRLS.P2"
@@ -1264,7 +1231,7 @@
           "kod": "T.O.3.3.d)",
           "ustKod": "T.O.3.3.",
           "metin": "Gerçek ve mecaz anlamlı sözcüklerin metinle ilişkisini belirler.",
-          "neden": "yeni kök oranı ≥ 0,30",
+          "neden": "sözlük girdisi var",
           "turetilmisKod": true,
           "pirls": [
             "PIRLS.P2"
@@ -1409,43 +1376,30 @@
     {
       "id": "diyet",
       "baslik": "Diyet",
-      "anaOkumaYolu": "okuma_guveni_8_10",
-      "sinifEtiketi": "3. ve 4. Sınıf",
-      "sinif": 3,
+      "anaOkumaYolu": "genc_okurlar_12_14",
+      "sinifEtiketi": "7. ve 8. Sınıf",
+      "sinif": 7,
       "durum": "aday-kural-tabanli",
       "pirlsAmac": "PIRLS.A.LE",
-      "programMetinTuru": "Öykü",
+      "programMetinTuru": "Öykü (basılı veya dijital)",
       "metinTuruProgramda": true,
       "adayKazanimlar": [
         {
-          "kod": "T.O.3.1.",
-          "metin": "Okuma sürecini yönetebilme",
-          "neden": "tam okuma: akıcı okuma",
-          "pirls": [],
-          "pisa": [
-            "PISA.TM.1",
-            "PISA.TM.2",
-            "PISA.RF"
-          ]
-        },
-        {
-          "kod": "T.O.3.2.",
-          "metin": "Okudukları ile ilgili anlam oluşturabilme",
+          "kod": "T.O.7.5.",
+          "metin": "Metnin yüzey anlamını belirleyebilme",
           "neden": "tam okuma: anlama",
           "pirls": [
-            "PIRLS.P2",
-            "PIRLS.P3"
+            "PIRLS.P1"
           ],
           "pisa": [
-            "PISA.UN.2"
+            "PISA.LI.1",
+            "PISA.UN.1"
           ]
         },
         {
-          "kod": "T.O.3.2.h)",
-          "ustKod": "T.O.3.2.",
-          "metin": "Okuduğu metindeki zıt anlamlı ve eş anlamlı sözcükleri bulur.",
-          "neden": "yeni kök oranı ≥ 0,30",
-          "turetilmisKod": true,
+          "kod": "T.O.7.4.",
+          "metin": "Metinde geçen anlamını bilmediği söz varlığı unsurlarının anlamını tahmin edebilme",
+          "neden": "sözlük girdisi var",
           "pirls": [
             "PIRLS.P2"
           ],
@@ -1454,16 +1408,36 @@
           ]
         },
         {
-          "kod": "T.O.3.3.d)",
-          "ustKod": "T.O.3.3.",
-          "metin": "Gerçek ve mecaz anlamlı sözcüklerin metinle ilişkisini belirler.",
-          "neden": "yeni kök oranı ≥ 0,30",
-          "turetilmisKod": true,
+          "kod": "T.O.7.14.",
+          "metin": "Metnin anahtar kelimelerini belirlemeye yönelik çözümleme yapabilme",
+          "neden": "sözlük girdisi var",
           "pirls": [
             "PIRLS.P2"
           ],
           "pisa": [
             "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.7.20.",
+          "metin": "Metinden hareketle söz varlığını geliştirmeye yönelik çözümleme yapabilme",
+          "neden": "sözlük girdisi var",
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
+        },
+        {
+          "kod": "T.O.7.12.",
+          "metin": "Öyküleyici metinde hikâye unsurlarını belirlemeye yönelik çözümleme yapabilme",
+          "neden": "öyküleyici metin",
+          "pirls": [
+            "PIRLS.P4"
+          ],
+          "pisa": [
+            "PISA.ER.2"
           ]
         }
       ]
@@ -1658,6 +1632,19 @@
           "pisa": [
             "PISA.UN.2"
           ]
+        },
+        {
+          "kod": "T.O.2.2.f)",
+          "ustKod": "T.O.2.2.",
+          "metin": "Okuduğu metindeki zıt anlamlı sözcükleri bulur.",
+          "neden": "sözlük girdisi var",
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
+          ]
         }
       ]
     },
@@ -1693,6 +1680,19 @@
           ],
           "pisa": [
             "PISA.UN.2"
+          ]
+        },
+        {
+          "kod": "T.O.2.2.f)",
+          "ustKod": "T.O.2.2.",
+          "metin": "Okuduğu metindeki zıt anlamlı sözcükleri bulur.",
+          "neden": "sözlük girdisi var",
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
           ]
         }
       ]
@@ -1791,19 +1791,6 @@
           ],
           "pisa": [
             "PISA.UN.2"
-          ]
-        },
-        {
-          "kod": "T.O.2.2.f)",
-          "ustKod": "T.O.2.2.",
-          "metin": "Okuduğu metindeki zıt anlamlı sözcükleri bulur.",
-          "neden": "yeni kök oranı ≥ 0,30",
-          "turetilmisKod": true,
-          "pirls": [
-            "PIRLS.P2"
-          ],
-          "pisa": [
-            "PISA.UN.1"
           ]
         }
       ]
@@ -1905,6 +1892,19 @@
           ],
           "pisa": [
             "PISA.UN.2"
+          ]
+        },
+        {
+          "kod": "T.O.2.2.f)",
+          "ustKod": "T.O.2.2.",
+          "metin": "Okuduğu metindeki zıt anlamlı sözcükleri bulur.",
+          "neden": "sözlük girdisi var",
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
           ]
         }
       ]
@@ -2384,6 +2384,19 @@
           ],
           "pisa": [
             "PISA.UN.2"
+          ]
+        },
+        {
+          "kod": "T.O.2.2.f)",
+          "ustKod": "T.O.2.2.",
+          "metin": "Okuduğu metindeki zıt anlamlı sözcükleri bulur.",
+          "neden": "sözlük girdisi var",
+          "turetilmisKod": true,
+          "pirls": [
+            "PIRLS.P2"
+          ],
+          "pisa": [
+            "PISA.UN.1"
           ]
         }
       ]

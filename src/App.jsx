@@ -427,7 +427,7 @@ const KATALOG = mergePilotStories([
   },
   {
     id: "diyet",
-    yas: "10+ yaş",
+    yas: "14-16 yaş",
     baslik: "Diyet",
     yazar: "Ömer Seyfettin",
     seslendiren: "Stüdyo Kaydı",
@@ -781,7 +781,7 @@ const KATALOG = mergePilotStories([
     yazar: "Oki Mitoloji Yolu",
     seslendiren: "Oki Anlatıcı",
     kategori: "Eski Masallar",
-    yas: "5-8 yaş",
+    yas: "5-6 yaş",
     renk: ["#263B63", "#88A8E8"],
     puan: 4.9,
     sureDk: 0.2, icerikDurumu: "ozet",
@@ -1397,7 +1397,8 @@ const ICERIK_METADATA = {
   "oki-ay-haritasi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 4 },
 
   "oki-gunesin-hikayesi": { yasMin: 3, yasMax: 6, segmentler: ["okul_oncesi", "okumaya_hazirlik", "dinleme"], okumaEvreleri: ["dinleme", "ses_farkindaligi"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 0 },
-  "lili-ay-isigi": { yasMin: 5, yasMax: 8, segmentler: ["okumaya_hazirlik", "ilk_cumleler", "dinleme"], okumaEvreleri: ["dinleme", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 1 },
+  // 2026-10-19: ana yol okumaya_hazirlik_5_6 (docs/content/KONSOLIDASYON-2026-10-19.md, PR #112 taslağı).
+  "lili-ay-isigi": { yasMin: 5, yasMax: 6, segmentler: ["okumaya_hazirlik", "dinleme"], okumaEvreleri: ["dinleme", "ses_harf"], destekler: ["kelime_takibi", "odak", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 1 },
   "oki-pegasus": { yasMin: 8, yasMax: 10, segmentler: ["okuma_guveni", "akici_okuma"], okumaEvreleri: ["paragraf", "kisa_cumle"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 3 },
   "oki-labirentin-izi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 4 },
   "prometheusun-secimi": { yasMin: 12, yasMax: 14, segmentler: ["genc_okurlar", "klasiklere_hazirlik"], okumaEvreleri: ["uzun_metin", "paragraf"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "mitoloji_hikayesi", subject: "mitoloji", oql: 5 },
@@ -1408,7 +1409,9 @@ const ICERIK_METADATA = {
   "uzay-kulubu-piyesi": { yasMin: 10, yasMax: 12, segmentler: ["akici_okuma", "genc_okurlar"], okumaEvreleri: ["paragraf", "uzun_metin"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "bilim_hikayesi", subject: "gokyuzu", oql: 4 },
   "yuksek-okceler": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
   "pembe-incili-kaftan": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
-  "diyet": { yasMin: 10, yasMax: 18, segmentler: ["akici_okuma", "genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["paragraf", "uzun_metin", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
+  // 2026-10-19: ana yol klasiklere_hazirlik_14_16. Kaynak metin kendine zarar sahnesiyle biter;
+  // 14 yaş altı yollara açılmaz (docs/content/KONSOLIDASYON-2026-10-19.md, PR #119 taslağı).
+  "diyet": { yasMin: 14, yasMax: 18, segmentler: ["klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
   "sessiz-saatler": { yasMin: 13, yasMax: 99, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "kisa_hikaye" },
   "calikusu": { yasMin: 12, yasMax: 99, segmentler: ["genc_okurlar", "klasiklere_hazirlik", "lise_okuma", "yetiskin_odak"], okumaEvreleri: ["uzun_metin", "akademik_klasik", "okumaya_donus"], destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"], icerikTuru: "klasik_roman" },
 
