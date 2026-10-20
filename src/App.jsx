@@ -3494,7 +3494,7 @@ export default function DinletiApp() {
               return (
                 <div id="okurio-okuma-icerigi" data-reader-workspace style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden" }}>
                   <div data-reading-column style={{ height: "100%", minHeight: 0 }}>
-                  <div ref={readerScrollRef} data-okuma-metin="1" data-tema={ayar.tema} data-aktif-cumle={`${aktifCumle[0]}-${aktifCumle[1]}`} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} style={{
+                  <div ref={readerScrollRef} data-okuma-metin="1" tabIndex={0} role="region" aria-label={`Okuma metni: ${aktif.baslik}, ${b.ad}`} data-odak={ayar.odak ? "1" : "0"} data-tema={ayar.tema} data-aktif-cumle={`${aktifCumle[0]}-${aktifCumle[1]}`} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} style={{
                     fontSize: PUNTOLAR[ayar.punto], letterSpacing: `${ARALIKLAR[ayar.aralik]}em`,
                     lineHeight: SATIRLAR[ayar.aralik], wordSpacing: `${ARALIKLAR[ayar.aralik] * 2.2}em`,
                     color: ayar.tema === "krem" ? "#2A2622" : "rgba(242,236,223,0.92)",
@@ -3517,6 +3517,7 @@ export default function DinletiApp() {
                         <span
                         data-kelime-ix={gercekIx}
                         data-aktif={aktifMi ? "1" : undefined}
+                        data-odak-cumle={ayar.odak && aktifCumledeMi ? "1" : undefined}
                         data-hedef-kelime={sozluk ? temiz.toLocaleLowerCase("tr-TR") : undefined}
                         role={sozluk ? "button" : undefined}
                         tabIndex={sozluk ? 0 : undefined}
@@ -3530,7 +3531,8 @@ export default function DinletiApp() {
                           }
                         }}
                         style={{
-                          opacity: ayar.odak && !aktifCumledeMi ? 0.38 : 1,
+                          // WCAG 1.4.3: 0,67 opaklık krem zeminde 4,74:1, koyu zeminde 6,03:1 verir (eski 0,38 = 2,18:1).
+                          opacity: ayar.odak && !aktifCumledeMi ? 0.67 : 1,
                           transition: ayar.odak ? "opacity 160ms ease" : undefined,
                           cursor: sozluk ? "help" : undefined,
                           textDecoration: sozluk ? "underline dotted" : undefined,

@@ -174,7 +174,7 @@ test.describe("Persona bazlı okuma akışı", () => {
     await expect(player.getByText(/bölümün tamamı görünür/i)).toBeVisible();
     const contextWord = readingText.locator("[data-kelime-ix='40']");
     await expect(contextWord).toBeAttached();
-    await expect(contextWord).toHaveCSS("opacity", "0.38");
+    await expect(contextWord).toHaveCSS("opacity", "0.67");
     await expect(player).toHaveAttribute("data-persona-flow", "calm");
   });
 
