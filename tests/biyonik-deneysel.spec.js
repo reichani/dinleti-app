@@ -19,7 +19,11 @@ async function okuyucuyuAc(page, { eskiAyar = null, temizle = true } = {}) {
       sessionStorage.setItem("biyonik-test-hazir", "1");
       localStorage.setItem("okurio-okuma-yolu-v1", JSON.stringify(okumaYolu));
       localStorage.setItem("dinleti:okurio-okuma-yolu-v1", JSON.stringify(okumaYolu));
-      if (eskiAyar) localStorage.setItem("dinleti:dinleti-okuma-ayar-v1", JSON.stringify(eskiAyar));
+      // Uygulama iki depolama yolundan birini kullanır (önekli/öneksiz); eski kayıt ikisine de yazılır.
+      if (eskiAyar) {
+        localStorage.setItem("dinleti-okuma-ayar-v1", JSON.stringify(eskiAyar));
+        localStorage.setItem("dinleti:dinleti-okuma-ayar-v1", JSON.stringify(eskiAyar));
+      }
     }
   }, { okumaYolu: OKUMA_YOLU, eskiAyar, temizle });
   await page.goto("/");
@@ -82,7 +86,7 @@ test.describe("Deneysel biyonik vurgu", () => {
     // Bir ihtiyaç seçmek bilinçli biyonik seçimini ve sürüm işaretini silmemeli.
     await panel.getByRole("button", { name: "Gözüm çabuk yoruluyor", exact: true }).click();
     await expect.poll(() => page.evaluate(() => {
-      const kayit = JSON.parse(localStorage.getItem("dinleti:dinleti-okuma-ayar-v1") || "{}");
+      const kayit = JSON.parse(localStorage.getItem("dinleti-okuma-ayar-v1") || localStorage.getItem("dinleti:dinleti-okuma-ayar-v1") || "{}");
       return kayit.biyonik === true && kayit.biyonikSurum === 2;
     })).toBe(true);
     await page.reload();
