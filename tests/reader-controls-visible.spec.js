@@ -55,6 +55,7 @@ for (const ekran of EKRANLAR) {
     expect(metinYuksekligi).toBeGreaterThanOrEqual(ekran.minMetin);
 
     const satirYukseklikleri = await shell.locator("[data-bolum-satiri]").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
+    expect(satirYukseklikleri.length).toBeGreaterThanOrEqual(2);
     for (const h of satirYukseklikleri) expect(h).toBeGreaterThanOrEqual(44);
 
     await sesUyarisiniKapat(page);
