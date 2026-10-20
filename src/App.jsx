@@ -1895,6 +1895,14 @@ export default function DinletiApp() {
   const [okumaAcik, setOkumaAcik] = useState(true);
   const [ayarPaneliAcik, setAyarPaneliAcik] = useState(false);
   const [bolumlerAcik, setBolumlerAcik] = useState(false);
+  // Liste açılınca aktif bölüm, yalnız liste kutusu içinde görünür alana alınır
+  // (scrollIntoView ata kapsayıcıları da kaydırabildiği için kullanılmaz).
+  useEffect(() => {
+    if (!bolumlerAcik) return;
+    const liste = document.querySelector("[data-bolum-listesi]");
+    const aktifSatir = liste?.querySelector('[aria-current="true"]');
+    if (liste && aktifSatir) liste.scrollTop = Math.max(0, aktifSatir.offsetTop - liste.offsetTop - 8);
+  }, [bolumlerAcik]);
   // Okuma profili: birleşimli, YALNIZCA oturum belleğinde tutulur (KVKK veri minimizasyonu —
   // tanı etiketi hiçbir zaman kalıcı depoya yazılmaz; kalıcı olan yalnız nötr ayar sonuçlarıdır)
   const [profil, setProfil] = useState({ dis: false, dehb: false, gorsel: false, sade: false });
@@ -3425,7 +3433,7 @@ export default function DinletiApp() {
           <div data-kompakt-baslik role="button" tabIndex={0} aria-expanded={bolumlerAcik} aria-controls="okurio-bolum-listesi" onClick={() => setBolumlerAcik(!bolumlerAcik)} onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setBolumlerAcik(!bolumlerAcik); }
           }} style={{ display: "flex", alignItems: "center", gap: mobilDar ? 7 : 12, margin: mobilDar ? "2px 0 4px" : "8px 0 6px", minHeight: mobilDar ? 54 : undefined, maxHeight: mobilDar ? 60 : undefined, flexShrink: 0, cursor: "pointer" }}>
-            {!mobilDar && <Kapak kitap={aktif} boyut={44} radius={6} />}
+            {!mobilDar && <span data-baslik-kapak style={{ display: "flex", flexShrink: 0 }}><Kapak kitap={aktif} boyut={44} radius={6} /></span>}
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ ...baslikStil, fontSize: mobilDar ? 15 : 16, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{aktif.baslik}</div>
               <div style={{ color: S.soluk, fontSize: mobilDar ? 11 : 12, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{b.ad} · {aktifBolumIx + 1}/{aktif.bolumler.length} bölüm</div>
@@ -3436,11 +3444,11 @@ export default function DinletiApp() {
 
           {/* Bölüm listesi (katlanır) */}
           {bolumlerAcik && (
-            <div id="okurio-bolum-listesi" data-bolum-listesi style={{ flexShrink: 0, maxHeight: "min(180px, 24dvh)", overflowY: "auto", background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "4px 12px", marginBottom: 10 }}>
+            <div id="okurio-bolum-listesi" data-bolum-listesi style={{ flexShrink: 0, maxHeight: 180, overflowY: "auto", background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "4px 12px", marginBottom: 10 }}>
               {aktif.bolumler.map((bb, i) => (
                 <div key={i} role="button" tabIndex={0} onClick={() => { bolumeGit(i); setBolumlerAcik(false); }} onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") { event.preventDefault(); bolumeGit(i); setBolumlerAcik(false); }
-                }} style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: i < aktif.bolumler.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none", cursor: "pointer", fontSize: 13, color: i === aktifBolumIx ? S.vurgu : S.metin, fontWeight: i === aktifBolumIx ? 600 : 400 }}>
+                }} data-bolum-satiri aria-current={i === aktifBolumIx ? "true" : undefined} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 44, boxSizing: "border-box", padding: "9px 0", borderBottom: i < aktif.bolumler.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none", cursor: "pointer", fontSize: 13, color: i === aktifBolumIx ? S.vurgu : S.metin, fontWeight: i === aktifBolumIx ? 600 : 400 }}>
                   <span>{i + 1}. {bb.ad}</span><span style={{ color: S.soluk, fontSize: 12 }}>{sureYaz(bolumSn(bb))}</span>
                 </div>
               ))}
