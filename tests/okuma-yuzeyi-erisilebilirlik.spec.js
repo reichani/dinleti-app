@@ -136,6 +136,7 @@ test.describe("Okuma yüzeyi erişilebilirliği", () => {
     await page.locator('[data-okuma-modu="kendim"]').click();
     await expect(metin).toHaveAttribute("data-akilli-takip", "kendim", { timeout: 10000 });
     const zeminler = await metin.evaluate((el) => [...el.querySelectorAll('[data-odak-cumle="1"]')].map((k) => getComputedStyle(k).backgroundColor));
+    expect(zeminler.length).toBeGreaterThan(0);
     for (const z of zeminler) expect(z).toBe("rgba(0, 0, 0, 0)");
   });
 
