@@ -1,7 +1,7 @@
 {
   "name": "Okurio - Erişilebilir Okuma",
   "short_name": "Okurio",
-  "description": "Okurio: Türkçe sesli ve senkron okuma desteği; okumayı zorlayıcı bulan çocuklar ve yetişkinler için ayarlanabilir okuma görünümü.",
+  "description": "Okurio: Türkçe sesli ve senkron okuma desteği; okumakta zorlanan çocuklar ve yetişkinler için ayarlanabilir okuma görünümü.",
   "start_url": "/?kaynak=pwa",
   "scope": "/",
   "display": "standalone",

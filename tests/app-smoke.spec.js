@@ -45,4 +45,14 @@ test.describe("Dinleti/Okurio temel açılış kontrolleri", () => {
     await expect(page.locator("[data-oql]").first()).toContainText(/Seviye:/);
     await expect(page.locator("body")).not.toContainText(/OQL-\d/);
   });
+
+  test("hikâye detayında okuma seviyesi sade dille gösterilir", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: /Okuma yolumu başlat/i }).click();
+    await page.locator("[data-oql]").first().click();
+    const kart = page.locator("[data-kalite-karti]");
+    await expect(kart).toBeVisible();
+    await expect(kart).toContainText(/Okuma seviyesi:/);
+    await expect(kart).not.toContainText(/OQL-\d/);
+  });
 });
