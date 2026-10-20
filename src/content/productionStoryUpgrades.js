@@ -9,7 +9,7 @@ import { TAMIRCI_DEFTERI_DRAFT } from "./drafts/2026-10-18-tamirci-defteri.js";
 import { KENAR_NOTLARI_DRAFT } from "./drafts/2026-10-18-kenar-notlari.js";
 import { LIGHTHOUSE_LOGBOOK_EN_DRAFT } from "./drafts/2026-10-18-lighthouse-logbook-en.js";
 import { ESKI_HARITA_CALISMASI_DRAFT } from "./drafts/2026-10-18-eski-harita-calismasi.js";
-import { MUNAZARA_HAZIRLIGI_DRAFT } from "./drafts/2026-10-18-munazara-hazirligi.js";
+import { DOGU_EKSPRESI_DEFTERI_DRAFT } from "./drafts/2026-10-20-dogu-ekspresi-defteri.js";
 import { SABAH_VAPURU_DRAFT } from "./drafts/2026-10-18-sabah-vapuru.js";
 import { MAHALLENIN_SAATCISI_DRAFT } from "./drafts/2026-10-18-mahallenin-saatcisi.js";
 import { KIRK_DAKIKALIK_BAHCE_DRAFT } from "./drafts/2026-10-18-kirk-dakikalik-bahce.js";
@@ -250,7 +250,7 @@ export const NEW_PRODUCTION_STORIES = [
   preparedDraftToProductionCandidate(KENAR_NOTLARI_DRAFT, { kategori: "Özgün Uzun Okuma", renk: ["#3A2E4A", "#B39BD6"] }),
   preparedDraftToProductionCandidate(LIGHTHOUSE_LOGBOOK_EN_DRAFT, { kategori: "English Classics Bridge", renk: ["#1E3A4A", "#7FC0D8"], dil: "en" }),
   preparedDraftToProductionCandidate(ESKI_HARITA_CALISMASI_DRAFT, { kategori: "Özgün Uzun Okuma", renk: ["#3B3A22", "#CFC07A"] }),
-  preparedDraftToProductionCandidate(MUNAZARA_HAZIRLIGI_DRAFT, { kategori: "Özgün Uzun Okuma", renk: ["#22384A", "#7FA6C8"] }),
+  preparedDraftToProductionCandidate(DOGU_EKSPRESI_DEFTERI_DRAFT, { kategori: "Özgün Uzun Okuma", renk: ["#22384A", "#7FA6C8"] }),
   preparedDraftToProductionCandidate(SABAH_VAPURU_DRAFT, { kategori: "Okumaya Dönüş", renk: ["#203A52", "#8FB4D6"] }),
   preparedDraftToProductionCandidate(MAHALLENIN_SAATCISI_DRAFT, { kategori: "Okumaya Dönüş", renk: ["#4A3A22", "#D8B678"] }),
   preparedDraftToProductionCandidate(KIRK_DAKIKALIK_BAHCE_DRAFT, { kategori: "Okumaya Dönüş", renk: ["#2E4A2E", "#9CCB8E"] }),

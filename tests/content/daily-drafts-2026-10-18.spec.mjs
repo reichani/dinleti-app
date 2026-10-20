@@ -19,13 +19,14 @@ const PILOT_FILES = new Set([
   "2026-10-18-lili-su-sesi.js",
   "2026-10-18-mahallenin-saatcisi.js",
   "2026-10-18-mino-mirildaniyor.js",
-  "2026-10-18-munazara-hazirligi.js",
   "2026-10-18-nana-pazar-renkleri.js",
   "2026-10-18-oki-ayakkabi-teki.js",
   "2026-10-18-rainy-day-library-en.js",
   "2026-10-18-sabah-vapuru.js",
   "2026-10-18-tamirci-defteri.js",
   "2026-10-18-toto-ari-ariyor.js",
+  // 2026-10-20: "Münazara Hazırlığı" yapay zekâ kullanımı konulu olduğu için ürün sahibi kararıyla çıkarıldı; yerine aynı rafa özgün hikâye girdi.
+  "2026-10-20-dogu-ekspresi-defteri.js",
 ]);
 const files = readdirSync(draftDir).filter((f) => PILOT_FILES.has(f));
 
