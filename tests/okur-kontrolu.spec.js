@@ -293,17 +293,15 @@ test.describe("C2 okur kontrolü", () => {
     await expect(oynatici(page).locator("[data-bolum-arasi]")).toHaveCount(0);
   });
 
-  test("D: elle açılan odak başka yoldan kapanıp okuma yolundan yeniden açılınca ara tetiklenmez", async ({ page }) => {
+  test("D: elle açılıp kapanan odak okuma yolundan yeniden açılınca ara tetiklenmez", async ({ page }) => {
     await hazirla(page, { yol: GUVEN_YOLU });
     await kendiMetniniAc(page, KISA_METIN);
     const panel = await ayarlariAc(page);
     const odak = panel.getByRole("button", { name: "Odak modu", exact: true });
     await odak.click();
     await expect(odak).toHaveAttribute("aria-pressed", "true");
-    // Profil aç-kapa odağı kapatır (okurun düğmesi değil).
-    const profil = panel.getByRole("button", { name: "Uzun metinde dikkatim dağılıyor", exact: true });
-    await profil.click();
-    await profil.click();
+    // Okur odağı yine okuyucudaki Odak modu düğmesiyle kapatır.
+    await odak.click();
     await expect(odak).toHaveAttribute("aria-pressed", "false");
     await ayarlariKapat(page);
     // Okuma yolunda odak desteği seçilir: odak okuma yolundan açılır.
