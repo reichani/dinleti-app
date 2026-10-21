@@ -1626,19 +1626,25 @@ const OKUMA_MODU_ANAHTAR = "okurio-okuma-modu-v1";
 const DESTEK_SECENEKLERI = [
   { id: "kelime_takibi", ad: "Kelime takibi" },
   { id: "hece_takibi", ad: "Hece takibi" },
-  { id: "odak", ad: "Aktif cümleyi öne çıkar" },
+  { id: "odak", ad: "Odak modu: okunan cümleyi öne çıkar" },
   { id: "buyuk_yazi", ad: "Büyük yazı" },
   { id: "genis_aralik", ad: "Geniş aralık" },
   { id: "yumusak_zemin", ad: "Göz konforu" },
-  { id: "kisa_hedef", ad: "Kısa günlük hedef" },
 ];
+/* C1 (21.10.2026, COGA iç denetimi): "Kısa günlük hedef" (kisa_hedef) kodda hiçbir
+   davranışa bağlı değildi; kullanıcıya gösterilmez. Eski kayıtlarda bulunursa
+   sessizce ayıklanır (bilinenDestekler). */
+const BILINEN_DESTEKLER = new Set(DESTEK_SECENEKLERI.map((d) => d.id));
 
 const VARSAYILAN_OKUMA_YOLU = {
   secildi: false,
   yolId: "okuma_guveni_8_10",
   evreId: "paragraf",
-  destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin", "kisa_hedef"],
+  destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"],
 };
+const bilinenDestekler = (liste) => (Array.isArray(liste)
+  ? liste.filter((id) => BILINEN_DESTEKLER.has(id))
+  : [...VARSAYILAN_OKUMA_YOLU.destekler]);
 
 const yolBul = (id) => OKUMA_YOLLARI.find((y) => y.id === id) || OKUMA_YOLLARI[4];
 const evreBul = (id) => EVRE_SECENEKLERI.find((e) => e.id === id) || EVRE_SECENEKLERI[4];
@@ -1651,10 +1657,10 @@ const EVRE_ADI_YOLA_GORE = {
 };
 const evreAdi = (evreId, yolId) => EVRE_ADI_YOLA_GORE[yolId]?.[evreId] || evreBul(evreId).ad;
 /* v2.9.4: 10–14 yaşta hece bölme akıcı okuru yavaşlatır; yol seçilince varsayılan
-   destekler sesli okuma + kısa günlük hedeftir. Hece desteği isteğe bağlı kalır. */
+   destek sesli okumadır (kelime takibi). Hece desteği isteğe bağlı kalır. */
 const YOL_VARSAYILAN_DESTEKLER = {
-  akici_okuma_10_12: ["kelime_takibi", "kisa_hedef"],
-  genc_okurlar_12_14: ["kelime_takibi", "kisa_hedef"],
+  akici_okuma_10_12: ["kelime_takibi"],
+  genc_okurlar_12_14: ["kelime_takibi"],
 };
 const DESTEK_ADI_YOLA_GORE = {
   akici_okuma_10_12: { hece_takibi: "Uzun kelimede hecele" },
@@ -1916,24 +1922,101 @@ export default function DinletiApp() {
   // tanı etiketi hiçbir zaman kalıcı depoya yazılmaz; kalıcı olan yalnız nötr ayar sonuçlarıdır)
   const [profil, setProfil] = useState({ dis: false, dehb: false, gorsel: false, sade: false });
 
-  const profilUygula = (yeniProfil) => {
-    setProfil(yeniProfil);
-    // Taban ayardan başlayıp aktif profillerin birleşimini uygula
-    // Deneysel biyonik vurgu hiçbir ihtiyaç tarafından açılmaz; kullanıcının kendi seçimi korunur.
-    const a = { punto: 1, aralik: 1, odak: false, vurgu: true, tema: "krem", font: "lexend", biyonik: Boolean(ayar.biyonik), biyonikSurum: ayar.biyonikSurum };
-    if (yeniProfil.dis) { a.aralik = Math.max(a.aralik, 1); a.vurgu = true; a.tema = "krem"; a.font = "lexend"; }
-    if (yeniProfil.gorsel) { a.punto = 2; a.aralik = Math.max(a.aralik, 1); }
-    if (yeniProfil.dis && yeniProfil.gorsel) a.aralik = 2; // eşzamanlılıkta sıkışıklık en güçlü (Liu 2024)
-    if (yeniProfil.dehb) { a.odak = true; }
-    // v2.10: "Sade ve sakin ekran" — duyusal hassasiyet için sakin ses tonu ve odak.
-    // Okumaya etkisi test edilmedi; tercih olarak sunulur (analiz, 9 Ekim 2026).
-    if (yeniProfil.sade && !profil.sade) {
-      a.odak = true;
-      setSesTonu("sakin");
-      (async () => { try { await window.storage.set(SES_TONU_ANAHTAR, "sakin"); } catch {} })();
-    }
-    setAyar(a);
+  /* C1 (21.10.2026, W3C COGA iç denetimi): ihtiyaç seçimi okurun ayarlarını silmez.
+     - Bir ihtiyaç AÇILINCA mevcut ayarın üstüne yalnız o ihtiyacın asgari değerleri
+       uygulanır (sayılarda "en az", açık/kapalılarda "açık"); hiçbir alan zayıflatılmaz.
+       Elle seçilen yazı boyutu, aralık, atlama tercihi, okuma yolundan gelen odak ve
+       deneysel biyonik seçimi (biyonik, biyonikSurum) olduğu gibi kalır.
+     - Bir ihtiyaç KAPANINCA yalnız o ihtiyacın değiştirdiği ve okurun sonradan
+       dokunmadığı alanlar önceki değerine döner. Hâlâ açık başka bir ihtiyaç aynı alanı
+       istiyorsa değer korunur ve geri dönüş kaydı o ihtiyaca devredilir.
+     - "Harfler kayıyor" tema ve yazı tipini değiştirmez: krem zemin ve Lexend zaten
+       başlangıç değerleridir; farklılarsa bunu yalnız okur elle seçmiş olabilir.
+     İz (profilIziRef) de profil gibi yalnız oturum belleğindedir (KVKK). */
+  const PROFIL_ASGARI = {
+    dis: { aralik: 2, vurgu: true },   // aralık 2 = "Geniş": harf 0,1em, satır 1,75 (SATIRLAR aralığa bağlı)
+    gorsel: { punto: 2 },              // 26 px
+    dehb: { odak: true },
+    sade: { odak: true },              // + sakin ses tonu (aşağıda)
   };
+  const asgariSaglar = (mevcut, hedef) => (typeof hedef === "number" ? Number(mevcut) >= hedef : mevcut === hedef);
+  const profilIziRef = useRef({}); // { dis: { aralik: { onceki, uygulanan } }, sade: { sesTonu: {...} } }
+  const [ayarBildirimi, setAyarBildirimi] = useState(null); // { metin, geri: { ayar, profil, iz, sesTonu } | null }
+  const ayarBildirimiOdakRef = useRef(false);
+  const ayarDegisimOzeti = (once, sonra, onceTon, sonraTon) => {
+    const parcalar = [];
+    if (once.punto !== sonra.punto) parcalar.push(`yazı ${PUNTOLAR[sonra.punto]} px`);
+    if (once.aralik !== sonra.aralik) parcalar.push(`aralık ${["sıkı", "rahat", "geniş", "ekstra geniş"][sonra.aralik]}`);
+    if (once.odak !== sonra.odak) parcalar.push(`odak modu ${sonra.odak ? "açık" : "kapalı"}`);
+    if (once.vurgu !== sonra.vurgu) parcalar.push(`kelime vurgusu ${sonra.vurgu ? "açık" : "kapalı"}`);
+    if (onceTon !== sonraTon) parcalar.push(`ses ${sesTonuBul(sonraTon).kisa.toLocaleLowerCase("tr-TR")}`);
+    return parcalar.length ? parcalar.join(", ") : "mevcut ayarların zaten yeterli";
+  };
+  const sesTonuKaydet = (ton) => { (async () => { try { await window.storage.set(SES_TONU_ANAHTAR, ton); } catch {} })(); };
+
+  const profilUygula = (yeniProfil) => {
+    const iz = JSON.parse(JSON.stringify(profilIziRef.current));
+    const geri = { ayar: { ...ayar }, profil: { ...profil }, iz: JSON.parse(JSON.stringify(profilIziRef.current)), sesTonu };
+    const a = { ...ayar };
+    let yeniTon = sesTonu;
+    for (const id of Object.keys(PROFIL_ASGARI)) {
+      if (Boolean(yeniProfil[id]) === Boolean(profil[id])) continue;
+      if (yeniProfil[id]) {
+        iz[id] = {};
+        for (const [alan, hedef] of Object.entries(PROFIL_ASGARI[id])) {
+          if (asgariSaglar(a[alan], hedef)) continue;
+          iz[id][alan] = { onceki: a[alan], uygulanan: hedef };
+          a[alan] = hedef;
+        }
+        // v2.10: "Sade ve sakin ekran" — sakin ses tonu. Okumaya etkisi test edilmedi; tercih olarak sunulur.
+        if (id === "sade" && yeniTon !== "sakin") { iz[id].sesTonu = { onceki: yeniTon, uygulanan: "sakin" }; yeniTon = "sakin"; }
+      } else {
+        const kayit = iz[id] || {};
+        delete iz[id];
+        for (const [alan, { onceki, uygulanan }] of Object.entries(kayit)) {
+          if (alan === "sesTonu") { if (yeniTon === uygulanan) yeniTon = onceki; continue; }
+          if (a[alan] !== uygulanan) continue; // okur sonradan değiştirdi: onun seçimi kalır
+          const devralan = Object.keys(PROFIL_ASGARI).find((d) => d !== id && yeniProfil[d]
+            && PROFIL_ASGARI[d][alan] !== undefined && !asgariSaglar(onceki, PROFIL_ASGARI[d][alan]));
+          if (devralan) {
+            if (!iz[devralan]) iz[devralan] = {};
+            if (!iz[devralan][alan]) iz[devralan][alan] = { onceki, uygulanan };
+            continue;
+          }
+          a[alan] = onceki;
+        }
+      }
+    }
+    profilIziRef.current = iz;
+    setProfil(yeniProfil);
+    setAyar(a);
+    if (yeniTon !== sesTonu) { setSesTonu(yeniTon); sesTonuKaydet(yeniTon); }
+    setAyarBildirimi({ metin: `Ayarlar güncellendi: ${ayarDegisimOzeti(ayar, a, sesTonu, yeniTon)}.`, geri });
+  };
+
+  const profilDegisikliginiGeriAl = () => {
+    const geri = ayarBildirimi?.geri;
+    if (!geri) return;
+    profilIziRef.current = geri.iz;
+    setProfil(geri.profil);
+    setAyar(geri.ayar);
+    if (geri.sesTonu !== sesTonu) { setSesTonu(geri.sesTonu); sesTonuKaydet(geri.sesTonu); }
+    setAyarBildirimi({ metin: "Önceki ayarlar geri yüklendi.", geri: null });
+  };
+
+  // Bildirim yaklaşık 8 sn görünür; odak bildirimin içindeyken (ör. Geri al düğmesinde) kapanmaz.
+  useEffect(() => {
+    if (!ayarBildirimi) return undefined;
+    let zamanlayici;
+    const kur = () => {
+      zamanlayici = window.setTimeout(() => {
+        if (ayarBildirimiOdakRef.current) kur();
+        else setAyarBildirimi(null);
+      }, 8000);
+    };
+    kur();
+    return () => window.clearTimeout(zamanlayici);
+  }, [ayarBildirimi]);
   const [seri, setSeri] = useState({ sayi: 0, sonGun: "" });
   const [, setMod] = useState("cocuk"); // geriye dönük uyumluluk: cocuk | yetiskin
   const [okumaYolu, setOkumaYolu] = useState(VARSAYILAN_OKUMA_YOLU);
@@ -2170,6 +2253,7 @@ export default function DinletiApp() {
         if (!(kayitli.biyonikSurum === 2 && kayitli.biyonik === true)) { kayitli.biyonik = false; delete kayitli.biyonikSurum; }
         if (r) {
           const y = { ...VARSAYILAN_OKUMA_YOLU, ...JSON.parse(r.value), secildi: true };
+          y.destekler = bilinenDestekler(y.destekler);
           setOkumaYolu(y);
           setMod(yolBul(y.yolId).mod);
           setAyar((e) => destekAyarlariniUygula({ ...e, ...kayitli }, y));
@@ -2753,6 +2837,7 @@ export default function DinletiApp() {
 
   const okumaYolunuKaydet = (yeni) => {
     const temiz = { ...VARSAYILAN_OKUMA_YOLU, ...yeni, secildi: true };
+    temiz.destekler = bilinenDestekler(temiz.destekler);
     const yol = yolBul(temiz.yolId);
     const aktifKitap = kitapBul(aktifId);
     const aktifUyumlu = !aktifKitap || kitapOkumaYolunaUygunMu(aktifKitap, temiz);
@@ -3142,7 +3227,7 @@ export default function DinletiApp() {
       )}
       {RozetYolu()}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 18 }}>
-        {["Senkron kelime takibi", "Odak modu", "Rahat okuma aralığı", "Kısa günlük hedef"].map((r) => (
+        {["Senkron kelime takibi", "Odak modu", "Rahat okuma aralığı"].map((r) => (
           <span key={r} style={{ fontSize: 12, color: S.soluk, background: S.kart, borderRadius: 10, padding: "7px 11px" }}>{r}</span>
         ))}
       </div>
@@ -3592,12 +3677,30 @@ export default function DinletiApp() {
                     <button data-profil="gorsel" onClick={() => profilUygula({ ...profil, gorsel: !profil.gorsel })} aria-pressed={profil.gorsel} style={cip(profil.gorsel)}>Gözüm çabuk yoruluyor</button>
                     <button data-profil="sade" onClick={() => profilUygula({ ...profil, sade: !profil.sade })} aria-pressed={profil.sade} style={cip(profil.sade)}>Sade ve sakin ekran</button>
                   </div>
+                  {/* C1: canlı bölge hep DOM'da durur (ekran okuyucu duyurusu için); okuma metninin
+                      üstüne binmez, ayar panelinde ihtiyaç düğmelerinin hemen altında akar. */}
+                  <div data-ayar-bildirimi role="status" aria-live="polite" aria-atomic="true"
+                    onFocus={() => { ayarBildirimiOdakRef.current = true; }}
+                    onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) ayarBildirimiOdakRef.current = false; }}
+                    onMouseEnter={() => { ayarBildirimiOdakRef.current = true; }}
+                    onMouseLeave={() => { ayarBildirimiOdakRef.current = false; }}>
+                    {ayarBildirimi && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, padding: "4px 4px 4px 12px", background: "#22293A", border: "1px solid rgba(232,163,61,0.45)", borderRadius: 10, color: S.metin, fontSize: 13, lineHeight: 1.4 }}>
+                        <span data-ayar-bildirimi-metin style={{ flex: 1, minWidth: 0 }}>{ayarBildirimi.metin}</span>
+                        {ayarBildirimi.geri && (
+                          <button data-ayar-geri-al onClick={profilDegisikliginiGeriAl} style={{ ...cip(true), minWidth: 44, minHeight: 44, justifyContent: "center", fontWeight: 700, fontSize: 13 }}>
+                            Geri al
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                   <details data-destek-bilgi style={{ marginTop: 8, fontSize: 12, lineHeight: 1.5, color: S.soluk }}>
                     <summary style={{ cursor: "pointer", minHeight: 32 }}>Bu seçenekler ne yapar, kimlere yardımcı olabilir?</summary>
-                    <p style={{ margin: "6px 0" }}>Harfler kayıyor, karışıyor: harf ve satır aralığını açar, kelimeyi sesle takip ettirir. Disleksi yaşayan okurlarda sık görülen bir güçlüktür.</p>
-                    <p style={{ margin: "6px 0" }}>Uzun metinde dikkatim dağılıyor: okunan cümleyi öne çıkarır, diğerlerini soldurur. Dikkat güçlüğü yaşayan okurlar için.</p>
-                    <p style={{ margin: "6px 0" }}>Gözüm çabuk yoruluyor: yazıyı büyütür ve aralığı açar.</p>
-                    <p style={{ margin: "6px 0" }}>Sade ve sakin ekran: daha sakin bir ses tonu ve odak görünümü seçer. Duyusal hassasiyeti olan okurlar için bir tercihtir.</p>
+                    <p style={{ margin: "6px 0" }}>Harfler kayıyor, karışıyor: harf ve satır aralığını açar, okunan kelimeyi sesle birlikte vurgular. Disleksi yaşayan okurlarda sık görülen bir güçlüktür.</p>
+                    <p style={{ margin: "6px 0" }}>Uzun metinde dikkatim dağılıyor: odak modunu açar; okunan cümleyi öne çıkarır, diğerlerini soldurur. Dikkat güçlüğü yaşayan okurlar için.</p>
+                    <p style={{ margin: "6px 0" }}>Gözüm çabuk yoruluyor: yazıyı büyütür.</p>
+                    <p style={{ margin: "6px 0" }}>Sade ve sakin ekran: daha sakin bir ses tonu seçer ve odak modunu açar. Duyusal hassasiyeti olan okurlar için bir tercihtir.</p>
                   </details>
                   <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
                     <button onClick={() => setAyar({ ...ayar, punto: (ayar.punto + 1) % PUNTOLAR.length })} aria-label={`Yazı boyutu: ${PUNTOLAR[ayar.punto]} piksel`} style={cip(false)}>

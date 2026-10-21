@@ -165,7 +165,7 @@ export function resolveYolIdForGrade(sinifKodu) {
  */
 export const PROFIL_DESTEK_ONERI = Object.freeze({
   disleksi: ["hece_takibi", "kelime_takibi", "buyuk_yazi", "genis_aralik", "yumusak_zemin"],
-  dehb: ["odak", "kisa_hedef", "yumusak_zemin"],
+  dehb: ["odak", "yumusak_zemin"],
   gorsel_hassasiyet: ["buyuk_yazi", "genis_aralik", "yumusak_zemin"],
 });
 
