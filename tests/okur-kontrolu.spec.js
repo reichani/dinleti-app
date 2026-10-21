@@ -232,6 +232,10 @@ test.describe("C2 okur kontrolü", () => {
     expect(geriYukleme.scrollTop).toBeGreaterThan(0);
     expect(geriYukleme.ust).toBeGreaterThanOrEqual(0);
     expect(geriYukleme.alt).toBeGreaterThan(0);
+    // Açılıştaki programla kaydırma konum kaydını kaydırmaz.
+    await page.waitForTimeout(1200);
+    await expect(oynatici(page).locator("[data-kendim-konum]")).toHaveText(`Cümle ${kayitliCumle} / ${BOLUMDEKI_CUMLE} · Bölüm 1 / 7`);
+    expect((await kayitOku()).wordIndex).toBe(kayit.wordIndex);
 
     // "Sesli dinle": Dinliyorum moduna geçer, kayıtlı cümleden sesli okur.
     await oynatici(page).locator("[data-sesli-dinle]").click();
@@ -242,14 +246,115 @@ test.describe("C2 okur kontrolü", () => {
     await expect(oynatici(page).getByRole("button", { name: "Duraklat", exact: true })).toBeVisible();
   });
 
-  async function bolumSonunaGetir(page, cumleSayisi = KISA_BOLUM_CUMLE) {
-    // Durdurulmuşken son cümleye geç (Sonraki cümle), sonra oynat: bölüm birkaç yüz ms içinde biter.
+  async function bolumSonunaGetir(page, cumleSayisi = KISA_BOLUM_CUMLE, kalanCumle = 1) {
+    // Durdurulmuşken son cümle(ler)e geç (Sonraki cümle), sonra oynat: bölüm kısa sürede biter.
     const sonraki = oynatici(page).getByRole("button", { name: "Sonraki cümle" });
     const simdikiCumle = Math.floor(Math.max(0, await aktifIx(page)) / 14);
-    for (let i = simdikiCumle; i < cumleSayisi - 1; i += 1) await sonraki.click();
-    await expect.poll(() => aktifIx(page)).toBe((cumleSayisi - 1) * 14);
+    for (let i = simdikiCumle; i < cumleSayisi - kalanCumle; i += 1) await sonraki.click();
+    await expect.poll(() => aktifIx(page)).toBe((cumleSayisi - kalanCumle) * 14);
     await oynatici(page).getByRole("button", { name: "Oynat", exact: true }).click();
   }
+
+  const elleKaydir = (page) => metinKutusu(page).evaluate((el) => {
+    el.dispatchEvent(new WheelEvent("wheel", { deltaY: -600, bubbles: true, cancelable: true }));
+    el.scrollTop = 0;
+  });
+  const kayitOku = (page) => page.evaluate(() => {
+    const d = JSON.parse(localStorage.getItem("dinleti-durum-v1") || "{}");
+    return d.ilerlemeler?.[d.sonKitap] || null;
+  });
+
+  test("B: takip durmuşken kendiliğinden bölüm geçişinde takip yeniden açılır", async ({ page }) => {
+    await hazirla(page, { yol: GUVEN_YOLU });
+    await kendiMetniniAc(page, KISA_METIN);
+    await bolumSonunaGetir(page, KISA_BOLUM_CUMLE, 3);
+    await expect(oynatici(page)).toHaveAttribute("data-playing", "1");
+    await elleKaydir(page);
+    await expect(metinKutusu(page)).toHaveAttribute("data-takip-durdu", "1");
+    await expect(bolumYazisi(page)).toContainText("2/3 bölüm", { timeout: 15000 });
+    await expect(metinKutusu(page)).not.toHaveAttribute("data-takip-durdu", "1");
+    await expect.poll(() => aktifGorunur(page), { timeout: 5000 }).toBe(true);
+    await expect(oynatici(page).locator("[data-takibe-don]")).toHaveCount(0);
+  });
+
+  test("D: okuma yolunun açtığı odak bölüm sonu arasını tetiklemez; profil aç-kapa sonrası da", async ({ page }) => {
+    await hazirla(page, { yol: { ...GUVEN_YOLU, destekler: ["kelime_takibi", "odak"] }, ayar: { ...AYAR, odak: true } });
+    await kendiMetniniAc(page, KISA_METIN);
+    const panel = await ayarlariAc(page);
+    await expect(panel.getByRole("button", { name: "Odak modu", exact: true })).toHaveAttribute("aria-pressed", "true");
+    const profil = panel.getByRole("button", { name: "Uzun metinde dikkatim dağılıyor", exact: true });
+    await profil.click();
+    await profil.click();
+    await expect(profil).toHaveAttribute("aria-pressed", "false");
+    await ayarlariKapat(page);
+    await bolumSonunaGetir(page);
+    await expect(bolumYazisi(page)).toContainText("2/3 bölüm", { timeout: 10000 });
+    await expect(oynatici(page)).toHaveAttribute("data-playing", "1");
+    await expect(oynatici(page).locator("[data-bolum-arasi]")).toHaveCount(0);
+  });
+
+  test("D: elle açılan odak başka yoldan kapanıp okuma yolundan yeniden açılınca ara tetiklenmez", async ({ page }) => {
+    await hazirla(page, { yol: GUVEN_YOLU });
+    await kendiMetniniAc(page, KISA_METIN);
+    const panel = await ayarlariAc(page);
+    const odak = panel.getByRole("button", { name: "Odak modu", exact: true });
+    await odak.click();
+    await expect(odak).toHaveAttribute("aria-pressed", "true");
+    // Profil aç-kapa odağı kapatır (okurun düğmesi değil).
+    const profil = panel.getByRole("button", { name: "Uzun metinde dikkatim dağılıyor", exact: true });
+    await profil.click();
+    await profil.click();
+    await expect(odak).toHaveAttribute("aria-pressed", "false");
+    await ayarlariKapat(page);
+    // Okuma yolunda odak desteği seçilir: odak okuma yolundan açılır.
+    await oynatici(page).getByRole("button", { name: "Kapat", exact: true }).click();
+    await page.getByRole("button", { name: "Değiştir" }).first().click();
+    await page.getByRole("button", { name: /cümleyi öne çıkar/ }).click();
+    await page.getByRole("button", { name: /Okuma yolumu başlat/i }).click();
+    // Sayfa yenilenmeden (oturum durumu korunarak) metin yeniden açılır.
+    await page.getByRole("button", { name: /Kendi metnini oku/i }).click();
+    await page.getByLabel("Kendi metnim", { exact: true }).fill(KISA_METIN);
+    await page.getByRole("button", { name: "Okuma moduna al", exact: true }).click();
+    await expect(oynatici(page)).toBeVisible();
+    await ayarlariAc(page);
+    await expect(oynatici(page).getByRole("button", { name: "Odak modu", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await ayarlariKapat(page);
+    await bolumSonunaGetir(page);
+    await expect(bolumYazisi(page)).toContainText("2/3 bölüm", { timeout: 10000 });
+    await expect(oynatici(page).locator("[data-bolum-arasi]")).toHaveCount(0);
+  });
+
+  test("D: okurun elle açtığı Odak modu arayı açar; Escape Mola ver gibi davranır, okuyucuyu kapatmaz", async ({ page }) => {
+    await hazirla(page, { yol: GUVEN_YOLU });
+    await kendiMetniniAc(page, KISA_METIN);
+    const panel = await ayarlariAc(page);
+    const odak = panel.getByRole("button", { name: "Odak modu", exact: true });
+    await expect(odak).toHaveAttribute("aria-pressed", "false");
+    await odak.click();
+    await expect(odak).toHaveAttribute("aria-pressed", "true");
+    await ayarlariKapat(page);
+
+    // Takip durdurulmuşken bile ara kartından "Sonraki bölüme geç" takibi yeniden açar.
+    await bolumSonunaGetir(page, KISA_BOLUM_CUMLE, 2);
+    await elleKaydir(page);
+    await expect(metinKutusu(page)).toHaveAttribute("data-takip-durdu", "1");
+    const ara = oynatici(page).locator("[data-bolum-arasi]");
+    await expect(ara).toBeVisible({ timeout: 10000 });
+    await ara.getByRole("button", { name: "Sonraki bölüme geç" }).click();
+    await expect(metinKutusu(page)).not.toHaveAttribute("data-takip-durdu", "1");
+    await expect(oynatici(page)).toHaveAttribute("data-playing", "1");
+    await oynatici(page).getByRole("button", { name: "Duraklat", exact: true }).click();
+
+    await bolumSonunaGetir(page);
+    await expect(ara).toBeVisible({ timeout: 10000 });
+    await page.keyboard.press("Escape");
+    await expect(ara).toHaveCount(0);
+    await expect(oynatici(page)).toBeVisible();
+    await expect(oynatici(page)).toHaveAttribute("data-playing", "0");
+    await expect(oynatici(page).getByRole("button", { name: "Oynat", exact: true })).toBeFocused();
+    await expect.poll(async () => (await kayitOku(page))?.sectionIndex).toBe(2);
+    expect((await kayitOku(page)).wordIndex).toBe(0);
+  });
 
   test("D: dikkat profilinde bölüm sonunda ara ekranı açılır; Sonraki bölüme geç ve Mola ver çalışır", async ({ page }) => {
     await hazirla(page, { yol: GUVEN_YOLU });

@@ -2049,7 +2049,12 @@ export default function DinletiApp() {
   const [oncekiKonum, setOncekiKonum] = useState(null);       // { pos, sectionIndex, wordIndex }
   const [okurDuyuru, setOkurDuyuru] = useState("");
   const [bolumArasi, setBolumArasi] = useState(null);          // { sonraki }
-  const [odakElleAcik, setOdakElleAcik] = useState(false);
+  // Odak modunun kaynağı: "elle" yalnız okur okuyucudaki Odak modu düğmesine bastıysa.
+  // Okuma yolu, profil, Geri al ya da kayıtlı ayar yüklemesi odağı değiştirirse kaynak "diger" olur.
+  const [odakKaynagi, setOdakKaynagi] = useState(null);
+  const odakElleBekleyenRef = useRef(false);
+  const kendimKaydiAtlaUntilRef = useRef(0);
+  const bolumArasiEscRef = useRef(null);
   const bolumSonuMolaRef = useRef(false);
   const bolumSonuAraRef = useRef(null);
   const kendimKayitTimerRef = useRef(null);
@@ -2448,6 +2453,10 @@ export default function DinletiApp() {
       : 0;
     const oncekiDavranis = container.style.scrollBehavior;
     container.style.scrollBehavior = "auto";
+    // Bu programla kaydırmanın ürettiği scroll olayı konum kaydını tetiklemez (kayıt bir kez atlanır).
+    if (kendimKayitTimerRef.current) window.clearTimeout(kendimKayitTimerRef.current);
+    kendimKayitTimerRef.current = null;
+    if (Math.abs(container.scrollTop - hedef) >= 1) kendimKaydiAtlaUntilRef.current = Date.now() + 400;
     container.scrollTop = hedef;
     container.style.scrollBehavior = oncekiDavranis;
   }, [kelimeIx, aktifId, aktifBolumIx, okumaModu, oynaticiAcik, okumaAcik]);
@@ -2482,7 +2491,12 @@ export default function DinletiApp() {
   }, [bolumArasi]);
   // Bölüm sonu arası: "Uzun metinde dikkatim dağılıyor" profili ya da okurun kendisi
   // açtığı Odak modu. Okuma yolunun otomatik açtığı odak bu davranışı tetiklemez.
-  bolumSonuMolaRef.current = Boolean(profil.dehb || (ayar.odak && odakElleAcik));
+  // ayar.odak hangi yoldan değişirse değişsin kaynak burada yeniden belirlenir (profilUygula'ya dokunmadan).
+  useEffect(() => {
+    setOdakKaynagi(odakElleBekleyenRef.current ? "elle" : "diger");
+    odakElleBekleyenRef.current = false;
+  }, [ayar.odak]);
+  bolumSonuMolaRef.current = Boolean(profil.dehb || (ayar.odak && odakKaynagi === "elle"));
 
   useEffect(() => {
     setSoruCevabi(null);
@@ -2501,6 +2515,8 @@ export default function DinletiApp() {
     const klavye = (event) => {
       if (event.key === "Escape") {
         event.preventDefault();
+        // C2: bölüm sonu kartı açıkken Escape okuyucuyu kapatmaz; Mola ver gibi davranır.
+        if (bolumArasiEscRef.current) { bolumArasiEscRef.current(); return; }
         okuyucuyuKapatVeOdakla();
         return;
       }
@@ -2638,6 +2654,8 @@ export default function DinletiApp() {
             // C2: dikkat profili açıkken sonraki bölüme kendiliğinden geçilmez; kısa ara ekranı açılır.
             bolumSonuAraRef.current(kitap, bolumIx + 1);
           } else if (bolumIx + 1 < kitap.bolumler.length) {
+            // C2: elle durdurulan takip yeni bölümde yeniden açılır; okur yeni bölümün başını görür.
+            takibiSurdur();
             setPozisyon(bolumBasiSn(kitap, bolumIx + 1));
             setKelimeIx(0);
             if (konusmayiBaslatRef.current) konusmayiBaslatRef.current(kitap, bolumIx + 1, 0);
@@ -3094,6 +3112,11 @@ export default function DinletiApp() {
   kendimKaydetRef.current = kendimKonumunuKaydet;
   const okurKaydirdi = () => {
     if (okumaModu === "kendim") {
+      if (kendimKaydiAtlaUntilRef.current) {
+        const atla = Date.now() < kendimKaydiAtlaUntilRef.current;
+        kendimKaydiAtlaUntilRef.current = 0;
+        if (atla) return;
+      }
       if (kendimKayitTimerRef.current) window.clearTimeout(kendimKayitTimerRef.current);
       kendimKayitTimerRef.current = window.setTimeout(() => kendimKaydetRef.current?.(), KENDIM_KAYIT_MS);
       return;
@@ -3136,6 +3159,7 @@ export default function DinletiApp() {
     if (!aktif || !bolumArasi) return;
     const { sonraki } = bolumArasi;
     setBolumArasi(null);
+    takibiSurdur();
     oynatKitapBolum(aktif.id, sonraki);
   };
   const molaVer = () => {
@@ -3150,7 +3174,10 @@ export default function DinletiApp() {
       return yeni;
     });
     setOkurDuyuru("Mola verildi. Konumun kaydedildi; hazır olduğunda Oynat ile sonraki bölümden sürer.");
+    // Kart kapanınca odak kaybolmasın: Oynat düğmesine taşınır.
+    window.requestAnimationFrame(() => document.querySelector('[data-transport-controls] button[aria-label="Oynat"]')?.focus({ preventScroll: true }));
   };
+  bolumArasiEscRef.current = bolumArasi ? molaVer : null;
 
   const favoriDegistir = (id) => {
     setFavoriler((f) => {
@@ -3890,7 +3917,7 @@ export default function DinletiApp() {
                     <button onClick={() => setAyar({ ...ayar, aralik: (ayar.aralik + 1) % ARALIKLAR.length })} aria-label={`Harf ve satır aralığı: ${["Sıkı", "Rahat", "Geniş", "Ekstra geniş"][ayar.aralik]}`} style={cip(false)}>
                       <AlignJustify size={13} /> Aralık: {["Sıkı", "Rahat", "Geniş", "Ekstra"][ayar.aralik]}
                     </button>
-                    <button onClick={() => { setOdakElleAcik(!ayar.odak); setAyar({ ...ayar, odak: !ayar.odak }); }} aria-label="Odak modu" aria-pressed={ayar.odak} style={cip(ayar.odak)}>
+                    <button onClick={() => { odakElleBekleyenRef.current = true; setAyar({ ...ayar, odak: !ayar.odak }); }} aria-label="Odak modu" aria-pressed={ayar.odak} style={cip(ayar.odak)}>
                       <Focus size={13} /> Odak modu
                     </button>
                     <button onClick={() => setAyar({ ...ayar, vurgu: !ayar.vurgu })} aria-label="Kelime vurgusu" aria-pressed={ayar.vurgu} style={cip(ayar.vurgu)}>
