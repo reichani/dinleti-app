@@ -3,6 +3,9 @@ import { test, expect } from "@playwright/test";
 // Ürün kararı 20.10.2026 (Reyhan Açar): biyonik vurgu deneysel destek olarak geri gelir.
 // Kanıt matrisi v1.0'da aleyhte (Snell 2024), bu yüzden: varsayılan kapalı, hiçbir
 // ihtiyaç açmaz, dürüst not görünür, kelime metni ve indeksleri değişmez.
+// Karar 21.10.2026 (Reyhan Açar): kullanıcıya bir okuma konforu tercihi olarak sunulur;
+// görünen metinde araştırma atfı (Snell 2024) ve hız/etkinlik iddiası yer almaz.
+const KONFOR_NOTU = "Biyonik vurgu deneysel bir okuma konforu tercihidir. Gözüne rahat geliyorsa açık tutabilirsin.";
 
 const OKUMA_YOLU = {
   secildi: true,
@@ -44,13 +47,34 @@ test.describe("Deneysel biyonik vurgu", () => {
     const { metin, panel } = await okuyucuyuAc(page);
     const dugme = panel.getByRole("button", { name: "Biyonik vurgu, deneysel" });
     await expect(dugme).toHaveAttribute("aria-pressed", "false");
-    await expect(panel.locator("[data-biyonik-not]")).toContainText(/deneysel/);
+    await expect(panel.locator("[data-biyonik-not]")).toHaveText(KONFOR_NOTU);
+    await expect(dugme).toHaveAttribute("aria-describedby", "okurio-biyonik-not");
     await expect(metin.locator("[data-biyonik]")).toHaveCount(0);
     for (const ad of ["Harfler kayıyor, karışıyor", "Uzun metinde dikkatim dağılıyor", "Gözüm çabuk yoruluyor", "Sade ve sakin ekran"]) {
       await panel.getByRole("button", { name: ad, exact: true }).click();
     }
     await expect(dugme).toHaveAttribute("aria-pressed", "false");
     await expect(metin.locator("[data-biyonik]")).toHaveCount(0);
+  });
+
+  test("kullanıcıya görünen biyonik metninde araştırma atfı ve hız iddiası yok", async ({ page }) => {
+    const { panel } = await okuyucuyuAc(page);
+    const dugme = panel.getByRole("button", { name: "Biyonik vurgu, deneysel" });
+    const not = panel.locator("[data-biyonik-not]");
+    await expect(not).toBeVisible();
+    const gorunen = [
+      await not.innerText(),
+      await dugme.innerText(),
+      (await dugme.getAttribute("aria-label")) || "",
+      (await dugme.getAttribute("title")) || "",
+    ].join(" ");
+    expect(gorunen).toMatch(/deneysel/i);
+    expect(gorunen).not.toMatch(/snell/i);
+    expect(gorunen.toLocaleLowerCase("tr")).not.toMatch(/hız/);
+    // Ayarlar panelinin tamamında da araştırma atfı ya da hız iddiası görünmez.
+    const panelMetni = await panel.innerText();
+    expect(panelMetni).not.toMatch(/snell/i);
+    expect(panelMetni.toLocaleLowerCase("tr")).not.toMatch(/hız/);
   });
 
   test("açılınca kelime başları kalınlaşır; metin ve kelime indeksleri değişmez; ihtiyaç değişince korunur", async ({ page }) => {
