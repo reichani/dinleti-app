@@ -100,6 +100,8 @@ test.describe("C3 sessiz cihaz", () => {
     expect(kesisir(u, ust), `uyarı ${JSON.stringify(u)} üst çubuk ${JSON.stringify(ust)}`).toBe(false);
     expect(u.y).toBeGreaterThanOrEqual(baslik.y + baslik.height - 1);
     expect(u.y + u.height).toBeLessThanOrEqual(metin.y + 1);
+    // Gözetim: dar ekranda hata uyarısı kısa metinle en çok ~2 sıra (eski 121 px'ten düşük).
+    if ((page.viewportSize()?.width ?? 1000) <= 430) expect(u.height, `uyarı yüksekliği ${u.height}`).toBeLessThanOrEqual(90);
 
     // Kapat → Oynat: tam uyarı geri gelmez, kısa hatırlatma çıkar.
     await uyari.getByRole("button", { name: "Ses uyarısını kapat" }).click();
@@ -133,6 +135,53 @@ test.describe("C3 sessiz cihaz", () => {
     await expect(uyari).not.toContainText(/internet/i);
     await expect(uyari.getByRole("button", { name: "Kendim Okuyorum'a geç" })).toBeVisible();
     await expect(player).toHaveAttribute("data-okuma-modu-aktif", "dinliyorum");
+  });
+
+  test("bilgi uyarısı okuma sürerken birkaç saniye sonra tek satıra küçülür, düğmeler 44 px kalır", async ({ page }) => {
+    await sesSenaryosu(page, { voices: [{ name: "English", lang: "en-US", localService: true }] });
+    await seed(page);
+    const player = await devamKartiniAc(page);
+    const uyari = player.locator('[data-ses-uyarisi][data-ses-nedeni="turkce-ses-yok"]');
+    await expect(uyari).toBeVisible();
+    await expect(player).toHaveAttribute("data-playing", "1");
+    await expect(uyari).toHaveAttribute("data-ses-uyarisi-kucuk", "1", { timeout: 10000 });
+    await expect(uyari).toContainText("Türkçe ses yok");
+    await expect(uyari).toHaveAttribute("title", /Bu cihazda Türkçe ses bulunamadı/);
+    const kutu = await uyari.boundingBox();
+    expect(kutu.height, `küçük uyarı ${JSON.stringify(kutu)}`).toBeLessThanOrEqual(56);
+    const gec = uyari.getByRole("button", { name: "Kendim Okuyorum'a geç" });
+    const kapat = uyari.getByRole("button", { name: "Ses uyarısını kapat" });
+    for (const dugme of [gec, kapat]) {
+      const b = await dugme.boundingBox();
+      expect(b.height).toBeGreaterThanOrEqual(44);
+      expect(b.x + b.width).toBeLessThanOrEqual(kutu.x + kutu.width + 1);
+    }
+    await expect(player).toHaveAttribute("data-okuma-modu-aktif", "dinliyorum");
+    await gec.click();
+    await expect(player).toHaveAttribute("data-okuma-modu-aktif", "kendim");
+  });
+
+  test("okur metne dokununca bilgi uyarısı hemen küçülür", async ({ page }) => {
+    await sesSenaryosu(page, { voices: [{ name: "English", lang: "en-US", localService: true }] });
+    await seed(page);
+    const player = await devamKartiniAc(page);
+    const uyari = player.locator('[data-ses-uyarisi][data-ses-nedeni="turkce-ses-yok"]');
+    await expect(uyari).toBeVisible();
+    await expect(uyari).not.toHaveAttribute("data-ses-uyarisi-kucuk", "1");
+    await player.locator("[data-okuma-metin]").dispatchEvent("pointerdown");
+    await expect(uyari).toHaveAttribute("data-ses-uyarisi-kucuk", "1", { timeout: 1500 });
+  });
+
+  test("hata uyarısı kendiliğinden küçülmez", async ({ page }) => {
+    await sesMotorunuKaldir(page);
+    await seed(page);
+    const player = await devamKartiniAc(page);
+    const uyari = player.locator("[data-ses-uyarisi]");
+    await expect(uyari).toBeVisible();
+    await player.locator("[data-okuma-metin]").dispatchEvent("pointerdown");
+    await page.waitForTimeout(500);
+    await expect(uyari).not.toHaveAttribute("data-ses-uyarisi-kucuk", "1");
+    await expect(uyari).toContainText("Bu tarayıcı sesli okumayı desteklemiyor");
   });
 
   test("ses listesi boşken konuşma hata verirse internet değil ses eksikliği söylenir", async ({ page }) => {

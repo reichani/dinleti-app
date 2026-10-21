@@ -1625,18 +1625,23 @@ const OKUMA_MODU_ANAHTAR = "okurio-okuma-modu-v1";
 
 /* C3 (W3C COGA iç denetimi, 21.10.2026): ses uyarısı nedene göre doğru konuşur ve
    başlığı örtmeden metnin üstünde satır içi görünür. `kendim`: uyarıda
-   "Kendim Okuyorum'a geç" düğmesi sunulur. Mod hiçbir zaman otomatik değişmez. */
+   "Kendim Okuyorum'a geç" düğmesi sunulur. Mod hiçbir zaman otomatik değişmez.
+   `kisa`: dar ekranda (≤430 px) gösterilen, nedeni koruyan tek cümlelik metin.
+   `etiket`: bilgi uyarısı küçüldüğünde tek satırda kalan çok kısa ad. */
 const SES_UYARILARI = {
-  "destek-yok": { tur: "hata", kendim: true, metin: "Bu tarayıcı sesli okumayı desteklemiyor. Kendim Okuyorum modunda sessiz okuyabilir ya da metni Chrome, Edge veya Safari ile açabilirsin." },
-  "ses-yok": { tur: "hata", kendim: true, metin: "Bu cihazda sesli okuma için yüklü bir ses bulunamadı. Kendim Okuyorum modunda sessiz okuyabilir ya da cihaz ayarlarından Türkçe bir ses ekleyebilirsin." },
-  "turkce-ses-yok": { tur: "bilgi", kendim: true, metin: "Bu cihazda Türkçe ses bulunamadı. Okuma cihazın varsayılan sesiyle sürer; telaffuz bozuk olabilir. İstersen Kendim Okuyorum modunda sessiz oku." },
-  "turkce-ses-yok-hata": { tur: "hata", kendim: true, metin: "Bu cihazda Türkçe ses bulunamadı; cihazın varsayılan sesi de okuyamadı. Kendim Okuyorum modunda sessiz okuyabilir ya da cihaz ayarlarından Türkçe bir ses ekleyebilirsin." },
-  "ingilizce-ses-yok": { tur: "bilgi", kendim: true, metin: "Bu cihazda İngilizce ses bulunamadı. Okuma cihazın varsayılan sesiyle sürer." },
-  internet: { tur: "hata", kendim: true, metin: "Çevrimiçi ses alınamadı. İnternet bağlantını kontrol edip oynat düğmesine yeniden basabilir ya da Kendim Okuyorum modunda sessiz okuyabilirsin." },
-  motor: { tur: "hata", kendim: true, metin: "Ses motoru okumayı sürdüremedi. Oynat düğmesine yeniden basabilirsin; okuma kaldığın cümleden devam eder. İstersen Kendim Okuyorum modunda sessiz oku." },
-  "cevrimici-yedek": { tur: "bilgi", kendim: false, metin: "Çevrimiçi ses yanıt vermedi; cihazdaki sesle devam ediliyor." },
+  "destek-yok": { tur: "hata", kendim: true, kisa: "Bu tarayıcı sesli okumayı desteklemiyor.", metin: "Bu tarayıcı sesli okumayı desteklemiyor. Kendim Okuyorum modunda sessiz okuyabilir ya da metni Chrome, Edge veya Safari ile açabilirsin." },
+  "ses-yok": { tur: "hata", kendim: true, kisa: "Bu cihazda yüklü bir ses bulunamadı.", metin: "Bu cihazda sesli okuma için yüklü bir ses bulunamadı. Kendim Okuyorum modunda sessiz okuyabilir ya da cihaz ayarlarından Türkçe bir ses ekleyebilirsin." },
+  "turkce-ses-yok": { tur: "bilgi", kendim: true, etiket: "Türkçe ses yok", kisa: "Bu cihazda Türkçe ses bulunamadı; varsayılan sesle okunuyor.", metin: "Bu cihazda Türkçe ses bulunamadı. Okuma cihazın varsayılan sesiyle sürer; telaffuz bozuk olabilir. İstersen Kendim Okuyorum modunda sessiz oku." },
+  "turkce-ses-yok-hata": { tur: "hata", kendim: true, kisa: "Bu cihazda Türkçe ses bulunamadı; ses okuyamadı.", metin: "Bu cihazda Türkçe ses bulunamadı; cihazın varsayılan sesi de okuyamadı. Kendim Okuyorum modunda sessiz okuyabilir ya da cihaz ayarlarından Türkçe bir ses ekleyebilirsin." },
+  "ingilizce-ses-yok": { tur: "bilgi", kendim: true, etiket: "İngilizce ses yok", kisa: "Bu cihazda İngilizce ses bulunamadı; varsayılan sesle okunuyor.", metin: "Bu cihazda İngilizce ses bulunamadı. Okuma cihazın varsayılan sesiyle sürer." },
+  internet: { tur: "hata", kendim: true, kisa: "Çevrimiçi ses alınamadı; bağlantını kontrol et.", metin: "Çevrimiçi ses alınamadı. İnternet bağlantını kontrol edip oynat düğmesine yeniden basabilir ya da Kendim Okuyorum modunda sessiz okuyabilirsin." },
+  motor: { tur: "hata", kendim: true, kisa: "Ses motoru okumayı sürdüremedi; oynat'a yeniden bas.", metin: "Ses motoru okumayı sürdüremedi. Oynat düğmesine yeniden basabilirsin; okuma kaldığın cümleden devam eder. İstersen Kendim Okuyorum modunda sessiz oku." },
+  "cevrimici-yedek": { tur: "bilgi", kendim: false, etiket: "Cihaz sesiyle okunuyor", kisa: "Çevrimiçi ses yanıt vermedi; cihazdaki sesle devam ediliyor.", metin: "Çevrimiçi ses yanıt vermedi; cihazdaki sesle devam ediliyor." },
 };
+// Bilgi uyarısı, okuma sürerken bu süre sonra (ya da okur metne dokununca) tek satıra küçülür.
+const SES_BILGI_KUCULME_MS = 4000;
 const SES_HATIRLATMA_METNI = "Ses bu cihazda hâlâ kullanılamıyor. Kendim Okuyorum modunda sessiz okuyabilirsin.";
+const SES_HATIRLATMA_KISA = "Ses kullanılamıyor.";
 const SES_UYARISI_KAPATILAN_ANAHTAR = "okurio-ses-uyarisi-kapatilan-v1";
 // Konuşma hatasının gerçek nedenini ses listesine, hata koduna ve bağlantıya bakarak bulur.
 const sesSorunuNedeni = ({ hataKodu, sesler, hedef, secilenSes, cevrimici }) => {
@@ -1993,7 +1998,9 @@ export default function DinletiApp() {
   );
   const [kendiIcerikListesi, setKendiIcerikListesi] = useState([]);
   const [modPaneliAcik, setModPaneliAcik] = useState(false);
-  const [soruKapali, setSoruKapali] = useState(false);
+  // Yalnız "Ders çalışıyorum" evresindeki çalışma kartının "Metne dön" ile kapatıldığını tutar.
+  // ("Birlikte düşünelim" kartı C3'ten beri soruAcik ile yönetilir.)
+  const [calismaKartiKapali, setCalismaKartiKapali] = useState(false);
   // v2.9.1: sesli okuma gerçekten bittiğinde (son cümlenin onend olayı) true olur.
   const [okumaBitti, setOkumaBitti] = useState(false);
   // v2.9.2: ses motoru sorunları sessizce donmak yerine okura görünür biçimde bildirilir.
@@ -2371,10 +2378,32 @@ export default function DinletiApp() {
 
   useEffect(() => {
     setSoruCevabi(null);
-    setSoruKapali(false);
+    setCalismaKartiKapali(false);
     setSoruAcik(false);
     setAyarPaneliAcik(false);
   }, [aktifId, aktifBolumIx]);
+
+  /* C3 gözetim: bilgi türündeki ses uyarısı (ör. Türkçe ses yok) okuma sürerken
+     birkaç saniye sonra ya da okur metne dokunup kaydırınca tek satıra küçülür.
+     "Kendim Okuyorum'a geç" ve kapat düğmeleri 44 px olarak kalır. */
+  const sesUyarisiBilgiAcik = sesUyarisi?.tur === "bilgi" && !sesUyarisi.kucuk;
+  useEffect(() => {
+    if (!sesUyarisiBilgiAcik || !oynaticiAcik) return undefined;
+    const kucult = () => setSesUyarisi((onceki) => (onceki && onceki.tur === "bilgi" && !onceki.kucuk ? { ...onceki, kucuk: true } : onceki));
+    const sure = caliyor ? window.setTimeout(kucult, SES_BILGI_KUCULME_MS) : null;
+    const etkilesim = (event) => {
+      if (event.target instanceof Element && event.target.closest("[data-mobile-stability] [data-okuma-metin]")) kucult();
+    };
+    document.addEventListener("pointerdown", etkilesim, true);
+    document.addEventListener("wheel", etkilesim, { capture: true, passive: true });
+    document.addEventListener("keydown", etkilesim, true);
+    return () => {
+      if (sure) window.clearTimeout(sure);
+      document.removeEventListener("pointerdown", etkilesim, true);
+      document.removeEventListener("wheel", etkilesim, { capture: true });
+      document.removeEventListener("keydown", etkilesim, true);
+    };
+  }, [sesUyarisiBilgiAcik, caliyor, oynaticiAcik]);
 
   /* C3: sesli modda okuyucu açıldığında tarayıcıda ses motoru hiç yoksa okur bunu
      oynat'a basmadan önce görür. Mod otomatik değişmez; yalnız öneri sunulur. */
@@ -3580,23 +3609,33 @@ export default function DinletiApp() {
             {/* C3: ses uyarısı başlığı örtmez; metnin üstünde satır içi durur. Kalıcı canlı bölge
                 kibar (polite) duyurur; okuru bölmeden neden ve seçenek sunar. */}
             <div data-ses-uyari-alani role="status" aria-live="polite" aria-atomic="true" style={{ flexShrink: 0 }}>
-              {sesUyarisi && (
-                <div data-ses-uyarisi={sesUyarisi.tur} data-ses-nedeni={sesUyarisi.neden} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: mobilDar ? 6 : 10, background: sesUyarisi.tur === "hata" ? "#3A1F1A" : "#22293A", border: `1px solid ${sesUyarisi.tur === "hata" ? "rgba(240,140,110,0.6)" : "rgba(232,163,61,0.45)"}`, borderRadius: 12, padding: "6px 6px 6px 12px", color: S.metin, fontSize: 13, lineHeight: 1.4 }}>
-                  <span style={{ flex: "1 1 220px", minWidth: 0 }}>{sesUyarisi.metin}</span>
-                  <span style={{ display: "flex", gap: 6, marginLeft: "auto" }}>
-                    {sesUyarisi.kendim && okumaModu !== "kendim" && (
-                      <button type="button" data-ses-kendim-gec onClick={kendimOkuyorumaGec} style={{ background: S.vurgu, color: "#14181F", border: "none", borderRadius: 8, minHeight: 44, padding: "6px 12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-                        Kendim Okuyorum'a geç
-                      </button>
-                    )}
-                    <button type="button" onClick={sesUyarisiniKapat} aria-label="Ses uyarısını kapat" style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 8, minWidth: 44, minHeight: 44, color: S.metin, cursor: "pointer", fontSize: 16 }}>×</button>
-                  </span>
-                </div>
-              )}
+              {sesUyarisi && (() => {
+                // C3 gözetim: dar ekranda kısa metin; küçülmüş bilgi uyarısı tek satır (44 px düğmeler korunur).
+                const kucuk = sesUyarisi.tur === "bilgi" && sesUyarisi.kucuk;
+                const hata = sesUyarisi.tur === "hata";
+                const metin = kucuk ? (sesUyarisi.etiket || sesUyarisi.kisa || sesUyarisi.metin) : (mobilDar ? (sesUyarisi.kisa || sesUyarisi.metin) : sesUyarisi.metin);
+                const sikisik = kucuk || mobilDar;
+                return (
+                  <div data-ses-uyarisi={sesUyarisi.tur} data-ses-nedeni={sesUyarisi.neden} data-ses-uyarisi-kucuk={kucuk ? "1" : undefined} title={kucuk ? sesUyarisi.metin : undefined}
+                    style={{ display: "flex", flexWrap: kucuk ? "nowrap" : "wrap", alignItems: "center", gap: sikisik ? 6 : 8, marginBottom: mobilDar ? 6 : 10, background: hata ? "#3A1F1A" : "#22293A", border: `1px solid ${hata ? "rgba(240,140,110,0.6)" : "rgba(232,163,61,0.45)"}`, borderRadius: 12, padding: sikisik ? "3px 3px 3px 10px" : "6px 6px 6px 12px", color: S.metin, fontSize: sikisik ? 12.5 : 13, lineHeight: 1.35 }}>
+                    <span style={kucuk
+                      ? { flex: "1 1 auto", minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
+                      : { flex: mobilDar ? "1 1 100%" : "1 1 220px", minWidth: 0, paddingTop: mobilDar ? 3 : 0 }}>{metin}</span>
+                    <span style={{ display: "flex", gap: 6, marginLeft: "auto", flexShrink: 0 }}>
+                      {sesUyarisi.kendim && okumaModu !== "kendim" && (
+                        <button type="button" data-ses-kendim-gec onClick={kendimOkuyorumaGec} style={{ background: S.vurgu, color: "#14181F", border: "none", borderRadius: 8, minHeight: 44, padding: sikisik ? "4px 9px" : "6px 12px", fontSize: sikisik ? 12 : 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+                          Kendim Okuyorum'a geç
+                        </button>
+                      )}
+                      <button type="button" onClick={sesUyarisiniKapat} aria-label="Ses uyarısını kapat" style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 8, minWidth: 44, minHeight: 44, color: S.metin, cursor: "pointer", fontSize: 16 }}>×</button>
+                    </span>
+                  </div>
+                );
+              })()}
               {!sesUyarisi && sesHatirlatma && okumaModu !== "kendim" && (
-                <div data-ses-hatirlatma style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: mobilDar ? 6 : 8, color: S.soluk, fontSize: 12, lineHeight: 1.4 }}>
-                  <span style={{ flex: "1 1 200px", minWidth: 0 }}>{SES_HATIRLATMA_METNI}</span>
-                  <button type="button" data-ses-kendim-gec onClick={kendimOkuyorumaGec} style={{ ...cip(false), minHeight: 44 }}>Kendim Okuyorum'a geç</button>
+                <div data-ses-hatirlatma style={{ display: "flex", flexWrap: "nowrap", alignItems: "center", gap: 8, marginBottom: mobilDar ? 6 : 8, color: S.soluk, fontSize: 12, lineHeight: 1.35 }}>
+                  <span style={{ flex: "1 1 auto", minWidth: 0 }}>{mobilDar ? SES_HATIRLATMA_KISA : SES_HATIRLATMA_METNI}</span>
+                  <button type="button" data-ses-kendim-gec onClick={kendimOkuyorumaGec} style={{ ...cip(false), minHeight: 44, flexShrink: 0, whiteSpace: "nowrap" }}>Kendim Okuyorum'a geç</button>
                 </div>
               )}
             </div>
@@ -3773,7 +3812,7 @@ export default function DinletiApp() {
           </div>
 
 
-          {dersModu && (calismaKartiAcik || (soruHazir && !soruKapali)) && (() => {
+          {dersModu && (calismaKartiAcik || (soruHazir && !calismaKartiKapali)) && (() => {
             const not = calismaNotlari[aktif.id] || {};
             const alanStil = { width: "100%", boxSizing: "border-box", borderRadius: 10, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: S.metin, padding: "10px 12px", fontSize: 14, fontFamily: "inherit", marginTop: 6 };
             return (
@@ -3793,7 +3832,7 @@ export default function DinletiApp() {
                 </label>
                 <div style={{ color: S.soluk, fontSize: 12, marginTop: 8 }}>Notların yalnız bu cihazda saklanır. Puan yok.</div>
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 10 }}>
-                  <button onClick={() => { setCalismaKartiAcik(false); setSoruKapali(true); }} style={{ ...cip(false), minHeight: 44 }}>Metne dön</button>
+                  <button onClick={() => { setCalismaKartiAcik(false); setCalismaKartiKapali(true); }} style={{ ...cip(false), minHeight: 44 }}>Metne dön</button>
                 </div>
               </div>
             );
