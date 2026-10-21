@@ -1623,6 +1623,30 @@ const OKUMA_MODLARI = [
 const okumaModuBul = (id) => OKUMA_MODLARI.find((m) => m.id === id) || OKUMA_MODLARI[0];
 const OKUMA_MODU_ANAHTAR = "okurio-okuma-modu-v1";
 
+/* C3 (W3C COGA iç denetimi, 21.10.2026): ses uyarısı nedene göre doğru konuşur ve
+   başlığı örtmeden metnin üstünde satır içi görünür. `kendim`: uyarıda
+   "Kendim Okuyorum'a geç" düğmesi sunulur. Mod hiçbir zaman otomatik değişmez. */
+const SES_UYARILARI = {
+  "destek-yok": { tur: "hata", kendim: true, metin: "Bu tarayıcı sesli okumayı desteklemiyor. Kendim Okuyorum modunda sessiz okuyabilir ya da metni Chrome, Edge veya Safari ile açabilirsin." },
+  "ses-yok": { tur: "hata", kendim: true, metin: "Bu cihazda sesli okuma için yüklü bir ses bulunamadı. Kendim Okuyorum modunda sessiz okuyabilir ya da cihaz ayarlarından Türkçe bir ses ekleyebilirsin." },
+  "turkce-ses-yok": { tur: "bilgi", kendim: true, metin: "Bu cihazda Türkçe ses bulunamadı. Okuma cihazın varsayılan sesiyle sürer; telaffuz bozuk olabilir. İstersen Kendim Okuyorum modunda sessiz oku." },
+  "turkce-ses-yok-hata": { tur: "hata", kendim: true, metin: "Bu cihazda Türkçe ses bulunamadı; cihazın varsayılan sesi de okuyamadı. Kendim Okuyorum modunda sessiz okuyabilir ya da cihaz ayarlarından Türkçe bir ses ekleyebilirsin." },
+  "ingilizce-ses-yok": { tur: "bilgi", kendim: true, metin: "Bu cihazda İngilizce ses bulunamadı. Okuma cihazın varsayılan sesiyle sürer." },
+  internet: { tur: "hata", kendim: true, metin: "Çevrimiçi ses alınamadı. İnternet bağlantını kontrol edip oynat düğmesine yeniden basabilir ya da Kendim Okuyorum modunda sessiz okuyabilirsin." },
+  motor: { tur: "hata", kendim: true, metin: "Ses motoru okumayı sürdüremedi. Oynat düğmesine yeniden basabilirsin; okuma kaldığın cümleden devam eder. İstersen Kendim Okuyorum modunda sessiz oku." },
+  "cevrimici-yedek": { tur: "bilgi", kendim: false, metin: "Çevrimiçi ses yanıt vermedi; cihazdaki sesle devam ediliyor." },
+};
+const SES_HATIRLATMA_METNI = "Ses bu cihazda hâlâ kullanılamıyor. Kendim Okuyorum modunda sessiz okuyabilirsin.";
+const SES_UYARISI_KAPATILAN_ANAHTAR = "okurio-ses-uyarisi-kapatilan-v1";
+// Konuşma hatasının gerçek nedenini ses listesine, hata koduna ve bağlantıya bakarak bulur.
+const sesSorunuNedeni = ({ hataKodu, sesler, hedef, secilenSes, cevrimici }) => {
+  const liste = Array.isArray(sesler) ? sesler : [];
+  if (hataKodu === "network" || (secilenSes && secilenSes.localService === false && cevrimici === false)) return "internet";
+  if (!liste.length || ["voice-unavailable", "language-unavailable", "synthesis-unavailable", "audio-hardware"].includes(hataKodu)) return "ses-yok";
+  if (hedef === "tr" && !liste.some((v) => v.lang && v.lang.toLowerCase().startsWith("tr"))) return "turkce-ses-yok-hata";
+  return "motor";
+};
+
 const DESTEK_SECENEKLERI = [
   { id: "kelime_takibi", ad: "Kelime takibi" },
   { id: "hece_takibi", ad: "Hece takibi" },
@@ -1975,6 +1999,12 @@ export default function DinletiApp() {
   // v2.9.2: ses motoru sorunları sessizce donmak yerine okura görünür biçimde bildirilir.
   // { tur: "hata" | "bilgi", metin }
   const [sesUyarisi, setSesUyarisi] = useState(null);
+  // C3: okurun kapattığı uyarı nedenleri bu oturumda yeniden tam uyarı olarak açılmaz;
+  // yerine kısa, sakin bir satır içi hatırlatma gösterilir.
+  const [sesHatirlatma, setSesHatirlatma] = useState(false);
+  const sesUyarisiKapatilanRef = useRef(null);
+  // C3: "Birlikte düşünelim" kartı kendiliğinden açılmaz; okur düğmeye basınca açılır.
+  const [soruAcik, setSoruAcik] = useState(false);
   const sesBilgiGosterildi = useRef(false);
   const yerelSesTercih = useRef(false); // çevrimiçi ses hata verince yerel sese geçilir
   const readerLayoutKeyRef = useRef("");
@@ -2342,8 +2372,17 @@ export default function DinletiApp() {
   useEffect(() => {
     setSoruCevabi(null);
     setSoruKapali(false);
+    setSoruAcik(false);
     setAyarPaneliAcik(false);
   }, [aktifId, aktifBolumIx]);
+
+  /* C3: sesli modda okuyucu açıldığında tarayıcıda ses motoru hiç yoksa okur bunu
+     oynat'a basmadan önce görür. Mod otomatik değişmez; yalnız öneri sunulur. */
+  useEffect(() => {
+    if (!oynaticiAcik) { setSesHatirlatma(false); return; }
+    if (!okumaModuBul(okumaModu).sesli) return;
+    if (!window.speechSynthesis || typeof window.SpeechSynthesisUtterance === "undefined") sesUyarisiGoster("destek-yok");
+  }, [oynaticiAcik, okumaModu]);
 
   useEffect(() => {
     if (!oynaticiAcik) return undefined;
@@ -2420,17 +2459,49 @@ export default function DinletiApp() {
     try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch {}
     konusmaRef.current = null;
   };
-  const sonSinir = useRef(0);          // son onboundary olayının zamanı (uyarlanabilir kapı)
+  /* C3: ses uyarısı yardımcıları. Yalnız ref ve state ayarlayıcı kullanır; konuşma
+     zinciri callback'lerinin bayat kapanımından etkilenmez. */
+  const sesUyarisiKapatilanlar = () => {
+    if (!sesUyarisiKapatilanRef.current) {
+      let kayitli = [];
+      try { kayitli = JSON.parse(sessionStorage.getItem(SES_UYARISI_KAPATILAN_ANAHTAR) || "[]"); } catch {}
+      sesUyarisiKapatilanRef.current = new Set(Array.isArray(kayitli) ? kayitli : []);
+    }
+    return sesUyarisiKapatilanRef.current;
+  };
+  const sesUyarisiniKapatildiIsaretle = (neden) => {
+    if (!neden) return;
+    const kume = sesUyarisiKapatilanlar();
+    kume.add(neden);
+    try { sessionStorage.setItem(SES_UYARISI_KAPATILAN_ANAHTAR, JSON.stringify([...kume])); } catch {}
+  };
+  const sesUyarisiGoster = (neden, { yalnizBosken = false } = {}) => {
+    const tanim = SES_UYARILARI[neden];
+    if (!tanim) return;
+    if (sesUyarisiKapatilanlar().has(neden)) {
+      // Okur bu nedeni zaten kapattı: tam uyarı yerine kısa hatırlatma (bilgi türü için hiç).
+      if (tanim.tur === "hata") setSesHatirlatma(true);
+      return;
+    }
+    const yeni = { ...tanim, neden };
+    setSesUyarisi((onceki) => (yalnizBosken && onceki ? onceki : yeni));
+  };
+  const sesUyarisiniKapat = () => {
+    sesUyarisiniKapatildiIsaretle(sesUyarisi?.neden);
+    setSesUyarisi(null);
+  };
+  const sonSinir = useRef(0);         // son onboundary olayının zamanı (uyarlanabilir kapı)
   const kalibrasyon = useRef(1);       // gerçek TTS temposu / tahmin (bölüm sonunda güncellenir)
   const konusmayiBaslatRef = useRef(null);
   const konusmayiBaslat = useCallback((kitap, bolumIx, kelimeBas = 0, modAyar = okumaModuAyar, zorla = false) => {
     if ((!zorla && !etkinSeslendirme) || !modAyar.sesli) return;
     if (!window.speechSynthesis || typeof window.SpeechSynthesisUtterance === "undefined") {
       setCaliyor(false);
-      setSesUyarisi({ tur: "hata", metin: "Bu tarayıcı sesli okumayı desteklemiyor. Metni Kendim Okuyorum modunda okuyabilir ya da Chrome, Edge veya Safari ile açabilirsin." });
+      sesUyarisiGoster("destek-yok");
       return;
     }
     setSesUyarisi((onceki) => (onceki?.tur === "hata" ? null : onceki));
+    setSesHatirlatma(false);
     konusmayiDurdur();
     sonSinir.current = 0;
     const benimNo = zincirNo.current;
@@ -2472,9 +2543,7 @@ export default function DinletiApp() {
         if (adaylar[0]) u.voice = adaylar[0];
         else if (liste.length > 0) {
           // Ses listesi yüklendi ama hedef dilde ses yok: cihazın varsayılan sesi okur.
-          if (!sesBilgiGosterildi.current) { sesBilgiGosterildi.current = true; setSesUyarisi((onceki) => onceki || { tur: "bilgi", metin: hedef === "tr"
-            ? "Bu cihazda Türkçe ses bulunamadı. Okuma cihazın varsayılan sesiyle sürer; telaffuz bozuk olabilir."
-            : "Bu cihazda İngilizce ses bulunamadı. Okuma cihazın varsayılan sesiyle sürer." }); }
+          if (!sesBilgiGosterildi.current) { sesBilgiGosterildi.current = true; sesUyarisiGoster(hedef === "tr" ? "turkce-ses-yok" : "ingilizce-ses-yok", { yalnizBosken: true }); }
         }
         return adaylar[0] || null;
       };
@@ -2535,13 +2604,20 @@ export default function DinletiApp() {
           if (!yerelSesTercih.current && yerelSesVar && !kullanilanYerel) {
             yerelSesTercih.current = true;
             try { window.speechSynthesis.cancel(); } catch {}
-            setSesUyarisi({ tur: "bilgi", metin: "Çevrimiçi ses yanıt vermedi; cihazdaki sesle devam ediliyor." });
+            sesUyarisiGoster("cevrimici-yedek");
             window.setTimeout(() => { if (zincirNo.current === benimNo) konusCumle(ci, Math.max(basIx, fallbackIx)); }, 120);
             return;
           }
           konusmayiDurdur();
           setCaliyor(false);
-          setSesUyarisi({ tur: "hata", metin: "Ses motoru okumayı sürdüremedi. İnternet bağlantısını kontrol et ve oynat düğmesine yeniden bas; okuma kaldığın cümleden devam eder." });
+          // C3: uyarı gerçek nedeni söyler; internet yalnız gerçekten ağ sorunuysa anılır.
+          sesUyarisiGoster(sesSorunuNedeni({
+            hataKodu: neden,
+            sesler: seslerRef.current,
+            hedef,
+            secilenSes,
+            cevrimici: typeof navigator !== "undefined" ? navigator.onLine : undefined,
+          }));
         };
         const fallbackAdimi = () => {
           if (zincirNo.current !== benimNo || syncMode === "boundary") return;
@@ -2919,7 +2995,19 @@ export default function DinletiApp() {
     setSeslendirme(m.sesli);
     if (!m.sesli) konusmayiDurdur();
     else if (caliyor && aktif) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx, m, true);
+    if (!m.sesli) { setSesUyarisi(null); setSesHatirlatma(false); }
     (async () => { try { await window.storage.set(OKUMA_MODU_ANAHTAR, yeni); } catch {} })();
+  };
+
+  // C3: ses uyarısındaki tek dokunuşluk geçiş. Okurun açık kararıdır; uyarı kapanır
+  // ve aynı neden bu oturumda yeniden tam uyarı olarak açılmaz.
+  const kendimOkuyorumaGec = () => {
+    sesUyarisiniKapatildiIsaretle(sesUyarisi?.neden);
+    okumaModuDegistir("kendim");
+    window.setTimeout(() => {
+      const metin = document.querySelector("[data-mobile-stability] [data-okuma-metin]");
+      if (metin instanceof HTMLElement) metin.focus({ preventScroll: true });
+    }, 0);
   };
 
   const sozlukAc = (entry, trigger) => {
@@ -3049,8 +3137,15 @@ export default function DinletiApp() {
     const [id, v] = devamlar[0];
     const k = kitapBul(id);
     const oran = v.pos / toplamSn(k);
+    const devamAc = () => { setDetayId(null); if (id !== aktifId || !caliyor) oynatDegistir(id); setOynaticiAcik(true); };
+    // C3: kart klavyeyle de açılır (Enter/Space); odak halkası genel *:focus-visible stilinden gelir.
     return (
-      <div onClick={() => { setDetayId(null); if (id !== aktifId || !caliyor) oynatDegistir(id); setOynaticiAcik(true); }}
+      <div role="button" tabIndex={0} data-devam-karti aria-label={`Kaldığın yerden devam et: ${k.baslik}, ${sureYaz(v.pos)} / ${sureYaz(toplamSn(k))}`}
+        onClick={devamAc}
+        onKeyDown={(event) => {
+          if (event.target !== event.currentTarget) return;
+          if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") { event.preventDefault(); devamAc(); }
+        }}
         style={{ display: "flex", gap: 14, background: S.kart, borderRadius: 16, padding: 14, cursor: "pointer", alignItems: "center", border: `1px solid rgba(232,163,61,0.25)` }}>
         <Kapak kitap={k} boyut={64} radius={8} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -3426,13 +3521,6 @@ export default function DinletiApp() {
       <div data-reader-backdrop style={{ position: "fixed", inset: 0, zIndex: 40, display: "flex", justifyContent: "center", background: "rgba(10,12,16,0.78)" }}>
         <div role="dialog" aria-modal="true" aria-label={`${aktif.baslik} okuma ekranı`} data-mobile-stability="v2.8.4" data-reader-shell data-bolum-listesi-acik={bolumlerAcik ? "1" : "0"} data-playing={caliyor ? "1" : "0"} data-okuma-bitti={okumaBitti ? "1" : "0"} data-okuma-modu-aktif={okumaModu} data-ses-tonu-aktif={sesTonu} data-story-id={aktif.id} style={{ width: "min(1180px, calc(100% - 48px))", background: `linear-gradient(180deg, ${aktif.renk[0]}55 0%, ${S.fon} 30%)`, backgroundColor: S.fon, display: "flex", flexDirection: "column", height: "var(--okurio-visual-viewport-height, 100dvh)", maxHeight: "var(--okurio-visual-viewport-height, 100dvh)", overflow: "hidden", padding: mobilDar ? "10px 12px calc(10px + env(safe-area-inset-bottom, 0px))" : "14px 22px 14px", boxSizing: "border-box", position: "relative" }}>
 
-          {sesUyarisi && (
-            <div data-ses-uyarisi={sesUyarisi.tur} role={sesUyarisi.tur === "hata" ? "alert" : "status"} style={{ position: "absolute", zIndex: 30, top: 10, left: "50%", transform: "translateX(-50%)", width: "min(560px, calc(100% - 120px))", boxSizing: "border-box", display: "flex", alignItems: "center", gap: 10, background: sesUyarisi.tur === "hata" ? "#3A1F1A" : "#22293A", border: `1px solid ${sesUyarisi.tur === "hata" ? "rgba(240,140,110,0.6)" : "rgba(232,163,61,0.45)"}`, borderRadius: 12, padding: "8px 10px 8px 14px", color: S.metin, fontSize: 13, lineHeight: 1.4, boxShadow: "0 12px 34px rgba(0,0,0,0.45)" }}>
-              <span style={{ flex: 1, minWidth: 0 }}>{sesUyarisi.metin}</span>
-              <button onClick={() => setSesUyarisi(null)} aria-label="Ses uyarısını kapat" style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 8, minWidth: 44, minHeight: 44, color: S.metin, cursor: "pointer", fontSize: 16 }}>×</button>
-            </div>
-          )}
-
           {/* Üst çubuk */}
           <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, minHeight: mobilDar ? 44 : undefined }}>
             <button onClick={okuyucuyuKapatVeOdakla} aria-label="Kapat" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronDown size={20} /></button>
@@ -3488,6 +3576,29 @@ export default function DinletiApp() {
                   {okumaAcik ? "Gizle" : "Göster"}
                 </button>
               </div>
+            </div>
+            {/* C3: ses uyarısı başlığı örtmez; metnin üstünde satır içi durur. Kalıcı canlı bölge
+                kibar (polite) duyurur; okuru bölmeden neden ve seçenek sunar. */}
+            <div data-ses-uyari-alani role="status" aria-live="polite" aria-atomic="true" style={{ flexShrink: 0 }}>
+              {sesUyarisi && (
+                <div data-ses-uyarisi={sesUyarisi.tur} data-ses-nedeni={sesUyarisi.neden} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: mobilDar ? 6 : 10, background: sesUyarisi.tur === "hata" ? "#3A1F1A" : "#22293A", border: `1px solid ${sesUyarisi.tur === "hata" ? "rgba(240,140,110,0.6)" : "rgba(232,163,61,0.45)"}`, borderRadius: 12, padding: "6px 6px 6px 12px", color: S.metin, fontSize: 13, lineHeight: 1.4 }}>
+                  <span style={{ flex: "1 1 220px", minWidth: 0 }}>{sesUyarisi.metin}</span>
+                  <span style={{ display: "flex", gap: 6, marginLeft: "auto" }}>
+                    {sesUyarisi.kendim && okumaModu !== "kendim" && (
+                      <button type="button" data-ses-kendim-gec onClick={kendimOkuyorumaGec} style={{ background: S.vurgu, color: "#14181F", border: "none", borderRadius: 8, minHeight: 44, padding: "6px 12px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                        Kendim Okuyorum'a geç
+                      </button>
+                    )}
+                    <button type="button" onClick={sesUyarisiniKapat} aria-label="Ses uyarısını kapat" style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 8, minWidth: 44, minHeight: 44, color: S.metin, cursor: "pointer", fontSize: 16 }}>×</button>
+                  </span>
+                </div>
+              )}
+              {!sesUyarisi && sesHatirlatma && okumaModu !== "kendim" && (
+                <div data-ses-hatirlatma style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: mobilDar ? 6 : 8, color: S.soluk, fontSize: 12, lineHeight: 1.4 }}>
+                  <span style={{ flex: "1 1 200px", minWidth: 0 }}>{SES_HATIRLATMA_METNI}</span>
+                  <button type="button" data-ses-kendim-gec onClick={kendimOkuyorumaGec} style={{ ...cip(false), minHeight: 44 }}>Kendim Okuyorum'a geç</button>
+                </div>
+              )}
             </div>
             {okumaAcik && (() => {
               const kelimeler = b.metin.trim().split(/\s+/);
@@ -3690,9 +3801,33 @@ export default function DinletiApp() {
 
           {!dersModu && (() => {
             const soru = kitapSorusu(aktif);
-            if (!soru || !soruHazir || soruKapali) return null;
+            if (!soru || !soruHazir) return null;
+            // C3: kart kendiliğinden açılmaz. Bölüm/hikâye sonunda okura bir davet düğmesi
+            // sunulur; kart yalnız okur basınca açılır ("Metne dön" ile kapanır, yeniden açılabilir).
+            if (!soruAcik) {
+              return (
+                <div data-birlikte-dusunelim-davet style={{ flexShrink: 0, display: "flex", justifyContent: "flex-end", paddingTop: mobilDar ? 6 : 8 }}>
+                  <button type="button" data-birlikte-dusunelim-ac aria-haspopup="dialog" onClick={() => {
+                    setSoruAcik(true);
+                    window.setTimeout(() => {
+                      const kart = document.querySelector("[data-birlikte-dusunelim]");
+                      if (kart instanceof HTMLElement) kart.focus({ preventScroll: true });
+                    }, 0);
+                  }} style={{ ...cip(true), minHeight: 44, fontWeight: 600 }}>
+                    Birlikte düşünelim
+                  </button>
+                </div>
+              );
+            }
+            const metneDon = () => {
+              setSoruAcik(false);
+              window.setTimeout(() => {
+                const davet = document.querySelector("[data-birlikte-dusunelim-ac]");
+                if (davet instanceof HTMLElement) davet.focus({ preventScroll: true });
+              }, 0);
+            };
             return (
-              <div role="dialog" aria-label="Birlikte düşünelim" data-birlikte-dusunelim data-soru-zamani="bolum-sonu" style={{ background: S.kart2, border: "1px solid rgba(232,163,61,0.38)", borderRadius: 16, padding: mobilDar ? "14px" : "16px" }}>
+              <div role="dialog" aria-label="Birlikte düşünelim" tabIndex={-1} data-birlikte-dusunelim data-soru-zamani="bolum-sonu" onKeyDown={(event) => { if (event.key === "Escape") { event.stopPropagation(); metneDon(); } }} style={{ background: S.kart2, border: "1px solid rgba(232,163,61,0.38)", borderRadius: 16, padding: mobilDar ? "14px" : "16px" }}>
                 <div style={{ fontSize: 12, color: S.vurgu, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 6 }}>Birlikte Düşünelim</div>
                 <div style={{ fontSize: 14, color: S.metin, fontWeight: 600, marginBottom: 8 }}>{soru.soru}</div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -3712,7 +3847,7 @@ export default function DinletiApp() {
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-                  <button onClick={() => setSoruKapali(true)} style={{ ...cip(false), minHeight: 44 }}>Metne dön</button>
+                  <button onClick={metneDon} style={{ ...cip(false), minHeight: 44 }}>Metne dön</button>
                   <button onClick={() => anaSayfayaDon(setOynaticiAcik, setSekme, setDetayId)} style={{ ...cip(true), minHeight: 44 }}>Okumayı bitir</button>
                 </div>
               </div>
@@ -3801,7 +3936,7 @@ export default function DinletiApp() {
       setTaslak((e) => ({ ...e, destekler: e.destekler.includes(id) ? e.destekler.filter((x) => x !== id) : [...e.destekler, id] }));
     };
     return (
-      <main data-page-shell data-onboarding-page style={{ padding: "26px 20px 110px" }}>
+      <main data-page-shell data-onboarding-page style={{ padding: "26px 20px 24px" }}>
         <div style={{ ...baslikStil, fontSize: 30, marginBottom: 6 }}>Okuma yolunu seç</div>
         <div style={{ color: S.soluk, fontSize: 14, lineHeight: 1.55, marginBottom: 18 }}>
           Yaş tek başına yeterli değil. Okurio, yaş bandını okuma evresi, destek ihtiyacı ve okuma moduyla birlikte kullanır.
@@ -3856,10 +3991,14 @@ export default function DinletiApp() {
           <div style={{ color: S.soluk, fontSize: 12, marginTop: 10 }}>Rozet yolu: {yol.rozetAdi}. Gürültülü ödül değil; ilerleme ve doygunluk hissi.</div>
         </div>
 
-        <button onClick={() => okumaYolunuKaydet(taslak)}
-          style={{ width: "100%", background: S.vurgu, color: "#14181F", border: "none", borderRadius: 15, padding: "14px 0", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-          Okuma yolumu başlat
-        </button>
+        {/* C3: mobilde düğme kaydırmadan görünür; ekranın altına yapışır. Akış içinde
+            kaldığı için sayfa sonunda içeriği örtmez; güvenli alan payı eklenir. */}
+        <div data-onboarding-baslat style={{ position: "sticky", bottom: 0, zIndex: 5, margin: "0 -20px", padding: "14px 20px calc(14px + env(safe-area-inset-bottom, 0px))", background: `linear-gradient(180deg, rgba(20,24,31,0) 0%, ${S.fon} 32%)` }}>
+          <button onClick={() => okumaYolunuKaydet(taslak)}
+            style={{ width: "100%", background: S.vurgu, color: "#14181F", border: "none", borderRadius: 15, padding: "14px 0", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 -4px 18px rgba(0,0,0,0.35)" }}>
+            Okuma yolumu başlat
+          </button>
+        </div>
       </main>
     );
   };
