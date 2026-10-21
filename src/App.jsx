@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from "react";
-import { Play, Pause, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus, Flame, SkipBack, SkipForward, Repeat1 } from "lucide-react";
+import { Play, Pause, Crosshair, RotateCcw, RotateCw, Heart, Search, Home, Library, ChevronDown, ChevronLeft, Moon, Gauge, ListMusic, Volume2, BookOpen, Clock, Type, AlignJustify, Focus, Flame, SkipBack, SkipForward, Repeat1 } from "lucide-react";
 import GlossaryCard from "./components/GlossaryCard.jsx";
 import OkurioProvenanceStamp from "./components/OkurioProvenanceStamp.jsx";
 import { extractDocumentText, normalizeDocumentText, SUPPORTED_DOCUMENT_ACCEPT } from "./documentImport.js";
@@ -1728,6 +1728,53 @@ function sureYaz(sn) {
   return s > 0 ? `${s}:${String(d).padStart(2, "0")}:${String(sa).padStart(2, "0")}` : `${d}:${String(sa).padStart(2, "0")}`;
 }
 
+/* C2 okur kontrolü (W3C COGA iç denetimi, 21.10.2026): hareket azaltma tercihi
+   olan okurda okuyucu metni yumuşak kaydırılmaz, anında konumlanır. */
+function hareketAzaltilsinMi() {
+  try { return Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches); } catch { return false; }
+}
+/* Bölüm metnindeki cümle sınırları: [ilkKelime, sonKelime] çiftleri. */
+function cumleSinirlari(metin) {
+  const kelimeler = String(metin || "").trim().split(/\s+/);
+  const cumleler = [];
+  let bas = 0;
+  kelimeler.forEach((k, i) => { if (/[.!?…]$/.test(k) || i === kelimeler.length - 1) { cumleler.push([bas, i]); bas = i + 1; } });
+  return cumleler;
+}
+/* Okunan kelime metin kutusunun görünür alanında mı (kutu + görsel görüntü alanı). */
+function okunanKelimeGorunurMu(container, kelimeIx) {
+  if (!(container instanceof HTMLElement)) return true;
+  const kelime = container.querySelector('[data-kelime-ix="' + kelimeIx + '"]');
+  if (!(kelime instanceof HTMLElement)) return true;
+  const c = container.getBoundingClientRect();
+  const altSinir = Math.min(c.bottom, window.visualViewport?.height ?? window.innerHeight);
+  const r = kelime.getBoundingClientRect();
+  return r.bottom > Math.max(c.top, 0) + 2 && r.top < altSinir - 2;
+}
+/* Kendim Okuyorum: görünür alandaki ilk cümlenin ilk kelime indeksi. Hiçbir cümle başı
+   görünmüyorsa (ekranı kaplayan uzun cümle) üstte kalan cümlenin başı döner. */
+function gorunurIlkCumleBasi(container, cumleler) {
+  if (!(container instanceof HTMLElement) || !cumleler.length) return null;
+  const c = container.getBoundingClientRect();
+  const ust = Math.max(c.top, 0);
+  const alt = Math.min(c.bottom, window.visualViewport?.height ?? window.innerHeight);
+  let ustteKalan = cumleler[0][0];
+  for (const [a] of cumleler) {
+    const el = container.querySelector('[data-kelime-ix="' + a + '"]');
+    if (!(el instanceof HTMLElement)) continue;
+    const r = el.getBoundingClientRect();
+    if (r.top >= ust - 1 && r.top < alt) return a;
+    if (r.top >= alt) break;
+    ustteKalan = a;
+  }
+  return ustteKalan;
+}
+const BUYUK_ATLAMA_ORANI = 0.10;     // ilerleme çubuğunda %10'dan büyük atlama
+const ATLAMA_ONAY_MS = 5000;          // dokunmatik/işaretçi atlamasında ikinci dokunuş süresi
+const ATLAMA_ONAY_TOLERANS = 0.08;    // ikinci dokunuş ilk hedefe bu kadar yakın olmalı
+const GERI_DON_MS = 8000;             // "Önceki konuma dön" görünme süresi
+const KENDIM_KAYIT_MS = 450;          // Kendim Okuyorum kaydırma konumu kaydı (debounce)
+
 /* Kitaba özgü deterministik dalga formu (imza öğesi) */
 function dalgaUret(id, n = 56) {
   let h = 0;
@@ -1991,6 +2038,23 @@ export default function DinletiApp() {
   const readerFollowImmediateRef = useRef(false);
   const readerBolumKeyRef = useRef("");
   const [readerFollowNonce, setReaderFollowNonce] = useState(0);
+  // C2 okur kontrolü: elle kaydırınca takip okur "Takibe dön" diyene ya da
+  // oynat/önceki/sonraki/tekrar kullanana kadar durur (eski 1,8 sn sınırı kaldırıldı).
+  const [takipDurdu, setTakipDurdu] = useState(false);
+  const [aktifGorunmuyor, setAktifGorunmuyor] = useState(false);
+  const takipDurduRef = useRef(false);
+  const okurDokunusRef = useRef({ y: null, fareBasili: false });
+  const gorunurlukKareRef = useRef(0);
+  const [ilerlemeOnayi, setIlerlemeOnayi] = useState(null);   // { oran, ts }
+  const [oncekiKonum, setOncekiKonum] = useState(null);       // { pos, sectionIndex, wordIndex }
+  const [okurDuyuru, setOkurDuyuru] = useState("");
+  const [bolumArasi, setBolumArasi] = useState(null);          // { sonraki }
+  const [odakElleAcik, setOdakElleAcik] = useState(false);
+  const bolumSonuMolaRef = useRef(false);
+  const bolumSonuAraRef = useRef(null);
+  const kendimKayitTimerRef = useRef(null);
+  const kendimAcilisKeyRef = useRef("");
+  const bolumArasiOdakRef = useRef(null);
 
   const okuyucuyuKapatVeOdakla = () => {
     setOynaticiAcik(false);
@@ -2017,18 +2081,41 @@ export default function DinletiApp() {
     if (kaliciCta instanceof HTMLElement) kaliciCta.focus({ preventScroll: true });
   }, [oynaticiAcik]);
 
-  const okuyucuTakibiniGeciciDurdur = useCallback(() => {
+  // C2: elle kaydırma takibi süresiz durdurur. Zamanlayıcıyla kendiliğinden
+  // sürdürme yok; metin okurun elinden geri çekilmez (COGA denetimi bulgu 2).
+  const okuyucuTakibiniDurdur = useCallback(() => {
     if (okumaModu === "kendim") return;
-    readerFollowPauseUntilRef.current = Date.now() + 1800;
     if (readerFollowResumeTimerRef.current) window.clearTimeout(readerFollowResumeTimerRef.current);
-    readerFollowResumeTimerRef.current = window.setTimeout(() => {
-      readerFollowPauseUntilRef.current = 0;
-      setReaderFollowNonce((n) => n + 1);
-    }, 1850);
+    readerFollowResumeTimerRef.current = null;
+    readerFollowPauseUntilRef.current = Number.POSITIVE_INFINITY;
+    // reading-mobile-fixes.js aynı karede kaydırmasın diye işaret React render'ını beklemeden yazılır.
+    if (readerScrollRef.current) readerScrollRef.current.dataset.takipDurdu = "1";
+    if (!takipDurduRef.current) {
+      takipDurduRef.current = true;
+      setTakipDurdu(true);
+      setOkurDuyuru("Otomatik takip durdu. Okunan cümleye dönmek için Takibe dön düğmesini kullan.");
+    }
   }, [okumaModu]);
+
+  // Oynat, önceki/sonraki/tekrar, bölüm seçimi ve "Takibe dön" takibi yeniden açar.
+  const takibiSurdur = useCallback(() => {
+    readerFollowPauseUntilRef.current = 0;
+    if (readerScrollRef.current) delete readerScrollRef.current.dataset.takipDurdu;
+    if (!takipDurduRef.current) return;
+    takipDurduRef.current = false;
+    setTakipDurdu(false);
+    setAktifGorunmuyor(false);
+  }, []);
+
+  const takibeDon = () => {
+    takibiSurdur();
+    setReaderFollowNonce((n) => n + 1);
+    setOkurDuyuru("Takibe dönüldü.");
+  };
 
   useEffect(() => () => {
     if (readerFollowResumeTimerRef.current) window.clearTimeout(readerFollowResumeTimerRef.current);
+    if (kendimKayitTimerRef.current) window.clearTimeout(kendimKayitTimerRef.current);
   }, []);
 
 
@@ -2327,7 +2414,8 @@ export default function DinletiApp() {
 
     const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight);
     const nextTop = Math.max(0, Math.min(maxScroll, container.scrollTop + wordCenter - target));
-    if (immediate) {
+    // C2: hareket azaltma tercihinde yumuşak kaydırma yerine anında konumlanır.
+    if (immediate || hareketAzaltilsinMi()) {
       // v2.9.2: `behavior: "instant"` eski Safari sürümlerinde tanınmaz; CSS scroll-behavior
       // geçici olarak kapatılıp scrollTop doğrudan atanır (her tarayıcıda anında kaydırır).
       const oncekiDavranis = container.style.scrollBehavior;
@@ -2338,6 +2426,63 @@ export default function DinletiApp() {
       container.scrollTo({ top: nextTop, behavior: "smooth" });
     }
   }, [kelimeIx, aktifId, aktifBolumIx, okumaModu, oynaticiAcik, okumaAcik, ayar.odak, ayar.punto, ayar.aralik, ayar.font, readerFollowNonce]);
+
+  /* C2: Kendim Okuyorum modunda otomatik takip yoktur; okuyucu açılınca (ya da bölüm,
+     çubuk, cümle düğmesiyle konum değişince) kaydedilen cümle görünür alanın başına alınır. */
+  useLayoutEffect(() => {
+    if (!oynaticiAcik) { kendimAcilisKeyRef.current = ""; return; }
+    const acilisKey = `${aktifId}|${aktifBolumIx}`;
+    if (!okumaAcik || okumaModu !== "kendim") { kendimAcilisKeyRef.current = acilisKey; return; }
+    const container = readerScrollRef.current;
+    if (!container) return;
+    const acilis = kendimAcilisKeyRef.current !== acilisKey;
+    const istek = readerFollowImmediateRef.current;
+    if (!acilis && !istek) return;
+    kendimAcilisKeyRef.current = acilisKey;
+    readerFollowImmediateRef.current = false;
+    const kelime = container.querySelector('[data-kelime-ix="' + kelimeIx + '"]');
+    if (!kelime) return;
+    if (!acilis && okunanKelimeGorunurMu(container, kelimeIx)) return;
+    const hedef = kelimeIx > 0
+      ? Math.max(0, container.scrollTop + kelime.getBoundingClientRect().top - container.getBoundingClientRect().top - 12)
+      : 0;
+    const oncekiDavranis = container.style.scrollBehavior;
+    container.style.scrollBehavior = "auto";
+    container.scrollTop = hedef;
+    container.style.scrollBehavior = oncekiDavranis;
+  }, [kelimeIx, aktifId, aktifBolumIx, okumaModu, oynaticiAcik, okumaAcik]);
+
+  /* C2: "Takibe dön" yalnız takip durmuşken ve okunan kelime görünür alanın dışındayken görünür. */
+  useEffect(() => {
+    if (!takipDurdu) return;
+    setAktifGorunmuyor(!okunanKelimeGorunurMu(readerScrollRef.current, kelimeIx));
+  }, [takipDurdu, kelimeIx, aktifBolumIx]);
+
+  /* C2: okuyucu kapanınca, kitap ya da mod değişince geçici okur kontrolü durumları sıfırlanır. */
+  useEffect(() => {
+    takibiSurdur();
+    setIlerlemeOnayi(null);
+    setOncekiKonum(null);
+    setBolumArasi(null);
+  }, [aktifId, oynaticiAcik, okumaModu, takibiSurdur]);
+  useEffect(() => { if (caliyor) setBolumArasi(null); }, [caliyor]);
+  useEffect(() => {
+    if (!ilerlemeOnayi) return undefined;
+    const t = window.setTimeout(() => setIlerlemeOnayi(null), ATLAMA_ONAY_MS);
+    return () => window.clearTimeout(t);
+  }, [ilerlemeOnayi]);
+  useEffect(() => {
+    if (!oncekiKonum) return undefined;
+    const t = window.setTimeout(() => setOncekiKonum(null), GERI_DON_MS);
+    return () => window.clearTimeout(t);
+  }, [oncekiKonum]);
+  useEffect(() => {
+    if (!bolumArasi) return;
+    window.requestAnimationFrame(() => bolumArasiOdakRef.current?.focus({ preventScroll: true }));
+  }, [bolumArasi]);
+  // Bölüm sonu arası: "Uzun metinde dikkatim dağılıyor" profili ya da okurun kendisi
+  // açtığı Odak modu. Okuma yolunun otomatik açtığı odak bu davranışı tetiklemez.
+  bolumSonuMolaRef.current = Boolean(profil.dehb || (ayar.odak && odakElleAcik));
 
   useEffect(() => {
     setSoruCevabi(null);
@@ -2489,7 +2634,10 @@ export default function DinletiApp() {
             const oran = (Date.now() - bolumBaslangic) / tahminMs;
             if (oran > 0.4 && oran < 3) kalibrasyon.current = Math.min(2, Math.max(0.5, kalibrasyon.current * 0.6 + oran * 0.4));
           }
-          if (bolumIx + 1 < kitap.bolumler.length) {
+          if (bolumIx + 1 < kitap.bolumler.length && bolumSonuMolaRef.current && bolumSonuAraRef.current) {
+            // C2: dikkat profili açıkken sonraki bölüme kendiliğinden geçilmez; kısa ara ekranı açılır.
+            bolumSonuAraRef.current(kitap, bolumIx + 1);
+          } else if (bolumIx + 1 < kitap.bolumler.length) {
             setPozisyon(bolumBasiSn(kitap, bolumIx + 1));
             setKelimeIx(0);
             if (konusmayiBaslatRef.current) konusmayiBaslatRef.current(kitap, bolumIx + 1, 0);
@@ -2825,16 +2973,17 @@ export default function DinletiApp() {
       setOkumaBitti(false);
       readerFollowImmediateRef.current = true;
       setPozisyon(0); setKelimeIx(0);
+      takibiSurdur();
       setCaliyor(true); seriGuncelle();
       if (etkinSeslendirme) konusmayiBaslat(aktif, 0, 0);
     }
-    else { setCaliyor(true); seriGuncelle(); if (etkinSeslendirme) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx); }
+    else { takibiSurdur(); setCaliyor(true); seriGuncelle(); if (etkinSeslendirme) konusmayiBaslat(aktif, aktifBolumIx, kelimeIx); }
   };
 
   const vurguHizala = (poz, konusmayiYenile = false) => {
     if (!aktif) return;
     readerFollowImmediateRef.current = true;
-    readerFollowPauseUntilRef.current = 0;
+    takibiSurdur();
     setOkumaBitti(false);
     const cursor = cursorFromPosition(aktif.bolumler, poz, bolumSn);
     setKelimeIx(cursor.wordIndex);
@@ -2854,7 +3003,7 @@ export default function DinletiApp() {
     if (!aktif) return;
     const hedef = cursorForSentenceStep(aktif.bolumler, aktifBolumIx, kelimeIx, delta);
     readerFollowImmediateRef.current = true;
-    readerFollowPauseUntilRef.current = 0;
+    takibiSurdur();
     setOkumaBitti(false);
     setPozisyon(positionFromCursor(aktif.bolumler, hedef.sectionIndex, hedef.wordIndex, bolumSn));
     setKelimeIx(hedef.wordIndex);
@@ -2874,7 +3023,7 @@ export default function DinletiApp() {
     setAktifId(kitapId);
     setPozisyon(bolumBasiSn(k, ix));
     readerFollowImmediateRef.current = true;
-    readerFollowPauseUntilRef.current = 0;
+    takibiSurdur();
     setKelimeIx(0);
     setReaderFollowNonce((n) => n + 1);
     setCaliyor(true);
@@ -2885,6 +3034,122 @@ export default function DinletiApp() {
   const bolumeGit = (ix) => {
     if (!aktif) return;
     oynatKitapBolum(aktif.id, ix);
+  };
+
+  /* C2-A: ilerleme çubuğu. 1 bölümden fazla ya da %10'dan büyük atlamada işaretçi
+     (dokunma/fare) ile tek dokunuş yalnız hedefi önizler; aynı yere ikinci dokunuş
+     onaylar. Klavye (ok, Home/End) doğrudan uygular. Her büyük atlamadan sonra
+     "Önceki konuma dön" 8 sn görünür. */
+  const ilerlemeHedefi = (oran) => {
+    const sinirli = Math.min(1, Math.max(0, Number(oran) || 0));
+    const pos = Math.floor(sinirli * toplam);
+    const cursor = cursorFromPosition(aktif.bolumler, pos, bolumSn);
+    const buyuk = toplam > 0 && (Math.abs(cursor.sectionIndex - aktifBolumIx) > 1 || Math.abs(pos - pozisyon) / toplam > BUYUK_ATLAMA_ORANI);
+    return { oran: sinirli, pos, bolum: cursor.sectionIndex, buyuk };
+  };
+  const ilerlemeyeGit = (oran, kaynak = "isaretci") => {
+    if (!aktif) return;
+    const hedef = ilerlemeHedefi(oran);
+    if (hedef.buyuk && kaynak === "isaretci") {
+      const onay = ilerlemeOnayi && Date.now() - ilerlemeOnayi.ts < ATLAMA_ONAY_MS && Math.abs(hedef.oran - ilerlemeOnayi.oran) <= ATLAMA_ONAY_TOLERANS;
+      if (!onay) {
+        setIlerlemeOnayi({ oran: hedef.oran, ts: Date.now() });
+        setOkurDuyuru(`${hedef.bolum + 1}. bölüm, yüzde ${Math.round(hedef.oran * 100)}. Gitmek için aynı yere yeniden dokun.`);
+        return;
+      }
+    }
+    setIlerlemeOnayi(null);
+    if (hedef.buyuk) {
+      setOncekiKonum({ pos: pozisyon, sectionIndex: aktifBolumIx, wordIndex: kelimeIx, ts: Date.now() });
+      setOkurDuyuru(`${hedef.bolum + 1}. bölüme, yüzde ${Math.round(hedef.oran * 100)} konumuna gidildi. Önceki konuma dön düğmesi birkaç saniye görünür.`);
+    }
+    oranaSar(hedef.oran);
+  };
+  const oncekiKonumaDon = () => {
+    if (!aktif || !oncekiKonum) return;
+    const k = oncekiKonum;
+    setOncekiKonum(null);
+    setIlerlemeOnayi(null);
+    readerFollowImmediateRef.current = true;
+    takibiSurdur();
+    setOkumaBitti(false);
+    setPozisyon(k.pos);
+    setKelimeIx(k.wordIndex);
+    setReaderFollowNonce((n) => n + 1);
+    if (caliyor && etkinSeslendirme) konusmayiBaslat(aktif, k.sectionIndex, k.wordIndex);
+    setOkurDuyuru(`Önceki konuma dönüldü: ${k.sectionIndex + 1}. bölüm.`);
+  };
+
+  /* C2-C: Kendim Okuyorum modunda görünür ilk cümle, kaydırma durunca konum olarak yazılır. */
+  const kendimKonumunuKaydet = () => {
+    const container = readerScrollRef.current;
+    if (!container || !aktif || okumaModu !== "kendim" || !oynaticiAcik) return;
+    const b = aktif.bolumler[aktifBolumIx];
+    const ix = gorunurIlkCumleBasi(container, cumleSinirlari(b?.metin));
+    if (ix == null || ix === kelimeIx) return;
+    setKelimeIx(ix);
+    setPozisyon(positionFromCursor(aktif.bolumler, aktifBolumIx, ix, bolumSn));
+  };
+  const kendimKaydetRef = useRef(null);
+  kendimKaydetRef.current = kendimKonumunuKaydet;
+  const okurKaydirdi = () => {
+    if (okumaModu === "kendim") {
+      if (kendimKayitTimerRef.current) window.clearTimeout(kendimKayitTimerRef.current);
+      kendimKayitTimerRef.current = window.setTimeout(() => kendimKaydetRef.current?.(), KENDIM_KAYIT_MS);
+      return;
+    }
+    // Fareyle kaydırma çubuğu sürükleniyorsa okur elle kaydırıyordur.
+    if (okurDokunusRef.current.fareBasili) okuyucuTakibiniDurdur();
+    if (!takipDurduRef.current || gorunurlukKareRef.current) return;
+    gorunurlukKareRef.current = window.requestAnimationFrame(() => {
+      gorunurlukKareRef.current = 0;
+      setAktifGorunmuyor(!okunanKelimeGorunurMu(readerScrollRef.current, kelimeIx));
+    });
+  };
+
+  /* C2-C: Kendim Okuyorum modunda oynat düğmesi "Sesli dinle" olur: Dinliyorum moduna
+     geçer ve okurun bulunduğu cümleden sesli okumayı başlatır. */
+  const sesliDinle = () => {
+    if (!aktif) return;
+    const dinle = okumaModuBul("dinliyorum");
+    okumaModuDegistir("dinliyorum");
+    takibiSurdur();
+    readerFollowImmediateRef.current = true;
+    setOkumaBitti(false);
+    setCaliyor(true);
+    seriGuncelle();
+    konusmayiBaslat(aktif, aktifBolumIx, kelimeIx, dinle, true);
+    setOkurDuyuru("Dinliyorum moduna geçildi; okuma bulunduğun cümleden sesli sürüyor.");
+  };
+
+  /* C2-D: bölüm sonu arası. Konum sonraki bölümün başına alınır ve kaydedilir;
+     okur "Sonraki bölüme geç" ya da "Mola ver" seçer. Ödül ya da puan yok. */
+  bolumSonuAraRef.current = (kitap, sonraki) => {
+    readerFollowImmediateRef.current = true;
+    setPozisyon(bolumBasiSn(kitap, sonraki));
+    setKelimeIx(0);
+    setCaliyor(false);
+    setBolumArasi({ sonraki });
+    setOkurDuyuru("Bölüm bitti. Kısa bir mola ister misin?");
+  };
+  const sonrakiBolumeGec = () => {
+    if (!aktif || !bolumArasi) return;
+    const { sonraki } = bolumArasi;
+    setBolumArasi(null);
+    oynatKitapBolum(aktif.id, sonraki);
+  };
+  const molaVer = () => {
+    if (!aktif) return;
+    setBolumArasi(null);
+    setCaliyor(false);
+    konusmayiDurdur();
+    setIlerlemeler((eski) => {
+      const simdi = Date.now();
+      const yeni = { ...eski, [aktif.id]: readingProgressSnapshot({ storyId: aktif.id, sections: aktif.bolumler, sectionIndex: aktifBolumIx, wordIndex: kelimeIx, durationForSection: bolumSn, now: simdi }) };
+      durumYaz({ favoriler, ilerlemeler: yeni, hiz, sonKitap: aktif.id });
+      return yeni;
+    });
+    setOkurDuyuru("Mola verildi. Konumun kaydedildi; hazır olduğunda Oynat ile sonraki bölümden sürer.");
   };
 
   const favoriDegistir = (id) => {
@@ -3471,7 +3736,14 @@ export default function DinletiApp() {
           {/* OKUMA ALANI: ekranın ana yüzeyi */}
           <div data-okuma-alani style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden", background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: mobilDar ? 10 : 14, position: "relative", display: "flex", flexDirection: "column" }}>
             <div data-reader-stage-header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginBottom: mobilDar ? 5 : 10, minHeight: mobilDar ? 44 : undefined }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: S.soluk, fontSize: mobilDar ? 11 : 13 }}><BookOpen size={mobilDar ? 13 : 15} /> Okuma görünümü</div>
+              {takipDurdu && aktifGorunmuyor && okumaModu !== "kendim" && okumaAcik ? (
+                <button data-takibe-don onClick={takibeDon} aria-label="Takibe dön: okunan cümleye git"
+                  style={{ display: "flex", alignItems: "center", gap: 6, minHeight: 44, minWidth: 44, padding: "6px 12px", background: "rgba(232,163,61,0.18)", border: "1px solid rgba(232,163,61,0.5)", borderRadius: 10, color: S.vurgu, cursor: "pointer", fontSize: mobilDar ? 12 : 13, fontWeight: 600, fontFamily: "inherit" }}>
+                  <Crosshair size={mobilDar ? 14 : 15} /> Takibe dön
+                </button>
+              ) : (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, color: S.soluk, fontSize: mobilDar ? 11 : 13 }}><BookOpen size={mobilDar ? 13 : 15} /> Okuma görünümü</div>
+              )}
               <div style={{ display: "flex", gap: 6 }}>
                 {dersModu && (
                   <button data-calisma-karti-ac onClick={() => setCalismaKartiAcik((acik) => !acik)} aria-expanded={calismaKartiAcik}
@@ -3515,7 +3787,7 @@ export default function DinletiApp() {
               return (
                 <div id="okurio-okuma-icerigi" data-reader-workspace style={{ flex: "1 1 auto", minHeight: 0, overflow: "hidden" }}>
                   <div data-reading-column style={{ height: "100%", minHeight: 0 }}>
-                  <div ref={readerScrollRef} data-okuma-metin="1" tabIndex={0} role="region" aria-label={`Okuma metni: ${aktif.baslik}, ${b.ad}`} data-odak={ayar.odak ? "1" : "0"} data-tema={ayar.tema} data-aktif-cumle={`${aktifCumle[0]}-${aktifCumle[1]}`} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} style={{
+                  <div ref={readerScrollRef} data-okuma-metin="1" tabIndex={0} role="region" aria-label={`Okuma metni: ${aktif.baslik}, ${b.ad}`} data-odak={ayar.odak ? "1" : "0"} data-tema={ayar.tema} data-aktif-cumle={`${aktifCumle[0]}-${aktifCumle[1]}`} data-kullanici-kaydirma={okumaModu === "kendim" ? "1" : undefined} data-takip-durdu={takipDurdu ? "1" : undefined} style={{
                     fontSize: PUNTOLAR[ayar.punto], letterSpacing: `${ARALIKLAR[ayar.aralik]}em`,
                     lineHeight: SATIRLAR[ayar.aralik], wordSpacing: `${ARALIKLAR[ayar.aralik] * 2.2}em`,
                     color: ayar.tema === "krem" ? "#2A2622" : "rgba(242,236,223,0.92)",
@@ -3524,10 +3796,22 @@ export default function DinletiApp() {
                     padding: ayar.tema === "krem" ? "14px 16px" : 0,
                     fontFamily: fontAile(ayar.font),
                     textAlign: "left", minHeight: 0, height: "100%", maxHeight: "none", overflowY: "auto", WebkitOverflowScrolling: "touch", touchAction: "pan-y",
-                    scrollBehavior: "smooth", overscrollBehavior: "contain",
-                  }} onTouchStart={okuyucuTakibiniGeciciDurdur} onPointerDown={okuyucuTakibiniGeciciDurdur} onWheel={okuyucuTakibiniGeciciDurdur} onKeyDown={(event) => {
-                    // Klavyeyle kaydırma da otomatik takibi kısa süre durdurur; aksi halde sesli okuma kaydırmayı geri çeker (UX denetimi U2).
-                    if (event.target === event.currentTarget && ["PageDown", "PageUp", "ArrowDown", "ArrowUp", "Home", "End", " "].includes(event.key)) okuyucuTakibiniGeciciDurdur();
+                    scrollBehavior: hareketAzaltilsinMi() ? "auto" : "smooth", overscrollBehavior: "contain",
+                  }} onTouchStart={(event) => { okurDokunusRef.current.y = event.touches?.[0]?.clientY ?? null; }}
+                  onTouchMove={(event) => {
+                    // C2: yalnız gerçek parmak kaydırması takibi durdurur; kelimeye dokunmak durdurmaz.
+                    const y = event.touches?.[0]?.clientY;
+                    if (okurDokunusRef.current.y != null && y != null && Math.abs(y - okurDokunusRef.current.y) > 8) okuyucuTakibiniDurdur();
+                  }}
+                  onTouchEnd={() => { okurDokunusRef.current.y = null; }}
+                  onPointerDown={(event) => { if (event.pointerType === "mouse") okurDokunusRef.current.fareBasili = true; }}
+                  onPointerUp={() => { okurDokunusRef.current.fareBasili = false; }}
+                  onPointerLeave={() => { okurDokunusRef.current.fareBasili = false; }}
+                  onWheel={(event) => { if (event.deltaY) okuyucuTakibiniDurdur(); }}
+                  onScroll={okurKaydirdi}
+                  onKeyDown={(event) => {
+                    // Klavyeyle kaydırma da otomatik takibi durdurur; aksi halde sesli okuma kaydırmayı geri çeker (UX denetimi U2).
+                    if (event.target === event.currentTarget && ["PageDown", "PageUp", "ArrowDown", "ArrowUp", "Home", "End", " "].includes(event.key)) okuyucuTakibiniDurdur();
                   }}>
                     {gorunecek.map((k, i) => {
                       const gercekIx = i + kaydirma;
@@ -3606,7 +3890,7 @@ export default function DinletiApp() {
                     <button onClick={() => setAyar({ ...ayar, aralik: (ayar.aralik + 1) % ARALIKLAR.length })} aria-label={`Harf ve satır aralığı: ${["Sıkı", "Rahat", "Geniş", "Ekstra geniş"][ayar.aralik]}`} style={cip(false)}>
                       <AlignJustify size={13} /> Aralık: {["Sıkı", "Rahat", "Geniş", "Ekstra"][ayar.aralik]}
                     </button>
-                    <button onClick={() => setAyar({ ...ayar, odak: !ayar.odak })} aria-label="Odak modu" aria-pressed={ayar.odak} style={cip(ayar.odak)}>
+                    <button onClick={() => { setOdakElleAcik(!ayar.odak); setAyar({ ...ayar, odak: !ayar.odak }); }} aria-label="Odak modu" aria-pressed={ayar.odak} style={cip(ayar.odak)}>
                       <Focus size={13} /> Odak modu
                     </button>
                     <button onClick={() => setAyar({ ...ayar, vurgu: !ayar.vurgu })} aria-label="Kelime vurgusu" aria-pressed={ayar.vurgu} style={cip(ayar.vurgu)}>
@@ -3719,6 +4003,19 @@ export default function DinletiApp() {
             );
           })()}
 
+          {/* C2-D: bölüm sonu arası (dikkat profili). Sade, yargısız; ödül ya da puan yok. */}
+          {bolumArasi && (
+            <div role="dialog" aria-modal="false" aria-labelledby="okurio-bolum-arasi-baslik" data-bolum-arasi style={{ background: S.kart2, border: "1px solid rgba(232,163,61,0.38)", borderRadius: 16, padding: mobilDar ? "14px" : "16px", marginTop: 8, flexShrink: 0 }}>
+              <div id="okurio-bolum-arasi-baslik" style={{ fontSize: 15, color: S.metin, fontWeight: 600, lineHeight: 1.45 }}>Bölüm bitti. Kısa bir mola ister misin?</div>
+              <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                <button ref={bolumArasiOdakRef} data-sonraki-bolume-gec onClick={sonrakiBolumeGec} style={{ ...cip(true), minHeight: 44, padding: "8px 14px", fontSize: 14 }}>Sonraki bölüme geç</button>
+                <button data-mola-ver onClick={molaVer} style={{ ...cip(false), minHeight: 44, padding: "8px 14px", fontSize: 14 }}>Mola ver</button>
+              </div>
+            </div>
+          )}
+          {/* C2: okur kontrolü duyuruları (atlama, geri dönüş, takip, bölüm arası) ekran okuyucuya iletilir. */}
+          <div data-okur-duyuru role="status" aria-live="polite" aria-atomic="true" style={{ position: "absolute", width: 1, height: 1, margin: -1, padding: 0, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>{okurDuyuru}</div>
+
           {/* ALT KONTROL BLOĞU: sabit */}
           <div data-alt-kontrol style={{ flexShrink: 0, paddingTop: mobilDar ? 6 : 10 }}>
             <div data-kompakt-ilerleme data-player-visual="compact-progress" style={{ marginTop: 4 }}>
@@ -3729,27 +4026,43 @@ export default function DinletiApp() {
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={Math.round(oran * 100)}
-                aria-valuetext={`%${Math.round(oran * 100)} tamamlandı`}
+                aria-valuetext={`%${Math.round(oran * 100)} tamamlandı, ${aktifBolumIx + 1}. bölüm / ${aktif.bolumler.length}`}
+                aria-describedby={ilerlemeOnayi ? "okurio-ilerleme-onayi" : undefined}
                 onClick={(event) => {
                   const rect = event.currentTarget.getBoundingClientRect();
-                  oranaSar((event.clientX - rect.left) / rect.width);
+                  ilerlemeyeGit((event.clientX - rect.left) / rect.width, "isaretci");
                 }}
                 onKeyDown={(event) => {
                   const step = event.shiftKey ? 0.1 : 0.02;
-                  if (["ArrowLeft", "ArrowDown"].includes(event.key)) { event.preventDefault(); oranaSar(Math.max(0, oran - step)); }
-                  if (["ArrowRight", "ArrowUp"].includes(event.key)) { event.preventDefault(); oranaSar(Math.min(1, oran + step)); }
-                  if (event.key === "Home") { event.preventDefault(); oranaSar(0); }
-                  if (event.key === "End") { event.preventDefault(); oranaSar(1); }
+                  if (["ArrowLeft", "ArrowDown"].includes(event.key)) { event.preventDefault(); ilerlemeyeGit(Math.max(0, oran - step), "klavye"); }
+                  if (["ArrowRight", "ArrowUp"].includes(event.key)) { event.preventDefault(); ilerlemeyeGit(Math.min(1, oran + step), "klavye"); }
+                  if (event.key === "Home") { event.preventDefault(); ilerlemeyeGit(0, "klavye"); }
+                  if (event.key === "End") { event.preventDefault(); ilerlemeyeGit(1, "klavye"); }
                 }}
-                style={{ height: 44, display: "flex", alignItems: "center", cursor: "pointer", touchAction: "manipulation" }}
+                style={{ height: 44, display: "flex", alignItems: "center", cursor: "pointer", touchAction: "manipulation", position: "relative" }}
               >
                 <div data-progress-track style={{ width: "100%", height: 8, borderRadius: 999, background: "rgba(255,255,255,0.12)", overflow: "hidden" }}>
                   <div style={{ width: `${oran * 100}%`, height: "100%", background: S.vurgu }} />
                 </div>
+                {ilerlemeOnayi && <div data-ilerleme-hedefi aria-hidden="true" style={{ position: "absolute", top: 10, left: `calc(${ilerlemeOnayi.oran * 100}% - 2px)`, width: 4, height: 24, borderRadius: 2, background: S.metin, pointerEvents: "none" }} />}
               </div>
             </div>
-            <div data-progress-time style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: S.soluk, marginTop: -8 }}>
-              <span>{sureYaz(pozisyon)}</span><span>-{sureYaz(toplam - pozisyon)}</span>
+            <div data-progress-time style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, fontSize: 12, color: S.soluk, marginTop: -8 }}>
+              {okumaModu === "kendim" ? (() => {
+                // C2-C: Kendim Okuyorum modunda süre yerine cümle ve bölüm konumu gösterilir.
+                const bc = cumleSinirlari(b.metin);
+                const ci = Math.max(0, bc.findIndex(([a, z]) => kelimeIx >= a && kelimeIx <= z));
+                return <span data-kendim-konum>Cümle {ci + 1} / {bc.length} · Bölüm {aktifBolumIx + 1} / {aktif.bolumler.length}</span>;
+              })() : <span>{sureYaz(pozisyon)}</span>}
+              {ilerlemeOnayi ? (() => {
+                const h = ilerlemeHedefi(ilerlemeOnayi.oran);
+                return <span id="okurio-ilerleme-onayi" data-ilerleme-onayi style={{ color: S.metin, textAlign: "center", flex: 1 }}>{h.bolum + 1}. bölüm · %{Math.round(h.oran * 100)} · onay için yeniden dokun</span>;
+              })() : oncekiKonum ? (
+                <button data-onceki-konuma-don onClick={oncekiKonumaDon} style={{ ...cip(true), minHeight: 44, minWidth: 44, padding: "6px 12px", justifyContent: "center" }}>
+                  <RotateCcw size={13} /> Önceki konuma dön
+                </button>
+              ) : null}
+              {okumaModu === "kendim" ? null : <span>-{sureYaz(toplam - pozisyon)}</span>}
             </div>
             <div data-transport-controls style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: mobilDar ? 18 : 22, marginTop: mobilDar ? 6 : 8 }}>
               {cumleModu ? (
@@ -3766,10 +4079,18 @@ export default function DinletiApp() {
                   <RotateCcw size={24} /><span style={{ fontSize: 10, color: S.soluk }}>15</span>
                 </button>
               )}
+              {okumaModu === "kendim" ? (
+                // C2-C: Kendim Okuyorum modunda çalınacak ses yok; düğme Dinliyorum moduna geçip sesli okumayı başlatır.
+                <button data-sesli-dinle onClick={sesliDinle} aria-label="Sesli dinle: Dinliyorum moduna geç"
+                  style={{ height: mobilDar ? 52 : 58, padding: "0 18px", borderRadius: mobilDar ? 26 : 29, background: S.vurgu, border: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", boxShadow: "0 6px 22px rgba(232,163,61,0.35)", color: "#14181F", fontSize: 14, fontWeight: 700, fontFamily: "inherit", whiteSpace: "nowrap" }}>
+                  <Volume2 size={20} color="#14181F" /> Sesli dinle
+                </button>
+              ) : (
               <button onClick={() => oynatDegistir()} aria-label={caliyor ? "Duraklat" : "Oynat"}
                 style={{ width: mobilDar ? 52 : 58, height: mobilDar ? 52 : 58, borderRadius: mobilDar ? 26 : 29, background: S.vurgu, border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 6px 22px rgba(232,163,61,0.35)" }}>
                 {caliyor ? <Pause size={25} color="#14181F" fill="#14181F" /> : <Play size={25} color="#14181F" fill="#14181F" style={{ marginLeft: 3 }} />}
               </button>
+              )}
               {cumleModu ? (
                 <button onClick={() => cumleAtla(1)} aria-label="Sonraki cümle" style={{ background: "none", border: "none", color: S.metin, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                   <SkipForward size={22} /><span style={{ fontSize: 10, color: S.soluk }}>Sonraki</span>

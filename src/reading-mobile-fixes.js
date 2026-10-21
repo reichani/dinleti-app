@@ -40,6 +40,11 @@ function isManualMode(player = getPlayer()) {
   );
 }
 
+// React okuyucusu okur elle kaydırınca metin kutusuna data-takip-durdu="1" yazar.
+function isFollowPausedByReader(readingText) {
+  return readingText instanceof HTMLElement && readingText.dataset.takipDurdu === '1';
+}
+
 function playerIsRunning(player = getPlayer()) {
   if (!(player instanceof HTMLElement)) return false;
   if (speechIsActuallyRunning()) return true;
@@ -153,6 +158,8 @@ export function scrollActiveWord(
   const player = activeWord.closest('[data-mobile-stability]') || getPlayer();
   // Kendim Okuyorum is deliberately manual: no synthetic clock, no auto-follow.
   if (isManualMode(player)) return false;
+  // C2: okur elle kaydırıp takibi durdurduysa "Takibe dön"e kadar zorla kaydırma da yapılmaz.
+  if (isFollowPausedByReader(readingText)) return false;
   if (!speechIsActuallyRunning()) return false;
   if (!force && now < manualScrollUntil) return false;
   if (!force && now - lastScrollAt < MIN_SCROLL_INTERVAL_MS) return false;
@@ -294,6 +301,7 @@ export function installReadingMobileFixes() {
     refresh: scheduleRefresh,
     speechIsActuallyRunning,
     isManualMode,
+    isFollowPausedByReader,
     playerIsRunning,
   };
 

@@ -87,7 +87,9 @@ test.describe("Persona bazlı okuma akışı", () => {
     await player.locator("[data-okuma-modu-kompakt] button").click();
     await player.locator('[data-okuma-modu="kendim"]').click();
     await ayarlariKapat(page);
-    await player.getByRole("button", { name: "Oynat", exact: true }).click();
+    // C2 (COGA bulgu 3): Kendim Okuyorum modunda boşa dönen Oynat yok; yerine "Sesli dinle" var.
+    await expect(player.getByRole("button", { name: "Oynat", exact: true })).toHaveCount(0);
+    await expect(player.locator("[data-sesli-dinle]")).toBeVisible();
     await page.waitForTimeout(500);
 
     const manual = await player.locator("[data-okuma-metin]").evaluate((element) => ({
@@ -101,6 +103,7 @@ test.describe("Persona bazlı okuma akışı", () => {
     await player.locator("[data-okuma-modu-kompakt] button").click();
     await player.locator('[data-okuma-modu="birlikte"]').click();
     await ayarlariKapat(page);
+    await player.getByRole("button", { name: "Oynat", exact: true }).click();
     await page.waitForTimeout(500);
     const together = await player.locator("[data-okuma-metin]").evaluate((element) => ({
       activeIndex: [...element.querySelectorAll("span")].findIndex((span) => span.dataset.aktif === "1"),
