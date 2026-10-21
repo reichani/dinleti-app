@@ -147,11 +147,13 @@ test.describe("Ayar güveni: Geri al bildirimi", () => {
     const { metin, panel } = await okuyucuyuAc(page);
     await puntoyaGetir(panel, 26);
     const bildirim = panel.locator("[data-ayar-bildirimi]");
-    await expect(bildirim).toHaveAttribute("aria-live", "polite");
-    await expect(bildirim).toHaveAttribute("role", "status");
+    const duyuru = page.locator("[data-ayar-duyurusu]");
+    await expect(duyuru).toHaveAttribute("aria-live", "polite");
+    await expect(duyuru).toHaveAttribute("role", "status");
 
     await ihtiyac(panel, "dis").click();
     await expect(bildirim).toContainText("Ayarlar güncellendi");
+    await expect(duyuru).toContainText("Ayarlar güncellendi");
     const geriAl = bildirim.getByRole("button", { name: "Geri al" });
     await expect(geriAl).toBeVisible();
     const kutu = await geriAl.boundingBox();
@@ -195,6 +197,79 @@ test.describe("Ayar güveni: Geri al bildirimi", () => {
     await page.waitForTimeout(6000);
     await expect(bildirim).toContainText("Ayarlar güncellendi");
     await expect(bildirim).not.toContainText("Ayarlar güncellendi", { timeout: 5000 });
+  });
+});
+
+test.describe("Ayar güveni: Geri al gözetim düzeltmeleri", () => {
+  test("mobilde dokunuşla Geri al sonrası bildirim kendiliğinden kapanır ve odak ihtiyaç düğmesine döner", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "android-mobile", "Dokunma senaryosu (Pixel 7)");
+    const { panel } = await okuyucuyuAc(page);
+    const bildirim = panel.locator("[data-ayar-bildirimi]");
+    await ihtiyac(panel, "dis").tap();
+    await expect(bildirim).toContainText("Ayarlar güncellendi");
+    await bildirim.getByRole("button", { name: "Geri al" }).tap();
+    await expect(bildirim).toContainText("Önceki ayarlar geri yüklendi");
+    await expect(ihtiyac(panel, "dis")).toBeFocused();
+    await expect(bildirim).not.toContainText("Önceki ayarlar geri yüklendi", { timeout: 11000 });
+  });
+
+  test("mobilde dokunuşla seçilen ihtiyacın bildirimi kendiliğinden kapanır", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "android-mobile", "Dokunma senaryosu (Pixel 7)");
+    const { panel } = await okuyucuyuAc(page);
+    const bildirim = panel.locator("[data-ayar-bildirimi]");
+    await ihtiyac(panel, "gorsel").tap();
+    await expect(bildirim).toContainText("Ayarlar güncellendi");
+    await expect(bildirim).not.toContainText("Ayarlar güncellendi", { timeout: 11000 });
+  });
+
+  test("Geri al sonrası odak son değiştirilen ihtiyaç düğmesine döner", async ({ page }) => {
+    const { panel } = await okuyucuyuAc(page);
+    await ihtiyac(panel, "dehb").click();
+    await panel.locator("[data-ayar-bildirimi]").getByRole("button", { name: "Geri al" }).click();
+    await expect(ihtiyac(panel, "dehb")).toBeFocused();
+    await expect(ihtiyac(panel, "dehb")).toHaveAttribute("aria-pressed", "false");
+  });
+
+  test("Geri al okurun bildirim süresinde elle yaptığı değişikliği silmez", async ({ page }) => {
+    const { panel } = await okuyucuyuAc(page);
+    const bildirim = panel.locator("[data-ayar-bildirimi]");
+    await ihtiyac(panel, "dis").click();
+    await expect(aralikDugmesi(panel)).toHaveAttribute("aria-label", "Harf ve satır aralığı: Geniş");
+    await puntoyaGetir(panel, 32); // ihtiyacın dokunmadığı alan
+    await bildirim.getByRole("button", { name: "Geri al" }).click();
+    await expect(ihtiyac(panel, "dis")).toHaveAttribute("aria-pressed", "false");
+    await expect(aralikDugmesi(panel)).toHaveAttribute("aria-label", "Harf ve satır aralığı: Rahat");
+    await expect(puntoDugmesi(panel)).toHaveAttribute("aria-label", "Yazı boyutu: 32 piksel");
+
+    await ihtiyac(panel, "dis").click();
+    await aralikDugmesi(panel).click(); // ihtiyacın açtığı alanı okur değiştirir
+    await expect(aralikDugmesi(panel)).toHaveAttribute("aria-label", "Harf ve satır aralığı: Ekstra geniş");
+    await bildirim.getByRole("button", { name: "Geri al" }).click();
+    await expect(ihtiyac(panel, "dis")).toHaveAttribute("aria-pressed", "false");
+    await expect(aralikDugmesi(panel)).toHaveAttribute("aria-label", "Harf ve satır aralığı: Ekstra geniş");
+    await expect(bildirim).toContainText("sonradan kendin değiştirdiğin ayarlar korundu");
+  });
+
+  test("değişiklik yoksa 'Ayarların bu ihtiyaç için zaten uygun.' denir", async ({ page }) => {
+    const { panel } = await okuyucuyuAc(page);
+    await puntoyaGetir(panel, 32);
+    await ihtiyac(panel, "gorsel").click();
+    await expect(panel.locator("[data-ayar-bildirimi]")).toContainText("Ayarların bu ihtiyaç için zaten uygun.");
+    await expect(page.locator("[data-ayar-duyurusu]")).toHaveText("Ayarların bu ihtiyaç için zaten uygun.");
+  });
+
+  test("duyuru panel dışında; panel kapanınca da ekran okuyucuya açık kalır", async ({ page }) => {
+    const { panel } = await okuyucuyuAc(page);
+    await ihtiyac(panel, "dis").click();
+    const kapat = panel.locator("[data-reader-settings-close]");
+    if (await kapat.isVisible()) await kapat.click();
+    const duyuru = page.locator("[data-ayar-duyurusu]");
+    await expect(duyuru).toContainText("Ayarlar güncellendi");
+    const konum = await duyuru.evaluate((el) => ({
+      panelIcinde: Boolean(el.closest("[data-reader-settings]")),
+      gizliAtada: Boolean(el.closest('[aria-hidden="true"]')),
+    }));
+    expect(konum).toEqual({ panelIcinde: false, gizliAtada: false });
   });
 });
 

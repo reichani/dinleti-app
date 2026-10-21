@@ -1950,13 +1950,13 @@ export default function DinletiApp() {
     if (once.odak !== sonra.odak) parcalar.push(`odak modu ${sonra.odak ? "açık" : "kapalı"}`);
     if (once.vurgu !== sonra.vurgu) parcalar.push(`kelime vurgusu ${sonra.vurgu ? "açık" : "kapalı"}`);
     if (onceTon !== sonraTon) parcalar.push(`ses ${sesTonuBul(sonraTon).kisa.toLocaleLowerCase("tr-TR")}`);
-    return parcalar.length ? parcalar.join(", ") : "mevcut ayarların zaten yeterli";
+    return parcalar.join(", ");
   };
   const sesTonuKaydet = (ton) => { (async () => { try { await window.storage.set(SES_TONU_ANAHTAR, ton); } catch {} })(); };
 
   const profilUygula = (yeniProfil) => {
     const iz = JSON.parse(JSON.stringify(profilIziRef.current));
-    const geri = { ayar: { ...ayar }, profil: { ...profil }, iz: JSON.parse(JSON.stringify(profilIziRef.current)), sesTonu };
+    const geri = { profil: { ...profil }, iz: JSON.parse(JSON.stringify(profilIziRef.current)) };
     const a = { ...ayar };
     let yeniTon = sesTonu;
     for (const id of Object.keys(PROFIL_ASGARI)) {
@@ -1987,21 +1987,48 @@ export default function DinletiApp() {
         }
       }
     }
+    // Geri al için tam anlık kopya değil, yalnız bu ihtiyaç değişikliğinin değiştirdiği
+    // alanlar saklanır; okurun bildirim süresinde elle yaptığı değişiklik böylece silinmez.
+    geri.degisen = {};
+    for (const alan of Object.keys(a)) if (a[alan] !== ayar[alan]) geri.degisen[alan] = { onceki: ayar[alan], uygulanan: a[alan] };
+    geri.ton = yeniTon !== sesTonu ? { onceki: sesTonu, uygulanan: yeniTon } : null;
+    geri.profilId = Object.keys(PROFIL_ASGARI).find((id) => Boolean(yeniProfil[id]) !== Boolean(profil[id])) || null;
     profilIziRef.current = iz;
     setProfil(yeniProfil);
     setAyar(a);
     if (yeniTon !== sesTonu) { setSesTonu(yeniTon); sesTonuKaydet(yeniTon); }
-    setAyarBildirimi({ metin: `Ayarlar güncellendi: ${ayarDegisimOzeti(ayar, a, sesTonu, yeniTon)}.`, geri });
+    const ozet = ayarDegisimOzeti(ayar, a, sesTonu, yeniTon);
+    ayarBildirimiOdakRef.current = false;
+    setAyarBildirimi({ metin: ozet ? `Ayarlar güncellendi: ${ozet}.` : "Ayarların bu ihtiyaç için zaten uygun.", geri });
   };
 
   const profilDegisikliginiGeriAl = () => {
     const geri = ayarBildirimi?.geri;
     if (!geri) return;
+    // Yalnız bu ihtiyaç değişikliğinin değiştirdiği ve okurun o zamandan beri dokunmadığı
+    // alanlar geri döner; okurun sonradan yaptığı elle değişiklik korunur.
+    const y = { ...ayar };
+    let korunan = 0;
+    for (const [alan, { onceki, uygulanan }] of Object.entries(geri.degisen)) {
+      if (ayar[alan] === uygulanan) y[alan] = onceki; else korunan += 1;
+    }
+    if (geri.ton) {
+      if (sesTonu === geri.ton.uygulanan) { setSesTonu(geri.ton.onceki); sesTonuKaydet(geri.ton.onceki); } else korunan += 1;
+    }
     profilIziRef.current = geri.iz;
     setProfil(geri.profil);
-    setAyar(geri.ayar);
-    if (geri.sesTonu !== sesTonu) { setSesTonu(geri.sesTonu); sesTonuKaydet(geri.sesTonu); }
-    setAyarBildirimi({ metin: "Önceki ayarlar geri yüklendi.", geri: null });
+    setAyar(y);
+    // Düğme kalkınca blur gelmez; "okur bildirimin içinde" işareti sıfırlanır ki
+    // yeni bildirimin kapanma zamanlayıcısı (8 sn) takılmadan baştan çalışsın.
+    ayarBildirimiOdakRef.current = false;
+    setAyarBildirimi({ metin: korunan ? "Önceki ayarlar geri yüklendi; sonradan kendin değiştirdiğin ayarlar korundu." : "Önceki ayarlar geri yüklendi.", geri: null });
+    // Odak gövdeye düşmesin: son değiştirilen ihtiyaç düğmesine döner.
+    if (geri.profilId) {
+      window.setTimeout(() => {
+        const dugme = document.querySelector(`[data-reader-settings] [data-profil="${geri.profilId}"]`);
+        if (dugme instanceof HTMLElement) dugme.focus({ preventScroll: true });
+      }, 0);
+    }
   };
 
   // Bildirim yaklaşık 8 sn görünür; odak bildirimin içindeyken (ör. Geri al düğmesinde) kapanmaz.
@@ -2017,6 +2044,7 @@ export default function DinletiApp() {
     kur();
     return () => window.clearTimeout(zamanlayici);
   }, [ayarBildirimi]);
+  useEffect(() => { if (!ayarBildirimi) ayarBildirimiOdakRef.current = false; }, [ayarBildirimi]);
   const [seri, setSeri] = useState({ sayi: 0, sonGun: "" });
   const [, setMod] = useState("cocuk"); // geriye dönük uyumluluk: cocuk | yetiskin
   const [okumaYolu, setOkumaYolu] = useState(VARSAYILAN_OKUMA_YOLU);
@@ -3518,6 +3546,13 @@ export default function DinletiApp() {
             </div>
           )}
 
+          {/* C1: ayar değişikliği duyurusu. Mobilde ayar paneli kapanınca aria-hidden olur;
+              canlı bölge bu yüzden panelin dışında, görünmez ama ekran okuyucuya açık durur. */}
+          <div data-ayar-duyurusu role="status" aria-live="polite" aria-atomic="true"
+            style={{ position: "absolute", width: 1, height: 1, margin: -1, padding: 0, border: 0, overflow: "hidden", clip: "rect(0 0 0 0)", clipPath: "inset(50%)", whiteSpace: "nowrap" }}>
+            {ayarBildirimi?.metin || ""}
+          </div>
+
           {/* Üst çubuk */}
           <div data-reader-topbar style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, minHeight: mobilDar ? 44 : undefined }}>
             <button onClick={okuyucuyuKapatVeOdakla} aria-label="Kapat" style={{ background: "rgba(255,255,255,0.08)", border: "none", borderRadius: 10, padding: 8, color: S.metin, cursor: "pointer" }}><ChevronDown size={20} /></button>
@@ -3677,13 +3712,16 @@ export default function DinletiApp() {
                     <button data-profil="gorsel" onClick={() => profilUygula({ ...profil, gorsel: !profil.gorsel })} aria-pressed={profil.gorsel} style={cip(profil.gorsel)}>Gözüm çabuk yoruluyor</button>
                     <button data-profil="sade" onClick={() => profilUygula({ ...profil, sade: !profil.sade })} aria-pressed={profil.sade} style={cip(profil.sade)}>Sade ve sakin ekran</button>
                   </div>
-                  {/* C1: canlı bölge hep DOM'da durur (ekran okuyucu duyurusu için); okuma metninin
-                      üstüne binmez, ayar panelinde ihtiyaç düğmelerinin hemen altında akar. */}
-                  <div data-ayar-bildirimi role="status" aria-live="polite" aria-atomic="true"
+                  {/* C1: görsel bildirim; okuma metninin üstüne binmez, ayar panelinde ihtiyaç
+                      düğmelerinin hemen altında akar. Ekran okuyucu duyurusu panel dışındaki
+                      canlı bölgeden ([data-ayar-duyurusu]) yapılır; panel kapalıyken de ulaşır.
+                      Üzerinde durma yalnız gerçek fare için sayılır: dokunuşun ürettiği sahte
+                      fare olayları kapanmayı takılı bırakmaz. */}
+                  <div data-ayar-bildirimi
                     onFocus={() => { ayarBildirimiOdakRef.current = true; }}
                     onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) ayarBildirimiOdakRef.current = false; }}
-                    onMouseEnter={() => { ayarBildirimiOdakRef.current = true; }}
-                    onMouseLeave={() => { ayarBildirimiOdakRef.current = false; }}>
+                    onPointerEnter={(event) => { if (event.pointerType === "mouse") ayarBildirimiOdakRef.current = true; }}
+                    onPointerLeave={(event) => { if (event.pointerType === "mouse") ayarBildirimiOdakRef.current = false; }}>
                     {ayarBildirimi && (
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, padding: "4px 4px 4px 12px", background: "#22293A", border: "1px solid rgba(232,163,61,0.45)", borderRadius: 10, color: S.metin, fontSize: 13, lineHeight: 1.4 }}>
                         <span data-ayar-bildirimi-metin style={{ flex: 1, minWidth: 0 }}>{ayarBildirimi.metin}</span>
