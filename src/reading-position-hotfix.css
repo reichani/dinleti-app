@@ -197,3 +197,20 @@
     margin-block-start: -12px !important;
   }
 }
+
+/* C2 okur kontrolü (W3C COGA iç denetimi, 21.10.2026). Hareket azaltma
+   tercihinde okuma metni ve alanı yumuşak kaydırılmaz (satır içi stil ve
+   mobile-reading.css'teki scroll-behavior: smooth burada geçersiz kılınır). */
+@media (prefers-reduced-motion: reduce) {
+  [data-reader-shell] [data-okuma-metin],
+  [data-reader-shell] [data-okuma-alani] {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Bölüm sonu ara kartı açıkken okuma alanı kalan yüksekliğe küçülür; kart ve
+   oynatma kontrolleri küçük ekranda görünür alanın dışına itilmez. */
+[data-reader-shell]:has([data-bolum-arasi]) [data-okuma-alani] {
+  flex: 1 1 0 !important;
+  min-block-size: 0 !important;
+}
