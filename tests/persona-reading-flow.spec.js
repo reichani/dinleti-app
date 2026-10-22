@@ -4,7 +4,7 @@ const TEST_OKUMA_YOLU = {
   secildi: true,
   yolId: "okuma_guveni_8_10",
   evreId: "paragraf",
-  destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin", "kisa_hedef"],
+  destekler: ["kelime_takibi", "odak", "genis_aralik", "yumusak_zemin"],
 };
 
 async function uygulamayiHazirla(page) {
@@ -213,6 +213,8 @@ test.describe("Persona bazlı okuma akışı", () => {
     const player = page.locator("[data-mobile-stability]");
     const panel = await ayarlariAc(page);
     await panel.getByRole("button", { name: "Harfler kayıyor, karışıyor" }).click();
+    // C1: "Harfler kayıyor" tek başına da harf aralığını açar (Geniş, 0,1em).
+    await expect(panel.getByRole("button", { name: /^Harf ve satır aralığı:/ })).toHaveAttribute("aria-label", "Harf ve satır aralığı: Geniş");
 
     const readingText = player.locator("[data-okuma-metin]");
     await expect(readingText.locator('[data-uzun-token="1"]').first()).toBeVisible();
