@@ -3627,7 +3627,7 @@ export default function DinletiApp() {
                   </div>
                   {/* Kaynak: Okurio Source of Truth kanıt matrisi v1.0 — biyonik vurgu 🔴 (Snell 2024: okuma hızına etkisi yok). Ürün kararı 20.10.2026, Reyhan Açar: deneysel destek olarak, varsayılan kapalı. */}
                   <div id="okurio-biyonik-not" data-biyonik-not style={{ marginTop: 8, fontSize: 13, lineHeight: 1.5, color: S.soluk }}>
-                    Biyonik vurgu deneyseldir: bir araştırma (Snell 2024) okuma hızını artırmadığını gösterdi; anlamaya etkisi yeterince çalışılmadı. Sana rahat geliyorsa kullanabilirsin.
+                    Biyonik vurgu deneysel bir okuma konforu tercihidir. Gözüne rahat geliyorsa açık tutabilirsin.
                   </div>
                   <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.08)", fontSize: 12, color: S.soluk }}>Okuma ve ses kontrolleri</div>
                   <div data-okuma-modu-kompakt style={{ display: "flex", marginTop: 8 }}>
