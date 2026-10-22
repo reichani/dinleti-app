@@ -5,7 +5,7 @@ import { installSpeechSynthesisMock } from "./fixtures/speech-synthesis.js";
 //  - Diyalog replikleri (kaynak metindeki satır sonları) ekranda ayrı satırlarda görünür.
 //  - Ses motoru hata verirse okuma sessizce donmaz: oynatıcı durur ve görünür uyarı çıkar.
 //  - Çevrimiçi ses hata verirse cihazdaki yerel sesle aynı cümleden devam edilir.
-//  - Masaüstünde "Birlikte Düşünelim" kartı metin kutusunun üstüne binmez.
+//  - Masaüstünde "Birlikte Düşünelim" kartı metin kutusunun ve ayarlar sütununun üstüne binmez.
 const BOOK_ID = "mino-nerede-sahnesi";
 const READING_PATH = { secildi: true, yolId: "ilk_cumleler_7_8", evreId: "kisa_cumle", destekler: ["kelime_takibi", "odak"] };
 
@@ -135,9 +135,17 @@ test("masaüstünde soru kartı metin kutusunun üstüne binmez", async ({ page 
   await seed(page, { sectionIndex: 6, wordIndex: 9999, pos: 700 });
   const player = await devamKartiniAc(page);
   const kart = page.locator("[data-birlikte-dusunelim]");
-  await expect(kart).toBeVisible({ timeout: 15000 });
+  // C3: kart kendiliğinden açılmaz; okur "Birlikte düşünelim" düğmesine basar.
+  const davet = player.getByRole("button", { name: "Birlikte düşünelim" });
+  await expect(davet).toBeVisible({ timeout: 15000 });
+  await expect(kart).toHaveCount(0);
+  await davet.click();
+  await expect(kart).toBeVisible();
+  const kesisir = (a, b) => a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
   const kutu = await player.locator("[data-okuma-metin]").boundingBox();
+  const ayarlar = await player.locator("[data-reader-settings]").boundingBox();
   const k = await kart.boundingBox();
-  const kesisim = k.x < kutu.x + kutu.width && k.x + k.width > kutu.x && k.y < kutu.y + kutu.height && k.y + k.height > kutu.y;
-  expect(kesisim, `kart ${JSON.stringify(k)} metin ${JSON.stringify(kutu)}`).toBe(false);
+  expect(kesisir(k, kutu), `kart ${JSON.stringify(k)} metin ${JSON.stringify(kutu)}`).toBe(false);
+  // C3: masaüstünde ayarlar sütununun üstüne de binmez.
+  expect(kesisir(k, ayarlar), `kart ${JSON.stringify(k)} ayarlar ${JSON.stringify(ayarlar)}`).toBe(false);
 });

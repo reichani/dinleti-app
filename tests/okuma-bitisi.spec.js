@@ -4,7 +4,8 @@ import { installSpeechSynthesisMock } from "./fixtures/speech-synthesis.js";
 
 // v2.9.1 okuma bitişi sözleşmesi (okul demosu bulguları, 2026-10-05):
 //  - "Birlikte Düşünelim" kartı anlatıcı son cümleyi okurken AÇILMAZ.
-//  - Ses bitince oynatıcı durur (data-playing=0, data-okuma-bitti=1) ve kart açılır.
+//  - Ses bitince oynatıcı durur (data-playing=0, data-okuma-bitti=1); kart C3'ten beri
+//    kendiliğinden açılmaz, "Birlikte düşünelim" düğmesiyle açılır.
 //  - "Okumayı bitir" sonrası ana sayfada "Kaldığın yerden devam et" kartı görünmez.
 const BOOK_ID = "mino-nerede-sahnesi";
 const READING_PATH = {
@@ -57,8 +58,11 @@ test("sesli okuma bitince oynatıcı durur, soru o zaman açılır ve devam kart
   // Ses bitince: oynatıcı durur, kart açılır.
   await expect(player).toHaveAttribute("data-okuma-bitti", "1", { timeout: 15000 });
   await expect(player).toHaveAttribute("data-playing", "0");
-  await expect(soru).toBeVisible();
   expect(await page.evaluate(() => window.__soruErken)).toBe(false);
+  // C3 (COGA 21.10.2026): kart kendiliğinden açılmaz; okur davet düğmesine basınca açılır.
+  await expect(soru).toHaveCount(0);
+  await player.getByRole("button", { name: "Birlikte düşünelim" }).click();
+  await expect(soru).toBeVisible();
 
   await soru.getByRole("button", { name: "Okumayı bitir" }).click();
   await expect(player).toHaveCount(0);

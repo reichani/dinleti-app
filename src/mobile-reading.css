@@ -190,15 +190,16 @@ body,
   grid-column: 1 / -1;
 }
 
+/* C3 (COGA 21.10.2026): masaüstünde kart artık ayarlar sütununun üstüne binmez.
+ * Okur "Birlikte düşünelim" düğmesine basınca okuma alanı ile alt kontroller
+ * arasında akış içinde açılır; okuma alanı esneyerek yer açar. */
 [data-birlikte-dusunelim] {
-  position: absolute;
-  z-index: 25;
-  inset-inline-end: 22px;
-  inset-block-end: 120px;
-  /* v2.9.2: ayarlar sütunu (300px) kadar geniş; metin kutusunun üstüne taşmaz. */
-  inline-size: min(300px, calc(100% - 44px));
+  position: relative;
+  flex-shrink: 0;
+  margin-block-start: 10px;
+  max-block-size: 42%;
+  overflow-y: auto;
   box-sizing: border-box;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
 }
 
 [data-reader-shell] button {
@@ -308,6 +309,10 @@ body,
   }
 
   [data-birlikte-dusunelim] {
+    position: absolute;
+    z-index: 25;
+    margin-block-start: 0;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
     inset-inline: 12px;
     inset-block-end: 154px;
     inline-size: auto;
