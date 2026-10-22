@@ -14,6 +14,7 @@ import { evaluateStoryForReadingLevel } from "./content/readingLevelPolicy.js";
 import { evaluateContentQualityReview } from "./content/contentQualityReview.js";
 import { getGradeLabelForYolId, minimumFullReadingSecondsForAge } from "./content/schoolGradeMapping.js";
 import { ownTextChunkWords } from "./content/lengthOptimizationPolicy.js";
+import { uygulamaIciSesUyarisi } from "./inAppBrowser.js";
 import { cursorFromPosition, cursorForSentenceStep, positionFromCursor, normalizeReadingProgress, readingProgressSnapshot, monotonicBoundaryWord, createSpeechWordTimeline, timelineWordFromElapsed } from "./reader-core.js";
 
 /* ------------------------------------------------------------------ */
@@ -2427,7 +2428,7 @@ export default function DinletiApp() {
     if ((!zorla && !etkinSeslendirme) || !modAyar.sesli) return;
     if (!window.speechSynthesis || typeof window.SpeechSynthesisUtterance === "undefined") {
       setCaliyor(false);
-      setSesUyarisi({ tur: "hata", metin: "Bu tarayıcı sesli okumayı desteklemiyor. Metni Kendim Okuyorum modunda okuyabilir ya da Chrome, Edge veya Safari ile açabilirsin." });
+      setSesUyarisi(uygulamaIciSesUyarisi(navigator.userAgent, window.location) || { tur: "hata", metin: "Bu tarayıcı sesli okumayı desteklemiyor. Metni Kendim Okuyorum modunda okuyabilir ya da Chrome, Edge veya Safari ile açabilirsin." });
       return;
     }
     setSesUyarisi((onceki) => (onceki?.tur === "hata" ? null : onceki));
@@ -3429,6 +3430,9 @@ export default function DinletiApp() {
           {sesUyarisi && (
             <div data-ses-uyarisi={sesUyarisi.tur} role={sesUyarisi.tur === "hata" ? "alert" : "status"} style={{ position: "absolute", zIndex: 30, top: 10, left: "50%", transform: "translateX(-50%)", width: "min(560px, calc(100% - 120px))", boxSizing: "border-box", display: "flex", alignItems: "center", gap: 10, background: sesUyarisi.tur === "hata" ? "#3A1F1A" : "#22293A", border: `1px solid ${sesUyarisi.tur === "hata" ? "rgba(240,140,110,0.6)" : "rgba(232,163,61,0.45)"}`, borderRadius: 12, padding: "8px 10px 8px 14px", color: S.metin, fontSize: 13, lineHeight: 1.4, boxShadow: "0 12px 34px rgba(0,0,0,0.45)" }}>
               <span style={{ flex: 1, minWidth: 0 }}>{sesUyarisi.metin}</span>
+              {sesUyarisi.eylem?.href && (
+                <a data-ses-uyarisi-eylem href={sesUyarisi.eylem.href} aria-label={sesUyarisi.eylem.ariaLabel || sesUyarisi.eylem.etiket} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 44, padding: "0 12px", borderRadius: 8, background: S.vurgu, color: "#1A1410", fontWeight: 700, fontSize: 13, textDecoration: "none", whiteSpace: "nowrap" }}>{sesUyarisi.eylem.etiket}</a>
+              )}
               <button onClick={() => setSesUyarisi(null)} aria-label="Ses uyarısını kapat" style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 8, minWidth: 44, minHeight: 44, color: S.metin, cursor: "pointer", fontSize: 16 }}>×</button>
             </div>
           )}
